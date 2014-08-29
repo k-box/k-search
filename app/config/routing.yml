@@ -1,0 +1,16 @@
+institution_api:
+    resource: "@InstitutionAPIBundle/Resources/config/routing.yml"
+    prefix:   /kcore/institutions/
+
+document_api:
+    resource: "@DocumentAPIBundle/Resources/config/routing.yml"
+    prefix:   /kcore/descriptors/
+
+search_api:
+    resource: "@SearchAPIBundle/Resources/config/routing.yml"
+    prefix:   /kcore/search/
+
+NelmioApiDocBundle:
+    resource: "@NelmioApiDocBundle/Resources/config/routing.yml"
+    prefix:   /doc
+

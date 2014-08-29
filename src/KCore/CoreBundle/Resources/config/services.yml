@@ -1,0 +1,22 @@
+parameters:
+    klink.core.service.class: KCore\CoreBundle\Services\CoreService
+    klink.textextractor.service.class: KCore\CoreBundle\Services\TextExtractorService
+    klink.document.service.class: KCore\CoreBundle\Services\DocumentService
+    klink.institution.service.class: KCore\CoreBundle\Services\InstitutionService
+
+services:
+    klink.core.service:
+        class: %klink.core.service.class%
+        arguments: [@solarium.client_registry, %kcore.institution_id%, %kcore.solarium_clients%]
+
+    klink.textextractor.service:
+        class: %klink.textextractor.service.class%
+        arguments: [@klink.core.service]
+
+    klink.document.service:
+        class: %klink.document.service.class%
+        arguments: [@klink.core.service, @validator]
+
+    klink.institution.service:
+        class: %klink.institution.service.class%
+        arguments: [@klink.core.service]

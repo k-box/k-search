@@ -1,0 +1,27 @@
+document_api_descriptor_get:
+    path:    /{institutionId}/{localDocumentId}
+    defaults:
+        _controller: DocumentAPIBundle:Default:getDocumentDescriptor
+        _format: json
+    requirements:
+        institutionId:   "[a-zA-Z0-9]+"
+        localDocumentId: "[a-zA-Z0-9]+"
+        _method: GET
+
+document_api_descriptor_delete:
+    path:     /{institutionId}/{localDocumentId}
+    defaults:
+        _controller: DocumentAPIBundle:Default:deleteDocumentDescriptor
+        _format: json
+    requirements:
+        institutionId:   "[a-zA-Z0-9]+"
+        localDocumentId: "[a-zA-Z0-9]+"
+        _method: DELETE
+
+document_api_post:
+    path:     /
+    defaults:
+        _controller: DocumentAPIBundle:Default:postDocument
+        _format: json
+    requirements:
+        _method: POST

@@ -1,0 +1,6 @@
+parameters:
+    debug_toolbar:          true
+    debug_redirects:        false
+    secret:                 "NotSoSecretToken"
+
+    kcore_institution_id: ~

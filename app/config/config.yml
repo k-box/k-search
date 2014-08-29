@@ -1,0 +1,61 @@
+imports:
+    - { resource: parameters.yml }
+    - { resource: security.yml }
+
+framework:
+    #esi:             ~
+    #translator:      { fallback: "%locale%" }
+    secret:          "%secret%"
+    router:
+        resource: "%kernel.root_dir%/config/routing.yml"
+        strict_requirements: ~
+    form:            ~
+    csrf_protection: ~
+    validation:      { enable_annotations: true }
+    templating:
+        engines: ['twig']
+        #assets_version: SomeVersionScheme
+    # default_locale:  "%locale%"
+    trusted_hosts:   ~
+    trusted_proxies: ~
+    session:
+        # handler_id set to null will use default session handler from php.ini
+        handler_id:  ~
+    fragments:       ~
+    http_method_override: true
+
+# Twig Configuration
+twig:
+    debug:            "%kernel.debug%"
+    strict_variables: "%kernel.debug%"
+
+
+# Solarium Configuration
+nelmio_solarium:
+    endpoints:
+        local:
+            dsn: http://localhost:8983/solr/klink-private
+            timeout: 60
+        global:
+            dsn: http://localhost:8983/solr/klink-public
+            timeout: 60
+
+    clients:
+        local:
+            endpoints: [local]
+        global:
+            endpoints: [global]
+
+# FOSRestBundle
+fos_rest:
+    routing_loader:
+        default_format: json
+    serializer:
+        serialize_null: true
+
+# KLink KCore settings
+kcore:
+    institution_id: %kcore_institution_id%
+    solarium_clients:
+        local:  local
+        global: global
