@@ -247,6 +247,18 @@ class DefaultControllerTest extends WebTestCase
 
     /**
      * @depends testGetInstitution
+     */
+    public function testGetAllInstitutions() {
+        $institutions = $this->generateInstitutionDescriptors();
+
+        $response = $this->doRequestInstitution('');
+        $this->assertJsonResponse($response, 200, false);
+        $content = json_decode($response->getContent());
+        $this->assertEquals(count($institutions), count($content));
+    }
+
+    /**
+     * @depends      testGetAllInstitutions
      * @dataProvider generateInstitutionDescriptors
      */
     public function testDeleteInstitution(InstitutionDescriptor $institution)

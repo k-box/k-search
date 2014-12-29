@@ -37,7 +37,7 @@ class InstitutionServiceTest extends WebTestCase {
      * @param int $total
      * @return array
      */
-    public static function generateInstitutionDescriptors($testedMethod, $total = 5) {
+    public static function generateInstitutionDescriptors($testedMethod, $total = 3) {
         static $institutions = array();
         if (empty($institutions)) {
             foreach (range(1, $total) as $i) {
@@ -96,6 +96,29 @@ class InstitutionServiceTest extends WebTestCase {
         $inst = self::$institutionService->getInstitutionDescriptor($institution->getId());
         $this->assertNull($inst);
     }
+
+    /**
+     * @depends testDeleteInstitution
+     */
+    public function testGetAllInstitutions() {
+        $total = 3;
+        $institutions = $this->generateInstitutionDescriptors('', $total);
+        // Indexing the institutitions
+        foreach($institutions as $inst) {
+            self::$institutionService->indexInstitutionDescriptor(current($inst));
+        }
+
+        $instIndexed = self::$institutionService->getAllInstitutionDescriptors();
+        $this->assertEquals($total, count($instIndexed));
+
+
+        // Clean up
+        foreach($institutions as $inst) {
+            self::$institutionService->deleteInstitutionDescriptor(current($inst));
+        }
+    }
+
+
 
 }
  

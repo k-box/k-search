@@ -32,6 +32,36 @@ class InstitutionService {
         return $result;
     }
 
+    /**
+     * Returns the complete list of indexed Institutions
+     * @return InstitutionDescriptor[]
+     *
+     * @todo: implement the "401 - Not Athorized" check and response
+     */
+    public function getAllInstitutionDescriptors() {
+        $select = $this->client->createSelect();
+        $select->setDocumentClass('KCore\CoreBundle\Entity\SolrInstitutionDescriptor');
+        $filters = SolrSearchHelper::buildFilterQueries(array(
+            'filter' => array(
+                'field' => SolrInstitutionDescriptor::FIELD_ENTITY_TYPE,
+                'value' => InstitutionDescriptor::ENTITY_TYPE,
+            )
+        ));
+        $select->addFilterQueries($filters);
+
+        // Sorting by InstitutionID
+        $select->addSort(SolrInstitutionDescriptor::FIELD_INST_ID, 'ASC');
+
+        $resultSet = $this->client->select($select);
+
+        $institutions = array();
+        /** @var SolrInstitutionDescriptor $solrInstitution */
+        foreach($resultSet->getIterator() as $solrInstitution) {
+            $institutions[] = $solrInstitution->getInstitutionDescriptor();
+        }
+        return $institutions;
+    }
+
 
     /**
      * Retrives from the index the InstitutionDescriptor given the

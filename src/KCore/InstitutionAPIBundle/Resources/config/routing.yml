@@ -23,3 +23,11 @@ institution_api_post:
         _format: json
     requirements:
         _method: POST
+
+institution_api_getall:
+    path:     /
+    defaults:
+        _controller: InstitutionAPIBundle:Default:getAllInstitutions
+        _format: json
+    requirements:
+        _method: GET

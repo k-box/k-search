@@ -163,4 +163,33 @@ class DefaultController extends FOSRestController {
 
         return $this->handleView($view);
     }
+
+    /**
+     * @ApiDoc(
+     *      description = "Get all the Institution Descriptor",
+     *      output = "KCore\CoreBundle\Entity\InstitutionDescriptor[]",
+     *      statusCodes = {
+     *          200 = "Returned when Ok",
+     *          401 = "Returned when the invocation is Not Authorized",
+     *      }
+     * )
+     *
+     * @Rest\View()
+     *
+     * @param Request $request
+     *
+     * @throws InternalErrorException
+     * @return array
+     *
+     * @todo: implement the "401 - Not Athorized" check and response
+     */
+    public function getAllInstitutionsAction(Request $request) {
+
+        /** @var InstitutionService $institutionService */
+        $institutionService = $this->get('klink.institution.service');
+
+        $institutions = $institutionService->getAllInstitutionDescriptors();
+        $view = $this->view($institutions, 200);
+        return $this->handleView($view);
+    }
 }
