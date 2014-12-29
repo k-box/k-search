@@ -181,7 +181,6 @@ class DocumentService {
      * @param array $facets
      * @param int $start
      * @param int $rows
-     * @internal param array $filters
      * @return \Solarium\QueryType\Select\Result\Result|null
      */
     public function searchDocumentDescriptor($queryTerms, $publicSearch = true, array $facets = array(), $start = 0, $rows = 10) {
@@ -205,9 +204,9 @@ class DocumentService {
 
         // Extra configuration: EDisMax fields
         $edisMax->setQueryFields(implode(' ', array(
-            SolrDocumentDescriptor::FIELD_DOC_ABSTRACT . '^1.5',
             SolrDocumentDescriptor::FIELD_DOC_CONTENTS,
             SolrDocumentDescriptor::FIELD_DOC_TITLE_INDEXED . '^2.0',
+            SolrDocumentDescriptor::FIELD_DOC_ABSTRACT_INDEXED . '^1.5',
         )));
 
         // Results configuration

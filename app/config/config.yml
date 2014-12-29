@@ -34,7 +34,7 @@ twig:
 nelmio_solarium:
     endpoints:
         local:
-            dsn: http://localhost:8983/solr/klink-private
+            dsn: http://localhost:8984/solr/klink-private
             timeout: 60
         global:
             dsn: http://localhost:8983/solr/klink-public

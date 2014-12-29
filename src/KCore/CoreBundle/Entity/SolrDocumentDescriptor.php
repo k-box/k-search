@@ -6,29 +6,30 @@ use Solarium\QueryType\Update\Query\Document\Document as SolrDocument;
 
 class SolrDocumentDescriptor extends BaseSolrEntity {
 
-    const FIELD_DOC_ID          = 'id_document_id';
-    const FIELD_DOC_INST_ID     = 'id_document_institution_id';
-    const FIELD_DOC_LOCALDOC_ID = 'id_document_localdoc_id';
+    const FIELD_DOC_ID               = 'id_document_id';
+    const FIELD_DOC_INST_ID          = 'id_document_institution_id';
+    const FIELD_DOC_LOCALDOC_ID      = 'id_document_localdoc_id';
 
-    const FIELD_DOC_VISIBILITY    = 'id_document_visibility';
-    const FIELD_DOC_HASH          = 'id_document_hash';
-    const FIELD_DOC_LANGUAGE      = 'id_language';
-    const FIELD_DOC_CREATION_DATE = 'date_document_creation_date';
-    const FIELD_DOC_THUMBNAIL_URI = 'str_ss_document_thumbnail_uri';
+    const FIELD_DOC_VISIBILITY       = 'id_document_visibility';
+    const FIELD_DOC_HASH             = 'id_document_hash';
+    const FIELD_DOC_LANGUAGE         = 'id_language';
+    const FIELD_DOC_CREATION_DATE    = 'date_document_creation_date';
+    const FIELD_DOC_THUMBNAIL_URI    = 'str_ss_document_thumbnail_uri';
 
-    const FIELD_DOC_URI           = 'str_ss_document_uri';
+    const FIELD_DOC_URI              = 'str_ss_document_uri';
 
-    const FIELD_DOC_ABSTRACT      = 'text_document_abstract';
-    const FIELD_DOC_TITLE         = 'str_iss_document_title';
-    const FIELD_DOC_TITLE_INDEXED = 'text_document_title';
-    const FIELD_DOC_CONTENTS      = 'text_document_contents';
+    const FIELD_DOC_ABSTRACT         = 'str_ss_document_abstract';
+    const FIELD_DOC_ABSTRACT_INDEXED = 'text_document_abstract';
+    const FIELD_DOC_TITLE            = 'str_ss_document_title';
+    const FIELD_DOC_TITLE_INDEXED    = 'text_document_title';
+    const FIELD_DOC_CONTENTS         = 'text_document_contents';
 
-    const FIELD_DOC_USER_OWNER    = 'mail_document_user_owner';
-    const FIELD_DOC_USER_UPLOADER = 'mail_document_user_uploader';
-    const FIELD_DOC_USER_AUTHOR   = 'mails_document_user_author';
+    const FIELD_DOC_USER_OWNER       = 'mail_document_user_owner';
+    const FIELD_DOC_USER_UPLOADER    = 'mail_document_user_uploader';
+    const FIELD_DOC_USER_AUTHOR      = 'mails_document_user_author';
 
-    const FIELD_DOC_MIMETYPE      = 'id_document_mimetype';
-    const FIELD_DOC_DOCTYPE       = 'id_document_doctype';
+    const FIELD_DOC_MIMETYPE         = 'id_document_mimetype';
+    const FIELD_DOC_DOCTYPE          = 'id_document_doctype';
 
     /**
      * @param BaseEntity $documentDescriptor
@@ -52,6 +53,7 @@ class SolrDocumentDescriptor extends BaseSolrEntity {
             $doc->addField(self::FIELD_DOC_URI, $documentDescriptor->getDocumentURI());
             $doc->addField(self::FIELD_DOC_THUMBNAIL_URI, $documentDescriptor->getThumbnailURI());
             $doc->addField(self::FIELD_DOC_ABSTRACT, $documentDescriptor->getAbstract());
+            $doc->addField(self::FIELD_DOC_ABSTRACT_INDEXED, $documentDescriptor->getAbstract());
 
             $doc->addField(self::FIELD_DOC_USER_OWNER, $documentDescriptor->getUserOwner());
             $doc->addField(self::FIELD_DOC_USER_UPLOADER, $documentDescriptor->getUserUploader());

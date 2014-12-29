@@ -62,6 +62,7 @@ class DocumentServiceTest extends WebTestCase {
                 $docDesc->setTitle($faker->realText(50));
                 $docDesc->setAbstract($faker->realText(300));
                 $docDesc->setContents($faker->realText(500));
+                $docDesc->setLanguage('en');
 
                 $docDesc->setDocumentType('Presentation');
                 $docDesc->setMimeType('application/pdf');
@@ -78,9 +79,15 @@ class DocumentServiceTest extends WebTestCase {
      */
     public function testIndexDocumentDescriptor(DocumentDescriptor $document) {
         try {
+            // Overriding the Language during indexing
+            $language = $document->getLanguage();
+            $document->setLanguage(null);
+
             $response = self::$documentService->indexDocumentDescriptor($document);
             $this->assertEquals(0, $response->getStatus());
             $this->assertEquals(200, $response->getResponse()->getStatusCode());
+
+            $document->setLanguage($language);
         } catch (Exception $e) {
             var_dump($e);
         }
@@ -168,6 +175,7 @@ class DocumentServiceTest extends WebTestCase {
         $this->assertEquals($doc1->getCreationDate(), $doc2->getCreationDate());
         $this->assertEquals($doc1->getThumbnailURI(), $doc2->getThumbnailURI());
         $this->assertEquals($doc1->getTitle(), $doc2->getTitle());
+        $this->assertEquals($doc1->getAbstract(), $doc2->getAbstract());
         $this->assertEquals($doc1->getUserUploader(), $doc2->getUserUploader());
         $this->assertEquals($doc1->getUserOwner(), $doc2->getUserOwner());
         $this->assertEquals($doc1->getLanguage(), $doc2->getLanguage());

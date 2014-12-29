@@ -4,7 +4,6 @@ namespace KCore\InstitutionAPIBundle\Tests\Controller;
 
 use JMS\Serializer\Serializer;
 use KCore\CoreBundle\Entity\InstitutionDescriptor;
-use KCore\CoreBundle\Services\InstitutionServiceTest;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -41,13 +40,16 @@ class DefaultControllerTest extends WebTestCase
      * @return InstitutionDescriptor[]
      * @see InstitutionServiceTest::generateInstitutionDescriptors()
      */
-    public static function _generateInstitutionDescriptors($total = 5) {
+    public static function _generateInstitutionDescriptors($total = 5)
+    {
         $institutions = array();
         foreach (range(1, $total) as $i) {
             $inst = new InstitutionDescriptor('testInstitution' . $i);
             $inst->setType(str_shuffle('abcdefghijklmnopqrstvwxyz'));
             $inst->setUrl('http://www.url-' . rand() . '.org');
-            $inst->setName(utf8_encode(str_shuffle('abcdefghijklmnopqrstvwxyz1234567890- |!"£$%&/()=?^ì*é°§ç:;[]#@§*ç')));
+            $inst->setName(
+                utf8_encode(str_shuffle('abcdefghijklmnopqrstvwxyz1234567890- |!"£$%&/()=?^ì*é°§ç:;[]#@§*ç'))
+            );
             $inst->setPhone(str_shuffle('1234567890'));
             $inst->setEmail(str_shuffle('abcdefghijklmnopqrstvwxyz.1234567890-') . 'mail@testmail.com');
             $inst->setThumbnailURI('http://www.url-' . rand() . '.org/thumbnail');
@@ -61,6 +63,7 @@ class DefaultControllerTest extends WebTestCase
 
             $institutions[] = array($inst);
         }
+
         return $institutions;
     }
 
@@ -68,7 +71,8 @@ class DefaultControllerTest extends WebTestCase
      * @param InstitutionDescriptor $institution
      * @return null|Response
      */
-    protected function doPostInstitution(InstitutionDescriptor $institution) {
+    protected function doPostInstitution(InstitutionDescriptor $institution)
+    {
         $client = static::createClient();
         $client->request(
             'POST',
@@ -87,7 +91,8 @@ class DefaultControllerTest extends WebTestCase
      * @param string $action
      * @return Response|null
      */
-    protected function doRequestInstitution($id, $action = 'GET') {
+    protected function doRequestInstitution($id, $action = 'GET')
+    {
         $client = static::createClient();
         $client->request(
             $action,
@@ -103,7 +108,8 @@ class DefaultControllerTest extends WebTestCase
     /**
      * @return array
      */
-    public function getWrongInstitutionIdSet() {
+    public function getWrongInstitutionIdSet()
+    {
         return array(
             array('wrong-institution-id'),
             array('wrong_institution_id'),
@@ -117,18 +123,21 @@ class DefaultControllerTest extends WebTestCase
     /**
      * @return InstitutionDescriptor[]
      */
-    public function generateInstitutionDescriptors() {
+    public function generateInstitutionDescriptors()
+    {
         static $items = array();
         if (empty($items)) {
             $items = $this->_generateInstitutionDescriptors(4, true);
         }
+
         return $items;
     }
 
     /**
      * @return InstitutionDescriptor[]
      */
-    public function generateWrongInstitutionDescriptors() {
+    public function generateWrongInstitutionDescriptors()
+    {
         static $items = array();
         if (empty($items)) {
             $items = $this->_generateInstitutionDescriptors(11, true);
@@ -139,34 +148,34 @@ class DefaultControllerTest extends WebTestCase
                         $item->setId(null);
                         break;
                     case 1:
-                        $item->setName(NULL);
+                        $item->setName(null);
                         break;
                     case 2:
-                        $item->setType(NULL);
+                        $item->setType(null);
                         break;
                     case 3:
-                        $item->setUrl(NULL);
+                        $item->setUrl(null);
                         break;
                     case 4:
                         $item->setUrl('wrong-uri-definition');
                         break;
                     case 5:
-                        $item->setThumbnailURI(NULL);
+                        $item->setThumbnailURI(null);
                         break;
                     case 6:
                         $item->setThumbnailURI('wrong-uri-definition');
                         break;
                     case 7:
-                        $item->setPhone(NULL);
+                        $item->setPhone(null);
                         break;
                     case 8:
-                        $item->setEmail(NULL);
+                        $item->setEmail(null);
                         break;
                     case 9:
                         $item->setEmail('wrong-email-address');
                         break;
                     case 10:
-                        $item->setCreationDate(NULL);
+                        $item->setCreationDate(null);
                         break;
                     //case 11:
                     //    $item->setCreationDate('xxx-xxx-xxx');
@@ -177,6 +186,7 @@ class DefaultControllerTest extends WebTestCase
                 }
             }
         }
+
         return $items;
     }
 
@@ -186,7 +196,8 @@ class DefaultControllerTest extends WebTestCase
      *
      * @dataProvider generateInstitutionDescriptors
      */
-    public function testPostInstitution(InstitutionDescriptor $institution) {
+    public function testPostInstitution(InstitutionDescriptor $institution)
+    {
         $response = $this->doPostInstitution($institution);
         $this->assertJsonResponse($response, 201);
 
@@ -198,16 +209,17 @@ class DefaultControllerTest extends WebTestCase
      * @param InstitutionDescriptor $institution
      * @dataProvider generateWrongInstitutionDescriptors
      */
-    public function testPostWrongInstitution(InstitutionDescriptor $institution) {
+    public function testPostWrongInstitution(InstitutionDescriptor $institution)
+    {
         $response = $this->doPostInstitution($institution);
         $this->assertJsonResponse($response, 400, false);
     }
 
 
-
     /**
      * Tests the GET command with wrong ID formats
      * @dataProvider getWrongInstitutionIdSet
+     * @param $institutionId
      */
     public function testGetWrongIDInstitution($institutionId)
     {
@@ -217,8 +229,9 @@ class DefaultControllerTest extends WebTestCase
 
 
     /**
-     * @depends testPostInstitution
+     * @depends      testPostInstitution
      * @dataProvider generateInstitutionDescriptors
+     * @param InstitutionDescriptor $institution
      */
     public function testGetInstitution(InstitutionDescriptor $institution)
     {
@@ -226,7 +239,11 @@ class DefaultControllerTest extends WebTestCase
         $this->assertJsonResponse($response);
         if ($response->getStatusCode() == 200) {
             /** @var InstitutionDescriptor $obj */
-            $inst = self::$serializer->deserialize($response->getContent(), 'KCore\CoreBundle\Entity\InstitutionDescriptor', 'json');
+            $inst = self::$serializer->deserialize(
+                $response->getContent(),
+                'KCore\CoreBundle\Entity\InstitutionDescriptor',
+                'json'
+            );
 
             $this->assertEquals(InstitutionDescriptor::ENTITY_TYPE, $inst->getEntityType());
             $this->assertEquals(InstitutionDescriptor::ENTITY_TYPE . '_' . $institution->getId(), $inst->getEntityId());
@@ -248,7 +265,8 @@ class DefaultControllerTest extends WebTestCase
     /**
      * @depends testGetInstitution
      */
-    public function testGetAllInstitutions() {
+    public function testGetAllInstitutions()
+    {
         $institutions = $this->generateInstitutionDescriptors();
 
         $response = $this->doRequestInstitution('');
@@ -260,6 +278,7 @@ class DefaultControllerTest extends WebTestCase
     /**
      * @depends      testGetAllInstitutions
      * @dataProvider generateInstitutionDescriptors
+     * @param InstitutionDescriptor $institution
      */
     public function testDeleteInstitution(InstitutionDescriptor $institution)
     {
@@ -283,8 +302,12 @@ class DefaultControllerTest extends WebTestCase
      * @param bool $checkValidJson
      * @param string $contentType
      */
-    protected function assertJsonResponse(Response $response, $statusCode = 200, $checkValidJson = true, $contentType = 'application/json')
-    {
+    protected function assertJsonResponse(
+        Response $response,
+        $statusCode = 200,
+        $checkValidJson = true,
+        $contentType = 'application/json'
+    ) {
         $this->assertEquals($statusCode, $response->getStatusCode());
         $this->assertEquals($contentType, $response->headers->get('Content-Type'));
 
