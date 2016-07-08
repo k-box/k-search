@@ -1,0 +1,25 @@
+klink-clients:
+    admin@test.org:
+        institutionId: ~
+        role: ROLE_ADMIN
+        password: $2a$04$lzUcnS9OhNVv4VgMhRC9hO1DqNO1fPXbyvWKB4r69nDn7ZLM9Id1O # test
+
+    dms@local.org:
+        institutionId: institutionTestLocal
+        role: ROLE_LINK_DMS
+        password: $2a$04$lzUcnS9OhNVv4VgMhRC9hO1DqNO1fPXbyvWKB4r69nDn7ZLM9Id1O # test
+
+    dms@ext.org:
+        institutionId: institutionTestExt
+        role: ROLE_LINK_DMS
+        password: $2a$04$lzUcnS9OhNVv4VgMhRC9hO1DqNO1fPXbyvWKB4r69nDn7ZLM9Id1O # test
+
+    adapter@local.org:
+        institutionId: institutionTestLocal
+        role: ROLE_LINK_ADAPTER
+        password: $2a$04$lzUcnS9OhNVv4VgMhRC9hO1DqNO1fPXbyvWKB4r69nDn7ZLM9Id1O # test
+
+    adapter@ext.org:
+        institutionId: institutionTestExt
+        role: ROLE_LINK_ADAPTER
+        password: $2a$04$lzUcnS9OhNVv4VgMhRC9hO1DqNO1fPXbyvWKB4r69nDn7ZLM9Id1O # test

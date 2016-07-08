@@ -1,0 +1,7 @@
+services:
+    security.access.institution_voter:
+        class: KCore\InstitutionAPIBundle\Security\Authorization\Voter\InstitutionVoter
+        public: false
+        arguments: [@security.access.role_hierarchy_voter, %kcore.institution_id%]
+        tags:
+            - { name: security.voter }

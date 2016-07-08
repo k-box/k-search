@@ -1,0 +1,11 @@
+# This file is only here for making the CI system happy :)
+parameters:
+    debug_toolbar: false
+    debug_redirects: false
+    secret: 456
+    kcore_institution_id: KLINK
+    kcore_solrcore_private: 'http://127.0.0.1:8984/solr/klink-private'
+    kcore_solrcore_public: 'http://127.0.0.1:8983/solr/klink-public'
+    kcore_clients_db: klink-clients.yml
+    kcore_clavin_server_url: 'http://127.0.0.1:9090/api/v0/'
+    kcore_clavin_server_json_key: resolvedLocationsMinimum

@@ -1,0 +1,5 @@
+klink-clients:
+    admin@klink.org:
+        institutionId: ~
+        role: ROLE_ADMIN
+        password: $2a$06$V0BaeqvtW5vehiglwWP68umA9sKyIg5TBiF63WSGAGZkHdeHB/Kba # admin.klink

@@ -1,0 +1,8 @@
+parameters:
+    klink.thumbnails.service.class: KCore\ThumbnailsAPIBundle\Services\ThumbnailsService
+
+services:
+    klink.thumbnails.service:
+        class: %klink.thumbnails.service.class%
+        arguments: [ %kernel.root_dir% , %thumbnails_api.max_parallel_processes%, %thumbnails_api.expire_time%, %thumbnails_api.pdfbox_jar_path% ]
+
