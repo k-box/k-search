@@ -26,6 +26,7 @@ class SolrInstitutionDescriptor extends BaseSolrEntity {
     const FIELD_INST_ADDRESS_COUNTRY = 'str_ss_institution_address_country';
     const FIELD_INST_ADDRESS_ZIP = 'str_ss_institution_address_zip';
     const FIELD_INST_ADDRESS_STREET = 'str_ss_institution_address_street';
+    const FIELD_INST_ADDRESS = 'str_ss_institution_address';
 
     const FIELD_INST_CREATION_DATE = 'str_ss_institution_creation_date';
 
@@ -50,6 +51,7 @@ class SolrInstitutionDescriptor extends BaseSolrEntity {
             $doc->addField(self::FIELD_INST_ADDRESS_COUNTRY, $institutionDescriptor->getAddressCountry());
             $doc->addField(self::FIELD_INST_ADDRESS_ZIP, $institutionDescriptor->getAddressZip());
             $doc->addField(self::FIELD_INST_ADDRESS_STREET, $institutionDescriptor->getAddressStreet());
+            $doc->addField(self::FIELD_INST_ADDRESS, $institutionDescriptor->getAddress());
 
             $doc->addField(self::FIELD_INST_CREATION_DATE, $institutionDescriptor->getCreationDate());
             return $doc;
@@ -79,6 +81,7 @@ class SolrInstitutionDescriptor extends BaseSolrEntity {
         $instDescr->setAddressCountry($this->getField(self::FIELD_INST_ADDRESS_COUNTRY));
         $instDescr->setAddressZip($this->getField(self::FIELD_INST_ADDRESS_ZIP));
         $instDescr->setAddressStreet($this->getField(self::FIELD_INST_ADDRESS_STREET));
+        $instDescr->setAddress($this->getField(self::FIELD_INST_ADDRESS));
 
         //$date = new \DateTime($this->getField(self::FIELD_INST_CREATION_DATE));
         $instDescr->setCreationDate($this->getField(self::FIELD_INST_CREATION_DATE));
