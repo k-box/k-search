@@ -8,7 +8,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class KLinkUser implements UserInterface, EquatableInterface
 {
-
     private $username;
     private $password;
     private $salt;
@@ -92,7 +91,7 @@ class KLinkUser implements UserInterface, EquatableInterface
     }
 
     /**
-     * Returns the Institution related to this User
+     * Returns the Institution related to this User.
      *
      * @return string
      */
@@ -117,7 +116,7 @@ class KLinkUser implements UserInterface, EquatableInterface
      */
     public function isEqualTo(UserInterface $user)
     {
-        if (!$user instanceof KLinkUser) {
+        if (!$user instanceof self) {
             return false;
         }
 

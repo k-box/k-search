@@ -2,52 +2,47 @@
 /**
  * System request handler for Solarium.
  */
-
 namespace Solarium\QueryType\Collections;
 
 use Solarium\Core\Query\Query as BaseQuery;
 use Solarium\QueryType\Collections\Command\Command;
-use Solarium\QueryType\Collections\RequestBuilder;
-use Solarium\QueryType\Collections\ResponseParser;
 
 /**
  * System query.
  */
-class Query extends BaseQuery {
-
+class Query extends BaseQuery
+{
     /**
-     * Update command add
+     * Update command add.
      */
     const COMMAND_CLUSTER_STATUS = 'clusterstatus';
 
     /**
-     * Collection command types
+     * Collection command types.
      *
      * @var array
      */
-    protected $commandTypes = array(
+    protected $commandTypes = [
       self::COMMAND_CLUSTER_STATUS => 'Solarium\QueryType\Collections\Query\Command\ClusterStatus',
-    );
-
+    ];
 
     /**
      * Querytype collections.
      */
     const QUERY_COLLECTIONS = 'collections';
 
-
     /**
      * Default options for the "Stats.jsp" query type.
      *
      * @var array
      */
-    protected $options = array(
+    protected $options = [
         'resultclass' => 'Solarium\QueryType\Collections\Result',
-        'handler'     => 'admin/collections',
-    );
+        'handler' => 'admin/collections',
+    ];
 
     /**
-     * Array of commands
+     * Array of commands.
      *
      * The commands will be executed in the order of this array, this can be
      * important in some cases. For instance a rollback.
@@ -59,26 +54,29 @@ class Query extends BaseQuery {
     /**
      * {@inheritdoc}
      */
-    public function getType() {
+    public function getType()
+    {
         return self::QUERY_COLLECTIONS;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getRequestBuilder() {
+    public function getRequestBuilder()
+    {
         return new RequestBuilder();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getResponseParser() {
+    public function getResponseParser()
+    {
         return new ResponseParser();
     }
 
     /**
-     * Get the command for this query
+     * Get the command for this query.
      *
      * @return Command
      */
@@ -87,8 +85,10 @@ class Query extends BaseQuery {
         return $this->command;
     }
 
-    public function setCommand(Command $command) {
+    public function setCommand(Command $command)
+    {
         $this->command = $command;
+
         return $this;
     }
 }

@@ -2,9 +2,9 @@
 
 namespace KCore\CoreBundle\Search\Facets;
 
-use KCore\CoreBundle\Search\Filters\FilterInterface;
-use \Solarium\QueryType\Select\Query\Component\Facet\Field;
 use KCore\CoreBundle\Entity\SolrDocumentDescriptor;
+use KCore\CoreBundle\Search\Filters\FilterInterface;
+use Solarium\QueryType\Select\Query\Component\Facet\Field;
 
 class LanguageFacet extends Field implements FacetInterface
 {
@@ -20,11 +20,11 @@ class LanguageFacet extends Field implements FacetInterface
      */
     public function handleEnabledFilters($filters)
     {
-        /**
+        /*
          * another way to exclude tag/tags
          */
-        foreach($filters as $filter){
-            if($filter->getKey() == 'language') {
+        foreach ($filters as $filter) {
+            if ($filter->getKey() == 'language') {
                 $this->addExclude('language');
             }
         }

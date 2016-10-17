@@ -15,5 +15,4 @@ interface FacetInterface
     public function handleEnabledFilters($filters);
 
     public function setPrefix($prefix);
-
 }

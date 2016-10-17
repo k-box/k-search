@@ -1,28 +1,29 @@
-parameters:
-#    k_core_monitor.example.class: KCore\MonitorBundle\Example
-
 services:
     kcore.check.zookeeper:
         class: KCore\MonitorBundle\Check\ZookeeperCheck
-        arguments: [ "/opt/zookeeper/bin/" ]
+        arguments:
+          - '/opt/zookeeper/bin/'
         tags:
             - { name: liip_monitor.check, alias: kcore_check_zookeeper }
 
     kcore.check.solrpublic:
         class: KCore\MonitorBundle\Check\SolrPublicSearchCheck
-        arguments: [@klink.core.service]
+        arguments:
+            - '@klink.core.service'
         tags:
             - { name: liip_monitor.check, alias: kcore_check_solrpublic }
 
     kcore.check.solrprivate:
         class: KCore\MonitorBundle\Check\SolrPrivateSearchCheck
-        arguments: [@klink.core.service]
+        arguments:
+            - '@klink.core.service'
         tags:
             - { name: liip_monitor.check, alias: kcore_check_solrprivate }
 
 
     kcore.check.networkstatus:
         class: KCore\MonitorBundle\Check\NetworkStatusCheck
-        arguments: [@klink.core.service]
+        arguments:
+            - '@klink.core.service'
         tags:
             - { name: liip_monitor.check, alias: kcore_check_networkstatus}

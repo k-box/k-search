@@ -7,10 +7,9 @@ use KCore\CoreBundle\Entity\SolrInstitutionDescriptor;
 
 class SolrInstitutionDescriptorTest extends \PHPUnit_Framework_TestCase
 {
-
     public function buildEntityDataProvider()
     {
-        $builder = function(
+        $builder = function (
             $name = null,
             $type = null,
             $address = null,
@@ -19,7 +18,7 @@ class SolrInstitutionDescriptorTest extends \PHPUnit_Framework_TestCase
             $addressStreet = null,
             $addressZip = null
         ) {
-            $i = new InstitutionDescriptor(random_int(1, 10) );
+            $i = new InstitutionDescriptor(random_int(1, 10));
             $i->setName($name);
             $i->setType($type);
             $i->setAddressCountry($addressCountry);
@@ -27,8 +26,10 @@ class SolrInstitutionDescriptorTest extends \PHPUnit_Framework_TestCase
             $i->setAddressStreet($addressStreet);
             $i->setAddressZip($addressZip);
             $i->setAddress($address);
+
             return $i;
         };
+
         return [
             [$builder()],
             [$builder('name')],
@@ -58,43 +59,37 @@ class SolrInstitutionDescriptorTest extends \PHPUnit_Framework_TestCase
 
         if (!is_null($inst->getName())) {
             $this->assertSame($inst->getName(), $resFields[SolrInstitutionDescriptor::FIELD_INST_NAME]);
-        }
-        else {
+        } else {
             $this->assertArrayNotHasKey(SolrInstitutionDescriptor::FIELD_INST_NAME, $resFields);
         }
 
         if (!is_null($inst->getAddressCountry())) {
             $this->assertSame($inst->getAddressCountry(), $resFields[SolrInstitutionDescriptor::FIELD_INST_ADDRESS_COUNTRY]);
-        }
-        else {
+        } else {
             $this->assertArrayNotHasKey(SolrInstitutionDescriptor::FIELD_INST_ADDRESS_COUNTRY, $resFields);
         }
 
         if (!is_null($inst->getAddressLocality())) {
             $this->assertSame($inst->getAddressLocality(), $resFields[SolrInstitutionDescriptor::FIELD_INST_ADDRESS_LOCALITY]);
-        }
-        else {
+        } else {
             $this->assertArrayNotHasKey(SolrInstitutionDescriptor::FIELD_INST_ADDRESS_LOCALITY, $resFields);
         }
 
         if (!is_null($inst->getAddressZip())) {
             $this->assertSame($inst->getAddressZip(), $resFields[SolrInstitutionDescriptor::FIELD_INST_ADDRESS_ZIP]);
-        }
-        else {
+        } else {
             $this->assertArrayNotHasKey(SolrInstitutionDescriptor::FIELD_INST_ADDRESS_ZIP, $resFields);
         }
-        
+
         if (!is_null($inst->getAddressStreet())) {
             $this->assertSame($inst->getAddressStreet(), $resFields[SolrInstitutionDescriptor::FIELD_INST_ADDRESS_STREET]);
-        }
-        else {
+        } else {
             $this->assertArrayNotHasKey(SolrInstitutionDescriptor::FIELD_INST_ADDRESS_STREET, $resFields);
         }
 
         if (!is_null($inst->getAddress())) {
             $this->assertSame($inst->getAddress(), $resFields[SolrInstitutionDescriptor::FIELD_INST_ADDRESS]);
-        }
-        else {
+        } else {
             $this->assertArrayNotHasKey(SolrInstitutionDescriptor::FIELD_INST_ADDRESS, $resFields);
         }
     }

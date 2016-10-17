@@ -2,32 +2,33 @@
 
 namespace KCore\MonitorBundle\Check;
 
-use ZendDiagnostics\Check\CheckInterface;
-use ZendDiagnostics\Result\ResultInterface;
 use Symfony\Component\Process\ProcessBuilder;
+use ZendDiagnostics\Check\CheckInterface;
 use ZendDiagnostics\Result\Failure;
+use ZendDiagnostics\Result\ResultInterface;
 use ZendDiagnostics\Result\Success;
 use ZendDiagnostics\Result\Warning;
 
+class ZookeeperCheck implements CheckInterface
+{
+    protected $zookeeperDir = null;
 
-class ZookeeperCheck implements CheckInterface {
-
-    protected $zookeeperDir = NULL;
-
-    function __construct($zookeeperDir) {
+    public function __construct($zookeeperDir)
+    {
         $this->zookeeperDir = $zookeeperDir;
     }
 
     /**
-     * Perform the actual check and return a ResultInterface
+     * Perform the actual check and return a ResultInterface.
      *
      * @return ResultInterface
      */
-    public function check() {
-        $command = $this->zookeeperDir . 'zkServer.sh';
+    public function check()
+    {
+        $command = $this->zookeeperDir.'zkServer.sh';
         $builder = ProcessBuilder::create();
         $builder->setPrefix($command);
-        $builder->setArguments(array('status'));
+        $builder->setArguments(['status']);
         $process = $builder->getProcess();
         $process->run();
 
@@ -37,15 +38,16 @@ class ZookeeperCheck implements CheckInterface {
         }
 
         $out = $process->getOutput();
-        $matches = array();
+        $matches = [];
         if (preg_match('/Mode: (follower|leader)/', $out, $matches) == 1) {
             array_shift($matches);
+
             return new Success(
-              'Zookeeper is active, status: ' . current($matches)
+              'Zookeeper is active, status: '.current($matches)
             );
         }
 
-        return new Warning('Not tested. Message:' . $process->getOutput());
+        return new Warning('Not tested. Message:'.$process->getOutput());
     }
 
     /**
@@ -53,7 +55,8 @@ class ZookeeperCheck implements CheckInterface {
      *
      * @return string
      */
-    public function getLabel() {
-        return "KCore Zookeeper";
+    public function getLabel()
+    {
+        return 'KCore Zookeeper';
     }
 }

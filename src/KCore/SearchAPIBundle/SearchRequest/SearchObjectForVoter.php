@@ -1,11 +1,9 @@
 <?php
 
-
 namespace KCore\SearchAPIBundle\SearchRequest;
 
 class SearchObjectForVoter
 {
-
     protected $visibility;
 
     public function __construct($visibility)

@@ -1,33 +1,32 @@
 institution_api_get:
-    path:     /{id}
+    path: /{id}
+    methods: [GET]
     defaults:
         _controller: InstitutionAPIBundle:Default:getInstitution
         _format: json
     requirements:
         id: "[a-zA-Z0-9]+"
-        _method: GET
 
 institution_api_delete:
-    path:     /{id}
+    path: /{id}
+    methods: [DELETE]
     defaults:
         _controller: InstitutionAPIBundle:Default:deleteInstitution
         _format: json
     requirements:
         id: "[a-zA-Z0-9]+"
-        _method: DELETE
 
 institution_api_post:
-    path:     /
+    path: /
+    methods: [POST]
     defaults:
         _controller: InstitutionAPIBundle:Default:postInstitution
         _format: json
     requirements:
-        _method: POST
 
 institution_api_getall:
-    path:     /
+    path: /
+    methods: [GET]
     defaults:
         _controller: InstitutionAPIBundle:Default:getAllInstitutions
         _format: json
-    requirements:
-        _method: GET

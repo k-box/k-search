@@ -2,6 +2,8 @@ services:
     security.access.search_voter:
         class: KCore\SearchAPIBundle\Security\Authorization\Voter\SearchVoter
         public: false
-        arguments: [@security.access.role_hierarchy_voter, %kcore.institution_id%]
+        arguments:
+            - '@security.access.role_hierarchy_voter'
+            - '%kcore.institution_id%'
         tags:
             - { name: security.voter }

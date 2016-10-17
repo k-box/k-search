@@ -11,7 +11,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class OptimizeCommand extends ContainerAwareCommand
 {
-
     /** @var CoreService */
     protected $coreService;
 
@@ -25,22 +24,22 @@ class OptimizeCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var CoreService $coreService */
+        /* @var CoreService $coreService */
         $this->coreService = $this->getContainer()->get('klink.core.service');
 
         $cores = ['private', 'public'];
         $coreName = $input->getOption('core');
 
         if (!is_null($coreName)) {
-            if(!in_array($coreName, $cores)) {
+            if (!in_array($coreName, $cores)) {
                 $output->writeln('<error>Wrong Core name: '.$coreName.'</error>');
+
                 return -1;
             }
 
             // Just update the given core.
             $cores = [$coreName];
         }
-
 
         foreach ($cores as $core) {
             $client = $this->getClientByCore($core);
@@ -56,11 +55,11 @@ class OptimizeCommand extends ContainerAwareCommand
         return 0;
     }
 
-
     /**
      * Returns the Solarium Client given the core name.
      *
      * @param string $coreName
+     *
      * @return \Solarium\Client|null
      */
     private function getClientByCore($coreName)
@@ -83,9 +82,11 @@ class OptimizeCommand extends ContainerAwareCommand
      * Optimize a Collection, given a client.
      *
      * @param Client $client
+     *
      * @return int
      */
-    protected function doOptimize(Client $client) {
+    protected function doOptimize(Client $client)
+    {
         $update = $client->createUpdate();
         $update->addOptimize(true, false, 1);
         $result = $client->update($update);

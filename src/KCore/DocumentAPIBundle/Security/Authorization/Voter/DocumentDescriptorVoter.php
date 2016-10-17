@@ -2,11 +2,13 @@
 
 namespace KCore\DocumentAPIBundle\Security\Authorization\Voter;
 
-use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use KCore\CoreBundle\Entity\DocumentDescriptor;
 use KCore\CoreBundle\Security\KLinkUser;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Voter;
+use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-class DocumentDescriptorVoter implements VoterInterface
+class DocumentDescriptorVoter extends Voter
 {
     const POST = 'post';
     const GET = 'get';
@@ -25,123 +27,107 @@ class DocumentDescriptorVoter implements VoterInterface
         $this->institutionId = $institutionId;
     }
 
-    public function supportsAttribute($attribute)
+    /**
+     * @return array
+     */
+    private function getAdapterGrantedACL()
     {
-        return in_array($attribute, array(
-            self::POST,
-            self::GET,
-            self::DELETE,
-        ));
-    }
+        $public = DocumentDescriptor::DOCUMENT_VISIBILITY_PUBLIC;
 
-    public function supportsClass($class)
-    {
-        $supportedClass = 'KCore\CoreBundle\Entity\DocumentDescriptor';
-
-        return $supportedClass === $class || is_subclass_of($class, $supportedClass);
+        // action and visibility are mandatory
+        return [
+            ['action' => self::POST, 'visibility' => $public, 'ownDocument' => true],
+            ['action' => self::GET, 'visibility' => $public],
+            ['action' => self::DELETE, 'visibility' => $public, 'ownDocument' => true],
+        ];
     }
 
     /**
-     * @var \KCore\CoreBundle\Entity\DocumentDescriptor $documentDescriptor
-     **/
-    public function vote(TokenInterface $token, $documentDescriptor, array $attributes)
+     * @return array
+     */
+    private function getDMSGrantedACL()
     {
-        // check if class of this object is supported by this voter
-        if (!$this->supportsClass(get_class($documentDescriptor))) {
-            return VoterInterface::ACCESS_ABSTAIN;
-        }
+        $public = DocumentDescriptor::DOCUMENT_VISIBILITY_PUBLIC;
+        $private = DocumentDescriptor::DOCUMENT_VISIBILITY_PRIVATE;
 
-        // check if the voter is used correct, only allow one attribute
-        if (1 !== count($attributes)) {
-            throw new \InvalidArgumentException(
-                'Only one attribute is allowed for POST, GET or DELETE'
-            );
-        }
+        // action and visibility are mandatory
+        return [
+            ['action' => self::POST, 'visibility' => $public, 'ownDocument' => true],
+            ['action' => self::POST, 'visibility' => $private, 'ownDocument' => true, 'ownCore' => true],
 
-        // check if the given attribute is covered by this voter
-        $method = $attributes[0];
-        if (!$this->supportsAttribute($method)) {
-            return VoterInterface::ACCESS_ABSTAIN;
-        }
+            ['action' => self::GET, 'visibility' => $public],
+            ['action' => self::GET, 'visibility' => $private, 'ownDocument' => true, 'ownCore' => true],
 
+            ['action' => self::DELETE, 'visibility' => $public, 'ownDocument' => true],
+            ['action' => self::DELETE, 'visibility' => $private, 'ownDocument' => true, 'ownCore' => true],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function supports($attribute, $subject)
+    {
+        return $subject instanceof DocumentDescriptor && in_array($attribute, [
+            self::POST,
+            self::GET,
+            self::DELETE,
+        ]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    {
         // get current logged in user
         $user = $token->getUser();
         if (!$user instanceof KLinkUser) {
-            return VoterInterface::ACCESS_DENIED;
+            return false;
         }
 
-        if ($this->roleHierarchyVoter->vote($token, null, array('ROLE_ADMIN')) == VoterInterface::ACCESS_GRANTED) {
-            return VoterInterface::ACCESS_GRANTED;
+        if ($this->roleHierarchyVoter->vote($token, null, ['ROLE_ADMIN']) == VoterInterface::ACCESS_GRANTED) {
+            return true;
         }
 
-        $visibility = $documentDescriptor->getVisibility();
+        $visibility = $subject->getVisibility();
         $isOwnCore = $user->getInstitutionId() === $this->institutionId;
-        $isOwnDocument = $user->getInstitutionId() === $documentDescriptor->getInstitutionId();
+        $isOwnDocument = $user->getInstitutionId() === $subject->getInstitutionId();
 
-        if ($this->roleHierarchyVoter->vote($token, null, array('ROLE_LINK_DMS')) == VoterInterface::ACCESS_GRANTED) {
+        if ($this->roleHierarchyVoter->vote($token, null, ['ROLE_LINK_DMS']) == VoterInterface::ACCESS_GRANTED) {
             $acl = $this->getDMSGrantedACL();
 
             foreach ($acl as $rule) {
-                if ($rule['action'] === $method && $rule['visibility'] == $visibility) {
+                if ($rule['action'] === $attribute && $rule['visibility'] == $visibility) {
                     if (isset($rule['ownDocument']) && $rule['ownDocument'] != $isOwnDocument) {
-                        return VoterInterface::ACCESS_DENIED;
+                        return false;
                     }
                     if (isset($rule['ownCore']) && $rule['ownCore'] != $isOwnCore) {
-                        return VoterInterface::ACCESS_DENIED;
+                        return false;
                     }
 
-                    return VoterInterface::ACCESS_GRANTED;
+                    return true;
                 }
             }
         }
 
-        if ($this->roleHierarchyVoter->vote($token, null, array('ROLE_LINK_ADAPTER')) == VoterInterface::ACCESS_GRANTED) {
+        if ($this->roleHierarchyVoter->vote($token, null, ['ROLE_LINK_ADAPTER']) == VoterInterface::ACCESS_GRANTED) {
             $acl = $this->getAdapterGrantedACL();
             foreach ($acl as $rule) {
-                if ($rule['action'] === $method && $rule['visibility'] == $visibility) {
+                if ($rule['action'] === $attribute && $rule['visibility'] == $visibility) {
                     if (isset($rule['ownDocument']) && $rule['ownDocument'] != $isOwnDocument) {
-                        return VoterInterface::ACCESS_DENIED;
+                        return false;
                     }
                     if (isset($rule['ownCore']) && $rule['ownCore'] != $isOwnCore) {
-                        return VoterInterface::ACCESS_DENIED;
+                        return false;
                     }
 
-                    return VoterInterface::ACCESS_GRANTED;
+                    return true;
                 }
             }
         }
 
         // defaults to access denied
-        return VoterInterface::ACCESS_DENIED;
-    }
-
-    private function getAdapterGrantedACL()
-    {
-        $public = \KCore\CoreBundle\Entity\DocumentDescriptor::DOCUMENT_VISIBILITY_PUBLIC;
-
-        // action and visibility are mandatory
-        return array(
-            array('action' => self::POST, 'visibility' => $public, 'ownDocument' => true),
-            array('action' => self::GET, 'visibility' => $public),
-            array('action' => self::DELETE, 'visibility' => $public, 'ownDocument' => true),
-        );
-    }
-
-    private function getDMSGrantedACL()
-    {
-        $public = \KCore\CoreBundle\Entity\DocumentDescriptor::DOCUMENT_VISIBILITY_PUBLIC;
-        $private = \KCore\CoreBundle\Entity\DocumentDescriptor::DOCUMENT_VISIBILITY_PRIVATE;
-
-        // action and visibility are mandatory
-        return array(
-            array('action' => self::POST, 'visibility' => $public, 'ownDocument' => true),
-            array('action' => self::POST, 'visibility' => $private, 'ownDocument' => true, 'ownCore' => true),
-
-            array('action' => self::GET, 'visibility' => $public),
-            array('action' => self::GET, 'visibility' => $private, 'ownDocument' => true, 'ownCore' => true),
-
-            array('action' => self::DELETE, 'visibility' => $public, 'ownDocument' => true),
-            array('action' => self::DELETE, 'visibility' => $private, 'ownDocument' => true, 'ownCore' => true),
-        );
+        return false;
     }
 }

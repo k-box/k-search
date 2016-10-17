@@ -14,6 +14,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 
+/**
+ * Class FiltersAndFacetsTest.
+ *
+ * @group solr
+ */
 class FiltersAndFacetsTest extends WebTestCase
 {
 

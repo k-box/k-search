@@ -15,11 +15,14 @@ monolog:
     handlers:
         main:
             type:         fingers_crossed
-            action_level: error
+            action_level: warning
             handler:      nested
         nested:
-            type:  stream
-            path:  "%kernel.logs_dir%/%kernel.environment%.log"
+            type:  rotating_file
+            path:  '%kernel.logs_dir%/%kernel.environment%.log'
             level: debug
+            # max number of log files to keep
+            # defaults to zero, which means infinite files
+            max_files: 30
         console:
             type:  console

@@ -13,7 +13,8 @@ class Facet
     protected $name;
 
     /**
-     * The list of retrieved facets
+     * The list of retrieved facets.
+     *
      * @var FacetItem[]
      * @Type("array<KCore\SearchAPIBundle\Entity\FacetItem>")
      */
@@ -25,7 +26,7 @@ class Facet
     public function __construct($name)
     {
         $this->name = $name;
-        $this->items = array();
+        $this->items = [];
     }
 
     /**

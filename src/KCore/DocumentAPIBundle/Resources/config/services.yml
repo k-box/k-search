@@ -3,7 +3,7 @@ services:
         class: KCore\DocumentAPIBundle\Security\Authorization\Voter\DocumentDescriptorVoter
         public: false
         arguments:
-            - "@security.access.role_hierarchy_voter"
-            - "%kcore.institution_id%"
+            - '@security.access.role_hierarchy_voter'
+            - '%kcore.institution_id%'
         tags:
             - { name: security.voter }

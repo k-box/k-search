@@ -2,21 +2,20 @@
 
 namespace KCore\SearchAPIBundle\Security\Authorization\Voter;
 
-use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use KCore\CoreBundle\Entity\DocumentDescriptor;
 use KCore\CoreBundle\Security\KLinkUser;
 use KCore\SearchAPIBundle\SearchRequest\SearchObjectForVoter;
-use KCore\CoreBundle\Entity\DocumentDescriptor;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 class SearchVoter implements VoterInterface
 {
-
     const SEARCH = 'search';
 
     /** @var VoterInterface */
     private $roleHierarchyVoter;
 
-    /** @var  string */
+    /** @var string */
     private $institutionId;
 
     /**
@@ -31,9 +30,9 @@ class SearchVoter implements VoterInterface
 
     public function supportsAttribute($attribute)
     {
-        return in_array($attribute, array(
+        return in_array($attribute, [
             self::SEARCH,
-        ));
+        ]);
     }
 
     public function supportsClass($class)
@@ -72,11 +71,11 @@ class SearchVoter implements VoterInterface
             return VoterInterface::ACCESS_DENIED;
         }
 
-        if ($this->roleHierarchyVoter->vote($token, null, array('ROLE_ADMIN')) == VoterInterface::ACCESS_GRANTED) {
+        if ($this->roleHierarchyVoter->vote($token, null, ['ROLE_ADMIN']) == VoterInterface::ACCESS_GRANTED) {
             return VoterInterface::ACCESS_GRANTED;
         }
 
-        if ($this->roleHierarchyVoter->vote($token, null, array('ROLE_LINK_DMS')) == VoterInterface::ACCESS_GRANTED) {
+        if ($this->roleHierarchyVoter->vote($token, null, ['ROLE_LINK_DMS']) == VoterInterface::ACCESS_GRANTED) {
             if ($searchObjectForVoter->getVisibility() === DocumentDescriptor::DOCUMENT_VISIBILITY_PUBLIC) {
                 return VoterInterface::ACCESS_GRANTED;
             } else {
@@ -89,7 +88,7 @@ class SearchVoter implements VoterInterface
             return VoterInterface::ACCESS_DENIED;
         }
 
-        if ($this->roleHierarchyVoter->vote($token, null, array('ROLE_LINK_ADAPTER')) == VoterInterface::ACCESS_GRANTED) {
+        if ($this->roleHierarchyVoter->vote($token, null, ['ROLE_LINK_ADAPTER']) == VoterInterface::ACCESS_GRANTED) {
             if ($searchObjectForVoter->getVisibility() === DocumentDescriptor::DOCUMENT_VISIBILITY_PUBLIC) {
                 return VoterInterface::ACCESS_GRANTED;
             }

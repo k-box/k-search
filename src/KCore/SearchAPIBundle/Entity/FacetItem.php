@@ -1,13 +1,11 @@
 <?php
 
-
 namespace KCore\SearchAPIBundle\Entity;
 
 use JMS\Serializer\Annotation\Type;
 
 class FacetItem
 {
-
     /**
      * @var int
      * @Type("integer")

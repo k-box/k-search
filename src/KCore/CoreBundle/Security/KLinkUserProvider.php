@@ -3,28 +3,28 @@
  * Created by PhpStorm.
  * User: Ema
  * Date: 12/11/2014
- * Time: 17:39
+ * Time: 17:39.
  */
 namespace KCore\CoreBundle\Security;
 
 use Symfony\Component\Config\ConfigCache;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Yaml\Yaml;
 
 class KLinkUserProvider implements UserProviderInterface
 {
-
-    /** @var string UserList*/
+    /** @var string UserList */
     protected $kernelRoot;
     protected $kernelCacheDir;
     protected $clientListFile;
     protected $clients;
 
     /**
-     * Default constructor
+     * Default constructor.
+     *
      * @param string $kernelRoot
      * @param string $clientListFile The configuration file of the Users (.yml file)
      */
@@ -37,9 +37,10 @@ class KLinkUserProvider implements UserProviderInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
-     * @param  string             $username
+     * @param string $username
+     *
      * @return UserInterface|void
      */
     public function loadUserByUsername($username)
@@ -52,7 +53,7 @@ class KLinkUserProvider implements UserProviderInterface
                 return new KLinkUser($username,
                     $userData->password,
                     null,
-                    array($userData->role),
+                    [$userData->role],
                     $userData->institutionId
                 );
             }
@@ -64,9 +65,10 @@ class KLinkUserProvider implements UserProviderInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
-     * @param  UserInterface      $user
+     * @param UserInterface $user
+     *
      * @return UserInterface|void
      */
     public function refreshUser(UserInterface $user)
@@ -79,9 +81,10 @@ class KLinkUserProvider implements UserProviderInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
-     * @param  string $class
+     * @param string $class
+     *
      * @return bool
      */
     public function supportsClass($class)

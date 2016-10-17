@@ -3,52 +3,51 @@
  * Created by PhpStorm.
  * User: Ema
  * Date: 04/11/2014
- * Time: 13:59
+ * Time: 13:59.
  */
 namespace KCore\SearchAPIBundle\Entity;
 
-use JMS\Serializer\Annotation\Type;
 use JMS\Serializer\Annotation\SerializedName;
+use JMS\Serializer\Annotation\Type;
 use JMS\Serializer\Annotation\VirtualProperty;
 
 class ResultSet
 {
-
     /**
-     * @var integer
+     * @var int
      * @Type("integer")
      * @SerializedName("numFound")
      */
     protected $numFound;
 
     /**
-     * @var String
+     * @var string
      * @Type("string")
      */
     protected $query;
 
     /**
-     * @var String
+     * @var string
      * @Type("string")
      */
     protected $visibility;
 
     /**
-     * @var integer
+     * @var int
      * @Type("integer")
      * @SerializedName("numResults")
      */
     protected $numResults;
 
     /**
-     * @var integer
+     * @var int
      * @Type("integer")
      * @SerializedName("startResult")
      */
     protected $startResult;
 
     /**
-     * @var integer
+     * @var int
      * @Type("integer")
      * @SerializedName("queryTime")
      */
@@ -67,28 +66,30 @@ class ResultSet
     protected $facets;
 
     /**
-     * The list of retrieved results
+     * The list of retrieved results.
+     *
      * @var ResultItem[]
      * @Type("array<KCore\SearchAPIBundle\Entity\ResultItem>")
      */
     protected $items;
 
     /**
-     * Default Constructor
-     * @param string  $query
+     * Default Constructor.
+     *
+     * @param string $query
      * @param $visibility
-     * @param array   $filters
-     * @param integer $startResult
-     * @param integer $numResults
+     * @param array $filters
+     * @param int   $startResult
+     * @param int   $numResults
      */
-    public function __construct($query, $visibility, $filters = array(), $startResult, $numResults)
+    public function __construct($query, $visibility, $filters, $startResult, $numResults)
     {
         $this->itemCount = 0;
-        $this->items = array();
+        $this->items = [];
         $this->query = $query;
         $this->visibility = $visibility;
         $this->filters = $filters;
-        $this->facets = array();
+        $this->facets = [];
         $this->startResult = $startResult;
         $this->numResults = $numResults;
     }
@@ -152,7 +153,7 @@ class ResultSet
     }
 
     /**
-     * @return String
+     * @return string
      */
     public function getQuery()
     {
@@ -184,7 +185,7 @@ class ResultSet
     }
 
     /**
-     * @return String
+     * @return string
      */
     public function getVisibility()
     {
@@ -192,7 +193,7 @@ class ResultSet
     }
 
     /**
-     * @return Array
+     * @return array
      */
     public function getFilters()
     {

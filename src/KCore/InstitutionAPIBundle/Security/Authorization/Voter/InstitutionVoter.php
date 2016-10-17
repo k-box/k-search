@@ -2,14 +2,13 @@
 
 namespace KCore\InstitutionAPIBundle\Security\Authorization\Voter;
 
-use KCore\InstitutionAPIBundle\Entity\InstitutionObjectForVoter;
-use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use KCore\CoreBundle\Security\KLinkUser;
+use KCore\InstitutionAPIBundle\Entity\InstitutionObjectForVoter;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 class InstitutionVoter implements VoterInterface
 {
-
     const POST = 'post';
     const GET = 'get';
     const DELETE = 'delete';
@@ -18,7 +17,7 @@ class InstitutionVoter implements VoterInterface
     /** @var VoterInterface */
     private $roleHierarchyVoter;
 
-    /** @var  string */
+    /** @var string */
     private $institutionId;
 
     /**
@@ -33,12 +32,12 @@ class InstitutionVoter implements VoterInterface
 
     public function supportsAttribute($attribute)
     {
-        return in_array($attribute, array(
+        return in_array($attribute, [
             self::POST,
             self::GET,
             self::GETALL,
             self::DELETE,
-        ));
+        ]);
     }
 
     public function supportsClass($class)
@@ -49,9 +48,10 @@ class InstitutionVoter implements VoterInterface
     }
 
     /**
-     * @param  TokenInterface            $token
-     * @param  InstitutionObjectForVoter $institution
-     * @param  array                     $attributes
+     * @param TokenInterface            $token
+     * @param InstitutionObjectForVoter $institution
+     * @param array                     $attributes
+     *
      * @return int
      */
     public function vote(TokenInterface $token, $institution, array $attributes)
@@ -80,12 +80,12 @@ class InstitutionVoter implements VoterInterface
             return VoterInterface::ACCESS_DENIED;
         }
 
-        if ($this->roleHierarchyVoter->vote($token, null, array('ROLE_ADMIN')) == VoterInterface::ACCESS_GRANTED) {
+        if ($this->roleHierarchyVoter->vote($token, null, ['ROLE_ADMIN']) == VoterInterface::ACCESS_GRANTED) {
             return VoterInterface::ACCESS_GRANTED;
         }
 
-        if (($this->roleHierarchyVoter->vote($token, null, array('ROLE_LINK_DMS')) == VoterInterface::ACCESS_GRANTED) ||
-            ($this->roleHierarchyVoter->vote($token, null, array('ROLE_LINK_ADAPTER')) == VoterInterface::ACCESS_GRANTED)) {
+        if (($this->roleHierarchyVoter->vote($token, null, ['ROLE_LINK_DMS']) == VoterInterface::ACCESS_GRANTED) ||
+            ($this->roleHierarchyVoter->vote($token, null, ['ROLE_LINK_ADAPTER']) == VoterInterface::ACCESS_GRANTED)) {
             if ($institution->getInstitution()) {
                 $isOwnInstitution = $user->getInstitutionId() === $institution->getInstitution()->getId();
             } else {
@@ -113,16 +113,16 @@ class InstitutionVoter implements VoterInterface
      */
     protected function getInstitutionACL()
     {
-        return array(
-            array(
+        return [
+            [
                 'action' => self::GET,
-            ),
-            array(
+            ],
+            [
                 'action' => self::GETALL,
-            ),
-            array(
+            ],
+            [
                 'action' => self::POST, 'ownInstitution' => true,
-            ),
-        );
+            ],
+        ];
     }
 }

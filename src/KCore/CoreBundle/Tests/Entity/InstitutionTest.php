@@ -4,10 +4,9 @@ namespace KCore\CoreBundle\Tests\Entity;
 
 use KCore\CoreBundle\Entity\InstitutionDescriptor;
 
-class Test extends \PHPUnit_Framework_TestCase
+class InstitutionTest extends \PHPUnit_Framework_TestCase
 {
     protected $faker;
-
 
     public function setUp()
     {
@@ -20,18 +19,18 @@ class Test extends \PHPUnit_Framework_TestCase
     public function addressFieldDataProvider()
     {
         $base = [
-            'country' => NULL,
-            'street' => NULL,
-            'zip' => NULL,
-            'locality' => NULL,
+            'country' => null,
+            'street' => null,
+            'zip' => null,
+            'locality' => null,
         ];
 
         return [
-            [NULL, $base],
+            [null, $base],
             ['street1', array_merge($base, ['street' => 'street1'])],
             ['address', array_merge($base, ['address' => 'address'])],
             ['', array_merge($base, ['address' => ''])],
-            [NULL, array_merge($base, ['street' => '  '])],
+            [null, array_merge($base, ['street' => '  '])],
             ['address', array_merge($base, ['street' => 'street1', 'address' => 'address'])],
 
             ["street1\nzip1 locality1\ncountry1", array_merge($base, [

@@ -7,8 +7,8 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class ThumbnailsAPIBundle extends Bundle
 {
-
-    public function getContainerExtension() {
+    public function getContainerExtension()
+    {
         return new ThumbnailsAPIExtension();
     }
 }

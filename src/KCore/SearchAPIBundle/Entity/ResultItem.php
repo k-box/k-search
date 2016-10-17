@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: Ema
  * Date: 05/11/2014
- * Time: 14:08
+ * Time: 14:08.
  */
 namespace KCore\SearchAPIBundle\Entity;
 
@@ -12,7 +12,6 @@ use KCore\CoreBundle\Entity\DocumentDescriptor;
 
 class ResultItem
 {
-
     /**
      * @var float
      * @Type("float")
@@ -31,7 +30,7 @@ class ResultItem
      */
     public function __construct($score, DocumentDescriptor $documentDescriptor)
     {
-        $this->score              = $score;
+        $this->score = $score;
         $this->documentDescriptor = $documentDescriptor;
     }
 

@@ -2,9 +2,8 @@
 
 namespace KCore\CoreBundle\Search\Facets;
 
-
-use \Solarium\QueryType\Select\Query\Component\Facet\Field;
 use KCore\CoreBundle\Entity\SolrDocumentDescriptor;
+use Solarium\QueryType\Select\Query\Component\Facet\Field;
 
 class DocumentTypeFacet extends Field implements FacetInterface
 {
@@ -17,6 +16,5 @@ class DocumentTypeFacet extends Field implements FacetInterface
 
     public function handleEnabledFilters($filters)
     {
-
     }
 }
