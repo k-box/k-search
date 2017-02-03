@@ -11,7 +11,7 @@ class DocumentGroupsFacet extends Field implements FacetInterface
     {
         parent::init();
         $this->setField(SolrDocumentDescriptor::FIELD_DOC_DOCUMENT_GROUPS);
-        // $this->addExclude($this->getKey());
+        $this->addExclude('documentGroups');
     }
 
     public function handleEnabledFilters($filters)

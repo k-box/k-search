@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Ema
- * Date: 15/05/2015
- * Time: 23:30.
- */
+
 namespace Solarium\QueryType\Collections;
 
 use Solarium\Client;

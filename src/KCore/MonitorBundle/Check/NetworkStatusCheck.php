@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Ema
- * Date: 15/05/2015
- * Time: 16:35.
- */
+
 namespace KCore\MonitorBundle\Check;
 
 use KCore\CoreBundle\Services\CoreService;

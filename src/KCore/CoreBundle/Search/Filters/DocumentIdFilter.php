@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Ema
- * Date: 31/03/2015
- * Time: 15:05.
- */
+
 namespace KCore\CoreBundle\Search\Filters;
 
 use KCore\CoreBundle\Entity\SolrDocumentDescriptor;

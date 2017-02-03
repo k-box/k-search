@@ -3,7 +3,6 @@ institution_api_get:
     methods: [GET]
     defaults:
         _controller: InstitutionAPIBundle:Default:getInstitution
-        _format: json
     requirements:
         id: "[a-zA-Z0-9]+"
 
@@ -12,7 +11,6 @@ institution_api_delete:
     methods: [DELETE]
     defaults:
         _controller: InstitutionAPIBundle:Default:deleteInstitution
-        _format: json
     requirements:
         id: "[a-zA-Z0-9]+"
 
@@ -21,7 +19,6 @@ institution_api_post:
     methods: [POST]
     defaults:
         _controller: InstitutionAPIBundle:Default:postInstitution
-        _format: json
     requirements:
 
 institution_api_getall:
@@ -29,4 +26,3 @@ institution_api_getall:
     methods: [GET]
     defaults:
         _controller: InstitutionAPIBundle:Default:getAllInstitutions
-        _format: json

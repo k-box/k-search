@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Ema
- * Date: 01/04/2015
- * Time: 14:19.
- */
+
 namespace KCore\CoreBundle\Services;
 
 use Doctrine\Common\Util\Debug;

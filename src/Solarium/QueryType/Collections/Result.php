@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Ema
- * Date: 15/05/2015
- * Time: 16:49.
- */
+
 namespace Solarium\QueryType\Collections;
 
 use Solarium\Core\Query\Result\QueryType as BaseResult;
@@ -24,7 +19,7 @@ class Result extends BaseResult
     /**
      * Solr index queryTime.
      *
-     * This doesn't include things like the HTTP responsetime. Purely the Solr
+     * This does not include things like the HTTP response-time. Purely the Solr
      * query execution time.
      *
      * @var int

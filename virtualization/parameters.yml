@@ -1,0 +1,40 @@
+---
+# Name of your project, will also be the vagrant box name
+project_name: "kcore"
+
+# Main hostname through which the vagrant box will be accessible
+hostname: "kcore.dev"
+# Alternative hostnames through which you want to access the vagrant box
+hostnames: []
+
+# Ports you want forwared to your host. See https://www.vagrantup.com/docs/networking/forwarded_ports.html
+# for details.
+forwarded_ports: {}
+
+# By default Vagrant managed different IPs for all boxes. But you can force it
+# here if you want. WARNING, this parameter will not guarantee that your box
+# will be accessible at this IP depending on your network configuration or
+# provider choice.
+# box_ip: "10.10.10.10"
+
+# Name of the database to create for your project if you include the
+# MySQL or PostgreSQL role
+# database_name: "example"
+
+# Root directory of your project for the webserver and other purposes
+root_directory: "/vagrant/web"
+
+# Do we activate SSL ? The CA will be copied to your project dir, you can then
+# add it to your computer keychain
+# ssl: yes
+
+# For a PHP project, you might want to set the following
+# Default reporting level of PHP errors
+php_error_reporting: "E_ALL & ~E_NOTICE"
+
+# If you want to use ubuntu instead of debian (or any other box),
+# uncomment this. You can also replace "base" with "php7", if you need
+# php7 (with fpm and nginx) anyway.
+# box_name: "drifter/trusty64-base"
+# box_url: "https://vagrantbox-public.liip.ch/drifter-trusty64-base.json"
+php_version: 5.6

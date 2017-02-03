@@ -2,6 +2,7 @@
 
 namespace KCore\CoreBundle\Command;
 
+use KCore\CoreBundle\Libraries\KCoreHelper;
 use KCore\CoreBundle\Services\CoreService;
 use Solarium\Client;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -11,9 +12,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class OptimizeCommand extends ContainerAwareCommand
 {
-    /** @var CoreService */
-    protected $coreService;
-
     protected function configure()
     {
         $this->setName('kcore:optimize')
@@ -25,7 +23,7 @@ class OptimizeCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /* @var CoreService $coreService */
-        $this->coreService = $this->getContainer()->get('klink.core.service');
+        $coreService = $this->getContainer()->get('klink.core.service');
 
         $cores = ['private', 'public'];
         $coreName = $input->getOption('core');
@@ -42,7 +40,7 @@ class OptimizeCommand extends ContainerAwareCommand
         }
 
         foreach ($cores as $core) {
-            $client = $this->getClientByCore($core);
+            $client = KCoreHelper::getClientByCoreName($coreService, $core);
             $output->write('Optimizing core: <comment>'.$core.'</comment> ... ');
             try {
                 $this->doOptimize($client);
@@ -53,29 +51,6 @@ class OptimizeCommand extends ContainerAwareCommand
         }
 
         return 0;
-    }
-
-    /**
-     * Returns the Solarium Client given the core name.
-     *
-     * @param string $coreName
-     *
-     * @return \Solarium\Client|null
-     */
-    private function getClientByCore($coreName)
-    {
-        switch ($coreName) {
-            case 'private':
-                $client = $this->coreService->getPrivateSolrClient();
-                break;
-            case 'public':
-                $client = $this->coreService->getPublicSolrClient();
-                break;
-            default:
-                $client = null;
-        }
-
-        return $client;
     }
 
     /**
@@ -90,6 +65,7 @@ class OptimizeCommand extends ContainerAwareCommand
         $update = $client->createUpdate();
         $update->addOptimize(true, false, 1);
         $result = $client->update($update);
-        $result->getStatus();
+
+        return $result->getStatus();
     }
 }

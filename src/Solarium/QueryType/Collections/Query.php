@@ -2,6 +2,7 @@
 /**
  * System request handler for Solarium.
  */
+
 namespace Solarium\QueryType\Collections;
 
 use Solarium\Core\Query\Query as BaseQuery;

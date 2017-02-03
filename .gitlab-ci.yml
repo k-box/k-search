@@ -12,6 +12,7 @@ cache:
 
 .need_composer: &need_composer
   before_script:
+    - php -v
     - composer install --prefer-dist --no-interaction
 
 
@@ -25,7 +26,7 @@ cache:
   tags:
     - shell
   script:
-    - cp ${BUILD_LOCATION}/klink-core-$CI_BUILD_REF_NAME.tar.xz ${DOCKER_LOCATION}/kcore/downloads/kcore.tar.xz
+    - cp ${BUILD_LOCATION}/klink-core-${CI_BUILD_REF_NAME/\//--}.tar.xz ${DOCKER_LOCATION}/kcore/downloads/kcore.tar.xz
     - cd ${DOCKER_LOCATION}
     - docker-compose -f klink-services.yml -p ${INSTANCE_PREFIX} build kcore
     - docker-compose -f docker-compose-kbox.yml -p ${INSTANCE_PREFIX} stop && docker-compose -f docker-compose-kbox.yml -p ${INSTANCE_PREFIX} rm -v -f && docker-compose -f docker-compose-kbox.yml -p ${INSTANCE_PREFIX} up -d frontend
@@ -34,7 +35,7 @@ cache:
 ##### Jobs
 
 php-coding-styles:5.6:
-  image: docker.klink.asia:5043/klink/php-5.6-test-cli:master
+  image: docker.klink.asia:5043/klink/php-ci-docker:5.6-alpine
   <<: *need_composer
   stage: php-cs
   script:
@@ -43,20 +44,23 @@ php-coding-styles:5.6:
     - docker
 
 test-no-solr:5.6:
-  image: docker.klink.asia:5043/klink/php-5.6-test-cli:master
+  image: docker.klink.asia:5043/klink/php-ci-docker:5.6-alpine
   <<: *need_composer
   stage: test
   script:
     - app/console -q
-    - if [ ! -f "bin/phpunit" ] ; then curl --location --output bin/phpunit https://phar.phpunit.de/phpunit.phar && chmod +x bin/phpunit; fi;
+    - if [ ! -f "bin/phpunit" ] ; then curl --location --output bin/phpunit https://phar.phpunit.de/phpunit-5.7.phar && chmod +x bin/phpunit; fi;
     - bin/phpunit -c app/ --exclude-group=solr,java,thumbnails
   tags:
     - docker
+  variables:
+    DOCKER_FIX_CACHE: "change-me"
 
 build-tarball:
   stage: release
   script:
     - cp app/config/parameters.example.yml app/config/parameters.yml
+    - php -v
     - composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
     - rm -f composer.json
     - rm -f composer.lock
@@ -71,7 +75,7 @@ build-tarball:
     - rm -f app/config/parameters.yml
     - rm -f app/config/parameters.example.yml
     - echo "$CI_BUILD_REF_NAME -- $CI_BUILD_REF" > web/version
-    - tar --transform 's,^.,kcore,' -cJ . --exclude=.git > /var/www/temp/builds/klink-core-$CI_BUILD_REF_NAME.tar.xz
+    - tar --transform 's,^.,kcore,' -cJ . --exclude=.git > /var/www/temp/builds/klink-core-${CI_BUILD_REF_NAME/\//--}.tar.xz
   tags:
     - shell 
 

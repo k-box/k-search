@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Ema
- * Date: 12/11/2014
- * Time: 17:39.
- */
+
 namespace KCore\CoreBundle\Security;
 
 use Symfony\Component\Config\ConfigCache;

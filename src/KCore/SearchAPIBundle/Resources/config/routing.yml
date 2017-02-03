@@ -2,6 +2,5 @@ search_api_get:
     path:     /
     defaults:
         _controller: SearchAPIBundle:Default:searchDocumentDescriptor
-        _format: json
     requirements:
         _method: GET

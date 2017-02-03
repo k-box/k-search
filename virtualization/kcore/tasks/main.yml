@@ -1,0 +1,8 @@
+- name: Install PHP packages
+  apt: pkg={{ item }} state=latest
+  become: yes
+  with_items:
+    - "php5-mcrypt"
+
+- name: Run 'composer install'
+  shell: cd /vagrant/ && composer.phar install

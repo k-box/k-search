@@ -24,5 +24,6 @@ class DocumentGroupsFilter extends FilterQuery implements FilterInterface
     public function setDefaultQueryWithValue($value)
     {
         $this->setQuery(SolrSearchHelper::buildFilterQueryForMultipleValues($this->getField(), $value));
+        $this->addTag('documentGroups');
     }
 }

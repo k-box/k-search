@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Ema
- * Date: 02/04/2015
- * Time: 09:55.
- */
+
 namespace Pnz\GeoJSON;
 
 class GeoJSONBuilder

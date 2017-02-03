@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Ema
- * Date: 11/03/2015
- * Time: 22:16.
- */
+
 namespace KCore\ThumbnailsAPIBundle\Library;
 
 use Symfony\Component\Filesystem\Filesystem;

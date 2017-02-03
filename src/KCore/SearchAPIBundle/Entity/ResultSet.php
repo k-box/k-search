@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Ema
- * Date: 04/11/2014
- * Time: 13:59.
- */
+
 namespace KCore\SearchAPIBundle\Entity;
 
 use JMS\Serializer\Annotation\SerializedName;
