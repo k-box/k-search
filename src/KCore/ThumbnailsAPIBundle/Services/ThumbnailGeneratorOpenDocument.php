@@ -1,22 +1,38 @@
 <?php
 
-namespace KCore\ThumbnailsAPIBundle\Library;
+namespace KCore\ThumbnailsAPIBundle\Services;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\File;
 
-class ThumbnailFromOpenDocument
+class ThumbnailGeneratorOpenDocument implements ThumbnailGeneratorInterface
 {
     /**
-     * Creates a thumbnail for the given sourceFile.
-     *
-     * @param File   $sourceFile        The File to create the thumbnail from
-     * @param string $thumbnailFilename The output filename
-     * @param int    $width             The thumbnail width
-     * @param int    $height            The thumbnail height
-     *
-     * @return bool Returns true if the thumbnail was created correctly
+     * @var int
      */
-    public static function generateThumbnail(File $sourceFile, $thumbnailFilename, $width = 500, $height = 400)
+    private $timeout = null;
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
+     * ThumbnailGeneratorOpenDocument constructor.
+     *
+     * @param int             $timeout Timeout for thumbnail generation process
+     * @param LoggerInterface $logger  The logger interface
+     */
+    public function __construct($timeout, $logger)
+    {
+        $this->timeout = $timeout;
+        $this->logger = $logger;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function generateThumbnail(File $sourceFile, $thumbnailFilename, $width = 500, $height = 500, $format = 'png')
     {
         $zip = new \ZipArchive();
         if (true === $zip->open($sourceFile)) {
@@ -26,7 +42,10 @@ class ThumbnailFromOpenDocument
             if ($content) {
                 $sourceImage = imagecreatefromstring($content);
                 if (!$sourceImage) {
-                    throw new \RuntimeException();
+                    $this->logger->error('Error generating thumbnail for {sourceFile}', [
+                        'sourceFile' => $sourceFile->getFilename(),
+                    ]);
+                    throw new \RuntimeException('Error generating thumbnail for '.$sourceFile->getFilename());
                 }
 
                 $thumbnailImage = imagecreatetruecolor($width, $height);

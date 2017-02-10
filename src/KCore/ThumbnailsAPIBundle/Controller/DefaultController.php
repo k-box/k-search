@@ -9,10 +9,7 @@ use KCore\ThumbnailsAPIBundle\Entity\ThumbnailGeneratorRequest;
 use KCore\ThumbnailsAPIBundle\Entity\ThumbnailGeneratorResponse;
 use KCore\ThumbnailsAPIBundle\Services\ThumbnailsService;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-
-//TODO: use File instead of readfile?
 use Symfony\Component\CssSelector\Exception\InternalErrorException;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -28,12 +25,14 @@ class DefaultController extends FOSRestController
      *
      * @ApiDoc(
      *      resource = true,
+     *      authentication = true,
      *      section="Thumbnails",
      *      description = "Retrieves a thumbnail for the document identified by the given pair <InstitutionID, DocumentDescriptorID>",
      *      output = "image/png",
      *      statusCodes = {
      *          200 = "Returned when successful",
-     *          404 = "Returned when the document is not found"
+     *          403 = "Returned when the invocation is Denied",
+     *          404 = "Returned when the document is not found",
      *      }
      * )
      *
@@ -46,10 +45,12 @@ class DefaultController extends FOSRestController
      *
      * @return image
      *
-     * @todo Implement the HTTP-401 Response for "Not Authorized"
+     * @todo this API has been disabled, due to an improper implementation and a missing endpoint to post thumbnail
+     *       generation request with <InstitutionID, localDocumentId> pairs
      */
-    public function getThumbnailAction($institutionId, $localDocumentId)
+    private function getThumbnailAction($institutionId, $localDocumentId)
     {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY', null, 'Unable to access this page!');
 
         /** @var ThumbnailsService $thumbnailsService */
         $thumbnailsService = $this->get('klink.thumbnails.service');
@@ -86,12 +87,18 @@ class DefaultController extends FOSRestController
      *
      * @ApiDoc(
      *      section="Thumbnails",
+     *      authentication = true,
      *      description = "Generates a thumbnail for the specified document",
      *      input = "KCore\ThumbnailsAPIBundle\Entity\ThumbnailGeneratorRequest",
+     *      output = "KCore\ThumbnailsAPIBundle\Entity\ThumbnailGeneratorResponse",
      *      statusCodes = {
-     *          201 = "Returned when successfully created",
-     *          400 = "Returned when a wrong data format has been received",
+     *          201 = "Returned when the thumbnail has been successfully generated",
+     *          400 = "Returned when a wrong data format has been sent",
      *          401 = "Returned when the invocation is Not Authorized",
+     *          403 = "Returned when the invocation is Denied",
+     *          502 = "Returned when the URL thumbnail generation raised a generic error",
+     *          504 = "Returned when the URL thumbnail generation raised a timeout",
+     *          509 = "Returned when the URL thumbnail generation raised a max-redirect error (URL is redirecting too many times)",
      *      }
      * )
      *
@@ -99,15 +106,14 @@ class DefaultController extends FOSRestController
      *
      * @param Request $request
      *
-     * @throws InternalErrorException
+     * @throws \Exception
      *
-     * @return array
-     *
-     *
-     * @todo: implement the "401 - Not Authorized" check and response
+     * @return Response
      */
-    public function generateThumbnailAction(Request $request)
+    public function postThumbnailAction(Request $request)
     {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY', null, 'Unable to access this page!');
+
         $content = $request->getContent();
 
         if (empty($content)) {
@@ -150,7 +156,7 @@ class DefaultController extends FOSRestController
 
         $thumbnailsService->deleteThumbnail($fileNameWithPath);
 
-        $view = $this->view($result, 201);
+        $view = $this->view($result, Response::HTTP_CREATED);
 
         return $this->handleView($view);
     }

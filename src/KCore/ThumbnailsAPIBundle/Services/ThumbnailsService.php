@@ -3,10 +3,6 @@
 namespace KCore\ThumbnailsAPIBundle\Services;
 
 use KCore\ThumbnailsAPIBundle\Entity\ThumbnailGeneratorRequest;
-use KCore\ThumbnailsAPIBundle\Library\ThumbnailFromOfficeDocumentX;
-use KCore\ThumbnailsAPIBundle\Library\ThumbnailFromOpenDocument;
-use KCore\ThumbnailsAPIBundle\Library\ThumbnailFromPDF;
-use KCore\ThumbnailsAPIBundle\Library\ThumbnailFromWebpage;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -26,17 +22,25 @@ class ThumbnailsService
     private $thumbnailsQueuePath;
     private $thumbnailsLocksPath;
     private $thumbnailsImagesPath;
-    private $pdfBoxJarPath;
 
-    /** @var LoggerInterface */
+    /**
+     * @var ThumbnailGeneratorInterface[]
+     */
+    private $generators;
+
+    /**
+     * @var LoggerInterface
+     */
     private $logger;
 
-    /** @var Filesystem */
+    /**
+     * @var Filesystem
+     */
     private $fs;
 
-    public function __construct($rootDir, $maxParallelProcesses, $expireTime, $pdfBoxJarPath, LoggerInterface $logger)
+    public function __construct($rootDir, $maxParallelProcesses, $expireTime, $generators, $logger, $fs = null)
     {
-        $this->fs = new Filesystem();
+        $this->fs = $fs ?: new Filesystem();
 
         $this->thumbnailMaxParallelProcesses = $maxParallelProcesses;
         $this->expireTime = $expireTime;
@@ -47,8 +51,7 @@ class ThumbnailsService
         $this->thumbnailsLocksPath = $this->thumbnailsRoot.'locks/';
         $this->thumbnailsImagesPath = $this->thumbnailsRoot.'images/';
 
-        $this->pdfBoxJarPath = $pdfBoxJarPath;
-
+        $this->generators = $generators;
         $this->logger = $logger;
 
         $this->createPathsIfNeeded();
@@ -366,6 +369,14 @@ class ThumbnailsService
             return null;
         }
 
+        $generator = $this->getGeneratorForExtension($documentFile->getExtension());
+        if (!$generator) {
+            $this->logger->error('Thumbnails: no Thumbnail generator found for "{ext}" extension', [
+                'ext' => $documentFile->getExtension(),
+            ]);
+            throw new BadRequestHttpException('The extension "'.$documentFile->getExtension().'" is not supported');
+        }
+
         $lockFile = $this->thumbnailsLocksPath.$this->getLockFileName($documentFile->getFileInfo());
         $this->fs->touch($lockFile);
 
@@ -376,33 +387,7 @@ class ThumbnailsService
 
         $thrownException = false;
         try {
-            switch ($documentFile->getExtension()) {
-                case 'uri':
-                    $extractor = new ThumbnailFromWebpage($this->appRoot.'/../bin');
-                    $extractor->generateThumbnail($documentFile, $tempThumbnailFile);
-                    break;
-                case 'pdf':
-                    $extractor = new ThumbnailFromPDF($this->pdfBoxJarPath, $this->getExpireTime() * 60);
-                    $extractor->generateThumbnail($documentFile, $tempThumbnailFile);
-                    break;
-                case 'xlsx':
-                case 'pptx':
-                case 'docx':
-                    $extractor = new ThumbnailFromOfficeDocumentX($this->getExpireTime() * 60);
-                    $extractor->generateThumbnail($documentFile, $tempThumbnailFile);
-                    break;
-                case 'odt':
-                case 'ods':
-                case 'odp':
-                    $extractor = new ThumbnailFromOpenDocument($this->getExpireTime() * 60);
-                    $extractor->generateThumbnail($documentFile, $tempThumbnailFile);
-                    break;
-                default:
-                    $this->logger->error('Thumbnails: File extension "{extension}" is not supported', [
-                        'extension' => $documentFile->getExtension(),
-                    ]);
-                    throw new BadRequestHttpException('The extension "'.$documentFile->getExtension().'" is not supported');
-            }
+            $generator->generateThumbnail($documentFile, $tempThumbnailFile);
         } catch (\Exception $e) {
             $this->logger->error('Thumbnails: Exception while creating thumbnail for "{file}"', [
                 'file' => basename($tempThumbnailFile),
@@ -429,6 +414,22 @@ class ThumbnailsService
         ]);
 
         return $thumbnailFilename;
+    }
+
+    /**
+     * Returns a ThumbnailGenerator for the given extension, if any.
+     *
+     * @param string $extension The file extension
+     *
+     * @return ThumbnailGeneratorInterface|null
+     */
+    private function getGeneratorForExtension($extension)
+    {
+        if (!array_key_exists($extension, $this->generators)) {
+            return null;
+        }
+
+        return $this->generators[$extension];
     }
 
     /**

@@ -2,13 +2,10 @@
 
 namespace KCore\ThumbnailsAPIBundle\Tests\Controller;
 
-use JMS\Serializer\Serializer;
-use KCore\ThumbnailsAPIBundle\Entity\ThumbnailGeneratorRequest;
 use KCore\ThumbnailsAPIBundle\Services\ThumbnailsService;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -17,8 +14,8 @@ use Symfony\Component\HttpKernel\KernelInterface;
  */
 class DefaultControllerTest extends WebTestCase
 {
-    /** @var Serializer */
-    public static $serializer;
+    /** @var string */
+    protected $fixturesDir;
 
     /** @var ThumbnailsService */
     public static $thumbnailsService;
@@ -38,7 +35,6 @@ class DefaultControllerTest extends WebTestCase
 
         //now we can instantiate our service (if you want a fresh one for
         //each test method, do this in setUp() instead
-        self::$serializer = $container->get('jms_serializer');
         self::$thumbnailsService = $container->get('klink.thumbnails.service');
 
         self::$fs = new Filesystem();
@@ -47,22 +43,24 @@ class DefaultControllerTest extends WebTestCase
     protected function setUp()
     {
         self::$thumbnailsService->clearThumbnailsCache();
+        $this->fixturesDir = __DIR__.'/../fixtures/';
+    }
+
+    /*
+    public function testNotAuthorizedGenerateThumbnail()
+    {
+        $response = $this->doGetThumbnail('test', '42', 'aaa', 'bbb');
+        $this->assertJsonResponse($response, 401, false);
     }
 
     public function testGetThumbnailReturn404IfMissing()
     {
-        $institutionID = 'test';
-        $localDocumentID = '42';
-
-        $client = static::createClient();
-        $client->request(
-            'GET',
-            'thumbnails/'.$institutionID.'/'.$localDocumentID
-        );
-        $response = $client->getResponse();
-        $this->assertJsonResponse($response, 404);
+        $response = $this->doGetThumbnail('test', '42', 'admin@test.org', 'test');
+        $this->assertJsonResponse($response, 404, false);
     }
+    */
 
+    /*
     public function testGetThumbnailReturn102IfQueued()
     {
         $institutionID = 'test';
@@ -94,9 +92,7 @@ class DefaultControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertJsonResponse($response, 400);
     }
-    */
 
-    /*
     public function testGetThumbnailReturn400IfWrongDocumentId()
     {
         $institutionID = "test";
@@ -112,11 +108,7 @@ class DefaultControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertJsonResponse($response, 400);
     }
-    */
 
-    /**
-     * @group java
-     */
     public function testQueueAndGetThumbnailForPDFFile()
     {
         $institutionID = 'test';
@@ -185,9 +177,6 @@ class DefaultControllerTest extends WebTestCase
         $this->assertJsonResponse($response, 200);
     }
 
-    /**
-     * @group java
-     */
     public function testGetThumbnailDoDeletePng()
     {
         $institutionID = 'test';
@@ -211,72 +200,90 @@ class DefaultControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertJsonResponse($response, 404);
     }
+    */
 
     /**
-     * @group java
+     * @group pdfbox
      */
     public function testGenerateThumbnailFromPDF()
     {
-        $request = new ThumbnailGeneratorRequest();
-        $request->setFileName('Nome.pdf');
-        $request->setFileMime('application/pdf');
-        $request->setFileData(base64_encode(file_get_contents(__DIR__.'/Test.pdf')));
-
-        $client = static::createClient();
-        $client->request(
-            'POST',
-            'thumbnails/',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            self::$serializer->serialize($request, 'json')
-        );
-        $response = $client->getResponse();
+        $file = $this->fixturesDir.'test.pdf';
+        $contents = base64_encode(file_get_contents($file));
+        $response = $this->doPostThumbnail($contents, 'test.pdf', 'application/pdf', 'admin@test.org', 'test');
         $this->assertJsonResponse($response, 201);
     }
 
+    /**
+     * @group phantomjs
+     */
+    public function testGenerateThumbnailFromUriWithComment()
+    {
+        $contents = base64_encode("#This is a comment\n\rhttps://httpbin.org/status/200");
+        $response = $this->doPostThumbnail($contents, 'test.uri', 'text/uri-list', 'admin@test.org', 'test');
+        $this->assertJsonResponse($response, 201);
+    }
+
+    /**
+     * @group phantomjs
+     */
     public function testGenerateThumbnailFromUri()
     {
-        $request = new ThumbnailGeneratorRequest();
-        $request->setFileName('test.uri');
-        $request->setFileMime('text/uri-list');
-        $request->setFileData(base64_encode("# This is a comment\r\nhttp://xkcd.com"));
-
-        $client = static::createClient();
-        $client->request(
-            'POST',
-            'thumbnails/',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            self::$serializer->serialize($request, 'json')
-        );
-        $response = $client->getResponse();
-
+        $contents = base64_encode("https://httpbin.org/status/200");
+        $response = $this->doPostThumbnail($contents, 'test.uri', 'text/uri-list', 'admin@test.org', 'test');
         $this->assertJsonResponse($response, 201);
     }
 
+    /**
+     * @group phantomjs
+     */
+    public function testGenerateThumbnailFromUriWithRedirect()
+    {
+        $contents = base64_encode("https://httpbin.org/absolute-redirect/1");
+        $response = $this->doPostThumbnail($contents, 'test.uri', 'text/uri-list', 'admin@test.org', 'test');
+        $this->assertJsonResponse($response, 201);
+    }
+
+    /**
+     * @group phantomjs
+     */
+    public function testGenerateThumbnailFromUriWithTooManyRedirects()
+    {
+        $contents = base64_encode("https://httpbin.org/absolute-redirect/5");
+        $response = $this->doPostThumbnail($contents, 'test.uri', 'text/uri-list', 'admin@test.org', 'test');
+        $this->assertJsonResponse($response, 509);
+    }
+
+    /**
+     * @group phantomjs
+     */
+    public function testGenerateThumbnailFromUriWithTimeout()
+    {
+        $contents = base64_encode("https://httpbin.org/delay/6");
+        $response = $this->doPostThumbnail($contents, 'test.uri', 'text/uri-list', 'admin@test.org', 'test');
+        $this->assertJsonResponse($response, 504);
+    }
+
+    /**
+     * @group phantomjs
+     */
+    public function testGenerateThumbnailFromUriUnknownResponse()
+    {
+        $contents = base64_encode("https://httpbin.org/status/418");
+        $response = $this->doPostThumbnail($contents, 'test.uri', 'text/uri-list', 'admin@test.org', 'test');
+        $this->assertJsonResponse($response, 502);
+    }
+
+    /**
+     * @group phantomjs
+     */
     public function testGenerateThumbnailFromWrongUriList()
     {
-        $request = new ThumbnailGeneratorRequest();
-        $request->setFileName('wrong.uri');
-        $request->setFileMime('text/uri-list');
-        $request->setFileData(base64_encode("http://xkcd.com\r\nhttp://google.com"));
-
-        $client = static::createClient();
-        $client->request(
-            'POST',
-            'thumbnails/',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            self::$serializer->serialize($request, 'json')
-        );
-        $response = $client->getResponse();
-
+        $contents = base64_encode("http://xkcd.com\r\nhttp://google.com");
+        $response = $this->doPostThumbnail($contents, 'wrong.uri', 'text/uri-list', 'admin@test.org', 'test');
         $this->assertJsonResponse($response, 400);
     }
 
+    /*
     public function testGenerateThumbnailDoDeleteFiles()
     {
         $request = new ThumbnailGeneratorRequest();
@@ -307,84 +314,51 @@ class DefaultControllerTest extends WebTestCase
         $finder->files()->in(self::$thumbnailsService->getThumbnailsImagesPath());
         $this->assertTrue($finder->count() == 0);
     }
+    */
 
-    public function testGenerateThumbnailFailIfWrongName()
+    /**
+     * @group pdfbox
+     */
+    public function testGenerateThumbnailFailIfEmptyName()
     {
-        $request = new ThumbnailGeneratorRequest();
-        $request->setFileMime('application/pdf');
-        $request->setFileData(base64_encode(file_get_contents(__DIR__.'/Test.pdf')));
-
-        $client = static::createClient();
-        $client->request(
-            'POST',
-            'thumbnails/',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            self::$serializer->serialize($request, 'json')
-        );
-        $response = $client->getResponse();
+        $file = $this->fixturesDir.'test.pdf';
+        $contents = base64_encode(file_get_contents($file));
+        $response = $this->doPostThumbnail($contents, null, 'application/pdf', 'admin@test.org', 'test');
         $this->assertJsonResponse($response, 400);
     }
 
-    public function testGenerateThumbnailFailIfWrongData()
+    /**
+     * @group pdfbox
+     */
+    public function testGenerateThumbnailFailIfEmptyData()
     {
-        $request = new ThumbnailGeneratorRequest();
-        $request->setFileName('Nome.pdf');
-        $request->setFileMime('application/pdf');
-
-        $client = static::createClient();
-        $client->request(
-            'POST',
-            'thumbnails/',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            self::$serializer->serialize($request, 'json')
-        );
-        $response = $client->getResponse();
+        $response = $this->doPostThumbnail(null, 'test.wrong-ext', null, 'admin@test.org', 'test');
         $this->assertJsonResponse($response, 400);
     }
 
+    /**
+     * @group pdfbox
+     */
     public function testGenerateThumbnailFailIfUnsupportedMime()
     {
-        $request = new ThumbnailGeneratorRequest();
-        $request->setFileName('Nome.pdf');
-        $request->setFileMime('text/xml');
-        $request->setFileData(base64_encode(file_get_contents(__DIR__.'/Test.pdf')));
-
-        $client = static::createClient();
-        $client->request(
-            'POST',
-            'thumbnails/',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            self::$serializer->serialize($request, 'json')
-        );
-        $response = $client->getResponse();
+        $file = $this->fixturesDir.'test.pdf';
+        $contents = base64_encode(file_get_contents($file));
+        $response = $this->doPostThumbnail($contents, 'test.pdf', 'text/xml', 'admin@test.org', 'test');
         $this->assertJsonResponse($response, 400);
     }
 
-    public function testGenerateThumbnailFailIfUnsupportedExtension()
+    /**
+     * @group pdfbox
+     */
+    public function testGenerateThumbnailFailIfUnsupportedFileExtension()
     {
-        $request = new ThumbnailGeneratorRequest();
-        $request->setFileName('Nome.json');
-        $request->setFileData(base64_encode(file_get_contents(__DIR__.'/Test.pdf')));
-
-        $client = static::createClient();
-        $client->request(
-            'POST',
-            'thumbnails/',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            self::$serializer->serialize($request, 'json')
-        );
-        $response = $client->getResponse();
+        $file = $this->fixturesDir.'test.pdf';
+        $contents = base64_encode(file_get_contents($file));
+        $response = $this->doPostThumbnail($contents, 'test.wrong-ext', null, 'admin@test.org', 'test');
         $this->assertJsonResponse($response, 400);
     }
 
+    /*
     public function testDeleteExpiredFiles()
     {
         $now = new \DateTime();
@@ -404,7 +378,9 @@ class DefaultControllerTest extends WebTestCase
         $this->assertFalse(self::$fs->exists($lockFile));
         $this->assertFalse(self::$fs->exists($thumbnailFile));
     }
+    */
 
+    /*
     public function testKeepNonExpiredFiles()
     {
         $now = new \DateTime();
@@ -423,6 +399,81 @@ class DefaultControllerTest extends WebTestCase
         $this->assertTrue(self::$fs->exists($queueFile));
         $this->assertTrue(self::$fs->exists($lockFile));
         $this->assertTrue(self::$fs->exists($thumbnailFile));
+    }
+    */
+
+    /*
+     * Helper functions
+     */
+
+    /**
+     * Helper function to return the generated thumbnail for the given InstitutionId and DocumentId.
+     *
+     * @param string $institutionID   The institution ID
+     * @param string $localDocumentID The Local document ID
+     * @param string $username        The (optional) username for API invocation
+     * @param string $password        The (optional) password for API invocation
+     *
+     * @return null|Response
+     */
+    protected function doGetThumbnail($institutionID, $localDocumentID, $username = null, $password = null)
+    {
+        $client = static::createClient();
+
+        $extra = ['CONTENT_TYPE' => 'application/json'];
+        if ($username) {
+            $extra['PHP_AUTH_USER'] = $username;
+        }
+        if ($password) {
+            $extra['PHP_AUTH_PW'] = $password;
+        }
+
+        $client->request(
+            'GET',
+            'thumbnails/'.$institutionID.'/'.$localDocumentID,
+            [],
+            [],
+            $extra
+        );
+
+        return $client->getResponse();
+    }
+
+    /**
+     * Posts a document to the ThumbnailAPI and returns the API response.
+     *
+     * @param string $contents The contents of the document to uploaded
+     * @param string $fileName The name of the document to uploaded
+     * @param string $fileMime The file Mime
+     * @param string $username The (optional) username for API invocation
+     * @param string $password The (optional) password for API invocation
+     *
+     * @return null|Response
+     */
+    protected function doPostThumbnail($contents, $fileName, $fileMime, $username = null, $password = null)
+    {
+        $client = static::createClient();
+
+        $data = [
+            'fileName' => $fileName,
+            'fileData' => $contents,
+            'fileMime' => $fileMime,
+        ];
+
+        $extra = [
+            'CONTENT_TYPE' => 'application/json',
+        ];
+
+        if ($username) {
+            $extra['PHP_AUTH_USER'] = $username;
+        }
+        if ($password) {
+            $extra['PHP_AUTH_PW'] = $password;
+        }
+
+        $client->request('POST', 'thumbnails/', [], [], $extra, json_encode($data));
+
+        return $client->getResponse();
     }
 
     /**

@@ -5,7 +5,7 @@ stages:
   - deploy
 
 cache:
-  key: "$CI_BUILD_REF_NAME"
+  key: "$CI_PROJECT_ID"
   paths:
     - vendor/
     - bin/
@@ -35,7 +35,7 @@ cache:
 ##### Jobs
 
 php-coding-styles:5.6:
-  image: docker.klink.asia:5043/klink/php-ci-docker:5.6-alpine
+  image: docker.klink.asia:5043/klink/php-ci-docker:5.6
   <<: *need_composer
   stage: php-cs
   script:
@@ -44,7 +44,10 @@ php-coding-styles:5.6:
     - docker
 
 test-no-solr:5.6:
-  image: docker.klink.asia:5043/klink/php-ci-docker:5.6-alpine
+  variables:
+    GITLAB_FAKE_VAR: "Fix docker issues with Gitlab"
+
+  image: docker.klink.asia:5043/klink/php-ci-docker:5.6
   <<: *need_composer
   stage: test
   script:
@@ -53,8 +56,6 @@ test-no-solr:5.6:
     - bin/phpunit -c app/ --exclude-group=solr,java,thumbnails
   tags:
     - docker
-  variables:
-    DOCKER_FIX_CACHE: "change-me"
 
 build-tarball:
   stage: release

@@ -5,5 +5,43 @@ services:
             - '%kernel.root_dir%'
             - '%thumbnails_api.max_parallel_processes%'
             - '%thumbnails_api.expire_time%'
+            -
+              pdf: "@klink.thumbnails.generator.pdf"
+              uri: "@klink.thumbnails.generator.web"
+              # Open Document documents
+              odt: "@klink.thumbnails.generator.opendocument"
+              ods: "@klink.thumbnails.generator.opendocument"
+              odp: "@klink.thumbnails.generator.opendocument"
+              # MS OfficeX documents
+              xlsx: "@klink.thumbnails.generator.msofficex"
+              pptx: "@klink.thumbnails.generator.msofficex"
+              docx: "@klink.thumbnails.generator.msofficex"
+            - '@logger'
+
+    klink.thumbnails.generator.pdf:
+        class: KCore\ThumbnailsAPIBundle\Services\ThumbnailGeneratorPDF
+        arguments:
             - '%thumbnails_api.pdfbox_jar_path%'
+            - "500"
+            - '@logger'
+
+    klink.thumbnails.generator.web:
+        class: KCore\ThumbnailsAPIBundle\Services\ThumbnailGeneratorWeb
+        arguments:
+            - "%kernel.root_dir%/../bin/phantomjs"
+            - "5000"
+            - "1"
+            - "@validator"
+            - '@logger'
+
+    klink.thumbnails.generator.opendocument:
+        class: KCore\ThumbnailsAPIBundle\Services\ThumbnailGeneratorOpenDocument
+        arguments:
+            - 300
+            - '@logger'
+
+    klink.thumbnails.generator.msofficex:
+        class: KCore\ThumbnailsAPIBundle\Services\ThumbnailGeneratorMSOfficeDocumentX
+        arguments:
+            - 300
             - '@logger'
