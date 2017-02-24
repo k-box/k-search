@@ -2,55 +2,58 @@
 
 namespace KCore\CoreBundle\Entity;
 
-use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
-
-
+use Pnz\GeoJSON\GeoJSONFeature;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class DocumentDescriptor
- * @package KCore\DocumentAPIBundle\Entity
- *
+ * Class DocumentDescriptor.
  */
-class DocumentDescriptor extends BaseEntity {
-
+class DocumentDescriptor extends BaseEntity
+{
     const ENTITY_TYPE = 'doc-descriptor';
     const DOCUMENT_VISIBILITY_PUBLIC = 'public';
-    const DOCUMENT_VISIBILITY_PRIVATE= 'private';
+    const DOCUMENT_VISIBILITY_PRIVATE = 'private';
 
     /**
+     * The document ID; used to build the global ID of the document in the KLink network.
+     *
      * @var string
      * @Serializer\Type("string")
      * @Serializer\SerializedName("localDocumentID")
      * @Assert\NotBlank
      * @Assert\Regex(pattern="/^[a-zA-Z0-9]+$/")
      */
-    protected $localDocumentId;
+    protected $localDocumentID;
 
     /**
+     * The institution ID of the document. It is used to build the global ID of the document in the KLink network.
+     *
      * @var string
      * @Serializer\Type("string")
      * @Serializer\SerializedName("institutionID")
      * @Assert\NotBlank
      * @Assert\Regex(pattern="/^[a-zA-Z0-9]+$/")
      */
-    protected $institutionId;
+    protected $institutionID;
 
     /**
+     * The document visibility, either "private" or "public".
+     *
      * @var string
      * @Serializer\Type("string")
      * @Assert\Choice(choices={
-     *      DocumentDescriptor::DOCUMENT_VISIBILITY_PUBLIC,
-     *      DocumentDescriptor::DOCUMENT_VISIBILITY_PRIVATE
-     * })
+     *             DocumentDescriptor::DOCUMENT_VISIBILITY_PUBLIC,
+     *             DocumentDescriptor::DOCUMENT_VISIBILITY_PRIVATE
+     *             })
      * @Assert\NotBlank
      */
     protected $visibility;
 
     /**
-     * The SHA-2 hash of the Document contents (SHA-512, thus 128 Chars)
+     * The SHA-2 hash of the Document contents (SHA-512, thus 128 Chars).
      *
-     * @var String
+     * @var string
      *
      * @Serializer\Type("string")
      * @Assert\NotBlank
@@ -60,7 +63,8 @@ class DocumentDescriptor extends BaseEntity {
     protected $hash;
 
     /**
-     * The Document title, if available
+     * The Document title, if available.
+     *
      * @var string
      * @Serializer\Type("string")
      */
@@ -74,7 +78,8 @@ class DocumentDescriptor extends BaseEntity {
     protected $contents;
 
     /**
-     * The document language code (in RFC ), if empty this value will be set during the Core indexing procedure
+     * The document language code (ISO 639-1), if empty this value will be set by the indexing procedure.
+     *
      * @var string
      *
      * @Serializer\Type("string")
@@ -83,7 +88,8 @@ class DocumentDescriptor extends BaseEntity {
     protected $language;
 
     /**
-     * Document creation date
+     * Document creation date.
+     *
      * @var \DateTime
      * @Serializer\Type("DateTime")
      * @Serializer\SerializedName("creationDate")
@@ -92,9 +98,19 @@ class DocumentDescriptor extends BaseEntity {
     protected $creationDate;
 
     /**
-     * URI where the document is stored and retrievable
+     * Document updated date.
      *
-     * @var String
+     * @var \DateTime
+     * @Serializer\Type("DateTime")
+     * @Serializer\SerializedName("updateDate")
+     * @Serializer\Since("2.2.5")
+     */
+    protected $updateDate;
+
+    /**
+     * URI where the document is stored and retrievable.
+     *
+     * @var string
      * @Serializer\Type("string")
      * @Serializer\SerializedName("documentURI")
      * @Assert\NotBlank
@@ -103,9 +119,9 @@ class DocumentDescriptor extends BaseEntity {
     protected $documentURI;
 
     /**
-     * The URI where the document thumbnail is stored
+     * The URI where the document thumbnail is stored.
      *
-     * @var String
+     * @var string
      * @Serializer\Type("string")
      * @Serializer\SerializedName("thumbnailURI")
      * @Assert\NotBlank
@@ -114,18 +130,18 @@ class DocumentDescriptor extends BaseEntity {
     protected $thumbnailURI;
 
     /**
-     * The document abstract, if available
+     * The document abstract, if available.
      *
-     * @var String
+     * @var string
      * @Serializer\Type("string")
      */
     protected $abstract;
 
     /**
      * Document owner, as the responsible of the document and that may be contacted for document info.
-     * Field format: "Name Surname <mail@host.com>"
+     * Field format: "Name Surname <mail@host.com>".
      *
-     * @var String
+     * @var string
      * @Serializer\Type("string")
      * @Serializer\SerializedName("userOwner")
      * @Assert\NotBlank()
@@ -134,12 +150,11 @@ class DocumentDescriptor extends BaseEntity {
      */
     protected $userOwner;
 
-
     /**
      * List of document authors with eMail
-     * Field format: "Name Surname <mail@host.com>"
+     * Field format: "Name Surname <mail@host.com>".
      *
-     * @var String[]
+     * @var string[]
      * @Serializer\Type("array<string>")
      *
      * @todo: implement the right validator for this field!
@@ -147,11 +162,10 @@ class DocumentDescriptor extends BaseEntity {
     protected $authors;
 
     /**
-     *
      * User that uploaded the document
-     * Field format: "Name Surname <mail@host.com>"
+     * Field format: "Name Surname <mail@host.com>".
      *
-     * @var String
+     * @var string
      * @Serializer\Type("string")
      * @Serializer\SerializedName("userUploader")
      * @Assert\NotBlank()
@@ -161,7 +175,7 @@ class DocumentDescriptor extends BaseEntity {
     protected $userUploader;
 
     /**
-     * MimeType of the document
+     * MimeType of the document.
      *
      * @var string
      * @Serializer\Type("string")
@@ -171,7 +185,7 @@ class DocumentDescriptor extends BaseEntity {
     protected $mimeType;
 
     /**
-     * Document type (PDF, Document, Presentation, ..)
+     * Document type (PDF, Document, Presentation, ..).
      *
      * @var string
      * @Serializer\Type("string")
@@ -181,279 +195,613 @@ class DocumentDescriptor extends BaseEntity {
     protected $documentType;
 
     /**
-     * @param String $institutionId
+     * List of Location String(s), if this field is left empty
+     * then this value will be set during the indexing process.
+     *
+     * @var string[]
+     * @Serializer\Type("array<string>")
+     * @Serializer\SerializedName("locationsString")
+     *
+     * @todo: implement the right validator for this field!
+     */
+    protected $locationsString;
+
+    /**
+     * List of the (overrided) titles of the document, as defined by users.
+     *
+     * @var string[]
+     * @Serializer\Type("array<string>")
+     * @Serializer\SerializedName("titleAliases")
+     */
+    protected $titleAliases;
+
+    /**
+     * List of LocationItems, if  this field is left empty then
+     * this value will be set during the indexing process.
+     *
+     * @var GeoJSONFeature[]
+     * @Serializer\Type("array<Pnz\GeoJSON\GeoJSONFeature>")
+     * @Serializer\SerializedName("locations")
+     *
+     * @todo: implement the right validator for this field!
+     */
+    protected $locations = [];
+
+    /**
+     * List of topics contained in the document, if this field is left empty
+     * then this value will be set during the indexing process.
+     *
+     * @var string[]
+     * @Serializer\Type("array<string>")
+     * @Serializer\SerializedName("topicTerms")
+     */
+    protected $topicTerms;
+
+    /**
+     * The list of folders where the document can be found. Every folder is the
+     * “document storage” relative path of the file. The path separator is “/” (slash).
+
+     *
+     * @var string[]
+     * @Serializer\Type("array<string>")
+     * @Serializer\SerializedName("documentFolders")
+     *
+     * @todo: implement the right validator for this field!
+     */
+    protected $documentFolders;
+
+    /**
+     * The list of projects where the document can be found.
+     *
+     * @var string[]
+     * @Serializer\Type("array<string>")
+     * @Serializer\SerializedName("projectIds")
+     * @Serializer\Since("2.2")
+     */
+    protected $projectIds;
+
+    /**
+     * The list of groups assigned to the document. Each string in the list is in
+     * the form "user_id:group_id" where: group_id is the identifier of the group,
+     * and the user_id is the user identifier of the user owning the group
+     * (the _ids are internally defined by the DMS).
+
+     *
+     * @var string[]
+     * @Serializer\Type("array<string>")
+     * @Serializer\SerializedName("documentGroups")
+     *
+     * @todo: implement the right validator for this field!
+     */
+    protected $documentGroups;
+
+    /**
+     * @param string $institutionId
      * @param $localDocumentId
      */
-    function __construct($institutionId, $localDocumentId) {
+    public function __construct($institutionId, $localDocumentId)
+    {
         parent::__construct($this->computeDocumentId($institutionId, $localDocumentId));
-        $this->institutionId   = $institutionId;
-        $this->localDocumentId = $localDocumentId;
+        $this->institutionID = $institutionId;
+        $this->localDocumentID = $localDocumentId;
     }
 
     /**
      * @param $institutionId
      * @param $documentId
+     *
      * @return string
      */
-    public static function computeDocumentId($institutionId, $documentId) {
-        return $institutionId . '-'. $documentId;
+    public static function computeDocumentId($institutionId, $documentId)
+    {
+        return $institutionId.'-'.$documentId;
     }
 
     /**
      * @param $id
+     *
      * @return array|null
      */
-    public static function splitDocumentId($id) {
+    public static function splitDocumentId($id)
+    {
         $split = explode('-', $id, 2);
         if (count($split) != 2) {
             $split = null;
         }
+
         return $split;
     }
 
     /**
-     * Gets the current EntityID, computes it if is not been set
+     * Gets the current EntityID, computes it if is not been set.
      *
-     * @return String
+     * @return string
      */
-    public function getId() {
+    public function getId()
+    {
         if (empty($this->id)) {
             $this->id = $this->computeDocumentId($this->getInstitutionId(), $this->getLocalDocumentId());
         }
+
         return $this->id;
     }
 
     /**
-     * @return String
+     * @return string
      */
-    public function getAbstract() {
+    public function getAbstract()
+    {
         return $this->abstract;
     }
 
     /**
-     * @param String $abstract
+     * @param string $abstract
      */
-    public function setAbstract($abstract) {
+    public function setAbstract($abstract)
+    {
         $this->abstract = $abstract;
     }
 
     /**
      * @return \String[]
      */
-    public function getAuthors() {
+    public function getAuthors()
+    {
         return $this->authors;
     }
 
     /**
      * @param \String[] $authors
      */
-    public function setAuthors($authors) {
+    public function setAuthors($authors)
+    {
         $this->authors = $authors;
     }
 
     /**
      * @param $author
      */
-    public function addAuthor($author) {
+    public function addAuthor($author)
+    {
         $this->authors[] = $author;
     }
 
     /**
      * @return \DateTime
      */
-    public function getCreationDate() {
+    public function getCreationDate()
+    {
         return $this->creationDate;
     }
 
     /**
      * @param \DateTime $creationDate
      */
-    public function setCreationDate(\DateTime $creationDate) {
+    public function setCreationDate(\DateTime $creationDate)
+    {
         $this->creationDate = $creationDate;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getUpdateDate()
+    {
+        if (!$this->updateDate) {
+            return $this->getCreationDate();
+        }
+
+        return $this->updateDate;
+    }
+
+    /**
+     * @param \DateTime|null $updateDate
+     */
+    public function setUpdateDate($updateDate)
+    {
+        $this->updateDate = $updateDate;
     }
 
     /**
      * @return string
      */
-    public function getDocumentType() {
+    public function getDocumentType()
+    {
         return $this->documentType;
     }
 
     /**
      * @param string $documentType
      */
-    public function setDocumentType($documentType) {
+    public function setDocumentType($documentType)
+    {
         $this->documentType = $documentType;
     }
 
     /**
-     * @return String
+     * @return string
      */
-    public function getDocumentURI() {
+    public function getDocumentURI()
+    {
         return $this->documentURI;
     }
 
     /**
-     * @param String $documentURI
+     * @param string $documentURI
      */
-    public function setDocumentURI($documentURI) {
+    public function setDocumentURI($documentURI)
+    {
         $this->documentURI = $documentURI;
     }
 
     /**
-     * @return String
+     * @return string
      */
-    public function getHash() {
+    public function getHash()
+    {
         return $this->hash;
     }
 
     /**
-     * @param String $hash
+     * @param string $hash
      */
-    public function setHash($hash) {
+    public function setHash($hash)
+    {
         $this->hash = $hash;
     }
 
     /**
      * @return string
      */
-    public function getInstitutionId() {
-        return $this->institutionId;
+    public function getInstitutionId()
+    {
+        return $this->institutionID;
     }
 
     /**
-     * @param string $institutionID
+     * @param string $institutionId
      */
-    public function setInstitutionId($institutionID) {
-        $this->institutionId = $institutionID;
+    public function setInstitutionId($institutionId)
+    {
+        $this->institutionID = $institutionId;
     }
 
     /**
      * @return string
      */
-    public function getLanguage() {
+    public function getLanguage()
+    {
         return $this->language;
     }
 
     /**
      * @param string $language
      */
-    public function setLanguage($language) {
+    public function setLanguage($language)
+    {
         $this->language = $language;
     }
 
     /**
      * @return string
      */
-    public function getMimeType() {
+    public function getMimeType()
+    {
         return $this->mimeType;
     }
 
     /**
      * @param string $mimeType
      */
-    public function setMimeType($mimeType) {
+    public function setMimeType($mimeType)
+    {
         $this->mimeType = $mimeType;
     }
 
     /**
-     * @return String
+     * @return string
      */
-    public function getThumbnailURI() {
+    public function getThumbnailURI()
+    {
         return $this->thumbnailURI;
     }
 
     /**
-     * @param String $thumbnailURI
+     * @param string $thumbnailURI
      */
-    public function setThumbnailURI($thumbnailURI) {
+    public function setThumbnailURI($thumbnailURI)
+    {
         $this->thumbnailURI = $thumbnailURI;
     }
 
     /**
      * @return string
      */
-    public function getTitle() {
+    public function getTitle()
+    {
         return $this->title;
     }
 
     /**
      * @param string $title
      */
-    public function setTitle($title) {
+    public function setTitle($title)
+    {
         $this->title = $title;
     }
 
     /**
-     * @return String
+     * @return string
      */
-    public function getUserOwner() {
+    public function getUserOwner()
+    {
         return $this->userOwner;
     }
 
     /**
-     * @param String $userOwner
+     * @param string $userOwner
      */
-    public function setUserOwner($userOwner) {
+    public function setUserOwner($userOwner)
+    {
         $this->userOwner = $userOwner;
     }
 
     /**
-     * @return String
+     * @return string
      */
-    public function getUserUploader() {
+    public function getUserUploader()
+    {
         return $this->userUploader;
     }
 
     /**
-     * @param String $userUploader
+     * @param string $userUploader
      */
-    public function setUserUploader($userUploader) {
+    public function setUserUploader($userUploader)
+    {
         $this->userUploader = $userUploader;
     }
 
     /**
      * @return string
      */
-    public function getVisibility() {
+    public function getVisibility()
+    {
         return $this->visibility;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPublicDocument()
+    {
+        return $this->getVisibility() == self::DOCUMENT_VISIBILITY_PUBLIC;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPrivateDocument()
+    {
+        return $this->getVisibility() == self::DOCUMENT_VISIBILITY_PRIVATE;
     }
 
     /**
      * @return string
      */
-    public function getLocalDocumentId() {
-        return $this->localDocumentId;
+    public function getLocalDocumentId()
+    {
+        return $this->localDocumentID;
     }
 
     /**
      * @param string $localDocumentID
      */
-    public function setLocalDocumentId($localDocumentID) {
-        $this->localDocumentId = $localDocumentID;
+    public function setLocalDocumentId($localDocumentID)
+    {
+        $this->localDocumentID = $localDocumentID;
     }
 
     /**
      * @param string $visibility
      */
-    public function setVisibility($visibility) {
+    public function setVisibility($visibility)
+    {
         $this->visibility = $visibility;
     }
 
     /**
      * @return string
      */
-    public function getContents() {
+    public function getContents()
+    {
         return $this->contents;
     }
 
     /**
      * @param string $contents
      */
-    public function setContents($contents) {
+    public function setContents($contents)
+    {
         $this->contents = $contents;
     }
 
+    /**
+     * @return \String[]
+     */
+    public function getTitleAliases()
+    {
+        return $this->titleAliases;
+    }
 
+    /**
+     * @param \String[] $titleAliases
+     */
+    public function setTitleAliases($titleAliases)
+    {
+        $this->titleAliases = $titleAliases;
+    }
 
+    /**
+     * @param $titleAlias
+     */
+    public function addTitleAlias($titleAlias)
+    {
+        $this->titleAliases[] = $titleAlias;
+    }
+
+    /**
+     * @param \String $locationsString
+     */
+    protected function addLocationString($locationsString)
+    {
+        $this->locationsString[] = $locationsString;
+    }
+
+    /**
+     * @return \String[]
+     * @
+     */
+    public function getLocationsString()
+    {
+        if (empty($this->locationsString)) {
+            $this->initLocationStrings();
+        }
+
+        return $this->locationsString;
+    }
+
+    protected function initLocationStrings()
+    {
+        $this->locationsString = [];
+        if (is_array($this->getLocations())) {
+            foreach ($this->getLocations() as $location) {
+                $this->addLocationString($location->getProperty('name'));
+            }
+        }
+    }
+
+    /**
+     * @return GeoJSONFeature[]
+     */
+    public function getLocations()
+    {
+        return $this->locations;
+    }
+
+    /**
+     * @return $this
+     */
+    public function clearLocations()
+    {
+        $this->locations = [];
+        $this->locationsString = [];
+
+        return $this;
+    }
+
+    /**
+     * @param GeoJSONFeature $location
+     */
+    public function addLocation(GeoJSONFeature $location)
+    {
+        $this->locations[] = $location;
+        $this->addLocationString($location->getProperty('name'));
+    }
+
+    /**
+     * @return \String[]
+     */
+    public function getTopicTerms()
+    {
+        return $this->topicTerms;
+    }
+
+    /**
+     * @param \String[] $topicTerms
+     */
+    public function setTopicTerms($topicTerms)
+    {
+        $this->topicTerms = $topicTerms;
+    }
+
+    /**
+     * @param $topicTerm
+     */
+    public function addTopicTerm($topicTerm)
+    {
+        $this->topicTerms[] = $topicTerm;
+    }
+
+    /**
+     * @return \String[]
+     */
+    public function getDocumentFolders()
+    {
+        return $this->documentFolders;
+    }
+
+    /**
+     * @param \String[] $documentFolders
+     */
+    public function setDocumentFolders($documentFolders)
+    {
+        $this->documentFolders = $documentFolders;
+    }
+
+    /**
+     * @param $documentFolder
+     */
+    public function addDocumentFolder($documentFolder)
+    {
+        $this->documentFolders[] = $documentFolder;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getProjectIds()
+    {
+        return $this->projectIds;
+    }
+
+    /**
+     * @param string $projectId
+     */
+    public function addProjectId($projectId)
+    {
+        $this->projectIds[] = $projectId;
+    }
+
+    /**
+     * @param string[] $projectIds
+     */
+    public function setProjectIds(array $projectIds)
+    {
+        $this->projectIds = $projectIds;
+    }
+
+    /**
+     * @return \String[]
+     */
+    public function getDocumentGroups()
+    {
+        return $this->documentGroups;
+    }
+
+    /**
+     * @param \String[] $documentGroups
+     */
+    public function setDocumentGroups($documentGroups)
+    {
+        $this->documentGroups = $documentGroups;
+    }
+
+    /**
+     * @param $documentGroup
+     */
+    public function addDocumentGroup($documentGroup)
+    {
+        $this->documentGroups[] = $documentGroup;
+    }
 }
