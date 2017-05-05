@@ -1,0 +1,7 @@
+[submodule "virtualization/drifter"]
+	path = virtualization/drifter
+	url = https://github.com/liip/drifter.git
+[submodule "solr"]
+	path = solr
+	url = ../solr-conf.git
+	branch = solr-5
