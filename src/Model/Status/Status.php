@@ -18,6 +18,7 @@ class Status
      *
      * @var int
      * @JMS\Type("integer")
+     * @JMS\ReadOnly()
      * @SWG\Property(
      *     example=201
      * )

@@ -11,9 +11,9 @@ use Swagger\Annotations as SWG;
 class RPCResponse
 {
     /**
-     * The request identifier, the response is referring to.
+     * The request ID this response is referring to.
      *
-     * @see RPCRequestTest::$id
+     * @see RPCRequest::$id
      *
      * @var string
      * @JMS\Type("string")
