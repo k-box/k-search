@@ -38,6 +38,7 @@ class DataController extends Controller
      *        "version":"\d++\.\d++"
      *     }
      * )
+     *
      * @param string $version
      */
     public function postDataDelete(Request $request, string $version)

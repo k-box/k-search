@@ -13,7 +13,7 @@ class RPCResponse
     /**
      * The request identifier, the response is referring to.
      *
-     * @see RPCRequest::$id
+     * @see RPCRequestTest::$id
      *
      * @var string
      * @JMS\Type("string")

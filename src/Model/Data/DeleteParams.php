@@ -5,7 +5,6 @@ namespace App\Model\Data;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 
-
 /**
  * @SWG\Definition(
  *     definition="Data\DeleteParams",

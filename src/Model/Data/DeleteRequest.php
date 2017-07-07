@@ -6,7 +6,6 @@ use App\Model\RPCRequest;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 
-
 /**
  * @SWG\Definition(
  *     definition="Data\DeleteRequest",
@@ -16,11 +15,11 @@ use Swagger\Annotations as SWG;
 class DeleteRequest extends RPCRequest
 {
     /**
-     * @var DeleteParams
-     * @JMS\Type("\App\Model\Data\DeleteParams")
-     * @SWG\Property(
-     *     ref="#/definitions/Data\DeleteParams")
-     * )
-     */
+      * @var DeleteParams
+      * @JMS\Type("\App\Model\Data\DeleteParams")
+      * @SWG\Property(
+      *     ref="#/definitions/Data\DeleteParams")
+      * )
+      */
      public $params;
 }
