@@ -33,8 +33,8 @@ class StatusResponse extends RPCResponse
         $this->id = $responseId;
     }
 
-    public static function withStatusMessage(int $code, string $message, string $responseId = null): StatusResponse
+    public static function withStatusMessage(int $statusCode, string $message, string $responseId = null): StatusResponse
     {
-        return new self(new Status($code, $message), $responseId);
+        return new self(new Status($statusCode, $message), $responseId);
     }
 }

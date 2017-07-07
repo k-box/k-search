@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Exception\BadRequestException;
 use App\Model\Data\AddRequest;
 use App\Model\Data\AddResponse;
 use App\Model\Data\Data;
@@ -11,7 +12,9 @@ use App\Model\Data\GetResponse;
 use App\Model\Data\SearchRequest;
 use App\Model\Data\SearchResponse;
 use App\Model\Error\ErrorResponse;
+use App\Model\RPCRequest;
 use App\Model\Status\StatusResponse;
+use App\Service\SearchService;
 use JMS\Serializer\SerializerInterface;
 use Swagger\Annotations as SWG;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -19,6 +22,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class DataController extends Controller
@@ -32,15 +36,14 @@ class DataController extends Controller
      * @var SerializerInterface
      */
     protected $serializer;
-
     /**
-     * DataController constructor.
-     *
-     * @param ValidatorInterface  $validator
-     * @param SerializerInterface $serializer
+     * @var SearchService
      */
-    public function __construct(ValidatorInterface $validator, SerializerInterface $serializer)
+    private $searchService;
+
+    public function __construct(SearchService $searchService, ValidatorInterface $validator, SerializerInterface $serializer)
     {
+        $this->searchService = $searchService;
         $this->validator = $validator;
         $this->serializer = $serializer;
     }
@@ -66,7 +69,7 @@ class DataController extends Controller
      *         @SWG\Schema(ref="#/definitions/Data\DeleteRequest")
      *     ),
      *     @SWG\Response(
-     *         response="201",
+     *         response="200",
      *         description="Returned when successful",
      *         @SWG\Schema(ref="#/definitions/Status\StatusResponse")
      *     ),
@@ -85,17 +88,15 @@ class DataController extends Controller
     public function postDataDelete(Request $request, string $version)
     {
         /** @var DeleteRequest $deleteRequest */
-        $deleteRequest = $this->serializer->deserialize($request->getContent(), DeleteRequest::class, 'json');
+        $deleteRequest = $this->getRequestModelFromJson($request, DeleteRequest::class);
 
-        $errors = $this->validator->validate($deleteRequest);
-        if (count($errors) > 0) {
-            $errorResponse = ErrorResponse::withErrorMessage(400, 'Wrong data!'.(string) $errors, $deleteRequest->id);
+        $success = $this->searchService->deleteData($deleteRequest->params->uuid);
 
-            return new JsonResponse($errorResponse);
+        if ($success) {
+            $statusResponse = StatusResponse::withStatusMessage(200, 'Ok', $deleteRequest->id);
+        } else {
+            $statusResponse = StatusResponse::withStatusMessage(400, 'Error', $deleteRequest->id);
         }
-
-        // @todo Implement the logic here
-        $statusResponse = StatusResponse::withStatusMessage(200, 'Ok', $deleteRequest->id);
 
         return new JsonResponse($statusResponse);
     }
@@ -121,7 +122,7 @@ class DataController extends Controller
      *         @SWG\Schema(ref="#/definitions/Data\GetRequest")
      *     ),
      *     @SWG\Response(
-     *         response="201",
+     *         response="200",
      *         description="Returned when successful",
      *         @SWG\Schema(ref="#/definitions/Data\GetResponse")
      *     ),
@@ -181,7 +182,7 @@ class DataController extends Controller
      *         @SWG\Schema(ref="#/definitions/Data\AddRequest")
      *     ),
      *     @SWG\Response(
-     *         response="201",
+     *         response="200",
      *         description="Returned when successful",
      *         @SWG\Schema(ref="#/definitions/Data\AddResponse")
      *     ),
@@ -240,7 +241,7 @@ class DataController extends Controller
      *         @SWG\Schema(ref="#/definitions/Data\SearchRequest")
      *     ),
      *     @SWG\Response(
-     *         response="201",
+     *         response="200",
      *         description="Returned when successful",
      *         @SWG\Schema(ref="#/definitions/Data\SearchResponse")
      *     ),
@@ -272,5 +273,38 @@ class DataController extends Controller
         $statusResponse = new SearchResponse(null, $addRequest->id);
 
         return new JsonResponse($statusResponse);
+    }
+
+    /**
+     * Returns the given RequestModel from the request.
+     *
+     * @param Request $request
+     * @param string  $class
+     *
+     * @throws BadRequestException
+     *
+     * @return mixed
+     */
+    private function getRequestModelFromJson(Request $request, string $class)
+    {
+        $requestModel = $this->serializer->deserialize($request->getContent(), $class, 'json');
+
+        // We handle the request-id as a HTTP header, it will be used in the KSearchExceptionListener
+        // to correctly set the "response->id" if available.
+        if ($requestModel instanceof  RPCRequest && $requestModel->id) {
+            $request->headers->set(RPCRequest::REQUEST_ID_HEADER, $requestModel->id);
+        }
+
+        $validationErrors = $this->validator->validate($requestModel);
+        if (count($validationErrors) > 0) {
+            $errors = [];
+            /** @var ConstraintViolationInterface $error */
+            foreach ($validationErrors as $error) {
+                $errors[$error->getPropertyPath()] = $error->getMessage();
+            }
+            throw new BadRequestException($errors);
+        }
+
+        return $requestModel;
     }
 }

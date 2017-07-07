@@ -42,15 +42,10 @@ class Error
      */
     public $data;
 
-    /**
-     * Error constructor.
-     *
-     * @param int    $code
-     * @param string $message
-     */
-    public function __construct(int $code, string $message)
+    public function __construct(int $errorCode, string $message, $data = null)
     {
-        $this->code = $code;
+        $this->code = $errorCode;
         $this->message = $message;
+        $this->data = $data;
     }
 }
