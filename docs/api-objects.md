@@ -79,6 +79,14 @@ In case that `type`==`video`. It is expected to extend the `properties` by this 
 | `data[]`  | Object  | ✔          | Additional information can optionally be provided on errors for better debugging. |
 
 
+## Status object
+
+| Property  | Type    | Required   | Description |
+| --------- | ------- | ---------- | ----------- |
+| `code`    | Integer | ✔          | JSON-RPC inspired error codes. (minimum: -32768; maximum: -30000) |
+| `message` | String  | ✔          | Human readable status message. |
+
+
 ## SearchQuery object
 
 | Property | Type   | Required | Description |

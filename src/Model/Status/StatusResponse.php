@@ -15,7 +15,7 @@ use Swagger\Annotations as SWG;
 class StatusResponse extends RPCResponse
 {
     /**
-     * The error data.
+     * The status data.
      *
      * @var Status
      *
@@ -24,17 +24,17 @@ class StatusResponse extends RPCResponse
      *     ref="#/definitions/Status\Status")
      * )
      */
-    public $status;
+    public $result;
 
     /**
      * ErrorResponse constructor.
      *
-     * @param Status      $sta
+     * @param Status      $status
      * @param string|null $id
      */
-    public function __construct(Status $sta, string $id = null)
+    public function __construct(Status $status, string $id = null)
     {
-        $this->status = $sta;
+        $this->result = $status;
         $this->id = $id;
     }
 
