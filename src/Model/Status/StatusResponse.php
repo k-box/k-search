@@ -25,4 +25,28 @@ class StatusResponse extends RPCResponse
      * )
      */
     public $status;
+
+    /**
+     * ErrorResponse constructor.
+     *
+     * @param Status      $sta
+     * @param string|null $id
+     */
+    public function __construct(Status $sta, string $id = null)
+    {
+        $this->status = $sta;
+        $this->id = $id;
+    }
+
+    /**
+     * @param int    $code
+     * @param string $message
+     * @param string $id
+     *
+     * @return StatusResponse
+     */
+    public static function withStatusMessage(int $code, string $message, string $id)
+    {
+        return new self(new Status($code, $message), $id);
+    }
 }

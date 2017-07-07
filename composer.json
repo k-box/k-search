@@ -27,6 +27,7 @@
         "symfony/translation": "^3.3",
         "symfony/web-profiler-bundle": "^3.3",
         "symfony/yaml": "^3.3",
+        "symfony/validator": "^3.3",
         "zircote/swagger-php": "^2.0"
     },
     "require-dev": {
@@ -61,11 +62,6 @@
         "post-update-cmd": [
             "@auto-scripts"
         ]
-    },
-    "conflict": {
-        "symfony/symfony": "*",
-        "symfony/twig-bundle": "<3.3",
-        "symfony/debug": "<3.3"
     },
     "extra": {
         "symfony": {

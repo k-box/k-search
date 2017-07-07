@@ -4,6 +4,7 @@ namespace App\Model;
 
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * The main class for RPC requests.
@@ -18,8 +19,7 @@ class RPCRequest
      * @var string
      *
      * @JMS\Type("string")
-     * @JMS\ReadOnly()
-     *
+     * @Assert\NotBlank()
      * @SWG\Property(
      *     example="request-3d254173"
      * )

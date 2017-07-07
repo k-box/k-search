@@ -35,4 +35,16 @@ class Status
      * )
      */
     public $status;
+
+    /**
+     * Status constructor.
+     *
+     * @param int    $code
+     * @param string $status
+     */
+    public function __construct(int $code, string $status)
+    {
+        $this->code = $code;
+        $this->status = $status;
+    }
 }
