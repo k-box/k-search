@@ -126,7 +126,7 @@ Allows to query the K-Search index and returns search results.
 | Property | Type    | Required   | Description |
 | -------- | ------- | ---------- | ----------- |
 | `id` | String | ✔ | The identifier established by the client in the request. |
-| `params` | Object | ✔ | [`SearchResult object`](https://git.klink.asia/main/k-search/blob/master/docs/api-objects.md#searchresults-object) |
+| `result` | Object | ✔ | [`SearchResult object`](https://git.klink.asia/main/k-search/blob/master/docs/api-objects.md#searchresults-object) |
 
 
 ### data.get
@@ -150,7 +150,7 @@ Get detailed information of piece of data in the search index.
 | Property | Type    | Required   | Description |
 | -------- | ------- | ---------- | ----------- |
 | `id` | String | ✔ | The identifier established by the client in the request. |
-| `params` | Object | ✔ | [`Data object`](https://git.klink.asia/main/k-search/blob/master/docs/api-objects.md#data-object) |
+| `result` | Object | ✔ | [`Data object`](https://git.klink.asia/main/k-search/blob/master/docs/api-objects.md#data-object) |
 
 
 ### data.add
@@ -173,7 +173,7 @@ Add piece of data to the search index.
 | Property | Type    | Required   | Description |
 | -------- | ------- | ---------- | ----------- |
 | `id` | String | ✔ | The identifier established by the client in the request. |
-| `params` | Object | ✔ | [`Data object`](https://git.klink.asia/main/k-search/blob/master/docs/api-objects.md#data-object) |
+| `result` | Object | ✔ | [`Data object`](https://git.klink.asia/main/k-search/blob/master/docs/api-objects.md#data-object) |
 
 
 ### data.delete
@@ -197,4 +197,4 @@ Delete piece of data from the search index.
 | Property | Type    | Required   | Description |
 | -------- | ------- | ---------- | ----------- |
 | `id` | String | ✔ | The identifier established by the client in the request. |
-| `params` | Object | ✔ | [`Data object`](https://git.klink.asia/main/k-search/blob/master/docs/api-objects.md#data-object) |
+| `result` | Object | ✔ | [`Data object`](https://git.klink.asia/main/k-search/blob/master/docs/api-objects.md#data-object) |
