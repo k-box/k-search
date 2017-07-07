@@ -3,5 +3,5 @@
 	url = https://github.com/liip/drifter.git
 [submodule "solr"]
 	path = solr
-	url = ../solr-conf.git
+	url = git@git.klink.asia:main/k-search-engine-conf.git
 	branch = solr-5
