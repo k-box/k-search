@@ -53,6 +53,7 @@ class DataController extends Controller
      *
      * @Route(
      *     path="api/{version}/data.delete",
+     *     methods={"POST"},
      *     requirements={
      *        "version":"0.0"
      *     }
@@ -105,7 +106,8 @@ class DataController extends Controller
      * Get detailed information of piece of data in the search index.
      *
      * @Route(
-     *     path="api/{version}/data.delete",
+     *     path="api/{version}/data.get",
+     *     methods={"POST"},
      *     requirements={
      *        "version":"0.0"
      *     }
@@ -166,6 +168,7 @@ class DataController extends Controller
      *
      * @Route(
      *     path="api/{version}/data.add",
+     *     methods={"POST"},
      *     requirements={
      *        "version":"0.0"
      *     }
@@ -226,6 +229,7 @@ class DataController extends Controller
      *
      * @Route(
      *     path="api/{version}/data.search",
+     *     methods={"POST"},
      *     requirements={
      *        "version":"0.0"
      *     }
