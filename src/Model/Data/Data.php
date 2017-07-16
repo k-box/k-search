@@ -2,37 +2,61 @@
 
 namespace App\Model\Data;
 
+use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @SWG\Definition(
- *     definition="Data",
- *     required={"uuid", "application_id"}
+ *     definition="Data\Data",
+ *     required={"uuid", "hash", "type", "url"}
  * )
  */
 class Data
 {
     /**
-     * The UUID of this Data.
+     * The Universally unique identifier of this data.
      *
      * @var string
-     * @SWG\Property(readOnly=true)
+     * @Assert\NotBlank()
+     * @Assert\Uuid()
+     * @SWG\Property()
      */
     public $uuid;
 
     /**
-     * ID of the uploaded Application.
+     * The URI where the source data is stored and retrievable.
      *
      * @var string
+     * @Assert\NotBlank()
      * @SWG\Property()
      */
-    public $applicationId;
+    public $url;
 
     /**
-     * The region where the order will be shipped to, used to retrieve the correct price of products.
+     * The SHA-2 hash of the Document contents (SHA-512, thus 128 Chars).
      *
      * @var string
+     * @Assert\NotBlank()
+     * @Assert\Length(128)
+     * @JMS\Type("string")
      * @SWG\Property()
      */
-    public $author;
+    public $hash;
+
+    /**
+     * The general type of the provided data.
+     *
+     * @var string
+     * @Assert\NotNull()
+     * @JMS\Type("string")
+     * @Assert\Choice(
+     *     strict=true,
+     *     choices={"document", "video"}
+     * )
+     * @SWG\Property(
+     *     enum={"document", "video"}
+     * )
+     */
+    public $type;
 }

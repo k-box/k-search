@@ -9,44 +9,32 @@ use Swagger\Annotations as SWG;
 /**
  * @SWG\Definition(
  *     definition="Status\StatusResponse",
- *     required={"status"}
+ *     required={"result"}
  * )
  */
 class StatusResponse extends RPCResponse
 {
     /**
-     * The error data.
+     * The status data.
      *
      * @var Status
      *
      * @JMS\Type("App\Model\Status\Status")
      * @SWG\Property(
+     *     readOnly=true,
      *     ref="#/definitions/Status\Status")
      * )
      */
-    public $status;
+    public $result;
 
-    /**
-     * ErrorResponse constructor.
-     *
-     * @param Status      $sta
-     * @param string|null $id
-     */
-    public function __construct(Status $sta, string $id = null)
+    public function __construct(Status $status, string $responseId = null)
     {
-        $this->status = $sta;
-        $this->id = $id;
+        $this->result = $status;
+        $this->id = $responseId;
     }
 
-    /**
-     * @param int    $code
-     * @param string $message
-     * @param string $id
-     *
-     * @return StatusResponse
-     */
-    public static function withStatusMessage(int $code, string $message, string $id)
+    public static function withStatusMessage(int $statusCode, string $message, string $responseId = null): StatusResponse
     {
-        return new self(new Status($code, $message), $id);
+        return new self(new Status($statusCode, $message), $responseId);
     }
 }

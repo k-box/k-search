@@ -197,4 +197,4 @@ Delete piece of data from the search index.
 | Property | Type    | Required   | Description |
 | -------- | ------- | ---------- | ----------- |
 | `id` | String | ✔ | The identifier established by the client in the request. |
-| `result` | Object | ✔ | [`Data object`](https://git.klink.asia/main/k-search/blob/master/docs/api-objects.md#data-object) |
+| `result` | Object | ✔ | [`Status object`](https://git.klink.asia/main/k-search/blob/master/docs/api-objects.md#status-object) |

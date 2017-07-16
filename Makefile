@@ -5,6 +5,8 @@ endif
 ###> symfony/framework-bundle ###
 cache-clear:
 	@test -f bin/console && bin/console cache:clear --no-warmup || rm -rf var/cache/*
+	@test -f vendor/bin/swagger && vendor/bin/swagger --output web src/Model/ src/Controller/
+	@test -d vendor/swagger-api/swagger-ui/dist/ && mkdir web/bundles/swagger-ui -p && cp vendor/swagger-api/swagger-ui/dist/swagger-ui* web/bundles/swagger-ui/
 .PHONY: cache-clear
 
 cache-warmup: cache-clear

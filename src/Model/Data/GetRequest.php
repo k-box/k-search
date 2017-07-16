@@ -9,11 +9,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @SWG\Definition(
- *     definition="Data\DeleteRequest",
+ *     definition="Data\GetRequest",
  *     required={"params"}
  * )
  */
-class DeleteRequest extends RPCRequest
+class GetRequest extends RPCRequest
 {
     /**
       * @var UUIDParam

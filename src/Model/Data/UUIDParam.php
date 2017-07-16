@@ -8,11 +8,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @SWG\Definition(
- *     definition="Data\DeleteParams",
+ *     definition="Data\UUIDParam",
  *     required={"uuid"}
  * )
  */
-class DeleteParams
+class UUIDParam
 {
     /**
      * The universally unique identifier of the data piece to be deleted.

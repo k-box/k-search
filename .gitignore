@@ -1,4 +1,5 @@
 /.vagrant/
+/web/swagger.json
 
 ###> symfony/framework-bundle ###
 .env
