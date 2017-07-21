@@ -16,13 +16,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 class DeleteRequest extends RPCRequest
 {
     /**
-      * @var UUIDParam
-      * @Assert\Valid()
-      * @Assert\NotNull()
-      * @JMS\Type("App\Model\Data\UUIDParam")
-      * @SWG\Property(
-      *     ref="#/definitions/Data\UUIDParam")
-      * )
-      */
-     public $params;
+     * @var UUIDParam
+     * @Assert\Valid()
+     * @Assert\NotNull()
+     * @JMS\Type("App\Model\Data\UUIDParam")
+     * @SWG\Property()
+     */
+    public $params;
 }

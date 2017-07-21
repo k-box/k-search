@@ -21,9 +21,7 @@ class GetResponse extends RPCResponse
      *
      * @JMS\Type("App\Model\Data\Data")
      * @JMS\ReadOnly()
-     * @SWG\Property(
-     *     ref="#/definitions/Data\Data")
-     * )
+     * @SWG\Property()
      */
     public $result;
 

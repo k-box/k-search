@@ -59,4 +59,10 @@ class Data
      * )
      */
     public $type;
+
+    /**
+     * @var Copyright
+     * @SWG\Property()
+     */
+    public $copyright;
 }

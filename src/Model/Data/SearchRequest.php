@@ -14,13 +14,11 @@ use Swagger\Annotations as SWG;
 class SearchRequest extends RPCRequest
 {
     /**
-     * @var Data
+     * @var SearchParams
      * @Assert\Valid()
      * @Assert\NotNull()
      * @JMS\Type("App\Model\Data\SearchParams")
-     * @SWG\Property(
-     *     ref="#/definitions/Data\SearchParams")
-     * )
+     * @SWG\Property()
      */
     public $params;
 }
