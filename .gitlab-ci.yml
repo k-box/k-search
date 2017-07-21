@@ -21,7 +21,7 @@ variables:
 
 ##### Jobs
 php-coding-styles:7.1:
-  image: docker.klink.asia:5043/klink/php-ci-docker:7.1
+  image: docker.klink.asia/open/docker-php:7.1
   <<: *need_composer
   stage: php-cs
   variables:
