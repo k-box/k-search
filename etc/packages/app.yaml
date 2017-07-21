@@ -7,7 +7,7 @@ services:
 
     App\:
         resource: '../../src/*'
-        exclude: '../../src/{Entity,Repository,Tests,Model|Search}'
+        exclude: '../../src/{Entity,Repository,Tests,Model,Search}'
 
     App\Controller\:
         resource: '../../src/Controller'
