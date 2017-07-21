@@ -3,7 +3,9 @@
 | Property                     | Type   | Required | Description |
 | ---------------------------- | ------ | -------- | ----------- |
 | `uuid`                       | String | ✔ | Universally unique identifier. |
-| `url`                        | String | ✔ | The URI where the source data is stored and retrievable. |
+| `location[]`                 | List   | ✔ | The location where the source data is stored and retrievable. |
+| `location[][provider]`       | String | ✔ | The provider type of the source data (can be `local_file`, `remote_file`, or specially supported providers such as `youtube`). |
+| `location[][url]`            | String | ✔ | The URI where the source data is stored and retrievable. |
 | `hash`                       | String | ✔ | The SHA-2 hash of the Document contents (SHA-512, thus 128 Chars). |
 | `type`                       | String | ✔ | The general type of the provided data. Can be only 'document' or 'video'. |
 | `properties[]`               | Object | ✔ | The metadata of a piece of data. |
