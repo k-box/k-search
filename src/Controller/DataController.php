@@ -30,12 +30,13 @@ class DataController extends Controller
     /**
      * @var ValidatorInterface
      */
-    protected $validator;
+    private $validator;
 
     /**
      * @var SerializerInterface
      */
-    protected $serializer;
+    private $serializer;
+
     /**
      * @var SearchService
      */
