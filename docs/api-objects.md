@@ -3,10 +3,11 @@
 | Property                     | Type   | Required | Description |
 | ---------------------------- | ------ | -------- | ----------- |
 | `uuid`                       | String | ✔ | Universally unique identifier. |
-| `location[]`                 | List   | ✔ | The location where the source data is stored and retrievable. |
-| `location[][provider]`       | String | ✔ | The provider type of the source data (can be `local_file`, `remote_file`, or specially supported providers such as `youtube`). |
-| `location[][url]`            | String | ✔ | The URI where the source data is stored and retrievable. |
-| `hash`                       | String | ✔ | The SHA-2 hash of the Document contents (SHA-512, thus 128 Chars). |
+| `source[]`                   | List   | ✔ | The sources where the data is stored and retrievable. |
+| `source[][type]`             | String | ✔ | The type of the source data (accepted values are mime types and `youtube`). |
+| `source[][value]`            | String | ✔ | the source value, e.g. HTTPS url, a Youtube video id (if type is set to `youtube`),... |
+| `source[][hash]`            | String |  | The SHA-2 (SHA-512) hash of the source content, if avaiable. |
+| `hash`                       | String | ✔ | The SHA-2 (SHA-512) hash of the Data object being sent. Calculated by taking into consideration all fields except the `hash`. |
 | `type`                       | String | ✔ | The general type of the provided data. Can be only 'document' or 'video'. |
 | `properties[]`               | Object | ✔ | The metadata of a piece of data. |
 | `properties[mime_type]`      | String | ✔ | The Mime type of the provided data. |
@@ -34,12 +35,12 @@
 | `copyright[usage][short]`    | String | ✔ | The associated usage permissions, as SPDX identifier (https://spdx.org/licenses/) and C for full copyright and PD for public domain. |
 | `copyright[usage][name]`     | String | ✔ | The associated usage permissions to the piece of data. "All right reserved", "GNU General Public License", …, “Public Domain”. |
 | `copyright[usage][reference]`| String |   | URL of the full license text (if applicable).. |
-| `source[]`                   | Object | ✔ | The originating source where the data has been uploaded or created. |
-| `source[name]`               | String |   | Freely definable source (could be an organization or project). |
-| `source[url]`                | String |   | URL to an human readable website with information about the source entity. |
-| `source[app_url]`            | String |   | The URL of the application that triggered the data upload. [readOnly=true] |
-| `source[email]`              | String |   | Contact email to of an administrator, who can be contacted in case of any issues related to uploaded documents. This data is coming from the Application data in the K-Link Registry. [readOnly=true] |
-| `source[upload_reference]`   | String |   | Information which lets the source contact track back internally the origin of the data. It is suggested to save this information on the client side together with the id of the API request. In easier setups it could also just be the encoded or encrypted “user id” value on the client side. We recommend not to expose personal data here.. |
+| `uploader[]`                   | Object | ✔ | The entity that pushed the Data, ideally is also the entity where the data has been uploaded or created. |
+| `uploader[name]`               | String | ✔  | Freely definable source (could be an organization or project). |
+| `uploader[url]`                | String |   | URL to an human readable website with information about the source entity. |
+| `uploader[app_url]`            | String | ✔  | The URL of the application that triggered the data upload. [readOnly=true] |
+| `uploader[email]`              | String |   | Contact email to of an administrator, who can be contacted in case of any issues related to uploaded documents. This data is coming from the Application data in the K-Link Registry. [readOnly=true] |
+| `uploader[upload_reference]`   | String |   | Information which lets the source contact track back internally the origin of the data. It is suggested to save this information on the client side together with the id of the API request. In easier setups it could also just be the encoded or encrypted “user id” value on the client side. We recommend not to expose personal data here.. |
 
 
 **Internal structure** (computed by the K-Search and not exposed through the API)
