@@ -2,10 +2,11 @@
 
 namespace App\Service;
 
+use App\Entity\BaseSolrEntity;
 use App\Exception\InternalSearchException;
 use Solarium\Client;
 
-class SearchService
+class SolrService
 {
     /**
      * @var Client
@@ -22,10 +23,13 @@ class SearchService
         $this->solrClient = $solrClient;
     }
 
-    public function deleteData(string $uuid)
+    public function delete(string $entityType, string $id): bool
     {
         $update = $this->solrClient->createUpdate();
-        $update->addDeleteById($uuid);
+        $query = ' +'.BaseSolrEntity::FIELD_ENTITY_TYPE.':'.$entityType.
+                 ' +'.BaseSolrEntity::FIELD_ENTITY_ID.':'.$id;
+
+        $update->addDeleteQuery($query);
         $update->addCommit();
 
         try {
@@ -34,7 +38,7 @@ class SearchService
             return 0 === $result->getStatus();
         } catch (\Throwable $e) {
             throw new InternalSearchException(
-                sprintf('Error while deleting Data %s', $uuid),
+                sprintf('Error while deleting from Index, type=%s, id=%s', $entityType, $id),
                 $e->getCode(),
                 $e
             );

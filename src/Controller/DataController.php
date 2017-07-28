@@ -14,7 +14,7 @@ use App\Model\Data\SearchResponse;
 use App\Model\Error\ErrorResponse;
 use App\Model\RPCRequest;
 use App\Model\Status\StatusResponse;
-use App\Service\SearchService;
+use App\Service\DataService;
 use JMS\Serializer\SerializerInterface;
 use Swagger\Annotations as SWG;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -38,11 +38,11 @@ class DataController extends Controller
     private $serializer;
 
     /**
-     * @var SearchService
+     * @var DataService
      */
     private $searchService;
 
-    public function __construct(SearchService $searchService, ValidatorInterface $validator, SerializerInterface $serializer)
+    public function __construct(DataService $searchService, ValidatorInterface $validator, SerializerInterface $serializer)
     {
         $this->searchService = $searchService;
         $this->validator = $validator;

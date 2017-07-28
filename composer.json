@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "php": "^7.0",
+        "php": "^7.1",
         "jms/serializer-bundle": "^2.0",
         "nelmio/solarium-bundle": "dev-patch-1",
         "ramsey/uuid": "^3.6",
