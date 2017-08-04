@@ -17,9 +17,9 @@ class AddRequest extends RPCRequest
      * @var Data
      * @Assert\Valid()
      * @Assert\NotNull()
-     * @JMS\Type("App\Model\Data\Data")
+     * @JMS\Type("App\Model\Data\AddParams")
      * @SWG\Property(
-     *     ref="#/definitions/Data\Data")
+     *     ref="#/definitions/Data\AddParams")
      * )
      */
     public $params;

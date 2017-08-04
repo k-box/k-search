@@ -9,12 +9,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @SWG\Definition(
  *     definition="Data\SearchParams",
- *     required={""}
+ *     required={"search", "filters"}
  * )
  */
 class SearchParams
 {
-    // `  | String | ✔       |  |
     /**
      * URI encoded string of the search query. If no query is specified, an empty result set will be returned.
      *
@@ -28,7 +27,6 @@ class SearchParams
     /**
      * Search filters in the [Lucene query parser syntax](https://lucene.apache.org/core/2_9_4/queryparsersyntax.html).
      *
-     * @var string
      * @var string
      * @Assert\NotBlank()
      * @JMS\Type("string")
@@ -74,7 +72,6 @@ class SearchParams
      * Specify the first result to return from the complete set of retrieved documents, the value is 0-based.
      * If no value is given the default value of 0 is used.
      *
-     * @var int
      * @var int
      * @JMS\Type("integer")
      * @Assert\Type("integer")
