@@ -6,8 +6,6 @@
 | `source[]`                   | List   | ✔ | The sources where the data is stored and retrievable. |
 | `source[][type]`             | String | ✔ | The type of the source data (accepted values are mime types and `youtube`). |
 | `source[][value]`            | String | ✔ | the source value, e.g. HTTPS url, a Youtube video id (if type is set to `youtube`),... |
-| `source[][hash]`            | String |  | The SHA-2 (SHA-512) hash of the source content, if avaiable. |
-| `hash`                       | String | ✔ | The SHA-2 (SHA-512) hash of the Data object being sent. Calculated by taking into consideration all fields except the `hash`. |
 | `type`                       | String | ✔ | The general type of the provided data. Can be only 'document' or 'video'. |
 | `properties[]`               | Object | ✔ | The metadata of a piece of data. |
 | `properties[mime_type]`      | String | ✔ | The Mime type of the provided data. |
@@ -16,7 +14,7 @@
 | `properties[filename]`       | String | ✔ | The file name of the data. |
 | `properties[created_at]`     | String | ✔ | Data’s or document’s creation date in [RFC-3339](https://www.ietf.org/rfc/rfc3339.txt) format. |
 | `properties[updated_at]`     | String |   | Data’s or document’s updated date in [RFC-3339](https://www.ietf.org/rfc/rfc3339.txt) format. |
-| `properties[size]`           | String |   | The file size of the data [readOnly=true]. |
+| `properties[size]`           | String |   | The file size of the data. |
 | `properties[abstract]`       | String |   | A short abstract about the data or document. |
 | `properties[thumbnail]`      | String |   | The URI where the a thumbnail of this data is stored. |
 | `properties[tags][]`         | List   |   | User-definet tags associated to the data (multiple). |
