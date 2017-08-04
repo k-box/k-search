@@ -14,7 +14,7 @@
 | `properties[filename]`       | String | ✔ | The file name of the data. |
 | `properties[created_at]`     | String | ✔ | Data’s or document’s creation date in [RFC-3339](https://www.ietf.org/rfc/rfc3339.txt) format. |
 | `properties[updated_at]`     | String |   | Data’s or document’s updated date in [RFC-3339](https://www.ietf.org/rfc/rfc3339.txt) format. |
-| `properties[size]`           | String |   | The file size of the data. |
+| `properties[size]`           | Integer|   | The file size of the data. |
 | `properties[abstract]`       | String |   | A short abstract about the data or document. |
 | `properties[thumbnail]`      | String |   | The URI where the a thumbnail of this data is stored. |
 | `properties[tags][]`         | List   |   | User-definet tags associated to the data (multiple). |
