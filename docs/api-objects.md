@@ -33,7 +33,7 @@
 | `copyright[usage][short]`    | String | ✔ | The associated usage permissions, as SPDX identifier (https://spdx.org/licenses/) and C for full copyright and PD for public domain. |
 | `copyright[usage][name]`     | String | ✔ | The associated usage permissions to the piece of data. "All right reserved", "GNU General Public License", …, “Public Domain”. |
 | `copyright[usage][reference]`| String |   | URL of the full license text (if applicable).. |
-| `uploader[]`                   | Object | ✔ | The entity that pushed the Data, ideally is also the entity where the data has been uploaded or created. |
+| `uploader[]`                   | Object |✔  | Who pushed the data Data, it can be a User, an Organization or a Project (composed by multiple organizations). |
 | `uploader[name]`               | String | ✔  | Freely definable source (could be an organization or project). |
 | `uploader[url]`                | String |   | URL to an human readable website with information about the source entity. |
 | `uploader[app_url]`            | String | ✔  | The URL of the application that triggered the data upload. [readOnly=true] |
