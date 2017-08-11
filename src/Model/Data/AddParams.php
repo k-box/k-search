@@ -20,7 +20,7 @@ class AddParams
      * @var Data
      * @Assert\NotBlank()
      * @Assert\Valid()
-     * @JMS\Type(\App\Model\Data\Data)
+     * @JMS\Type("App\Model\Data\Data")
      * @SWG\Property()
      */
     public $data;

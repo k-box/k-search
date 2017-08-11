@@ -9,7 +9,7 @@ use App\Exception\ResourceNotFoundException;
 use App\Model\Error\Error;
 use App\Model\Error\ErrorResponse;
 use App\Model\RPCRequest;
-use JMS\Serializer\Exception\RuntimeException;
+use JMS\Serializer\Exception\RuntimeException as JMSRuntimeException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
@@ -21,18 +21,15 @@ class ExceptionListener implements EventSubscriberInterface
     {
         $exception = $event->getException();
 
-        if ((!$exception instanceof RuntimeException) && (!$exception instanceof KSearchException)) {
+        if ((!$exception instanceof JMSRuntimeException) && (!$exception instanceof KSearchException)) {
             return;
         }
 
         // Get the request-id, if any.
         $requestId = $event->getRequest()->headers->get(RPCRequest::REQUEST_ID_HEADER, null);
 
-        var_dump($event->getRequest()->headers->get(RPCRequest::REQUEST_ID_HEADER));
-        die();
-
         switch (get_class($exception)) {
-            case RuntimeException::class:
+            case JMSRuntimeException::class:
                 $error = new Error(400, 'Wrong data provided!', [$exception->getMessage()]);
                 break;
             case BadRequestException::class:

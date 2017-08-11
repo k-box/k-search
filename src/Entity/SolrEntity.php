@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Solarium\QueryType\Select\Result\AbstractDocument;
 use Solarium\QueryType\Update\Query\Document\Document;
 
 /**
@@ -13,13 +14,21 @@ abstract class SolrEntity
     protected const FIELD_ENTITY_ID = 'entity_id';
 
     /**
-     * @var Document
+     * @var AbstractDocument
      */
     private $document;
 
-    public function __construct(string $id = null)
+    /**
+     * @param string                $id       The ID of the Entity
+     * @param null|AbstractDocument $document The SolrDocument to build the Entity from
+     */
+    public function __construct(string $id, ?AbstractDocument $document = null)
     {
-        $this->document = new Document();
+        if ($document) {
+            $this->document = new Document($document->getFields());
+        } else {
+            $this->document = new Document();
+        }
         $this->addField(self::FIELD_ENTITY_ID, $id);
         $this->addField(self::FIELD_ENTITY_TYPE, static::getEntityType());
     }

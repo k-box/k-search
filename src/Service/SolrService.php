@@ -23,7 +23,19 @@ class SolrService
 
     public function add(SolrEntity $solrEntity)
     {
-        throw new \RuntimeException(__CLASS__.'::'.__FUNCTION__.'() Not implemented');
+        $doc = $solrEntity->getSolrDocument();
+        $update = $this->solrClient->createUpdate();
+        $update->addDocument($doc);
+        $update->addCommit();
+
+        try {
+            return $this->solrClient->update($update);
+        } catch (\Throwable $e) {
+            if (strpos($e->getMessage(), '.PDFParser') !== false) {
+                throw new \Exception('PDF Parsing Exception', 500, $e);
+            }
+            throw $e;
+        }
     }
 
     public function get(string $entityType, string $id, string $solrEntityClass)
@@ -48,10 +60,8 @@ class SolrService
             throw new ResourceNotFoundException(sprintf('Resource %s::%s not found!', $entityType, $id));
         }
 
-        /** @var SolrDocumentDescriptor $obj */
-        $obj = $resultSet->getIterator()[0];
-
-        return $obj->getDocumentDescriptor();
+        // Building the required SolrEntity object
+        return new $solrEntityClass($id, $resultSet->getIterator()[0]);
     }
 
     /**

@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @SWG\Definition(
  *     definition="Data\Copyright",
  *     description="An object containing information on the copyright",
- *     required={"owner", "usage",}
+ *     required={"owner", "usage"}
  * )
  */
 class Copyright
@@ -21,7 +21,7 @@ class Copyright
      * @var CopyrightOwner
      * @Assert\NotBlank()
      * @Assert\Valid()
-     * @JMS\Type("App/Model/Data/CopyrightOwner")
+     * @JMS\Type("App\Model\Data\CopyrightOwner")
      * @SWG\Property()
      */
     public $owner;
@@ -32,7 +32,7 @@ class Copyright
      * @var CopyrightUsage
      * @Assert\NotBlank()
      * @Assert\Valid()
-     * @JMS\Type("App/Model/Data/CopyrightUsage")
+     * @JMS\Type("App\Model\Data\CopyrightUsage")
      * @SWG\Property()
      */
     public $usage;

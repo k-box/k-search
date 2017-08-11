@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\SolrEntityData;
 use App\Model\Data\Data;
+use DateTimeZone;
 
 class DataService
 {
@@ -44,11 +45,18 @@ class DataService
         return $solrEntityData->buildModel();
     }
 
-    public function addData(Data $data)
+    public function addData(Data $data, ?string $textualContents): bool
     {
+        if (!$data->properties->updated_at) {
+            $data->properties->updated_at = new \DateTime();
+            $data->properties->updated_at->setTimezone(new DateTimeZone('UTC'));
+        }
+
         $dataEntity = SolrEntityData::buildFromModel($data);
-        // @todo: Handle indexable data (queye/download from source, verify hash)
-        // @todo: Handle non-indexable data (use indexed-text)
+        // @todo: Handle indexable data (queue/download from source, verify hash)
+        // @todo: Handle non-indexable data (use $textualContents)
         $this->solrService->add($dataEntity);
+
+        return true;
     }
 }
