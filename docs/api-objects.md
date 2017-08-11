@@ -36,9 +36,8 @@
 | `uploader[]`                   | Object |✔  | Who pushed the data Data, it can be a User, an Organization or a Project (composed by multiple organizations). |
 | `uploader[name]`               | String | ✔  | Freely definable source (could be an organization or project). |
 | `uploader[url]`                | String |   | URL to an human readable website with information about the source entity. |
-| `uploader[app_url]`            | String | ✔  | The URL of the application that triggered the data upload. [readOnly=true] |
-| `uploader[email]`              | String |   | Contact email to of an administrator, who can be contacted in case of any issues related to uploaded documents. This data is coming from the Application data in the K-Link Registry. [readOnly=true] |
-| `uploader[upload_reference]`   | String |   | Information which lets the source contact track back internally the origin of the data. It is suggested to save this information on the client side together with the id of the API request. In easier setups it could also just be the encoded or encrypted “user id” value on the client side. We recommend not to expose personal data here.. |
+| `uploader[app_url]`            | String |  | The URL of the application that triggered the data upload. [internalOnly=true] |
+| `uploader[email]`              | String |   | Contact email to of an administrator, who can be contacted in case of any issues related to uploaded documents. This data is coming from the Application data in the K-Link Registry. [internalOnly=true] |
 
 
 **Internal structure** (computed by the K-Search and not exposed through the API)
