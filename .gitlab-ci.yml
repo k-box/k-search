@@ -29,7 +29,8 @@ php-coding-styles:7.1:
     APP_DEBUG: "1"
     APP_SECRET: "774185ebf1c8d9ce0a8343eb2c4c3730"
   script:
-    - vendor/bin/php-cs-fixer fix --dry-run
+    - scripts/run_phpcs.sh
+    - bin/console > /dev/null
   tags:
     - docker
 
