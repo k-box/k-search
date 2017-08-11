@@ -146,18 +146,10 @@ class DataController extends Controller
      */
     public function postDataGet(Request $request, string $version)
     {
-        /** @var GetRequest $getRequest */
-        $getRequest = $this->serializer->deserialize($request->getContent(), GetRequest::class, 'json');
+        /** @var GetRequest $get */
+        $getRequest = $this->getRequestModelFromJson($request, GetRequest::class);
 
-        $errors = $this->validator->validate($getRequest);
-        if (count($errors) > 0) {
-            $errorResponse = ErrorResponse::withErrorMessage(400, 'Wrong data!'.(string) $errors, $getRequest->id);
-
-            return new JsonResponse($errorResponse);
-        }
-
-        // @todo Implement the logic here
-        $data = new Data();
+        $data = $this->searchService->getData($getRequest->params->uuid);
 
         $getResponse = new GetResponse($data, $getRequest->id);
 
@@ -208,18 +200,9 @@ class DataController extends Controller
     public function postDataAdd(Request $request, string $version)
     {
         /** @var AddRequest $addRequest */
-        $addRequest = $this->serializer->deserialize($request->getContent(), AddRequest::class, 'json');
+        $addRequest = $this->getRequestModelFromJson($request, AddRequest::class);
 
-        $errors = $this->validator->validate($addRequest);
-        if (count($errors) > 0) {
-            $errorResponse = ErrorResponse::withErrorMessage(400, 'Wrong data!'.(string) $errors, $addRequest->id);
-
-            return new JsonResponse($errorResponse);
-        }
-
-        // @todo Implement the logic here
-        $data = new Data();
-
+        $this->searchService->addData($data);
         $addResponse = new AddResponse($data, $addRequest->id);
 
         return new JsonResponse($addResponse);

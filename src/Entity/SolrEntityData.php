@@ -10,7 +10,7 @@ use App\Model\Data\Data;
 /**
  * Entity for Data.
  */
-class DataSolrEntity extends SolrEntity
+class SolrEntityData extends SolrEntity
 {
     protected const FIELD_HASH = 'str_ss_data_hash';
     protected const FIELD_UUID = 'str_ss_data_uuid';
@@ -31,7 +31,7 @@ class DataSolrEntity extends SolrEntity
         return 'data';
     }
 
-    public static function buildFromModel(Data $data): DataSolrEntity
+    public static function buildFromModel(Data $data): SolrEntityData
     {
         $doc = new self($data->uuid);
 
@@ -39,7 +39,9 @@ class DataSolrEntity extends SolrEntity
         $doc->addField(self::FIELD_HASH, $data->hash);
         $doc->addField(self::FIELD_TYPE, $data->type);
         $doc->addField(self::FIELD_URL, $data->url);
-        self::buildFromCopyright($doc, $data->copyright);
+
+        // Specific sub-entity handling
+        $doc->addCopyright($data->copyright);
 
         return $doc;
     }
@@ -57,17 +59,17 @@ class DataSolrEntity extends SolrEntity
         return $data;
     }
 
-    private static function buildFromCopyright(DataSolrEntity $doc, Copyright $copyright)
+    private function addCopyright(Copyright $copyright)
     {
-        $doc->addField(self::FIELD_COPYRIGHT_STORED, json_encode($copyright));
+        $this->addField(self::FIELD_COPYRIGHT_STORED, json_encode($copyright));
 
-        $doc->addField(self::FIELD_COPYRIGHT_OWNER_CONTACT, $copyright->owner->contact);
-        $doc->addField(self::FIELD_COPYRIGHT_OWNER_EMAIL, $copyright->owner->email);
-        $doc->addField(self::FIELD_COPYRIGHT_OWNER_NAME, $copyright->owner->name);
+        $this->addField(self::FIELD_COPYRIGHT_OWNER_CONTACT, $copyright->owner->contact);
+        $this->addField(self::FIELD_COPYRIGHT_OWNER_EMAIL, $copyright->owner->email);
+        $this->addField(self::FIELD_COPYRIGHT_OWNER_NAME, $copyright->owner->name);
 
-        $doc->addField(self::FIELD_COPYRIGHT_USAGE_NAME, $copyright->usage->name);
-        $doc->addField(self::FIELD_COPYRIGHT_USAGE_SHORT, $copyright->usage->short);
-        $doc->addField(self::FIELD_COPYRIGHT_USAGE_REFERENCE, $copyright->usage->reference);
+        $this->addField(self::FIELD_COPYRIGHT_USAGE_NAME, $copyright->usage->name);
+        $this->addField(self::FIELD_COPYRIGHT_USAGE_SHORT, $copyright->usage->short);
+        $this->addField(self::FIELD_COPYRIGHT_USAGE_REFERENCE, $copyright->usage->reference);
     }
 
     private function buildCopyrightModel(): Copyright
@@ -98,7 +100,7 @@ class DataSolrEntity extends SolrEntity
         return $model;
     }
 
-    private function inflateModelWithData($model, $fields, $data)
+    private function inflateModelWithData($model, array $fields, array $data)
     {
         foreach ($fields as $field) {
             $model->{$field} = $data[$field] ?? null;

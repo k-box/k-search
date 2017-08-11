@@ -12,16 +12,25 @@ abstract class SolrEntity
     protected const FIELD_ENTITY_TYPE = 'entity_type';
     protected const FIELD_ENTITY_ID = 'entity_id';
 
+    /**
+     * @var Document
+     */
     private $document;
 
-    public function __construct(string $id)
+    public function __construct(string $id = null)
     {
         $this->document = new Document();
         $this->addField(self::FIELD_ENTITY_ID, $id);
         $this->addField(self::FIELD_ENTITY_TYPE, static::getEntityType());
     }
 
-    public function addField($key, $value)
+    /**
+     * Add the given field/value to the underlying Solr document.
+     *
+     * @param string $key
+     * @param mixed  $value
+     */
+    public function addField(string $key, $value)
     {
         $this->document->addField($key, $value);
     }
@@ -30,18 +39,19 @@ abstract class SolrEntity
 
     abstract public static function getEntityType(): string;
 
-    public function getFieldsMapping(): array
+    public function getSolrDocument(): Document
     {
+        return $this->document;
     }
 
     /**
-     * Get an entity field.
+     * Get the specified field from the underlying Solr document, if exists.
      *
-     * @param $fieldName
+     * @param string $fieldName
      *
      * @return string|array|null
      */
-    public function getField($fieldName)
+    public function getField(string $fieldName)
     {
         if (!array_key_exists($fieldName, $this->document->getFields())) {
             return null;
