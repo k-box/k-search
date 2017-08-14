@@ -57,12 +57,12 @@ In case that `type`==`video`. It is expected to extend the `properties` by this 
 | `properties[video][]`              | Object | ✔ | Object containing information on the video file. |
 | `properties[video][duration]`      | String | ✔ | Duration of the video. |
 | `properties[video][source]`        | Object | ✔ | Information about the source file. |
-| `properties[video][source][format]` | String | ✔ | Format of the video file. |
+| `properties[video][source][format]`    | String | ✔ | Format of the video file. |
 | `properties[video][source][resolution]`| String | ✔ | Resolution of the video. |
-| `properties[video][source][bitrate]`| String |   | Bitrate of the video file. |
-| `properties[video][streaming]`      | Object |   | Information about the streaming service. |
-| `properties[video][streaming][type]`| Object |   | URL of the video stream type (youtube, dash, hls). |
-| `properties[video][streaming][url]` | Object |   | URL of the video stream. |
+| `properties[video][source][bitrate]`   | String |   | Bitrate of the video file. |
+| `properties[video][streaming][]`       | List   |   | Information about the streaming services. |
+| `properties[video][streaming][][type]` | Object |   | URL of the video stream type (youtube, dash, hls). |
+| `properties[video][streaming][][url]`  | Object |   | URL of the video stream. |
 | `properties[audio][]`              | List   |   | Audio tracks attached to the video (multiple). |
 | `properties[audio][][]`            | Object |   | Object with information on one audio track |
 | `properties[audio][][language]`    | String |   | Main language(s) spoken in the audio track, free text. |
