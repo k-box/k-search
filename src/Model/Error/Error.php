@@ -14,7 +14,7 @@ use Swagger\Annotations as SWG;
 class Error
 {
     /**
-     * The error constants are a representation of the RPC standard error codes. More info in http://json-rpc.readthedocs.io/en/latest/exceptions.html
+     * The error constants are a representation of the RPC standard error codes. More info in http://json-rpc.readthedocs.io/en/latest/exceptions.html.
      */
     const PARSE_ERROR = -32700;
     const INVALID_REQUEST = -32600;
