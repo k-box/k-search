@@ -43,8 +43,7 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         $requestContent = json_encode($deleteRequest);
         $request = $this->createRequest($requestContent);
 
-        $expectedResponse = new \App\Model\Status\StatusResponse(new Status(200, 'Ok'), $sampleRequestId);
-        $serializedExpectedResponse = json_encode($expectedResponse);
+        $serializedExpectedResponse = '{"result":{"code":200,"status":"Ok"},"id":"uniq_id"}';
 
         $response = $dataController->postDataDelete($request, self::API_VERSION);
 
@@ -74,8 +73,7 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         $requestContent = json_encode($deleteRequest);
         $request = $this->createRequest($requestContent);
 
-        $expectedResponse = new \App\Model\Status\StatusResponse(new Status(400, 'Error'), $sampleRequestId);
-        $serializedExpectedResponse = json_encode($expectedResponse);
+        $serializedExpectedResponse = '{"result":{"code":400,"status":"Error"},"id":"uniq_id"}';
 
         $response = $dataController->postDataDelete($request, self::API_VERSION);
 
@@ -102,6 +100,40 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         $request = $this->createRequest($requestContent);
 
         $response = $dataController->postDataDelete($request, self::API_VERSION);
+    }
+
+    public function testItGetsData()
+    {
+        $sampleUUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
+        $sampleRequestId = 'uniq_id';
+
+        //The controller is responsible for serializing the object
+        $dataModel = $this->createDataModel($sampleUUID);
+        $dataModel->properties->created_at = new \DateTime($dataModel->properties->created_at);
+        $dataModel->properties->updated_at = new \DateTime($dataModel->properties->updated_at);
+
+        $dataService = $this->getMockBuilder(DataService::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $dataService->expects($this->once())
+            ->method('getData')
+            ->with($sampleUUID)
+            ->willReturn($dataModel);
+
+        $dataController = $this->createDataController($dataService);
+
+        $getRequest = $this->createGetRequest($sampleRequestId, $sampleUUID);
+
+        $requestContent = json_encode($getRequest);
+        $request = $this->createRequest($requestContent);
+
+        $serializedExpectedResponse = '{"result":{"uuid":"cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd","url":"http:\/\/example.com\/data.txt","hash":"0800fc577294c34e0b28ad2839435945","type":"text\/plain","copyright":{"owner":{"name":"KLink Organization","email":"info@klink.asia","contact":"KLink Website: http:\/\/www.klink.asia"},"usage":{"short":"MPL-2.0","name":"Mozilla Public License 2.0","reference":"https:\/\/spdx.org\/licenses\/MPL-2.0.html"}},"properties":{"title":"Adventures of Sherlock Holmes","filename":"adventures-of-sherlock-holmes.pdf","mime_type":"application\/pdf","language":"en","created_at":"2008-07-28T14:47:31Z","updated_at":"2008-07-28T14:47:31Z","size":"717590","abstract":"It is a novel about a detective","thumbnail":"https:\/\/ichef.bbci.co.uk\/news\/660\/cpsprodpb\/153B4\/production\/_89046968_89046967.jpg"}},"id":"uniq_id"}';
+
+        $response = $dataController->postDataGet($request, self::API_VERSION);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertJsonStringEqualsJsonString($serializedExpectedResponse, $response->getContent());
     }
 
     protected static function getKernelClass()
@@ -162,25 +194,46 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         return $deleteRequest;
     }
 
-    private function createAddRequest($sampleRequestId, $sampleUUID)
+    private function createGetRequest($sampleRequestId, $sampleUUID): \App\Model\Data\GetRequest
     {
-        $addRequest = new \App\Model\Data\AddRequest();
-        $addRequest->id = $sampleRequestId;
+        $getRequest = new \App\Model\Data\GetRequest();
+        $getRequest->id = $sampleRequestId;
+        $getRequest->params = new \App\Model\Data\UUIDParam();
+        $getRequest->params->uuid = $sampleUUID;
 
-        $addRequest->params = new App\Model\Data\Data();
-        $addRequest->params->hash = md5('hash');
-        $addRequest->params->type = 'text/plain';
-        $addRequest->params->url = 'http://example.com/data.txt';
-        $addRequest->params->uuid = $sampleUUID;
-        $addRequest->params->copyright = new \App\Model\Data\Copyright();
-        $addRequest->params->copyright->owner = new \App\Model\Data\CopyrightOwner();
-        $addRequest->params->copyright->owner->contact = 'A';
-        $addRequest->params->copyright->owner->email = 'a@a.a';
-        $addRequest->params->copyright->owner->name = 'Mr. A';
-        $addRequest->params->copyright->usage = new \App\Model\Data\CopyrightUsage();
-        $addRequest->params->copyright->usage->name = 'Public Domain';
-        $addRequest->params->copyright->usage->short = 'PD';
+        return $getRequest;
+    }
 
-        return $addRequest;
+    private function createDataModel($sampleUUID): \App\Model\Data\Data
+    {
+        $data = new App\Model\Data\Data();
+        $data->hash = md5('hash');
+        $data->type = 'text/plain';
+        $data->url = 'http://example.com/data.txt';
+        $data->uuid = $sampleUUID;
+
+        $data->copyright = new \App\Model\Data\Copyright();
+        $data->copyright->owner = new \App\Model\Data\CopyrightOwner();
+        $data->copyright->owner->name = 'KLink Organization';
+        $data->copyright->owner->email = 'info@klink.asia';
+        $data->copyright->owner->contact = 'KLink Website: http://www.klink.asia';
+
+        $data->copyright->usage = new \App\Model\Data\CopyrightUsage();
+        $data->copyright->usage->short = 'MPL-2.0';
+        $data->copyright->usage->name = 'Mozilla Public License 2.0';
+        $data->copyright->usage->reference = 'https://spdx.org/licenses/MPL-2.0.html';
+
+        $data->properties = new \App\Model\Data\Properties();
+        $data->properties->title = 'Adventures of Sherlock Holmes';
+        $data->properties->filename = 'adventures-of-sherlock-holmes.pdf';
+        $data->properties->mime_type = 'application/pdf';
+        $data->properties->language = 'en';
+        $data->properties->created_at = '2008-07-28T14:47:31Z';
+        $data->properties->updated_at = '2008-07-28T14:47:31Z';
+        $data->properties->size = '717590';
+        $data->properties->abstract = 'It is a novel about a detective';
+        $data->properties->thumbnail = 'https://ichef.bbci.co.uk/news/660/cpsprodpb/153B4/production/_89046968_89046967.jpg';
+
+        return $data;
     }
 }
