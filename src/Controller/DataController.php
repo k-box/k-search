@@ -11,7 +11,6 @@ use App\Model\Data\GetResponse;
 use App\Model\Data\SearchRequest;
 use App\Model\Data\SearchResponse;
 use App\Model\Error\Error;
-use App\Model\Error\ErrorResponse;
 use App\Model\RPCRequest;
 use App\Model\Status\StatusResponse;
 use App\Service\DataService;

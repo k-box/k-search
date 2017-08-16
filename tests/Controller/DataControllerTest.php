@@ -83,11 +83,9 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         $this->assertJsonStringEqualsJsonString($serializedExpectedResponse, $response->getContent());
     }
 
-    /**
-     * @expectedException \App\Exception\BadRequestException
-     */
     public function testItHandlesExceptions()
     {
+        $this->expectException(\App\Exception\BadRequestException::class);
         $sampleUUID = 'bad-uuid';
         $sampleRequestId = 'uniq_id';
 
