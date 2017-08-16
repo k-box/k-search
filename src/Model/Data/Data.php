@@ -20,7 +20,10 @@ class Data
      * @var string
      * @Assert\NotBlank()
      * @Assert\Uuid()
-     * @SWG\Property()
+     * @JMS\Type("string")
+     * @SWG\Property(
+     *     example="cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd",
+     * )
      */
     public $uuid;
 
@@ -29,7 +32,11 @@ class Data
      *
      * @var string
      * @Assert\NotBlank()
-     * @SWG\Property()
+     * @Assert\Url()
+     * @JMS\Type("string")
+     * @SWG\Property(
+     *     example="http://publicliterature.org/pdf/advsh12.pdf",
+     * )
      */
     public $url;
 
@@ -38,9 +45,11 @@ class Data
      *
      * @var string
      * @Assert\NotBlank()
-     * @Assert\Length(128)
+     * @Assert\Length(min="128", max="128")
      * @JMS\Type("string")
-     * @SWG\Property()
+     * @SWG\Property(
+     *     example="d6f644b19812e97b5d871658d6d3400ecd4787faeb9b8990c1e7608288664be77257104a58d033bcf1a0e0945ff06468ebe53e2dff36e248424c7273117dac09",
+     * )
      */
     public $hash;
 
@@ -61,8 +70,24 @@ class Data
     public $type;
 
     /**
+     * Information on the copyright.
+     *
      * @var Copyright
+     * @Assert\NotBlank()
+     * @Assert\Valid()
+     * @JMS\Type("App\Model\Data\Copyright")
      * @SWG\Property()
      */
     public $copyright;
+
+    /**
+     * The properties of the data.
+     *
+     * @var Properties
+     * @Assert\NotBlank()
+     * @Assert\Valid()
+     * @JMS\Type("App\Model\Data\Properties")
+     * @SWG\Property()
+     */
+    public $properties;
 }

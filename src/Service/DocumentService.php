@@ -477,8 +477,8 @@ class DocumentService
         if ($resultSet->count() !== 1) {
             return null;
         }
-            /** @var SolrDocumentDescriptor $obj */
-            $obj = $resultSet->getIterator()[0];
+        /** @var SolrDocumentDescriptor $obj */
+        $obj = $resultSet->getIterator()[0];
 
         return $obj->getDocumentDescriptor();
     }

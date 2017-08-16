@@ -5,16 +5,14 @@ namespace App\Controller;
 use App\Exception\BadRequestException;
 use App\Model\Data\AddRequest;
 use App\Model\Data\AddResponse;
-use App\Model\Data\Data;
 use App\Model\Data\DeleteRequest;
 use App\Model\Data\GetRequest;
 use App\Model\Data\GetResponse;
 use App\Model\Data\SearchRequest;
 use App\Model\Data\SearchResponse;
-use App\Model\Error\ErrorResponse;
 use App\Model\RPCRequest;
 use App\Model\Status\StatusResponse;
-use App\Service\SearchService;
+use App\Service\DataService;
 use JMS\Serializer\SerializerInterface;
 use Swagger\Annotations as SWG;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -38,11 +36,11 @@ class DataController extends Controller
     private $serializer;
 
     /**
-     * @var SearchService
+     * @var DataService
      */
     private $searchService;
 
-    public function __construct(SearchService $searchService, ValidatorInterface $validator, SerializerInterface $serializer)
+    public function __construct(DataService $searchService, ValidatorInterface $validator, SerializerInterface $serializer)
     {
         $this->searchService = $searchService;
         $this->validator = $validator;
@@ -100,7 +98,7 @@ class DataController extends Controller
             $statusResponse = StatusResponse::withStatusMessage(400, 'Error', $deleteRequest->id);
         }
 
-        return new JsonResponse($statusResponse);
+        return $this->getJsonResponse($statusResponse);
     }
 
     /**
@@ -146,22 +144,14 @@ class DataController extends Controller
      */
     public function postDataGet(Request $request, string $version)
     {
-        /** @var GetRequest $getRequest */
-        $getRequest = $this->serializer->deserialize($request->getContent(), GetRequest::class, 'json');
+        /** @var GetRequest $get */
+        $getRequest = $this->getRequestModelFromJson($request, GetRequest::class);
 
-        $errors = $this->validator->validate($getRequest);
-        if (count($errors) > 0) {
-            $errorResponse = ErrorResponse::withErrorMessage(400, 'Wrong data!'.(string) $errors, $getRequest->id);
-
-            return new JsonResponse($errorResponse);
-        }
-
-        // @todo Implement the logic here
-        $data = new Data();
+        $data = $this->searchService->getData($getRequest->params->uuid);
 
         $getResponse = new GetResponse($data, $getRequest->id);
 
-        return new JsonResponse($getResponse);
+        return $this->getJsonResponse($getResponse);
     }
 
     /**
@@ -208,21 +198,14 @@ class DataController extends Controller
     public function postDataAdd(Request $request, string $version)
     {
         /** @var AddRequest $addRequest */
-        $addRequest = $this->serializer->deserialize($request->getContent(), AddRequest::class, 'json');
+        $addRequest = $this->getRequestModelFromJson($request, AddRequest::class);
 
-        $errors = $this->validator->validate($addRequest);
-        if (count($errors) > 0) {
-            $errorResponse = ErrorResponse::withErrorMessage(400, 'Wrong data!'.(string) $errors, $addRequest->id);
+        $res = $this->searchService->addData($addRequest->params->data, $addRequest->params->dataTextualContents);
 
-            return new JsonResponse($errorResponse);
-        }
-
-        // @todo Implement the logic here
-        $data = new Data();
-
+        $data = $this->searchService->getData($addRequest->params->data->uuid);
         $addResponse = new AddResponse($data, $addRequest->id);
 
-        return new JsonResponse($addResponse);
+        return $this->getJsonResponse($addResponse);
     }
 
     /**
@@ -265,19 +248,12 @@ class DataController extends Controller
     public function postDataSearch(Request $request, string $version)
     {
         /** @var SearchRequest $addRequest */
-        $addRequest = $this->serializer->deserialize($request->getContent(), SearchRequest::class, 'json');
-
-        $errors = $this->validator->validate($addRequest);
-        if (count($errors) > 0) {
-            $errorResponse = ErrorResponse::withErrorMessage(400, 'Wrong data!'.(string) $errors, $addRequest->id);
-
-            return new JsonResponse($errorResponse);
-        }
+        $addRequest = $this->getRequestModelFromJson($request, SearchRequest::class);
 
         // @todo Implement the logic here
         $statusResponse = new SearchResponse(null, $addRequest->id);
 
-        return new JsonResponse($statusResponse);
+        return $this->getJsonResponse($statusResponse);
     }
 
     /**
@@ -311,5 +287,15 @@ class DataController extends Controller
         }
 
         return $requestModel;
+    }
+
+    /**
+     * @param mixed $model
+     *
+     * @return JsonResponse
+     */
+    private function getJsonResponse($model): JsonResponse
+    {
+        return new JsonResponse($this->serializer->serialize($model, 'json'), 200, [], true);
     }
 }

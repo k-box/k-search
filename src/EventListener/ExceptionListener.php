@@ -5,10 +5,11 @@ namespace App\EventListener;
 use App\Exception\BadRequestException;
 use App\Exception\InternalSearchException;
 use App\Exception\KSearchException;
+use App\Exception\ResourceNotFoundException;
 use App\Model\Error\Error;
 use App\Model\Error\ErrorResponse;
 use App\Model\RPCRequest;
-use JMS\Serializer\Exception\RuntimeException;
+use JMS\Serializer\Exception\RuntimeException as JMSRuntimeException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
@@ -20,7 +21,7 @@ class ExceptionListener implements EventSubscriberInterface
     {
         $exception = $event->getException();
 
-        if ((!$exception instanceof RuntimeException) && (!$exception instanceof KSearchException)) {
+        if ((!$exception instanceof JMSRuntimeException) && (!$exception instanceof KSearchException)) {
             return;
         }
 
@@ -28,21 +29,27 @@ class ExceptionListener implements EventSubscriberInterface
         $requestId = $event->getRequest()->headers->get(RPCRequest::REQUEST_ID_HEADER, null);
 
         switch (get_class($exception)) {
-            case RuntimeException::class:
+            case JMSRuntimeException::class:
                 $error = new Error(400, 'Wrong data provided!', [$exception->getMessage()]);
                 break;
             case BadRequestException::class:
                 /** @var BadRequestException $exception */
                 $error = new Error(400, 'Wrong data provided!', $exception->getErrors());
                 break;
+            case ResourceNotFoundException::class:
+                $error = new Error(404, $exception->getMessage());
+                break;
             case InternalSearchException::class:
                 /** @var InternalSearchException $exception */
-                $error = new Error(400, 'Error while communicating with the Indexing service!', [
+                $error = new Error(500, 'Error while communicating with the Indexing service!', [
                     $exception->getMessage(),
                 ]);
                 break;
             default:
-                $error = new Error(400, 'Unknown error!', [get_class($exception)]);
+                $error = new Error(500, 'Unknown error!', [
+                    'type' => get_class($exception),
+                    'message' => $exception->getMessage(),
+                ]);
         }
 
         $response = new JsonResponse(new ErrorResponse($error, $requestId));

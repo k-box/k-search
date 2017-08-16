@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "599372394c64a82d0fee4f1b39d2c193",
+    "content-hash": "0f8e7552605779d7c4f1be1352911743",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -704,21 +704,21 @@
         },
         {
             "name": "nelmio/solarium-bundle",
-            "version": "dev-patch-1",
+            "version": "v2.4.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/thePanz/NelmioSolariumBundle.git",
-                "reference": "dc273562f359bb9e006e594a9139ed0feea8a45d"
+                "url": "https://github.com/nelmio/NelmioSolariumBundle.git",
+                "reference": "46a9102e8f5322a9bec5e173ffcc94d955f1848a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thePanz/NelmioSolariumBundle/zipball/dc273562f359bb9e006e594a9139ed0feea8a45d",
-                "reference": "dc273562f359bb9e006e594a9139ed0feea8a45d",
+                "url": "https://api.github.com/repos/nelmio/NelmioSolariumBundle/zipball/46a9102e8f5322a9bec5e173ffcc94d955f1848a",
+                "reference": "46a9102e8f5322a9bec5e173ffcc94d955f1848a",
                 "shasum": ""
             },
             "require": {
                 "solarium/solarium": "^3.3",
-                "symfony/framework-bundle": "^2.3 || ^3.0"
+                "symfony/framework-bundle": "^2.3 || ^3.0 || ^4.0"
             },
             "type": "symfony-bundle",
             "extra": {
@@ -731,6 +731,7 @@
                     "Nelmio\\SolariumBundle\\": ""
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -750,10 +751,7 @@
                 "solarium",
                 "solr"
             ],
-            "support": {
-                "source": "https://github.com/thePanz/NelmioSolariumBundle/tree/patch-1"
-            },
-            "time": "2017-06-30T13:15:42+00:00"
+            "time": "2017-08-08T16:38:38+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -1303,16 +1301,16 @@
         },
         {
             "name": "swagger-api/swagger-ui",
-            "version": "v3.0.17",
+            "version": "v3.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/swagger-api/swagger-ui.git",
-                "reference": "165c1d7fcb74236146a92e661b18831e39312836"
+                "reference": "1fbce1d47ada32348f5905ba871504ee44d1a075"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/swagger-api/swagger-ui/zipball/165c1d7fcb74236146a92e661b18831e39312836",
-                "reference": "165c1d7fcb74236146a92e661b18831e39312836",
+                "url": "https://api.github.com/repos/swagger-api/swagger-ui/zipball/1fbce1d47ada32348f5905ba871504ee44d1a075",
+                "reference": "1fbce1d47ada32348f5905ba871504ee44d1a075",
                 "shasum": ""
             },
             "type": "library",
@@ -1356,7 +1354,7 @@
                 "swagger",
                 "ui"
             ],
-            "time": "2017-06-24T04:30:00+00:00"
+            "time": "2017-08-05T18:27:48+00:00"
         },
         {
             "name": "symfony/annotations-pack",
@@ -5132,13 +5130,11 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "nelmio/solarium-bundle": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^7.0"
+        "php": "^7.1"
     },
     "platform-dev": []
 }
