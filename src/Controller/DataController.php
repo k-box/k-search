@@ -89,17 +89,8 @@ class DataController extends Controller
      */
     public function postDataDelete(Request $request, string $version)
     {
-        try {
-            /** @var DeleteRequest $deleteRequest */
-            $deleteRequest = $this->getRequestModelFromJson($request, DeleteRequest::class);
-        } catch (BadRequestException $exception) {
-            return $this->getJsonResponse(
-                new ErrorResponse(
-                    new Error(Error::INVALID_REQUEST, $exception->getErrorsAsString()),
-                    $request->headers->get(RPCRequest::REQUEST_ID_HEADER)
-                )
-            );
-        }
+        /** @var DeleteRequest $deleteRequest */
+        $deleteRequest = $this->getRequestModelFromJson($request, DeleteRequest::class);
 
         $success = $this->searchService->deleteData($deleteRequest->params->uuid);
 
