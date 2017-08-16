@@ -113,35 +113,6 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         $this->assertEquals($serializedExpectedResponse, $response->getContent());
     }
 
-    public function xtestItCreatesADocument()
-    {
-        $sampleUUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
-        $sampleRequestId = 'uniq_id';
-
-        /** @var DataService $dataService */
-        $dataService = $this->getMockBuilder(DataService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $dataService->expects($this->once())
-            ->method('createData')
-            ->with($sampleUUID)
-            ->willReturn(true);
-
-        $dataController = $this->createDataController($dataService);
-        $addRequest = $this->createAddRequest($sampleRequestId, $sampleUUID);
-
-        $serializer = $this->getSerializer();
-        $requestContent = $serializer->serialize($addRequest, 'json');
-        $request = $this->createRequest($requestContent);
-        $response = $dataController->postDataAdd($request, self::API_VERSION);
-
-        $expectedResponseContent = new \App\Model\Data\AddResponse($addRequest->params, $sampleRequestId);
-        $expectedResponse = new \Symfony\Component\HttpFoundation\JsonResponse($expectedResponseContent);
-
-        $this->assertEquals($expectedResponse, $response);
-    }
-
     protected static function getKernelClass()
     {
         return \App\Kernel::class;
