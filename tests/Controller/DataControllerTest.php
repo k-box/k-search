@@ -70,7 +70,6 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
 
         $dataController = $this->createDataController($dataService);
 
-
         $deleteRequest = $this->createDeleteRequest($sampleRequestId, $sampleUUID);
 
         $serializer = $this->getSerializer();
@@ -78,6 +77,32 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         $request = $this->createRequest($requestContent);
 
         $expectedResponse = new \App\Model\Status\StatusResponse(new Status(400, 'Error'), $sampleRequestId);
+        $serializedExpectedResponse = $serializer->serialize($expectedResponse, 'json');
+
+        $response = $dataController->postDataDelete($request, self::API_VERSION);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals($serializedExpectedResponse, $response->getContent());
+    }
+
+    public function testItHandlesExceptions() {
+        $sampleUUID = 'bad-uuid';
+        $sampleRequestId = 'uniq_id';
+
+        /** @var DataService $dataService */
+        $dataService = $this->getMockBuilder(DataService::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $dataController = $this->createDataController($dataService);
+
+        $deleteRequest = $this->createDeleteRequest($sampleRequestId, $sampleUUID);
+
+        $serializer = $this->getSerializer();
+        $requestContent = $serializer->serialize($deleteRequest, 'json');
+        $request = $this->createRequest($requestContent);
+
+        $expectedResponse = new \App\Model\Error\ErrorResponse(new \App\Model\Error\Error(App\Model\Error\Error::INVALID_REQUEST, 'params.uuid: This is not a valid UUID.'), 'uniq_id');
         $serializedExpectedResponse = $serializer->serialize($expectedResponse, 'json');
 
         $response = $dataController->postDataDelete($request, self::API_VERSION);

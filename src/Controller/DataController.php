@@ -10,6 +10,8 @@ use App\Model\Data\GetRequest;
 use App\Model\Data\GetResponse;
 use App\Model\Data\SearchRequest;
 use App\Model\Data\SearchResponse;
+use App\Model\Error\Error;
+use App\Model\Error\ErrorResponse;
 use App\Model\RPCRequest;
 use App\Model\Status\StatusResponse;
 use App\Service\DataService;
@@ -87,8 +89,18 @@ class DataController extends Controller
      */
     public function postDataDelete(Request $request, string $version)
     {
-        /** @var DeleteRequest $deleteRequest */
-        $deleteRequest = $this->getRequestModelFromJson($request, DeleteRequest::class);
+        try {
+            /** @var DeleteRequest $deleteRequest */
+            $deleteRequest = $this->getRequestModelFromJson($request, DeleteRequest::class);
+        }
+        catch( BadRequestException $exception ) {
+            return $this->getJsonResponse(
+                new ErrorResponse(
+                    new Error(Error::INVALID_REQUEST, $exception->getErrorsAsString()),
+                    $request->headers->get(RPCRequest::REQUEST_ID_HEADER)
+                )
+            );
+        }
 
         $success = $this->searchService->deleteData($deleteRequest->params->uuid);
 
