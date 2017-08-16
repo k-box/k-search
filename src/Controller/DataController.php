@@ -92,8 +92,7 @@ class DataController extends Controller
         try {
             /** @var DeleteRequest $deleteRequest */
             $deleteRequest = $this->getRequestModelFromJson($request, DeleteRequest::class);
-        }
-        catch( BadRequestException $exception ) {
+        } catch (BadRequestException $exception) {
             return $this->getJsonResponse(
                 new ErrorResponse(
                     new Error(Error::INVALID_REQUEST, $exception->getErrorsAsString()),

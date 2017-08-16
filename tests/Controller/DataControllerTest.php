@@ -6,7 +6,8 @@ use App\Service\DataService;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTestCase {
+class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTestCase
+{
     const API_VERSION = '0.0';
 
     /**
@@ -35,7 +36,7 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
             ->with($sampleUUID)
             ->willReturn(true);
 
-        $dataController = $this->createDataController( $dataService );
+        $dataController = $this->createDataController($dataService);
 
         $serializer = $this->getSerializer();
 
@@ -45,7 +46,7 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         $request = $this->createRequest($requestContent);
 
         $expectedResponse = new \App\Model\Status\StatusResponse(new Status(200, 'Ok'), $sampleRequestId);
-        $serializedExpectedResponse= $serializer->serialize($expectedResponse, 'json');
+        $serializedExpectedResponse = $serializer->serialize($expectedResponse, 'json');
 
         $response = $dataController->postDataDelete($request, self::API_VERSION);
 
@@ -85,7 +86,8 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         $this->assertEquals($serializedExpectedResponse, $response->getContent());
     }
 
-    public function testItHandlesExceptions() {
+    public function testItHandlesExceptions()
+    {
         $sampleUUID = 'bad-uuid';
         $sampleRequestId = 'uniq_id';
 
@@ -117,7 +119,7 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         $sampleRequestId = 'uniq_id';
 
         /** @var DataService $dataService */
-        $dataService = $this->getMockBuilder( DataService::class )
+        $dataService = $this->getMockBuilder(DataService::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -126,7 +128,7 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
             ->with($sampleUUID)
             ->willReturn(true);
 
-        $dataController = $this->createDataController( $dataService );
+        $dataController = $this->createDataController($dataService);
         $addRequest = $this->createAddRequest($sampleRequestId, $sampleUUID);
 
         $serializer = $this->getSerializer();
@@ -161,7 +163,7 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         return $this->container->get('validator');
     }
 
-    private function createDataController(DataService $dataService) : DataController
+    private function createDataController(DataService $dataService): DataController
     {
         $validator = $this->getValidator();
         $serializer = $this->getSerializer();
@@ -171,18 +173,21 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
 
     /**
      * @param $requestContent
+     *
      * @return \Symfony\Component\HttpFoundation\Request
      */
     private function createRequest($requestContent): \Symfony\Component\HttpFoundation\Request
     {
         $request = new \Symfony\Component\HttpFoundation\Request([], [], [], [], [], [], $requestContent);
         $request->setMethod('POST');
+
         return $request;
     }
 
     /**
      * @param $sampleRequestId
      * @param $sampleUUID
+     *
      * @return \App\Model\Data\DeleteRequest
      */
     private function createDeleteRequest($sampleRequestId, $sampleUUID): \App\Model\Data\DeleteRequest
@@ -191,6 +196,7 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         $deleteRequest->id = $sampleRequestId;
         $deleteRequest->params = new \App\Model\Data\UUIDParam();
         $deleteRequest->params->uuid = $sampleUUID;
+
         return $deleteRequest;
     }
 

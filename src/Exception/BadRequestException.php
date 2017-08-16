@@ -22,11 +22,11 @@ class BadRequestException extends KSearchException
         return $this->errors;
     }
 
-    public function getErrorsAsString() : string
+    public function getErrorsAsString(): string
     {
         $message = '';
         foreach ($this->errors as $errorKey => $errorMessage) {
-            $message .= sprintf("%s: %s", $errorKey, $errorMessage) . PHP_EOL;
+            $message .= sprintf('%s: %s', $errorKey, $errorMessage).PHP_EOL;
         }
 
         return substr($message, 0, -strlen(PHP_EOL));
