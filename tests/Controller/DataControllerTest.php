@@ -43,9 +43,8 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         $requestContent = json_encode($deleteRequest);
         $request = $this->createRequest($requestContent);
 
-        $expectedResponse = new \App\Model\Status\StatusResponse(new Status(200, 'Ok'), $sampleRequestId);
-        $serializedExpectedResponse = json_encode($expectedResponse);
-
+        $serializedExpectedResponse = '{"result":{"code":200,"status":"Ok"},"id":"uniq_id"}';
+        
         $response = $dataController->postDataDelete($request, self::API_VERSION);
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -74,8 +73,7 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         $requestContent = json_encode($deleteRequest);
         $request = $this->createRequest($requestContent);
 
-        $expectedResponse = new \App\Model\Status\StatusResponse(new Status(400, 'Error'), $sampleRequestId);
-        $serializedExpectedResponse = json_encode($expectedResponse);
+        $serializedExpectedResponse = '{"result":{"code":400,"status":"Error"},"id":"uniq_id"}';
 
         $response = $dataController->postDataDelete($request, self::API_VERSION);
 
@@ -109,6 +107,12 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         $sampleUUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
         $sampleRequestId = 'uniq_id';
 
+
+        //The controller is responsible for serializing the object
+        $dataModel = $this->createDataModel($sampleUUID);
+        $dataModel->properties->created_at = new \DateTime($dataModel->properties->created_at);
+        $dataModel->properties->updated_at = new \DateTime($dataModel->properties->updated_at);
+
         $dataService = $this->getMockBuilder(DataService::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -116,7 +120,7 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         $dataService->expects($this->once())
             ->method('getData')
             ->with($sampleUUID)
-            ->willReturn($this->createDataModel($sampleUUID));
+            ->willReturn($dataModel);
 
         $dataController = $this->createDataController($dataService);
 
@@ -125,8 +129,7 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         $requestContent = json_encode($getRequest);
         $request = $this->createRequest($requestContent);
 
-        $expectedResponse = new \App\Model\Data\GetResponse($this->createDataModel($sampleUUID), $sampleRequestId);
-        $serializedExpectedResponse = json_encode($expectedResponse);
+        $serializedExpectedResponse = '{"result":{"uuid":"cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd","url":"http:\/\/example.com\/data.txt","hash":"0800fc577294c34e0b28ad2839435945","type":"text\/plain","copyright":{"owner":{"name":"KLink Organization","email":"info@klink.asia","contact":"KLink Website: http:\/\/www.klink.asia"},"usage":{"short":"MPL-2.0","name":"Mozilla Public License 2.0","reference":"https:\/\/spdx.org\/licenses\/MPL-2.0.html"}},"properties":{"title":"Adventures of Sherlock Holmes","filename":"adventures-of-sherlock-holmes.pdf","mime_type":"application\/pdf","language":"en","created_at":"2008-07-28T14:47:31Z","updated_at":"2008-07-28T14:47:31Z","size":"717590","abstract":"It is a novel about a detective","thumbnail":"https:\/\/ichef.bbci.co.uk\/news\/660\/cpsprodpb\/153B4\/production\/_89046968_89046967.jpg"}},"id":"uniq_id"}';
 
         $response = $dataController->postDataGet($request, self::API_VERSION);
 
