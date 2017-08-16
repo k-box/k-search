@@ -38,20 +38,18 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
 
         $dataController = $this->createDataController($dataService);
 
-        $serializer = $this->getSerializer();
-
         $deleteRequest = $this->createDeleteRequest($sampleRequestId, $sampleUUID);
 
-        $requestContent = $serializer->serialize($deleteRequest, 'json');
+        $requestContent = json_encode($deleteRequest);
         $request = $this->createRequest($requestContent);
 
         $expectedResponse = new \App\Model\Status\StatusResponse(new Status(200, 'Ok'), $sampleRequestId);
-        $serializedExpectedResponse = $serializer->serialize($expectedResponse, 'json');
+        $serializedExpectedResponse = json_encode($expectedResponse);
 
         $response = $dataController->postDataDelete($request, self::API_VERSION);
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals($serializedExpectedResponse, $response->getContent());
+        $this->assertJsonStringEqualsJsonString($serializedExpectedResponse, $response->getContent());
     }
 
     public function testItDoesNotDeleteDataIfItDoesNotExist()
@@ -73,19 +71,21 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
 
         $deleteRequest = $this->createDeleteRequest($sampleRequestId, $sampleUUID);
 
-        $serializer = $this->getSerializer();
-        $requestContent = $serializer->serialize($deleteRequest, 'json');
+        $requestContent = json_encode($deleteRequest);
         $request = $this->createRequest($requestContent);
 
         $expectedResponse = new \App\Model\Status\StatusResponse(new Status(400, 'Error'), $sampleRequestId);
-        $serializedExpectedResponse = $serializer->serialize($expectedResponse, 'json');
+        $serializedExpectedResponse = json_encode($expectedResponse);
 
         $response = $dataController->postDataDelete($request, self::API_VERSION);
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals($serializedExpectedResponse, $response->getContent());
+        $this->assertJsonStringEqualsJsonString($serializedExpectedResponse, $response->getContent());
     }
 
+    /**
+     * @expectedException \App\Exception\BadRequestException
+     */
     public function testItHandlesExceptions()
     {
         $sampleUUID = 'bad-uuid';
@@ -100,17 +100,10 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
 
         $deleteRequest = $this->createDeleteRequest($sampleRequestId, $sampleUUID);
 
-        $serializer = $this->getSerializer();
-        $requestContent = $serializer->serialize($deleteRequest, 'json');
+        $requestContent = json_encode($deleteRequest);
         $request = $this->createRequest($requestContent);
 
-        $expectedResponse = new \App\Model\Error\ErrorResponse(new \App\Model\Error\Error(App\Model\Error\Error::INVALID_REQUEST, 'params.uuid: This is not a valid UUID.'), 'uniq_id');
-        $serializedExpectedResponse = $serializer->serialize($expectedResponse, 'json');
-
         $response = $dataController->postDataDelete($request, self::API_VERSION);
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals($serializedExpectedResponse, $response->getContent());
     }
 
     protected static function getKernelClass()
