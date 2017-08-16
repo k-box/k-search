@@ -44,7 +44,7 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         $request = $this->createRequest($requestContent);
 
         $serializedExpectedResponse = '{"result":{"code":200,"status":"Ok"},"id":"uniq_id"}';
-        
+
         $response = $dataController->postDataDelete($request, self::API_VERSION);
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -106,7 +106,6 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
     {
         $sampleUUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
         $sampleRequestId = 'uniq_id';
-
 
         //The controller is responsible for serializing the object
         $dataModel = $this->createDataModel($sampleUUID);
