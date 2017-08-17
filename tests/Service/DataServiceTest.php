@@ -47,7 +47,7 @@ class DataServiceTest extends TestCase
 
         $dataManager = $this->createMock(DataManager::class);
         $dataManager->expects($this->once())
-            ->method( 'handleIndexableDataAdding')
+            ->method( 'handleIndexableDataAddition')
             ->willReturn(true);
 
         $dataService = new DataService($solrServiceMock, $dataHelper, $dataManager);

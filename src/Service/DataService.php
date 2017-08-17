@@ -66,7 +66,7 @@ class DataService
 
         $dataEntity = SolrEntityData::buildFromModel($data);
         if ($this->dataHelper->isIndexable($data)) {
-            $this->manager->handleIndexableDataAdding($data);
+            $this->manager->handleIndexableDataAddition($data);
         }
         // @todo: Handle non-indexable data (use $textualContents)
         $this->solrService->add($dataEntity);
