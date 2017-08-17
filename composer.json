@@ -5,6 +5,7 @@
     "license": "proprietary",
     "require": {
         "php": "^7.1",
+        "bernard/bernard": "^0.12.3",
         "jms/serializer-bundle": "^2.0",
         "nelmio/solarium-bundle": "^2.4",
         "ramsey/uuid": "^3.6",
