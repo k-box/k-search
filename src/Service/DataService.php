@@ -66,10 +66,13 @@ class DataService
 
         if ($textualContents) {
             $dataEntity = SolrEntityData::buildFromModel($data, $textualContents);
-        }
-        else {
+        } else {
             if (!$this->dataHelper->isIndexable($data)) {
                 $dataEntity = SolrEntityData::buildFromModel($data);
+            } else {
+                $this->manager->handleIndexableDataWithoutTextualContent($data);
+
+                return false;
             }
         }
 

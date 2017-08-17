@@ -55,10 +55,10 @@ class DataServiceTest extends TestCase
 
         $dataManager = $this->createMock(DataManager::class);
         $dataManager->expects($this->never())
-            ->method('handleIndexableDataAddition');
+            ->method('handleIndexableDataWithoutTextualContent');
 
         $dataService = new DataService($solrServiceMock, $dataHelper, $dataManager);
-        $dataService->addData($data, $sampleTextualContent);
+        $this->assertTrue($dataService->addData($data, $sampleTextualContent));
     }
 
     public function testItAddsDataNotIndexableEvenWithoutTextualContent()
@@ -85,9 +85,35 @@ class DataServiceTest extends TestCase
 
         $dataManager = $this->createMock(DataManager::class);
         $dataManager->expects($this->never())
-            ->method('handleIndexableDataAddition');
+            ->method('handleIndexableDataWithoutTextualContent');
 
         $dataService = new DataService($solrServiceMock, $dataHelper, $dataManager);
-        $dataService->addData($data, $sampleTextualContent);
+        $this->assertTrue($dataService->addData($data, $sampleTextualContent));
+    }
+
+    public function testItQueuesDataWithoutTextualContentForDownloading()
+    {
+        $sampleUUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
+        $sampleTextualContent = '';
+        $data = ModelHelper::createDataModel($sampleUUID);
+
+        $solrServiceMock = $this->getMockBuilder(SolrService::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $solrServiceMock->expects($this->never())
+            ->method('add');
+
+        $dataHelper = $this->createMock(DataHelper::class);
+        $dataHelper->expects($this->once())
+            ->method('isIndexable')
+            ->willReturn(true);
+
+        $dataManager = $this->createMock(DataManager::class);
+        $dataManager->expects($this->once())
+            ->method('handleIndexableDataWithoutTextualContent');
+
+        $dataService = new DataService($solrServiceMock, $dataHelper, $dataManager);
+        $this->assertFalse($dataService->addData($data, $sampleTextualContent));
     }
 }

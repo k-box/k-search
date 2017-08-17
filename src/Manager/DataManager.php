@@ -6,7 +6,7 @@ use App\Model\Data\Data;
 
 class DataManager
 {
-    public function handleIndexableDataAddition(Data $data): bool
+    public function handleIndexableDataWithoutTextualContent(Data $data): bool
     {
         // @todo: Handle indexable data (queue/download from source, verify hash)
     }
