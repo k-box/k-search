@@ -117,7 +117,7 @@ Allows to query the K-Search index and returns search results.
 | Property | Type    | Required   | Description |
 | -------- | ------- | ---------- | ----------- |
 | `id` | String | ✔ | An identifier established by the client that MUST contain a String, Number, or NULL value if included. The value SHOULD normally not be Null and Numbers SHOULD NOT contain fractional parts. |
-| `params` | Object | ✔ | [`SearchQuery object`](https://git.klink.asia/main/k-search/blob/master/docs/api-objects.md#searchquery-object) |
+| `params` | Object | ✔ | [`SearchQuery object`](https://git.klink.asia/main/k-search/blob/develop/docs/api-search-objects.md#searchquery-object) |
 
 **Successful response**
 
@@ -126,7 +126,7 @@ Allows to query the K-Search index and returns search results.
 | Property | Type    | Required   | Description |
 | -------- | ------- | ---------- | ----------- |
 | `id` | String | ✔ | The identifier established by the client in the request. |
-| `result` | Object | ✔ | [`SearchResult object`](https://git.klink.asia/main/k-search/blob/master/docs/api-objects.md#searchresults-object) |
+| `result` | Object | ✔ | [`SearchResult object`](https://git.klink.asia/main/k-search/blob/develop/docs/api-search-objects.md#searchresults-object) |
 
 
 ### data.get
