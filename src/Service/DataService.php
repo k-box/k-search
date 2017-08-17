@@ -64,12 +64,13 @@ class DataService
             $data->properties->updated_at->setTimezone(new DateTimeZone('UTC'));
         }
 
-        $dataEntity = SolrEntityData::buildFromModel($data);
-        if ($this->dataHelper->isIndexable($data)) {
-            $this->manager->handleIndexableDataAddition($data);
+        if ($textualContents) {
+            $dataEntity = SolrEntityData::buildFromModel($data, $textualContents);
+            $this->solrService->add($dataEntity);
         }
-        // @todo: Handle non-indexable data (use $textualContents)
-        $this->solrService->add($dataEntity);
+        /*if ($this->dataHelper->isIndexable($data)) {
+            $this->manager->handleIndexableDataAddition($data);
+        }*/
 
         return true;
     }

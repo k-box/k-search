@@ -2,6 +2,7 @@
 
 namespace App\Tests\Service;
 
+use App\Entity\SolrEntityData;
 use App\Helper\DataHelper;
 use App\Manager\DataManager;
 use App\Service\DataService;
@@ -31,27 +32,32 @@ class DataServiceTest extends TestCase
         $this->assertFalse($dataService->deleteData('uneexisting-uuid'));
     }
 
-    public function testItAddsData() {
+    public function testItAddsDataWithTextualContent() {
         $sampleUUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
         $sampleTextualContent = 'example indeaxable content';
+        $data = ModelHelper::createDataModel($sampleUUID);
 
         $solrServiceMock = $this->getMockBuilder(SolrService::class)
             ->disableOriginalConstructor()
             ->getMock();
 
+        $solrServiceMock->expects($this->once())
+            ->method('add')
+            ->with($this->callback( function(SolrEntityData $solrEntity) {
+                return !empty($solrEntity->getField('str_ss_data_textual_content'));
+            }))
+            ->willReturn(true);
 
         $dataHelper = $this->createMock(DataHelper::class);
-        $dataHelper->expects($this->once())
-            ->method('isIndexable')
-            ->willReturn(true);
+        $dataHelper->expects($this->never())
+            ->method('isIndexable');
 
         $dataManager = $this->createMock(DataManager::class);
-        $dataManager->expects($this->once())
-            ->method( 'handleIndexableDataAddition')
-            ->willReturn(true);
+        $dataManager->expects($this->never())
+            ->method( 'handleIndexableDataAddition');
 
         $dataService = new DataService($solrServiceMock, $dataHelper, $dataManager);
-        $dataService->addData( ModelHelper::createDataModel($sampleUUID), $sampleTextualContent);
+        $dataService->addData($data, $sampleTextualContent);
     }
 
 
