@@ -132,7 +132,8 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         $this->assertJsonStringEqualsJsonString($serializedExpectedResponse, $response->getContent());
     }
 
-    public function testItAddsData() {
+    public function testItAddsData()
+    {
         $sampleUUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
         $sampleRequestId = 'uniq_id';
         $sampleTextualContent = 'textual content to be indexed';
@@ -244,7 +245,7 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         $addRequest->params = new \App\Model\Data\AddParams();
         $addRequest->params->data = $dataModel;
         $addRequest->params->dataTextualContents = $sampleTextualContent;
+
         return $addRequest;
     }
-
 }

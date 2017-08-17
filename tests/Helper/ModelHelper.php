@@ -1,9 +1,11 @@
 <?php
+
 namespace App\Tests\Helper;
 
 class ModelHelper
 {
-    public static function createDataModel($sampleUUID): \App\Model\Data\Data {
+    public static function createDataModel($sampleUUID): \App\Model\Data\Data
+    {
         $data = new \App\Model\Data\Data();
         $data->hash = hash('sha512', 'hash');
         $data->type = 'document';

@@ -32,7 +32,8 @@ class DataServiceTest extends TestCase
         $this->assertFalse($dataService->deleteData('uneexisting-uuid'));
     }
 
-    public function testItAddsDataWithTextualContent() {
+    public function testItAddsDataWithTextualContent()
+    {
         $sampleUUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
         $sampleTextualContent = 'example indeaxable content';
         $data = ModelHelper::createDataModel($sampleUUID);
@@ -43,7 +44,7 @@ class DataServiceTest extends TestCase
 
         $solrServiceMock->expects($this->once())
             ->method('add')
-            ->with($this->callback( function(SolrEntityData $solrEntity) {
+            ->with($this->callback(function (SolrEntityData $solrEntity) {
                 return !empty($solrEntity->getField('str_ss_data_textual_content'));
             }))
             ->willReturn(true);
@@ -54,11 +55,9 @@ class DataServiceTest extends TestCase
 
         $dataManager = $this->createMock(DataManager::class);
         $dataManager->expects($this->never())
-            ->method( 'handleIndexableDataAddition');
+            ->method('handleIndexableDataAddition');
 
         $dataService = new DataService($solrServiceMock, $dataHelper, $dataManager);
         $dataService->addData($data, $sampleTextualContent);
     }
-
-
 }
