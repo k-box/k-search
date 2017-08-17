@@ -107,10 +107,7 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         $sampleUUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
         $sampleRequestId = 'uniq_id';
 
-        //The controller is responsible for serializing the object
         $dataModel = $this->createDataModel($sampleUUID);
-        $dataModel->properties->created_at = new \DateTime($dataModel->properties->created_at);
-        $dataModel->properties->updated_at = new \DateTime($dataModel->properties->updated_at);
 
         $dataService = $this->getMockBuilder(DataService::class)
             ->disableOriginalConstructor()
@@ -128,9 +125,46 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         $requestContent = json_encode($getRequest);
         $request = $this->createRequest($requestContent);
 
-        $serializedExpectedResponse = '{"result":{"uuid":"cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd","url":"http:\/\/example.com\/data.txt","hash":"0800fc577294c34e0b28ad2839435945","type":"text\/plain","copyright":{"owner":{"name":"KLink Organization","email":"info@klink.asia","contact":"KLink Website: http:\/\/www.klink.asia"},"usage":{"short":"MPL-2.0","name":"Mozilla Public License 2.0","reference":"https:\/\/spdx.org\/licenses\/MPL-2.0.html"}},"properties":{"title":"Adventures of Sherlock Holmes","filename":"adventures-of-sherlock-holmes.pdf","mime_type":"application\/pdf","language":"en","created_at":"2008-07-28T14:47:31Z","updated_at":"2008-07-28T14:47:31Z","size":"717590","abstract":"It is a novel about a detective","thumbnail":"https:\/\/ichef.bbci.co.uk\/news\/660\/cpsprodpb\/153B4\/production\/_89046968_89046967.jpg"}},"id":"uniq_id"}';
+        $serializedExpectedResponse = '{"result":{"uuid":"cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd","url":"http:\/\/example.com\/data.txt","hash":"30163935c002fc4e1200906c3d30a9c4956b4af9f6dcaef1eb4b1fcb8fba69e7a7acdc491ea5b1f2864ea8c01b01580ef09defc3b11b3f183cb21d236f7f1a6b","type":"document","copyright":{"owner":{"name":"KLink Organization","email":"info@klink.asia","contact":"KLink Website: http:\/\/www.klink.asia"},"usage":{"short":"MPL-2.0","name":"Mozilla Public License 2.0","reference":"https:\/\/spdx.org\/licenses\/MPL-2.0.html"}},"properties":{"title":"Adventures of Sherlock Holmes","filename":"adventures-of-sherlock-holmes.pdf","mime_type":"application\/pdf","language":"en","created_at":"2008-07-28T14:47:31Z","updated_at":"2008-07-28T14:47:31Z","size":"717590","abstract":"It is a novel about a detective","thumbnail":"https:\/\/ichef.bbci.co.uk\/news\/660\/cpsprodpb\/153B4\/production\/_89046968_89046967.jpg"}},"id":"uniq_id"}';
 
         $response = $dataController->postDataGet($request, self::API_VERSION);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertJsonStringEqualsJsonString($serializedExpectedResponse, $response->getContent());
+    }
+
+    public function testItAddsData() {
+        $sampleUUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
+        $sampleRequestId = 'uniq_id';
+        $sampleTextualContent = 'textual content to be indexed';
+
+        $dataModel = $this->createDataModel($sampleUUID);
+
+        $addRequest = $this->createAddRequest($sampleRequestId, $dataModel, $sampleTextualContent);
+        $serializer = $this->getSerializer();
+        $serializedAddRequest = $serializer->serialize($addRequest, 'json');
+
+        $request = $this->createRequest($serializedAddRequest);
+
+        $dataService = $this->getMockBuilder(DataService::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $dataService->expects($this->once())
+            ->method('addData')
+            ->with($dataModel, $sampleTextualContent)
+            ->willReturn(true);
+
+        $dataService->expects($this->once())
+            ->method('getData')
+            ->with($sampleUUID)
+            ->willReturn($dataModel);
+
+        $dataController = $this->createDataController($dataService);
+
+        $response = $dataController->postDataAdd($request, self::API_VERSION);
+
+        $serializedExpectedResponse = '{"id":"uniq_id","result":{"uuid":"cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd","url":"http:\/\/example.com\/data.txt","hash":"30163935c002fc4e1200906c3d30a9c4956b4af9f6dcaef1eb4b1fcb8fba69e7a7acdc491ea5b1f2864ea8c01b01580ef09defc3b11b3f183cb21d236f7f1a6b","type":"document","copyright":{"owner":{"name":"KLink Organization","email":"info@klink.asia","contact":"KLink Website: http:\/\/www.klink.asia"},"usage":{"short":"MPL-2.0","name":"Mozilla Public License 2.0","reference":"https:\/\/spdx.org\/licenses\/MPL-2.0.html"}},"properties":{"title":"Adventures of Sherlock Holmes","filename":"adventures-of-sherlock-holmes.pdf","mime_type":"application\/pdf","language":"en","created_at":"2008-07-28T14:47:31Z","updated_at":"2008-07-28T14:47:31Z","size":717590,"abstract":"It is a novel about a detective","thumbnail":"https:\/\/ichef.bbci.co.uk\/news\/660\/cpsprodpb\/153B4\/production\/_89046968_89046967.jpg"}}}';
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertJsonStringEqualsJsonString($serializedExpectedResponse, $response->getContent());
@@ -204,11 +238,21 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         return $getRequest;
     }
 
+    private function createAddRequest($sampleRequestId, $dataModel, $sampleTextualContent): \App\Model\Data\AddRequest
+    {
+        $addRequest = new \App\Model\Data\AddRequest();
+        $addRequest->id = $sampleRequestId;
+        $addRequest->params = new \App\Model\Data\AddParams();
+        $addRequest->params->data = $dataModel;
+        $addRequest->params->dataTextualContents = $sampleTextualContent;
+        return $addRequest;
+    }
+
     private function createDataModel($sampleUUID): \App\Model\Data\Data
     {
         $data = new App\Model\Data\Data();
-        $data->hash = md5('hash');
-        $data->type = 'text/plain';
+        $data->hash = hash('sha512', 'hash');
+        $data->type = 'document';
         $data->url = 'http://example.com/data.txt';
         $data->uuid = $sampleUUID;
 
@@ -228,8 +272,8 @@ class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTest
         $data->properties->filename = 'adventures-of-sherlock-holmes.pdf';
         $data->properties->mime_type = 'application/pdf';
         $data->properties->language = 'en';
-        $data->properties->created_at = '2008-07-28T14:47:31Z';
-        $data->properties->updated_at = '2008-07-28T14:47:31Z';
+        $data->properties->created_at = new \DateTime('2008-07-28T14:47:31Z');
+        $data->properties->updated_at = new \DateTime('2008-07-28T14:47:31Z');
         $data->properties->size = '717590';
         $data->properties->abstract = 'It is a novel about a detective';
         $data->properties->thumbnail = 'https://ichef.bbci.co.uk/news/660/cpsprodpb/153B4/production/_89046968_89046967.jpg';
