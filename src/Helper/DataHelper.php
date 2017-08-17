@@ -1,15 +1,12 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: statu
- * Date: 8/17/17
- * Time: 8:10 AM
- */
+namespace App\Helper;
 
-namespace App\src\Helper;
-
+use App\Model\Data\Data;
 
 class DataHelper
 {
-
+    public function isIndexable( Data $data ): bool
+    {
+        //@todo: add logic here
+    }
 }

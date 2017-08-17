@@ -3,6 +3,8 @@
 namespace App\Service;
 
 use App\Entity\SolrEntityData;
+use App\Helper\DataHelper;
+use App\Manager\DataManager;
 use App\Model\Data\Data;
 use DateTimeZone;
 
@@ -12,10 +14,20 @@ class DataService
      * @var SolrService
      */
     private $solrService;
+    /**
+     * @var DataHelper
+     */
+    private $dataHelper;
+    /**
+     * @var DataManager
+     */
+    private $manager;
 
-    public function __construct(SolrService $solrService)
+    public function __construct(SolrService $solrService, DataHelper $dataHelper, DataManager $manager)
     {
         $this->solrService = $solrService;
+        $this->dataHelper = $dataHelper;
+        $this->manager = $manager;
     }
 
     /**
@@ -53,7 +65,9 @@ class DataService
         }
 
         $dataEntity = SolrEntityData::buildFromModel($data);
-        // @todo: Handle indexable data (queue/download from source, verify hash)
+        if ($this->dataHelper->isIndexable($data)) {
+            $this->manager->handleIndexableDataAdding($data);
+        }
         // @todo: Handle non-indexable data (use $textualContents)
         $this->solrService->add($dataEntity);
 
