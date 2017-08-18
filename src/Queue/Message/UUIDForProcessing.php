@@ -2,12 +2,10 @@
 
 namespace App\Queue\Message;
 
-use App\Model\Data\Data;
-use Bernard\Message\DefaultMessage;
+use Bernard\Message\AbstractMessage;
 
-class DataForProcessing extends DefaultMessage
+class UUIDForProcessing extends AbstractMessage
 {
-
     /**
      * @var string
      */
@@ -17,7 +15,6 @@ class DataForProcessing extends DefaultMessage
      * @var string
      */
     protected $uuid;
-
 
     public function __construct($uuid)
     {

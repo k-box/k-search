@@ -6,3 +6,21 @@ parameters:
 services:
     Symfony\Component\Security\Core\Authorization\Voter\RoleHierarchyVoter:
       alias: security.access.role_hierarchy_voter
+
+    App\Queue\QueueFactory:
+      arguments:
+        $factory: '@Bernard\QueueFactory\PersistentFactory'
+
+    Bernard\QueueFactory\PersistentFactory:
+      arguments:
+        $connection: '@App\Queue\Driver\FlatFileDriver'
+        $serializer: '@App\Queue\DataSerializer'
+
+    App\Service\QueueService:
+      arguments:
+        $factory: '@App\Queue\QueueFactory'
+
+    App\Queue\Driver\FlatFileDriver:
+      arguments:
+        $rootDir: %kernel.root_dir%
+

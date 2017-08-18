@@ -1,15 +1,25 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: statu
- * Date: 8/18/17
- * Time: 10:36 AM
- */
 
-namespace App\src\Queue;
+namespace App\Queue;
 
+use App\Queue\Message\UUIDForProcessing;
+use Bernard\Envelope;
 
-class DataEnvelope
+class DataEnvelope extends Envelope
 {
+    /**
+     * @param int $timestamp
+     */
+    public function setTimestamp(int $timestamp)
+    {
+        $this->timestamp = $timestamp;
+    }
 
+    /**
+     * @return UUIDForProcessing
+     */
+    public function getMessage(): UUIDForProcessing
+    {
+        return parent::getMessage();
+    }
 }

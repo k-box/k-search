@@ -10,6 +10,6 @@ class DataHelper
 
     public function isIndexable(Data $data): bool
     {
-        return in_array($data->type, self::INDEXABLE_TYPES);
+        return in_array($data->type, self::INDEXABLE_TYPES, true);
     }
 }
