@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Tests;
+
 use App\Controller\DataController;
 use App\Service\DataService;
 use JMS\Serializer\SerializerInterface;

@@ -2,10 +2,8 @@
 
 namespace App\Tests\Service;
 
-use App\Queue\QueueFactory;
 use App\Service\QueueService;
 use App\Tests\Helper\ModelHelper;
-use Bernard\QueueFactory\InMemoryFactory;
 
 class QueueServiceTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTestCase
 {
@@ -23,7 +21,7 @@ class QueueServiceTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTestCa
         self::bootKernel();
 
         $this->container = self::$kernel->getContainer();
-        
+
         $this->queueService = $this->container->get(QueueService::class);
         $this->queueService->reset();
     }

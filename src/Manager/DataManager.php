@@ -3,11 +3,28 @@
 namespace App\Manager;
 
 use App\Model\Data\Data;
+use App\Service\QueueService;
 
 class DataManager
 {
-    public function handleIndexableDataWithoutTextualContent(Data $data): bool
+
+    /**
+     * @var QueueService
+     */
+    private $queueService;
+
+    /**
+     * DataManager constructor.
+     * @param QueueService $service
+     */
+    public function __construct(QueueService $service)
     {
-        // @todo: Handle indexable data (queue/download from source, verify hash)
+        $this->queueService = $service;
+    }
+
+    public function saveDataToBeProcessed(Data $data): bool
+    {
+        $this->queueService->enqueueUUID($data);
+        return true;
     }
 }

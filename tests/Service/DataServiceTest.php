@@ -55,7 +55,7 @@ class DataServiceTest extends TestCase
 
         $dataManager = $this->createMock(DataManager::class);
         $dataManager->expects($this->never())
-            ->method('handleIndexableDataWithoutTextualContent');
+            ->method('saveDataToBeProcessed');
 
         $dataService = new DataService($solrServiceMock, $dataHelper, $dataManager);
         $this->assertTrue($dataService->addData($data, $sampleTextualContent));
@@ -85,7 +85,7 @@ class DataServiceTest extends TestCase
 
         $dataManager = $this->createMock(DataManager::class);
         $dataManager->expects($this->never())
-            ->method('handleIndexableDataWithoutTextualContent');
+            ->method('saveDataToBeProcessed');
 
         $dataService = new DataService($solrServiceMock, $dataHelper, $dataManager);
         $this->assertTrue($dataService->addData($data, $sampleTextualContent));
@@ -111,7 +111,7 @@ class DataServiceTest extends TestCase
 
         $dataManager = $this->createMock(DataManager::class);
         $dataManager->expects($this->once())
-            ->method('handleIndexableDataWithoutTextualContent');
+            ->method('saveDataToBeProcessed');
 
         $dataService = new DataService($solrServiceMock, $dataHelper, $dataManager);
         $this->assertFalse($dataService->addData($data, $sampleTextualContent));

@@ -70,7 +70,7 @@ class DataService
             if (!$this->dataHelper->isIndexable($data)) {
                 $dataEntity = SolrEntityData::buildFromModel($data);
             } else {
-                $this->manager->handleIndexableDataWithoutTextualContent($data);
+                $this->manager->saveDataToBeProcessed($data);
 
                 return false;
             }
