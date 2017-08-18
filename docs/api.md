@@ -166,8 +166,7 @@ Add piece of data to the search index.
 | `id` | String | ✔ | An identifier established by the client that MUST contain a String, Number, or NULL value if included. The value SHOULD normally not be Null and Numbers SHOULD NOT contain fractional parts. |
 | `params` | Object | ✔ | A simple JSON object |
 | `params[data]` | Object | ✔ | [`Data object`](https://git.klink.asia/main/k-search/blob/master/docs/api-objects.md#data-object) of the data to be added. |
-| `params[indexable]` | String |  | A string of indexable information, which should only be provided for files which are either only partially indexable (such as compressed or geo files) or non-indexable files (such as video files) |
-
+| `params[data_textual_contents]` | String |  | A string of the textual representation of the document content as indexable information, which should only be provided for files which are either only partially indexable (such as compressed or geo files) or non-indexable files (such as video files) |
 
 **Successful response**
 
