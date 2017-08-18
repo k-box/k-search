@@ -6,9 +6,10 @@ use App\Controller\DataController;
 use App\Service\DataService;
 use App\Tests\Helper\ModelHelper;
 use JMS\Serializer\SerializerInterface;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class DataControllerTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTestCase
+class DataControllerTest extends KernelTestCase
 {
     const API_VERSION = '0.0';
 
