@@ -24,7 +24,7 @@ class QueueServiceTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTestCa
 
         $this->container = self::$kernel->getContainer();
 
-        $this->queueService = new \App\Service\QueueService(new \App\Queue\QueueFactory(new InMemoryFactory()));
+        $this->queueService = new \App\Service\QueueService(new InMemoryFactory());
         $this->queueService->reset();
     }
 

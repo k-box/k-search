@@ -24,7 +24,7 @@ class QueueService
      */
     private $factory;
 
-    public function __construct(\App\Queue\QueueFactory $factory)
+    public function __construct(\Bernard\QueueFactory $factory)
     {
         $this->factory = $factory;
         $this->queue = $this->factory->create(self::QUEUE_NAME);
