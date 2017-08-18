@@ -22,12 +22,16 @@ class DataService
      * @var DataManager
      */
     private $manager;
+    /**
+     * @var QueueService
+     */
+    private $queueService;
 
-    public function __construct(SolrService $solrService, DataHelper $dataHelper, DataManager $manager)
+    public function __construct(QueueService $queueService, SolrService $solrService, DataHelper $dataHelper)
     {
         $this->solrService = $solrService;
         $this->dataHelper = $dataHelper;
-        $this->manager = $manager;
+        $this->queueService = $queueService;
     }
 
     /**
@@ -70,7 +74,7 @@ class DataService
             if (!$this->dataHelper->isIndexable($data)) {
                 $dataEntity = SolrEntityData::buildFromModel($data);
             } else {
-                $this->manager->saveDataToBeProcessed($data);
+                $this->queueService->enqueueUUID($data);
 
                 return false;
             }
