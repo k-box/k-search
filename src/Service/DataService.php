@@ -50,6 +50,8 @@ class DataService
     /**
      * Retrieves the Data from the index, given its UUID.
      *
+     * @todo: filter retrievable data, to return only "STATUS = OK" Data from the index
+     *
      * @param string $uuid the data UUID
      *
      * @return Data
@@ -64,6 +66,11 @@ class DataService
 
     public function addData(Data $data, ?string $textualContents): bool
     {
+        if (!$data->status) {
+            // @todo: Update the status accordingly
+            $data->status = SolrEntityData::DATA_STATUS_QUEUED;
+        }
+
         if (!$data->properties->updated_at) {
             $data->properties->updated_at = new \DateTime();
             $data->properties->updated_at->setTimezone(new DateTimeZone('UTC'));

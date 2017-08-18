@@ -23,4 +23,9 @@ class RPCResponse
      * )
      */
     public $id;
+
+    public function __construct(string $id = null)
+    {
+        $this->id = $id;
+    }
 }

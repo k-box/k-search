@@ -90,4 +90,11 @@ class Data
      * @SWG\Property()
      */
     public $properties;
+
+    /**
+     * The status of the data, internal use only, not exposed.
+     *
+     * @var string
+     */
+    public $status;
 }

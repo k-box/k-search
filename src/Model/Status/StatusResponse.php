@@ -17,7 +17,7 @@ class StatusResponse extends RPCResponse
     /**
      * The status data.
      *
-     * @var Status
+     * @var DataStatus
      *
      * @JMS\Type("App\Model\Status\Status")
      * @SWG\Property(
@@ -27,14 +27,14 @@ class StatusResponse extends RPCResponse
      */
     public $result;
 
-    public function __construct(Status $status, string $responseId = null)
+    public function __construct(DataStatus $status, string $responseId = null)
     {
+        parent::__construct($responseId);
         $this->result = $status;
-        $this->id = $responseId;
     }
 
     public static function withStatusMessage(int $statusCode, string $message, string $responseId = null): StatusResponse
     {
-        return new self(new Status($statusCode, $message), $responseId);
+        return new self(new DataStatus($statusCode, $message), $responseId);
     }
 }
