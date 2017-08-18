@@ -2,8 +2,6 @@
 
 namespace App\Tests\Manager;
 
-
-use App\Helper\DataHelper;
 use App\Manager\DataManager;
 use App\Service\QueueService;
 use App\Tests\Helper\ModelHelper;

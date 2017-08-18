@@ -7,7 +7,6 @@ use App\Service\QueueService;
 
 class DataManager
 {
-
     /**
      * @var QueueService
      */
@@ -15,6 +14,7 @@ class DataManager
 
     /**
      * DataManager constructor.
+     *
      * @param QueueService $service
      */
     public function __construct(QueueService $service)
@@ -25,6 +25,7 @@ class DataManager
     public function saveDataToBeProcessed(Data $data): bool
     {
         $this->queueService->enqueueUUID($data);
+
         return true;
     }
 }

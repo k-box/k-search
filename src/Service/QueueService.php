@@ -4,7 +4,6 @@ namespace App\Service;
 
 use App\Model\Data\Data;
 use App\Queue\DataEnvelope;
-use App\Queue\DataSerializer;
 use App\Queue\Message\UUIDForProcessing;
 use Bernard\Driver;
 use Bernard\Envelope;
