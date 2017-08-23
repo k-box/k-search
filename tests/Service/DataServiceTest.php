@@ -45,9 +45,7 @@ class DataServiceTest extends TestCase
 
         $solrServiceMock->expects($this->once())
             ->method('add')
-            ->with($this->callback(function (SolrEntityData $solrEntity) {
-                return !empty($solrEntity->getField('str_ss_data_textual_content'));
-            }))
+            ->with($this->anything(), $sampleTextualContent)
             ->willReturn(true);
 
         $dataHelper = $this->createMock(DataHelper::class);
@@ -62,7 +60,7 @@ class DataServiceTest extends TestCase
         $this->assertTrue($dataService->addData($data, $sampleTextualContent));
     }
 
-    public function testItAddsDataNotIndexableEvenWithoutTextualContent()
+    public function testItAddsDataNotIndexable()
     {
         $sampleUUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
         $sampleTextualContent = '';
@@ -74,9 +72,7 @@ class DataServiceTest extends TestCase
 
         $solrServiceMock->expects($this->once())
             ->method('add')
-            ->with($this->callback(function (SolrEntityData $solrEntity) {
-                return empty($solrEntity->getField('str_ss_data_textual_content'));
-            }))
+            ->with($this->anything(), $sampleTextualContent)
             ->willReturn(true);
 
         $dataHelper = $this->createMock(DataHelper::class);
@@ -92,7 +88,7 @@ class DataServiceTest extends TestCase
         $this->assertTrue($dataService->addData($data, $sampleTextualContent));
     }
 
-    public function testItQueuesDataWithoutTextualContentForDownloading()
+    public function testItAddsDataWithoutTextualContentAndItQueuesItForDownloading()
     {
         $sampleUUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
         $sampleTextualContent = '';
@@ -102,7 +98,7 @@ class DataServiceTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $solrServiceMock->expects($this->never())
+        $solrServiceMock->expects($this->once())
             ->method('add');
 
         $dataHelper = $this->createMock(DataHelper::class);
@@ -115,6 +111,6 @@ class DataServiceTest extends TestCase
             ->method('enqueueUUID');
 
         $dataService = new DataService($queueService, $solrServiceMock, $dataHelper);
-        $this->assertFalse($dataService->addData($data, $sampleTextualContent));
+        $this->assertTrue($dataService->addData($data, $sampleTextualContent));
     }
 }
