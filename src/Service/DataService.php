@@ -18,10 +18,7 @@ class DataService
      * @var DataHelper
      */
     private $dataHelper;
-    /**
-     * @var DataManager
-     */
-    private $manager;
+
     /**
      * @var QueueService
      */
@@ -68,19 +65,13 @@ class DataService
             $data->properties->updated_at->setTimezone(new DateTimeZone('UTC'));
         }
 
-        if ($textualContents) {
-            $dataEntity = SolrEntityData::buildFromModel($data, $textualContents);
-        } else {
-            if (!$this->dataHelper->isIndexable($data)) {
-                $dataEntity = SolrEntityData::buildFromModel($data);
-            } else {
-                $this->queueService->enqueueUUID($data);
+        $dataEntity = SolrEntityData::buildFromModel($data, $textualContents);
 
-                return false;
-            }
+        if (empty($textualContents) && $this->dataHelper->isIndexable($data)) {
+            $this->queueService->enqueueUUID($data);
         }
 
-        $this->solrService->add($dataEntity);
+        $this->solrService->add($dataEntity, $textualContents);
 
         return true;
     }

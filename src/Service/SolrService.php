@@ -21,7 +21,7 @@ class SolrService
         $this->solrClient = $solrClient;
     }
 
-    public function add(SolrEntity $solrEntity)
+    public function add(SolrEntity $solrEntity, $dataTextualContent)
     {
         $doc = $solrEntity->getSolrDocument();
         $update = $this->solrClient->createUpdate();
