@@ -40,6 +40,10 @@ class QueueService
         /** @var DataEnvelope $envelope */
         $envelope = $this->queue->dequeue();
 
+        if (!$envelope) {
+            return null;
+        }
+
         return $envelope->getMessage()->getDataUUID();
     }
 

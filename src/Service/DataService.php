@@ -83,10 +83,13 @@ class DataService
     public function processDataFromQueue()
     {
         $dataUUID = $this->queueService->dequeueUUID();
+
+        if (!$dataUUID) {
+            return false;
+        }
+
         $data = $this->getData($dataUUID);
-
         $contents = $this->downloaderService->getFileContents($data);
-
         $this->addData($data, $contents);
 
         return true;

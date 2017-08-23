@@ -2,13 +2,30 @@
 
 namespace App\Command;
 
-use App\Manager\DataManager;
+use App\Service\DataDownloaderService;
+use App\Service\DataService;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class DataForProcessingQueueWorkerCommand extends ContainerAwareCommand
+class DataForProcessingQueueWorkerCommand extends Command
 {
+    /**
+     * @var DataService
+     */
+    private $dataService;
+
+    /**
+     * DataForProcessingQueueWorkerCommand constructor.
+     */
+    public function __construct( $name = null, DataService $dataService)
+    {
+        parent::__construct($name);
+
+        $this->dataService = $dataService;
+    }
+
     protected function configure()
     {
         $this->setName('ksearch:data-for-processing-queue:worker')
@@ -18,21 +35,16 @@ class DataForProcessingQueueWorkerCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /* @var DataManager $coreService */
-        $dataService = $this->getContainer()->get(DataManager::class);
-/*
-        try {
-            $update = $client->createUpdate();
-            $update->addOptimize(true, false, 1);
-            $result = $client->update($update);
-
-            $result = $result->getStatus();
-
-            $output->writeln('<info>OK</info> (result code: '.$result.')');
-        } catch (\Exception $e) {
-            $output->writeln('<error>'.$e->getCode().'</error>');
+        while (true) {
+            try {
+                $output->writeln('<info>Polling the queue</info>');
+                if ($this->dataService->processDataFromQueue()) {
+                    $output->writeln('<info>Item processed</info>');
+                }
+            } catch (\Exception $e) {
+                $output->writeln('<error>'.$e->getCode().'</error>');
+            }
         }
 
-        return 0;*/
     }
 }

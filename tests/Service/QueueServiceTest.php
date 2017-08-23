@@ -59,4 +59,10 @@ class QueueServiceTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTestCa
         $this->assertEquals('456', $retrievedData2);
         $this->assertEquals('789', $retrievedData3);
     }
+
+    public function testItReturnsNullWhenNoMessage()
+    {
+        $this->assertEquals(0, $this->queueService->countPending());
+        $this->assertNull($this->queueService->dequeueUUID());
+    }
 }

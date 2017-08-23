@@ -155,4 +155,26 @@ class DataServiceTest extends TestCase
 
         $dataService->processDataFromQueue();
     }
+
+    public function testItHandlesWhenThereIsNoMoreItemsInQueue()
+    {
+                $queueService = $this->createMock(QueueService::class);
+        $queueService->expects($this->once())
+            ->method('dequeueUUID')
+            ->willReturn(null);
+
+        $solrService = $this->createMock(SolrService::class);
+        $solrService->expects($this->never())
+            ->method('add');
+
+        $dataHelper = $this->createMock(DataHelper::class);
+
+        $downloadService = $this->createMock(DataDownloaderService::class);
+        $downloadService->expects($this->never())
+            ->method('getFileContents');
+
+        $dataService = new DataService($queueService, $solrService, $dataHelper, $downloadService);
+
+        $this->assertFalse($dataService->processDataFromQueue());
+    }
 }
