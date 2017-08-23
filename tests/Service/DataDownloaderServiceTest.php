@@ -5,12 +5,10 @@ namespace App\Tests\Service;
 use App\HTTP\GuzzleAdapter;
 use App\Service\DataDownloaderService;
 use App\Tests\Helper\ModelHelper;
-use Http\Client\HttpClient;
 use PHPUnit\Framework\TestCase;
 
 class DataDownloaderServiceTest extends TestCase
 {
-
     public function testItDownloadsData()
     {
         $data = ModelHelper::createDataModel('123');

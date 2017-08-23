@@ -1,4 +1,5 @@
 <?php
+
 namespace App\HTTP;
 
 use Http\Client\HttpClient as VendorHTTPClient;

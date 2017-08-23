@@ -4,7 +4,6 @@ namespace App\Service;
 
 use App\Entity\SolrEntityData;
 use App\Helper\DataHelper;
-use App\Manager\DataManager;
 use App\Model\Data\Data;
 use DateTimeZone;
 

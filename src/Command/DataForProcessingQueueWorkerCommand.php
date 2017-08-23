@@ -35,5 +35,4 @@ class DataForProcessingQueueWorkerCommand extends ContainerAwareCommand
 
         return 0;*/
     }
-
 }

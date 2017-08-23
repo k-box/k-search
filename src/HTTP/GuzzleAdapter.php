@@ -1,4 +1,5 @@
 <?php
+
 namespace App\HTTP;
 
 use GuzzleHttp\Client as GuzzleClient;
@@ -7,7 +8,6 @@ use Http\Adapter\Guzzle6\Client as VendorGuzzleAdapter;
 
 class GuzzleAdapter extends VendorGuzzleAdapter implements HTTPClient
 {
-
     /**
      * GuzzleAdapter constructor.
      */
@@ -18,9 +18,10 @@ class GuzzleAdapter extends VendorGuzzleAdapter implements HTTPClient
 
     public function requestFile($uri): string
     {
-        $request = new Request( 'GET', $uri);
+        $request = new Request('GET', $uri);
 
         $response = $this->sendRequest($request);
+
         return (string) $response->getBody();
     }
 }

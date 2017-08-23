@@ -2,9 +2,7 @@
 
 namespace App\Tests\Service;
 
-use App\Entity\SolrEntityData;
 use App\Helper\DataHelper;
-use App\Manager\DataManager;
 use App\Service\DataDownloaderService;
 use App\Service\DataService;
 use App\Service\QueueService;
@@ -27,7 +25,6 @@ class DataServiceTest extends TestCase
         $dataHelper = $this->createMock(DataHelper::class);
         $queueService = $this->createMock(QueueService::class);
         $downloadService = $this->createMock(DataDownloaderService::class);
-
 
         $dataService = new DataService($queueService, $solrServiceMock, $dataHelper, $downloadService);
 
@@ -148,7 +145,7 @@ class DataServiceTest extends TestCase
 
         $dataService = $this->getMockBuilder(DataService::class)
             ->setMethods(['getData'])
-            ->setConstructorArgs([$queueService,$solrService,$dataHelper,$downloadService])
+            ->setConstructorArgs([$queueService, $solrService, $dataHelper, $downloadService])
             ->getMock();
 
         $dataService->expects($this->once())
