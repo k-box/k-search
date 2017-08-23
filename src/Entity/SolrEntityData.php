@@ -17,7 +17,6 @@ class SolrEntityData extends SolrEntity
     protected const FIELD_UUID = 'str_ss_data_uuid';
     protected const FIELD_TYPE = 'str_ss_data_type';
     protected const FIELD_URL = 'str_ss_data_url';
-    protected const FIELD_TEXTUAL_CONTENT = 'str_ss_data_textual_content';
     protected const FIELD_COPYRIGHT_STORED = 'str_ss_data_copyright';
     protected const FIELD_PROPERTIES_STORED = 'str_ss_data_properties';
 
@@ -34,7 +33,7 @@ class SolrEntityData extends SolrEntity
         return 'data';
     }
 
-    public static function buildFromModel(Data $data, $textualContent = ''): SolrEntityData
+    public static function buildFromModel(Data $data): SolrEntityData
     {
         $doc = new self($data->uuid);
 
@@ -42,7 +41,6 @@ class SolrEntityData extends SolrEntity
         $doc->addField(self::FIELD_HASH, $data->hash);
         $doc->addField(self::FIELD_TYPE, $data->type);
         $doc->addField(self::FIELD_URL, $data->url);
-        $doc->addField(self::FIELD_TEXTUAL_CONTENT, $textualContent);
 
         // Specific sub-entity handling
         $doc->addCopyright($data->copyright);

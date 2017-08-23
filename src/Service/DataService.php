@@ -23,12 +23,17 @@ class DataService
      * @var QueueService
      */
     private $queueService;
+    /**
+     * @var DataDownloaderService
+     */
+    private $downloaderService;
 
-    public function __construct(QueueService $queueService, SolrService $solrService, DataHelper $dataHelper)
+    public function __construct(QueueService $queueService, SolrService $solrService, DataHelper $dataHelper, DataDownloaderService $downloaderService)
     {
         $this->solrService = $solrService;
         $this->dataHelper = $dataHelper;
         $this->queueService = $queueService;
+        $this->downloaderService = $downloaderService;
     }
 
     /**
@@ -65,13 +70,25 @@ class DataService
             $data->properties->updated_at->setTimezone(new DateTimeZone('UTC'));
         }
 
-        $dataEntity = SolrEntityData::buildFromModel($data, $textualContents);
+        $dataEntity = SolrEntityData::buildFromModel($data);
 
         if (empty($textualContents) && $this->dataHelper->isIndexable($data)) {
             $this->queueService->enqueueUUID($data);
         }
 
         $this->solrService->add($dataEntity, $textualContents);
+
+        return true;
+    }
+
+    public function processDataFromQueue()
+    {
+        $dataUUID = $this->queueService->dequeueUUID();
+        $data = $this->getData($dataUUID);
+
+        $contents = $this->downloaderService->getFileContents($data);
+
+        $this->addData($data, $contents);
 
         return true;
     }
