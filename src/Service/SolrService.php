@@ -28,6 +28,15 @@ class SolrService
         $update->addDocument($doc);
         $update->addCommit();
 
+        if ($dataTextualContent) {
+            /*$extract = $this->solrClient->createExtract();
+            $extract->setFieldMappings(['content' => $dataTextualContent,]);
+            $extract->setDocument($doc);
+            $extract->setCommit(true);*/
+            //@Todo: add content data for indexing
+        }
+
+
         try {
             return $this->solrClient->update($update);
         } catch (\Throwable $e) {
