@@ -66,22 +66,21 @@ class DataService
 
     public function addData(Data $data, ?string $textualContents): bool
     {
-        if (!$data->status) {
-            // @todo: Update the status accordingly
-            $data->status = SolrEntityData::DATA_STATUS_QUEUED;
-        }
 
         if (!$data->properties->updated_at) {
             $data->properties->updated_at = new \DateTime();
             $data->properties->updated_at->setTimezone(new DateTimeZone('UTC'));
         }
-
-        $dataEntity = SolrEntityData::buildFromModel($data);
-
+        
         if (empty($textualContents) && $this->dataHelper->isIndexable($data)) {
+            $data->status = SolrEntityData::DATA_STATUS_QUEUED;
             $this->queueService->enqueueUUID($data);
         }
+        else {
+            $data->status = SolrEntityData::DATA_STATUS_OK;
+        }
 
+        $dataEntity = SolrEntityData::buildFromModel($data);
         $this->solrService->add($dataEntity, $textualContents);
 
         return true;
@@ -97,6 +96,9 @@ class DataService
 
         $data = $this->getData($dataUUID);
         $contents = $this->downloaderService->getFileContents($data);
+
+        $data->status = SolrEntityData::DATA_STATUS_OK;
+
         $this->addData($data, $contents);
 
         return true;
