@@ -218,7 +218,8 @@ class DataControllerTest extends KernelTestCase
         $this->assertJsonStringEqualsJsonString($serializedExpectedResponse, $response->getContent());
     }
 
-    public function testItGetTheDataStatus() {
+    public function testItGetTheDataStatus()
+    {
         $sampleUUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
         $sampleRequestId = 'uniq_id';
         $sampleStatus = 'queued';

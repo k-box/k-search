@@ -2,6 +2,7 @@
 
 namespace App\Tests\Service;
 
+use App\Entity\SolrEntityData;
 use App\Helper\DataHelper;
 use App\Service\DataDownloaderService;
 use App\Service\DataService;
@@ -102,7 +103,12 @@ class DataServiceTest extends TestCase
             ->getMock();
 
         $solrServiceMock->expects($this->once())
-            ->method('add');
+            ->method('add')
+            ->with($this->callback(function (SolrEntityData $data) {
+                $this->assertEquals(SolrEntityData::DATA_STATUS_QUEUED, $data->getField('str_ss_data_status'));
+
+                return true;
+            }), '');
 
         $dataHelper = $this->createMock(DataHelper::class);
         $dataHelper->expects($this->once())
@@ -133,7 +139,11 @@ class DataServiceTest extends TestCase
         $solrService = $this->createMock(SolrService::class);
         $solrService->expects($this->once())
             ->method('add')
-            ->with($this->anything(), $sampleContent);
+            ->with($this->callback(function (SolrEntityData $data) {
+                $this->assertEquals(SolrEntityData::DATA_STATUS_OK, $data->getField('str_ss_data_status'));
+
+                return true;
+            }), $sampleContent);
 
         $dataHelper = $this->createMock(DataHelper::class);
 
