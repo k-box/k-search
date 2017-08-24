@@ -36,4 +36,37 @@ class ModelHelper
 
         return $data;
     }
+
+    public static function createDataArray($sampleUUID): array
+    {
+        return [
+            'hash' => hash('sha512', 'hash'),
+            'type' => 'document',
+            'url' => 'http://example.com/data.txt',
+            'uuid' => $sampleUUID,
+            'copyright' => [
+                'owner' => [
+                    'name' => 'KLink Organization',
+                    'email' => 'info@klink.asia',
+                    'contact' => 'KLink Website: http://www.klink.asia',
+                ],
+                'usage' => [
+                    'short' => 'MPL-2.0',
+                    'name' => 'Mozilla Public License 2.0',
+                    'reference' => 'https://spdx.org/licenses/MPL-2.0.html',
+                ],
+            ],
+            'properties' => [
+                'title' => 'Adventures of Sherlock Holmes',
+                'filename' => 'adventures-of-sherlock-holmes.pdf',
+                'mime_type' => 'application/pdf',
+                'language' => 'en',
+                'created_at' => '2008-07-28T14:47:31Z',
+                'updated_at' => '2008-07-28T14:47:31Z',
+                'size' => '717590',
+                'abstract' => 'It is a novel about a detective',
+                'thumbnail' => 'https://ichef.bbci.co.uk/news/660/cpsprodpb/153B4/production/_89046968_89046967.jpg',
+            ],
+        ];
+    }
 }

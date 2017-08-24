@@ -2,9 +2,7 @@
 
 namespace App\Command;
 
-use App\Service\DataDownloaderService;
 use App\Service\DataService;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -18,8 +16,10 @@ class DataForProcessingQueueWorkerCommand extends Command
 
     /**
      * DataForProcessingQueueWorkerCommand constructor.
+     *
+     * @param mixed $name
      */
-    public function __construct( $name = null, DataService $dataService)
+    public function __construct($name, DataService $dataService)
     {
         parent::__construct($name);
 
@@ -45,6 +45,5 @@ class DataForProcessingQueueWorkerCommand extends Command
                 $output->writeln('<error>'.$e->getCode().'</error>');
             }
         }
-
     }
 }

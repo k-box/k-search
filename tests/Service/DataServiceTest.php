@@ -158,7 +158,7 @@ class DataServiceTest extends TestCase
 
     public function testItHandlesWhenThereIsNoMoreItemsInQueue()
     {
-                $queueService = $this->createMock(QueueService::class);
+        $queueService = $this->createMock(QueueService::class);
         $queueService->expects($this->once())
             ->method('dequeueUUID')
             ->willReturn(null);
