@@ -218,6 +218,48 @@ class DataControllerTest extends KernelTestCase
         $this->assertJsonStringEqualsJsonString($serializedExpectedResponse, $response->getContent());
     }
 
+    public function testItGetTheDataStatus() {
+        $sampleUUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
+        $sampleRequestId = 'uniq_id';
+        $sampleStatus = 'queued';
+
+        $dataModel = \App\Tests\Helper\ModelHelper::createDataModel($sampleUUID);
+        $dataModel->status = $sampleStatus;
+
+        $dataService = $this->getMockBuilder(DataService::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $dataService->expects($this->once())
+            ->method('getData')
+            ->with($sampleUUID)
+            ->willReturn($dataModel);
+
+        $getRequest = [
+            'id' => $sampleRequestId,
+            'params' => [
+                'uuid' => $sampleUUID,
+            ],
+        ];
+        $requestContent = json_encode($getRequest);
+
+        $request = $this->createRequest($requestContent);
+        $dataController = $this->createDataController($dataService);
+
+        $expectedResponse = [
+            'result' => [
+                'status' => $sampleStatus,
+            ],
+            'id' => $sampleRequestId,
+        ];
+        $serializedExpectedResponse = json_encode($expectedResponse);
+
+        $response = $dataController->postDataStatus($request, self::API_VERSION);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertJsonStringEqualsJsonString($serializedExpectedResponse, $response->getContent());
+    }
+
     protected static function getKernelClass()
     {
         return \App\Kernel::class;
