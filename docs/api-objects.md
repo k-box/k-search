@@ -3,9 +3,9 @@
 | Property                     | Type   | Required | Description |
 | ---------------------------- | ------ | -------- | ----------- |
 | `uuid`                       | String | ✔ | Universally unique identifier. |
-| `source[]`                   | List   | ✔ | The sources where the data is stored and retrievable. |
-| `source[][type]`             | String | ✔ | The type of the source data (accepted values are mime types and `youtube`). |
-| `source[][value]`            | String | ✔ | the source value, e.g. HTTPS url, a Youtube video id (if type is set to `youtube`),... |
+| `source[]`                   | Object | ✔ | The source where the data is stored. |
+| `source[type]`               | String | ✔ | The type of the source data (accepted values are `file` or `page`). |
+| `source[value]`              | String | ✔ | The source url. |
 | `type`                       | String | ✔ | The general type of the provided data. Can be only 'document' or 'video'. |
 | `properties[]`               | Object | ✔ | The metadata of a piece of data. |
 | `properties[mime_type]`      | String | ✔ | The Mime type of the provided data. |
@@ -55,10 +55,14 @@ In case that `type`==`video`. It is expected to extend the `properties` by this 
 | Property                           | Type   | Required | Description |
 | ---------------------------------- | ------ | -------- | ----------- |
 | `properties[video][]`              | Object | ✔ | Object containing information on the video file. |
-| `properties[video][format]`        | String | ✔ | Format of the video file. |
 | `properties[video][duration]`      | String | ✔ | Duration of the video. |
-| `properties[video][resolution]`    | String | ✔ | Resolution of the video. |
-| `properties[video][bitrate]`       | String |   | Bitrate of the video file. |
+| `properties[video][source]`        | Object | ✔ | Information about the source file. |
+| `properties[video][source][format]`    | String | ✔ | Format of the video file. |
+| `properties[video][source][resolution]`| String | ✔ | Resolution of the video. |
+| `properties[video][source][bitrate]`   | String |   | Bitrate of the video file. |
+| `properties[video][streaming][]`       | List   |   | Information about the streaming services. |
+| `properties[video][streaming][][type]` | Object |   | URL of the video stream type (youtube, dash, hls). |
+| `properties[video][streaming][][url]`  | Object |   | URL of the video stream. |
 | `properties[audio][]`              | List   |   | Audio tracks attached to the video (multiple). |
 | `properties[audio][][]`            | Object |   | Object with information on one audio track |
 | `properties[audio][][language]`    | String |   | Main language(s) spoken in the audio track, free text. |
