@@ -66,17 +66,15 @@ class DataService
 
     public function addData(Data $data, ?string $textualContents): bool
     {
-
         if (!$data->properties->updated_at) {
             $data->properties->updated_at = new \DateTime();
             $data->properties->updated_at->setTimezone(new DateTimeZone('UTC'));
         }
-        
+
         if (empty($textualContents) && $this->dataHelper->isIndexable($data)) {
             $data->status = SolrEntityData::DATA_STATUS_QUEUED;
             $this->queueService->enqueueUUID($data);
-        }
-        else {
+        } else {
             $data->status = SolrEntityData::DATA_STATUS_OK;
         }
 

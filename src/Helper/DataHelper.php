@@ -6,7 +6,9 @@ use App\Model\Data\Data;
 
 class DataHelper
 {
-    const INDEXABLE_TYPES = ['document'];
+    const INDEXABLE_TYPES = [
+        Data::DATA_TYPE_DOCUMENT,
+    ];
 
     public function isIndexable(Data $data): bool
     {
