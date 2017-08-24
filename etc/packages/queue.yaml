@@ -1,0 +1,17 @@
+services:
+  queue_factory:
+    class: Bernard\QueueFactory\PersistentFactory
+    arguments:
+      $connection: '@App\Queue\Driver\FlatFileDriver'
+      $serializer: '@App\Queue\DataSerializer'
+
+  Bernard\QueueFactory:
+    alias: queue_factory
+
+  App\Service\QueueService:
+    arguments:
+      $factory: '@queue_factory'
+
+  App\Queue\Driver\FlatFileDriver:
+    arguments:
+      $rootDir: %kernel.root_dir%

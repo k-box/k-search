@@ -11,6 +11,8 @@ use Solarium\QueryType\Select\Query\FilterQuery;
 
 class SolrService
 {
+    const DATA_TEXTUAL_DYNAMIC_FIELD_NAME = 'str_ss_file_content';
+
     /**
      * @var Client
      */
@@ -21,9 +23,20 @@ class SolrService
         $this->solrClient = $solrClient;
     }
 
-    public function add(SolrEntity $solrEntity)
+    public function add(SolrEntity $solrEntity, $dataTextualContent)
     {
         $doc = $solrEntity->getSolrDocument();
+
+        if ($dataTextualContent) {
+            /*$extract = $this->solrClient->createExtract();
+            $extract->setFieldMappings(['content' => $dataTextualContent,]);
+            $extract->setDocument($doc);
+            $extract->setCommit(true);*/
+            //@Todo: add content data for indexing with an extract query
+            $doc->addField(self::DATA_TEXTUAL_DYNAMIC_FIELD_NAME, $dataTextualContent);
+            //The line above is written to store the data textual content temporary until we implement it properly with an extract query
+        }
+
         $update = $this->solrClient->createUpdate();
         $update->addDocument($doc);
         $update->addCommit();

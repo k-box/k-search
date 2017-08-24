@@ -5,8 +5,10 @@
     "license": "proprietary",
     "require": {
         "php": "^7.1",
+        "bernard/bernard": "^0.12.3",
         "jms/serializer-bundle": "^2.0",
         "nelmio/solarium-bundle": "^2.4",
+        "php-http/guzzle6-adapter": "^1.1",
         "ramsey/uuid": "^3.6",
         "sensio/framework-extra-bundle": "^3.0",
         "swagger-api/swagger-ui": "^3.1",

@@ -20,13 +20,13 @@ class SolrEntityData extends SolrEntity
     protected const FIELD_COPYRIGHT_STORED = 'str_ss_data_copyright';
     protected const FIELD_PROPERTIES_STORED = 'str_ss_data_properties';
 
-    protected const FIELD_COPYRIGHT_OWNER_NAME = 'str_si_data_copyright_owner_name';
-    protected const FIELD_COPYRIGHT_OWNER_CONTACT = 'str_si_data_copyright_owner_contact';
-    protected const FIELD_COPYRIGHT_OWNER_EMAIL = 'str_si_data_copyright_owner_email';
+    protected const FIELD_COPYRIGHT_OWNER_NAME = 'str_sis_data_copyright_owner_name';
+    protected const FIELD_COPYRIGHT_OWNER_CONTACT = 'str_sis_data_copyright_owner_contact';
+    protected const FIELD_COPYRIGHT_OWNER_EMAIL = 'str_sis_data_copyright_owner_email';
 
-    protected const FIELD_COPYRIGHT_USAGE_NAME = 'str_si_data_copyright_usage_name';
-    protected const FIELD_COPYRIGHT_USAGE_SHORT = 'str_si_data_copyright_usage_short';
-    protected const FIELD_COPYRIGHT_USAGE_REFERENCE = 'str_si_data_copyright_usage_reference';
+    protected const FIELD_COPYRIGHT_USAGE_NAME = 'str_sis_data_copyright_usage_name';
+    protected const FIELD_COPYRIGHT_USAGE_SHORT = 'str_sis_data_copyright_usage_short';
+    protected const FIELD_COPYRIGHT_USAGE_REFERENCE = 'str_sis_data_copyright_usage_reference';
 
     public static function getEntityType(): string
     {

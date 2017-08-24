@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\SolrEntityData;
+use App\Helper\DataHelper;
 use App\Model\Data\Data;
 use DateTimeZone;
 
@@ -12,10 +13,26 @@ class DataService
      * @var SolrService
      */
     private $solrService;
+    /**
+     * @var DataHelper
+     */
+    private $dataHelper;
 
-    public function __construct(SolrService $solrService)
+    /**
+     * @var QueueService
+     */
+    private $queueService;
+    /**
+     * @var DataDownloaderService
+     */
+    private $downloaderService;
+
+    public function __construct(QueueService $queueService, SolrService $solrService, DataHelper $dataHelper, DataDownloaderService $downloaderService)
     {
         $this->solrService = $solrService;
+        $this->dataHelper = $dataHelper;
+        $this->queueService = $queueService;
+        $this->downloaderService = $downloaderService;
     }
 
     /**
@@ -53,9 +70,27 @@ class DataService
         }
 
         $dataEntity = SolrEntityData::buildFromModel($data);
-        // @todo: Handle indexable data (queue/download from source, verify hash)
-        // @todo: Handle non-indexable data (use $textualContents)
-        $this->solrService->add($dataEntity);
+
+        if (empty($textualContents) && $this->dataHelper->isIndexable($data)) {
+            $this->queueService->enqueueUUID($data);
+        }
+
+        $this->solrService->add($dataEntity, $textualContents);
+
+        return true;
+    }
+
+    public function processDataFromQueue()
+    {
+        $dataUUID = $this->queueService->dequeueUUID();
+
+        if (!$dataUUID) {
+            return false;
+        }
+
+        $data = $this->getData($dataUUID);
+        $contents = $this->downloaderService->getFileContents($data);
+        $this->addData($data, $contents);
 
         return true;
     }

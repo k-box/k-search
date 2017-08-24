@@ -6,3 +6,7 @@ parameters:
 services:
     Symfony\Component\Security\Core\Authorization\Voter\RoleHierarchyVoter:
       alias: security.access.role_hierarchy_voter
+
+    App\Service\DataService:
+      public: true
+      autowire: true
