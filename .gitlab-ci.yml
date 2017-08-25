@@ -32,3 +32,16 @@ php-coding-styles:7.1:
     - vendor/bin/php-cs-fixer fix --dry-run
   tags:
     - docker
+
+php-tests:7.1:
+  image: docker.klink.asia/open/docker-php:7.1
+  <<: *need_composer
+  stage: test
+  variables:
+    APP_ENV: "dev"
+    APP_DEBUG: "1"
+    APP_SECRET: "774185ebf1c8d9ce0a8343eb2c4c3730"
+  script:
+    - vendor/bin/phpunit
+  tags:
+    - docker
