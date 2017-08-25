@@ -63,7 +63,7 @@ class ModelHelper
                 'language' => 'en',
                 'created_at' => '2008-07-28T14:47:31Z',
                 'updated_at' => '2008-07-28T14:47:31Z',
-                'size' => '717590',
+                'size' => 717590,
                 'abstract' => 'It is a novel about a detective',
                 'thumbnail' => 'https://ichef.bbci.co.uk/news/660/cpsprodpb/153B4/production/_89046968_89046967.jpg',
             ],

@@ -3,124 +3,109 @@
 namespace App\Tests;
 
 use App\Controller\DataController;
+use App\Exception\BadRequestException;
 use App\Service\DataService;
 use App\Tests\Helper\ModelHelper;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class DataControllerTest extends KernelTestCase
 {
-    const API_VERSION = '0.0';
+    private const API_VERSION = '0.0';
+    private const DATA_UUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
+    private const REQUEST_ID = 'request-98765';
 
-    /**
-     * @var Symfony\Component\DependencyInjection\ContainerInterface
-     */
-    private $container;
+    /** @var DataService|\PHPUnit_Framework_MockObject_MockObject */
+    private $dataService;
+
+    /** @var ValidatorInterface */
+    private $validator;
+
+    /** @var SerializerInterface */
+    private $serializer;
 
     public function setUp()
     {
         self::bootKernel();
 
-        $this->container = self::$kernel->getContainer();
+        $container = self::$kernel->getContainer();
+        $this->validator = $container->get('validator');
+        $this->serializer = $container->get('jms_serializer');
+        $this->dataService = $this->createMock(DataService::class);
     }
 
     public function testItDeletesData()
     {
-        $sampleUUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
-        $sampleRequestId = 'uniq_id';
-
-        $dataService = $this->getMockBuilder(DataService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $dataService->expects($this->once())
+        $this->dataService->expects($this->once())
             ->method('deleteData')
-            ->with($sampleUUID)
+            ->with(self::DATA_UUID)
             ->willReturn(true);
 
         $deleteRequest = [
-            'id' => $sampleRequestId,
+            'id' => self::REQUEST_ID,
             'params' => [
-                'uuid' => $sampleUUID,
+                'uuid' => self::DATA_UUID,
             ],
         ];
         $requestContent = json_encode($deleteRequest);
 
         $request = $this->createRequest($requestContent);
-        $dataController = $this->createDataController($dataService);
+        $dataController = $this->createDataController();
 
         $expectedResponse = [
             'result' => [
                 'code' => 200,
                 'status' => 'Ok',
             ],
-            'id' => 'uniq_id',
+            'id' => self::REQUEST_ID,
         ];
-        $serializedExpectedResponse = json_encode($expectedResponse);
 
         $response = $dataController->postDataDelete($request, self::API_VERSION);
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertJsonStringEqualsJsonString($serializedExpectedResponse, $response->getContent());
+        $this->assertSameRPCResponse($expectedResponse, $response, 200);
     }
 
     public function testItDoesNotDeleteDataIfItDoesNotExist()
     {
-        $sampleUUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
-        $sampleRequestId = 'uniq_id';
-
-        /** @var DataService $dataService */
-        $dataService = $this->getMockBuilder(DataService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $dataService->expects($this->once())
+        $this->dataService->expects($this->once())
             ->method('deleteData')
-            ->with($sampleUUID)
+            ->with(self::DATA_UUID)
             ->willReturn(false);
 
         $deleteRequest = [
-            'id' => $sampleRequestId,
+            'id' => self::REQUEST_ID,
             'params' => [
-                'uuid' => $sampleUUID,
+                'uuid' => self::DATA_UUID,
             ],
         ];
         $requestContent = json_encode($deleteRequest);
 
         $request = $this->createRequest($requestContent);
-        $dataController = $this->createDataController($dataService);
+        $dataController = $this->createDataController();
 
         $expectedResponse = [
             'result' => [
                 'code' => 400,
                 'status' => 'Error',
             ],
-            'id' => 'uniq_id',
+            'id' => self::REQUEST_ID,
         ];
-        $serializedExpectedResponse = json_encode($expectedResponse);
 
         $response = $dataController->postDataDelete($request, self::API_VERSION);
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertJsonStringEqualsJsonString($serializedExpectedResponse, $response->getContent());
+        $this->assertSameRPCResponse($expectedResponse, $response, 200);
     }
 
     public function testItHandlesExceptions()
     {
-        $this->expectException(\App\Exception\BadRequestException::class);
+        $this->expectException(BadRequestException::class);
         $sampleUUID = 'bad-uuid';
-        $sampleRequestId = 'uniq_id';
 
-        /** @var DataService $dataService */
-        $dataService = $this->getMockBuilder(DataService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $dataController = $this->createDataController($dataService);
+        $dataController = $this->createDataController();
 
         $deleteRequest = [
-            'id' => $sampleRequestId,
+            'id' => self::REQUEST_ID,
             'params' => [
                 'uuid' => $sampleUUID,
             ],
@@ -134,172 +119,129 @@ class DataControllerTest extends KernelTestCase
 
     public function testItGetsData()
     {
-        $sampleUUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
-        $sampleRequestId = 'uniq_id';
+        $dataModel = ModelHelper::createDataModel(self::DATA_UUID);
 
-        $dataModel = \App\Tests\Helper\ModelHelper::createDataModel($sampleUUID);
-
-        $dataService = $this->getMockBuilder(DataService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $dataService->expects($this->once())
+        $this->dataService->expects($this->once())
             ->method('getData')
-            ->with($sampleUUID)
+            ->with(self::DATA_UUID)
             ->willReturn($dataModel);
 
         $getRequest = [
-            'id' => $sampleRequestId,
+            'id' => self::REQUEST_ID,
             'params' => [
-                'uuid' => $sampleUUID,
+                'uuid' => self::DATA_UUID,
             ],
         ];
         $requestContent = json_encode($getRequest);
 
         $request = $this->createRequest($requestContent);
-        $dataController = $this->createDataController($dataService);
+        $dataController = $this->createDataController();
 
         $expectedResponse = [
-            'result' => ModelHelper::createDataArray($sampleUUID),
-            'id' => $sampleRequestId,
+            'result' => ModelHelper::createDataArray(self::DATA_UUID),
+            'id' => self::REQUEST_ID,
         ];
-        $serializedExpectedResponse = json_encode($expectedResponse);
 
         $response = $dataController->postDataGet($request, self::API_VERSION);
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertJsonStringEqualsJsonString($serializedExpectedResponse, $response->getContent());
+        $this->assertSameRPCResponse($expectedResponse, $response, 200);
     }
 
     public function testItAddsData()
     {
-        $sampleUUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
-        $sampleRequestId = 'uniq_id';
         $sampleTextualContent = 'textual content to be indexed';
 
-        $dataModel = \App\Tests\Helper\ModelHelper::createDataModel($sampleUUID);
+        $dataModel = ModelHelper::createDataModel(self::DATA_UUID);
+        $dataArray = ModelHelper::createDataArray(self::DATA_UUID);
 
         $addRequest = [
-            'id' => $sampleRequestId,
+            'id' => self::REQUEST_ID,
             'params' => [
-                'data' => ModelHelper::createDataArray($sampleUUID),
+                'data' => $dataArray,
                 'data_textual_contents' => $sampleTextualContent,
             ],
         ];
-        $requestContent = json_encode($addRequest);
 
-        $request = $this->createRequest($requestContent);
-
-        $dataService = $this->getMockBuilder(DataService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $dataService->expects($this->once())
+        $this->dataService->expects($this->once())
             ->method('addData')
             ->with($dataModel, $sampleTextualContent)
             ->willReturn(true);
 
-        $dataService->expects($this->once())
+        $this->dataService->expects($this->once())
             ->method('getData')
-            ->with($sampleUUID)
+            ->with(self::DATA_UUID)
             ->willReturn($dataModel);
 
-        $dataController = $this->createDataController($dataService);
+        $dataController = $this->createDataController();
 
+        $request = $this->createRequest(json_encode($addRequest));
         $response = $dataController->postDataAdd($request, self::API_VERSION);
 
         $expectedResponse = [
-            'id' => $sampleRequestId,
-            'result' => ModelHelper::createDataArray($sampleUUID),
+            'id' => self::REQUEST_ID,
+            'result' => $dataArray,
         ];
-        $serializedExpectedResponse = json_encode($expectedResponse);
 
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertJsonStringEqualsJsonString($serializedExpectedResponse, $response->getContent());
+        $this->assertSameRPCResponse($expectedResponse, $response, 200);
     }
 
     public function testItGetTheDataStatus()
     {
-        $sampleUUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
-        $sampleRequestId = 'uniq_id';
         $sampleStatus = 'queued';
 
-        $dataModel = \App\Tests\Helper\ModelHelper::createDataModel($sampleUUID);
+        $dataModel = ModelHelper::createDataModel(self::DATA_UUID);
         $dataModel->status = $sampleStatus;
 
-        $dataService = $this->getMockBuilder(DataService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $dataService->expects($this->once())
+        $this->dataService->expects($this->once())
             ->method('getData')
-            ->with($sampleUUID)
+            ->with(self::DATA_UUID)
             ->willReturn($dataModel);
 
         $getRequest = [
-            'id' => $sampleRequestId,
+            'id' => self::REQUEST_ID,
             'params' => [
-                'uuid' => $sampleUUID,
+                'uuid' => self::DATA_UUID,
             ],
         ];
         $requestContent = json_encode($getRequest);
 
         $request = $this->createRequest($requestContent);
-        $dataController = $this->createDataController($dataService);
+        $dataController = $this->createDataController();
 
         $expectedResponse = [
             'result' => [
                 'status' => $sampleStatus,
             ],
-            'id' => $sampleRequestId,
+            'id' => self::REQUEST_ID,
         ];
-        $serializedExpectedResponse = json_encode($expectedResponse);
 
         $response = $dataController->postDataStatus($request, self::API_VERSION);
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertJsonStringEqualsJsonString($serializedExpectedResponse, $response->getContent());
+        $this->assertSameRPCResponse($expectedResponse, $response, 200);
     }
 
-    protected static function getKernelClass()
+    private function createDataController(): DataController
     {
-        return \App\Kernel::class;
-    }
-
-    /**
-     * @return SerializerInterface
-     */
-    private function getSerializer(): SerializerInterface
-    {
-        return $this->container->get('jms_serializer');
-    }
-
-    /**
-     * @return ValidatorInterface
-     */
-    private function getValidator(): ValidatorInterface
-    {
-        return $this->container->get('validator');
-    }
-
-    private function createDataController(DataService $dataService): DataController
-    {
-        $validator = $this->getValidator();
-        $serializer = $this->getSerializer();
-
-        return new DataController($dataService, $validator, $serializer);
+        return new DataController($this->dataService, $this->validator, $this->serializer);
     }
 
     /**
      * @param $requestContent
      *
-     * @return \Symfony\Component\HttpFoundation\Request
+     * @return Request
      */
-    private function createRequest($requestContent): \Symfony\Component\HttpFoundation\Request
+    private function createRequest($requestContent): Request
     {
-        $request = new \Symfony\Component\HttpFoundation\Request([], [], [], [], [], [], $requestContent);
+        $request = new Request([], [], [], [], [], [], $requestContent);
         $request->setMethod('POST');
 
         return $request;
+    }
+
+    private function assertSameRPCResponse(array $expectedResponse, Response $response, ?int $httpStatus = null)
+    {
+        if (null !== $httpStatus) {
+            $this->assertSame($httpStatus, $response->getStatusCode());
+        }
+
+        $this->assertJsonStringEqualsJsonString(json_encode($expectedResponse), $response->getContent());
     }
 }

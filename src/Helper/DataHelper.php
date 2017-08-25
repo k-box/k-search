@@ -10,7 +10,7 @@ class DataHelper
         Data::DATA_TYPE_DOCUMENT,
     ];
 
-    public function isIndexable(Data $data): bool
+    public static function isIndexable(Data $data): bool
     {
         return in_array($data->type, self::INDEXABLE_TYPES, true);
     }

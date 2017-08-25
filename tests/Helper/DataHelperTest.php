@@ -15,10 +15,9 @@ class DataHelperTest extends TestCase
     public function testItKnowsWhichDataObjectsAreIndexable($type)
     {
         $data = ModelHelper::createDataModel('123');
-        $dataHelper = new DataHelper();
 
         $data->type = $type;
-        $this->assertTrue($dataHelper->isIndexable($data));
+        $this->assertTrue(DataHelper::isIndexable($data));
     }
 
     public function indexableTypes()
@@ -36,10 +35,9 @@ class DataHelperTest extends TestCase
     public function testItKnowsWhichDataObjectsAreNotIndexable($type)
     {
         $data = ModelHelper::createDataModel('123');
-        $dataHelper = new DataHelper();
 
         $data->type = $type;
-        $this->assertFalse($dataHelper->isIndexable($data));
+        $this->assertFalse(DataHelper::isIndexable($data));
     }
 
     public function notIndexableTypes()
