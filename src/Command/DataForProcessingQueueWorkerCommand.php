@@ -16,8 +16,10 @@ class DataForProcessingQueueWorkerCommand extends ContainerAwareCommand
 
     /**
      * DataForProcessingQueueWorkerCommand constructor.
+     *
+     * @param mixed $name
      */
-    public function __construct($name = null, DataService $dataService)
+    public function __construct($name, DataService $dataService)
     {
         parent::__construct($name);
         $this->dataService = $dataService;
