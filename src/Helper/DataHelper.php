@@ -14,4 +14,9 @@ class DataHelper
     {
         return in_array($data->type, self::INDEXABLE_TYPES, true);
     }
+
+    public static function createUtcDate(string $dateString)
+    {
+        return new \DateTime($dateString, new \DateTimeZone('UTC'));
+    }
 }

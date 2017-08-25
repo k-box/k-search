@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Helper\DataHelper;
 use App\Model\Data\Copyright;
 use App\Model\Data\CopyrightOwner;
 use App\Model\Data\CopyrightUsage;
@@ -129,8 +130,8 @@ class SolrEntityData extends SolrEntity
 
         $this->inflateModelWithData($properties, $fields, $data ?? []);
 
-        $properties->updated_at = new \DateTime($data['updated_at']['date']);
-        $properties->created_at = new \DateTime($data['created_at']['date']);
+        $properties->updated_at = DataHelper::createUtcDate($data['updated_at']['date']);
+        $properties->updated_at = DataHelper::createUtcDate($data['created_at']['date']);
 
         return $properties;
     }
