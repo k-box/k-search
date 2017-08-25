@@ -17,19 +17,17 @@ class DataForProcessingQueueWorkerCommand extends ContainerAwareCommand
     /**
      * DataForProcessingQueueWorkerCommand constructor.
      *
-     * @param mixed $name
+     * @param string $name
      */
-    public function __construct($name, DataService $dataService)
+    public function __construct(DataService $dataService)
     {
-        parent::__construct($name);
+        parent::__construct('ksearch:data-for-processing-queue:worker');
         $this->dataService = $dataService;
     }
 
     protected function configure()
     {
-        $this->setName('ksearch:data-for-processing-queue:worker')
-            ->setDescription('It goes through the Data for processing queue downloading the documents and trying to get the textual content')
-        ;
+        $this->setDescription('It goes through the Data for processing queue downloading the documents and trying to get the textual content');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
