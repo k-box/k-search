@@ -9,6 +9,20 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class DataForProcessingQueueWorkerCommand extends ContainerAwareCommand
 {
+    /**
+     * @var DataService
+     */
+    private $dataService;
+
+    /**
+     * DataForProcessingQueueWorkerCommand constructor.
+     */
+    public function __construct($name = null, DataService $dataService)
+    {
+        parent::__construct($name);
+        $this->dataService = $dataService;
+    }
+
     protected function configure()
     {
         $this->setName('ksearch:data-for-processing-queue:worker')
@@ -18,12 +32,10 @@ class DataForProcessingQueueWorkerCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $dataService = $this->getContainer()->get(DataService::class);
-
         while (true) {
             try {
                 $output->writeln('<info>Polling the queue</info>');
-                if ($dataService->processDataFromQueue()) {
+                if ($this->dataService->processDataFromQueue()) {
                     $output->writeln('<info>Item processed</info>');
                 }
             } catch (\Exception $e) {
