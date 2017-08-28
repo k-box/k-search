@@ -7,9 +7,13 @@ services:
 
     App\:
         resource: '../../src/*'
-        exclude: '../../src/{Entity,Repository,Tests,Model,Search}'
+        exclude: '../../src/{Entity,Repository,Model,Search}'
 
     App\Controller\:
         resource: '../../src/Controller'
         public: true
         tags: ['controller.service_arguments']
+
+    # Autowiring the httpclient
+    App\Command\DataProcessWorkerCommand:
+        $httpClient: "@httplug.client.downloader"

@@ -1,0 +1,6 @@
+httplug:
+    plugins:
+        logger: ~
+    clients:
+        downloader:
+            factory: 'httplug.factory.guzzle6'
