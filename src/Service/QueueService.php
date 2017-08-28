@@ -2,59 +2,80 @@
 
 namespace App\Service;
 
-use App\Model\Data\Data;
-use App\Queue\DataEnvelope;
-use App\Queue\Message\UUIDForProcessing;
-use Bernard\Driver;
 use Bernard\Envelope;
-use Bernard\QueueFactory\PersistentFactory;
+use Bernard\Message;
+use Bernard\Queue;
+use Bernard\QueueFactory;
 
 class QueueService
 {
-    const QUEUE_NAME = 'data-to-process';
+    public const DATA_PROCESS_QUEUE = 'data-process-queue';
+
+    private const QUEUES = [
+        self::DATA_PROCESS_QUEUE,
+    ];
 
     /**
-     * @var Driver
-     */
-    private $driver;
-
-    /**
-     * @var PersistentFactory
+     * @var QueueFactory\
      */
     private $factory;
 
-    public function __construct(\Bernard\QueueFactory $factory)
+    /**
+     * @var Queue[]
+     */
+    private $queues = [];
+
+    public function __construct(QueueFactory $factory)
     {
         $this->factory = $factory;
-        $this->queue = $this->factory->create(self::QUEUE_NAME);
     }
 
-    public function enqueueUUID(Data $data): void
+    public function enqueueMessage(string $queueName, Message $message)
     {
-        $message = new UUIDForProcessing($data->uuid);
-        $this->queue->enqueue(new Envelope($message));
+        $this->ensureQueueExists($queueName);
+        $this->queues[$queueName]->enqueue(new Envelope($message));
     }
 
-    public function dequeueUUID()
+    public function dequeMessage(string $queueName): Message
     {
-        /** @var DataEnvelope $envelope */
-        $envelope = $this->queue->dequeue();
+        return $this->dequeEnvelope($queueName)->getMessage();
+    }
 
-        if (!$envelope) {
-            return null;
+    public function dequeEnvelope(string $queueName): Envelope
+    {
+        $this->ensureQueueExists($queueName);
+
+        return $this->queues[$queueName]->dequeue();
+    }
+
+    public function countPending(string $queueName): int
+    {
+        $this->ensureQueueExists($queueName);
+
+        return $this->queues[$queueName]->count();
+    }
+
+    public function reset(string $queueName): void
+    {
+        $this->ensureQueueIsValid($queueName);
+
+        $this->factory->remove($queueName);
+        $this->ensureQueueExists($queueName);
+    }
+
+    private function ensureQueueIsValid(string $queueName)
+    {
+        if (!in_array($queueName, self::QUEUES, true)) {
+            throw new \RuntimeException(sprintf('Queue %s does not exist!', $queueName));
         }
-
-        return $envelope->getMessage()->getDataUUID();
     }
 
-    public function countPending(): int
+    private function ensureQueueExists(string $queueName)
     {
-        return $this->queue->count();
-    }
+        $this->ensureQueueIsValid($queueName);
 
-    public function reset(): void
-    {
-        $this->factory->remove(self::QUEUE_NAME);
-        $this->queue = $this->factory->create(self::QUEUE_NAME);
+        if (!array_key_exists($queueName, $this->queues)) {
+            $this->queues[$queueName] = $this->factory->create($queueName);
+        }
     }
 }

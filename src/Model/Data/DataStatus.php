@@ -20,7 +20,7 @@ class DataStatus
      * @JMS\Type("string")
      * @JMS\ReadOnly()
      * @SWG\Property(
-     *     example="Processing"
+     *     example="queued",
      * )
      */
     public $status;

@@ -14,29 +14,38 @@ use App\Model\Data\Properties;
  */
 class SolrEntityData extends SolrEntity
 {
-    public const DATA_STATUS_INDEXING = 'indexing';
-    public const DATA_STATUS_QUEUED = 'queued';
-    public const DATA_STATUS_OK = 'ok';
+    public const FIELD_HASH = 'str_ss_data_hash';
+    public const FIELD_STATUS = 'str_ss_data_status';
+    public const FIELD_UUID = 'str_ss_data_uuid';
+    public const FIELD_TYPE = 'str_ss_data_type';
+    public const FIELD_URL = 'str_ss_data_url';
+    public const FIELD_COPYRIGHT_STORED = 'str_ss_data_copyright';
+    public const FIELD_PROPERTIES_STORED = 'str_ss_data_properties';
 
-    protected const FIELD_HASH = 'str_ss_data_hash';
-    protected const FIELD_STATUS = 'str_ss_data_status';
-    protected const FIELD_UUID = 'str_ss_data_uuid';
-    protected const FIELD_TYPE = 'str_ss_data_type';
-    protected const FIELD_URL = 'str_ss_data_url';
-    protected const FIELD_COPYRIGHT_STORED = 'str_ss_data_copyright';
-    protected const FIELD_PROPERTIES_STORED = 'str_ss_data_properties';
+    public const FIELD_CONTENTS = 'text_data_contents';
 
-    protected const FIELD_COPYRIGHT_OWNER_NAME = 'str_sis_data_copyright_owner_name';
-    protected const FIELD_COPYRIGHT_OWNER_CONTACT = 'str_sis_data_copyright_owner_contact';
-    protected const FIELD_COPYRIGHT_OWNER_EMAIL = 'str_sis_data_copyright_owner_email';
+    public const FIELD_COPYRIGHT_OWNER_NAME = 'str_sis_data_copyright_owner_name';
+    public const FIELD_COPYRIGHT_OWNER_CONTACT = 'str_sis_data_copyright_owner_contact';
+    public const FIELD_COPYRIGHT_OWNER_EMAIL = 'str_sis_data_copyright_owner_email';
 
-    protected const FIELD_COPYRIGHT_USAGE_NAME = 'str_sis_data_copyright_usage_name';
-    protected const FIELD_COPYRIGHT_USAGE_SHORT = 'str_sis_data_copyright_usage_short';
-    protected const FIELD_COPYRIGHT_USAGE_REFERENCE = 'str_sis_data_copyright_usage_reference';
+    public const FIELD_COPYRIGHT_USAGE_NAME = 'str_sis_data_copyright_usage_name';
+    public const FIELD_COPYRIGHT_USAGE_SHORT = 'str_sis_data_copyright_usage_short';
+    public const FIELD_COPYRIGHT_USAGE_REFERENCE = 'str_sis_data_copyright_usage_reference';
 
     public static function getEntityType(): string
     {
         return 'data';
+    }
+
+    /**
+     * Add the textual contents of the entity.
+     * This is a read-only property, used only for indexing, not for retrieving data.
+     *
+     * @param string $text
+     */
+    public function addTextualContents(string $text)
+    {
+        $this->addField(self::FIELD_CONTENTS, $text);
     }
 
     public static function buildFromModel(Data $data): SolrEntityData

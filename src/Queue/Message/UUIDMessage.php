@@ -4,7 +4,7 @@ namespace App\Queue\Message;
 
 use Bernard\Message\AbstractMessage;
 
-class UUIDForProcessing extends AbstractMessage
+class UUIDMessage extends AbstractMessage
 {
     /**
      * @var string
@@ -21,7 +21,7 @@ class UUIDForProcessing extends AbstractMessage
         $this->name = $this->uuid = $uuid;
     }
 
-    public function getDataUUID()
+    public function getUUID()
     {
         return $this->uuid;
     }

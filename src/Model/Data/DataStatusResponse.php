@@ -8,7 +8,7 @@ use Swagger\Annotations as SWG;
 
 /**
  * @SWG\Definition(
- *     definition="Data\StatusResponse",
+ *     definition="Data\DataStatusResponse",
  *     required={"result"}
  * )
  */

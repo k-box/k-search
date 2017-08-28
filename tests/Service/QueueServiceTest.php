@@ -2,67 +2,47 @@
 
 namespace App\Tests\Service;
 
+use App\Queue\Message\UUIDMessage;
 use App\Service\QueueService;
-use App\Tests\Helper\ModelHelper;
+use Bernard\Queue;
+use Bernard\QueueFactory;
+use PHPUnit\Framework\TestCase;
 
-class QueueServiceTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTestCase
+class QueueServiceTest extends TestCase
 {
-    /**
-     * @var \Symfony\Component\DependencyInjection\ContainerInterface
-     */
-    private $container;
-    /**
-     * @var QueueService
-     */
-    private $queueService;
+    /** @var QueueFactory|\PHPUnit_Framework_MockObject_MockObject */
+    private $queueFactory;
 
-    public function setUp()
+    /** @var Queue|\PHPUnit_Framework_MockObject_MockObject */
+    private $queue;
+
+    protected function setUp()
     {
-        self::bootKernel();
-
-        $this->container = self::$kernel->getContainer();
-
-        $this->queueService = $this->container->get(QueueService::class);
-        $this->queueService->reset();
+        parent::setUp();
+        $this->queueFactory = $this->createMock(QueueFactory::class);
+        $this->queue = $this->createMock(Queue::class);
     }
 
-    public function testItQueuesAMessage()
+    public function testAddDataMessage()
     {
-        $this->queueService->enqueueUUID(ModelHelper::createDataModel('123'));
-        $this->assertEquals(1, $this->queueService->countPending());
-        $this->queueService->enqueueUUID(ModelHelper::createDataModel('456'));
-        $this->assertEquals(2, $this->queueService->countPending());
-        $this->queueService->enqueueUUID(ModelHelper::createDataModel('789'));
-        $this->assertEquals(3, $this->queueService->countPending());
+        $message = new UUIDMessage('123');
+
+        $this->queue->expects($this->once())
+            ->method('count')
+            ->willReturn(1);
+
+        $queueService = $this->createQueueService(QueueService::DATA_PROCESS_QUEUE);
+        $queueService->enqueueMessage(QueueService::DATA_PROCESS_QUEUE, $message);
+        $this->assertSame(1, $queueService->countPending(QueueService::DATA_PROCESS_QUEUE));
     }
 
-    public function testItDequeueAMessageInFIFO()
+    private function createQueueService(string $queueName): QueueService
     {
-        $data1 = ModelHelper::createDataModel('123');
-        $data2 = ModelHelper::createDataModel('456');
-        $data3 = ModelHelper::createDataModel('789');
+        $this->queueFactory->expects($this->once())
+            ->method('create')
+            ->with($queueName)
+            ->willReturn($this->queue);
 
-        $this->queueService->enqueueUUID($data1);
-        $this->queueService->enqueueUUID($data2);
-        $this->queueService->enqueueUUID($data3);
-
-        $this->assertEquals(3, $this->queueService->countPending());
-
-        $retrievedData1 = $this->queueService->dequeueUUID();
-        $this->assertEquals(2, $this->queueService->countPending());
-        $retrievedData2 = $this->queueService->dequeueUUID();
-        $this->assertEquals(1, $this->queueService->countPending());
-        $retrievedData3 = $this->queueService->dequeueUUID();
-        $this->assertEquals(0, $this->queueService->countPending());
-
-        $this->assertEquals('123', $retrievedData1);
-        $this->assertEquals('456', $retrievedData2);
-        $this->assertEquals('789', $retrievedData3);
-    }
-
-    public function testItReturnsNullWhenNoMessage()
-    {
-        $this->assertEquals(0, $this->queueService->countPending());
-        $this->assertNull($this->queueService->dequeueUUID());
+        return new QueueService($this->queueFactory);
     }
 }

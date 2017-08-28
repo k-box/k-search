@@ -2,7 +2,7 @@
 
 namespace App\Queue;
 
-use App\Queue\Message\UUIDForProcessing;
+use App\Queue\Message\UUIDMessage;
 use Bernard\Envelope;
 
 class DataEnvelope extends Envelope
@@ -16,10 +16,15 @@ class DataEnvelope extends Envelope
     }
 
     /**
-     * @return UUIDForProcessing
+     * @return UUIDMessage
      */
-    public function getMessage(): UUIDForProcessing
+    public function getMessage(): UUIDMessage
     {
-        return parent::getMessage();
+        $message = parent::getMessage();
+        if ($message instanceof UUIDMessage) {
+            return $message;
+        }
+
+        throw new \RuntimeException(sprintf('Wrong data from queue, expecting %s, but got %s', UUIDMessage::class, get_class($message)));
     }
 }
