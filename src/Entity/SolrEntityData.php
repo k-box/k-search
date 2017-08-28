@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Helper\DataHelper;
 use App\Model\Data\Copyright;
 use App\Model\Data\CopyrightOwner;
 use App\Model\Data\CopyrightUsage;
@@ -13,7 +14,12 @@ use App\Model\Data\Properties;
  */
 class SolrEntityData extends SolrEntity
 {
+    public const DATA_STATUS_INDEXING = 'indexing';
+    public const DATA_STATUS_QUEUED = 'queued';
+    public const DATA_STATUS_OK = 'ok';
+
     protected const FIELD_HASH = 'str_ss_data_hash';
+    protected const FIELD_STATUS = 'str_ss_data_status';
     protected const FIELD_UUID = 'str_ss_data_uuid';
     protected const FIELD_TYPE = 'str_ss_data_type';
     protected const FIELD_URL = 'str_ss_data_url';
@@ -41,6 +47,7 @@ class SolrEntityData extends SolrEntity
         $doc->addField(self::FIELD_HASH, $data->hash);
         $doc->addField(self::FIELD_TYPE, $data->type);
         $doc->addField(self::FIELD_URL, $data->url);
+        $doc->addField(self::FIELD_STATUS, $data->status);
 
         // Specific sub-entity handling
         $doc->addCopyright($data->copyright);
@@ -56,6 +63,7 @@ class SolrEntityData extends SolrEntity
         $data->uuid = $this->getField(self::FIELD_UUID);
         $data->type = $this->getField(self::FIELD_TYPE);
         $data->url = $this->getField(self::FIELD_URL);
+        $data->status = $this->getField(self::FIELD_STATUS);
 
         $data->copyright = $this->buildCopyrightModel();
         $data->properties = $this->buildPropertiesFromModel();
@@ -122,8 +130,8 @@ class SolrEntityData extends SolrEntity
 
         $this->inflateModelWithData($properties, $fields, $data ?? []);
 
-        $properties->updated_at = new \DateTime($data['updated_at']['date']);
-        $properties->created_at = new \DateTime($data['created_at']['date']);
+        $properties->updated_at = DataHelper::createUtcDate($data['updated_at']['date']);
+        $properties->updated_at = DataHelper::createUtcDate($data['created_at']['date']);
 
         return $properties;
     }

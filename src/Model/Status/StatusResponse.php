@@ -29,8 +29,8 @@ class StatusResponse extends RPCResponse
 
     public function __construct(Status $status, string $responseId = null)
     {
+        parent::__construct($responseId);
         $this->result = $status;
-        $this->id = $responseId;
     }
 
     public static function withStatusMessage(int $statusCode, string $message, string $responseId = null): StatusResponse

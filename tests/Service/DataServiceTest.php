@@ -2,7 +2,7 @@
 
 namespace App\Tests\Service;
 
-use App\Helper\DataHelper;
+use App\Entity\SolrEntityData;
 use App\Service\DataDownloaderService;
 use App\Service\DataService;
 use App\Service\QueueService;
@@ -12,21 +12,32 @@ use PHPUnit\Framework\TestCase;
 
 class DataServiceTest extends TestCase
 {
+    private const DATA_UUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
+
+    /** @var SolrService|\PHPUnit_Framework_MockObject_MockObject */
+    private $solrService;
+
+    /** @var DataDownloaderService|\PHPUnit_Framework_MockObject_MockObject */
+    private $downloadService;
+
+    /** @var QueueService|\PHPUnit_Framework_MockObject_MockObject */
+    private $queueService;
+
+    protected function setUp()
+    {
+        parent::setUp();
+        $this->solrService = $this->createMock(SolrService::class);
+        $this->downloadService = $this->createMock(DataDownloaderService::class);
+        $this->queueService = $this->createMock(QueueService::class);
+    }
+
     public function testItDeletesData()
     {
-        $solrServiceMock = $this->getMockBuilder(SolrService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $solrServiceMock->expects($this->exactly(2))
+        $this->solrService->expects($this->exactly(2))
             ->method('delete')
             ->willReturnOnConsecutiveCalls(true, false);
 
-        $dataHelper = $this->createMock(DataHelper::class);
-        $queueService = $this->createMock(QueueService::class);
-        $downloadService = $this->createMock(DataDownloaderService::class);
-
-        $dataService = new DataService($queueService, $solrServiceMock, $dataHelper, $downloadService);
+        $dataService = new DataService($this->queueService, $this->solrService, $this->downloadService);
 
         $this->assertTrue($dataService->deleteData('existing-uuid'));
         $this->assertFalse($dataService->deleteData('uneexisting-uuid'));
@@ -34,123 +45,89 @@ class DataServiceTest extends TestCase
 
     public function testItAddDataWithTextualContent()
     {
-        $sampleUUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
         $sampleTextualContent = 'example indeaxable content';
-        $data = ModelHelper::createDataModel($sampleUUID);
+        $data = ModelHelper::createDataModel(self::DATA_UUID);
 
-        $solrServiceMock = $this->getMockBuilder(SolrService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $solrServiceMock->expects($this->once())
+        $this->solrService->expects($this->once())
             ->method('add')
             ->with($this->anything(), $sampleTextualContent)
             ->willReturn(true);
 
-        $dataHelper = $this->createMock(DataHelper::class);
-        $dataHelper->expects($this->never())
-            ->method('isIndexable');
-
-        $queueService = $this->createMock(QueueService::class);
-        $queueService->expects($this->never())
+        $this->queueService->expects($this->never())
             ->method('enqueueUUID');
 
-        $downloadService = $this->createMock(DataDownloaderService::class);
-
-        $dataService = new DataService($queueService, $solrServiceMock, $dataHelper, $downloadService);
+        $dataService = new DataService($this->queueService, $this->solrService, $this->downloadService);
         $this->assertTrue($dataService->addData($data, $sampleTextualContent));
     }
 
     public function testItAddsDataNotIndexable()
     {
-        $sampleUUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
         $sampleTextualContent = '';
-        $data = ModelHelper::createDataModel($sampleUUID);
+        $data = ModelHelper::createDataModel(self::DATA_UUID);
+        $data->type = 'non-indexable-type';
 
-        $solrServiceMock = $this->getMockBuilder(SolrService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $solrServiceMock->expects($this->once())
+        $this->solrService->expects($this->once())
             ->method('add')
             ->with($this->anything(), $sampleTextualContent)
             ->willReturn(true);
 
-        $dataHelper = $this->createMock(DataHelper::class);
-        $dataHelper->expects($this->once())
-            ->method('isIndexable')
-            ->willReturn(false);
-
-        $queueService = $this->createMock(QueueService::class);
-        $queueService->expects($this->never())
+        $this->queueService->expects($this->never())
             ->method('enqueueUUID');
 
-        $downloadService = $this->createMock(DataDownloaderService::class);
-
-        $dataService = new DataService($queueService, $solrServiceMock, $dataHelper, $downloadService);
+        $dataService = new DataService($this->queueService, $this->solrService, $this->downloadService);
         $this->assertTrue($dataService->addData($data, $sampleTextualContent));
     }
 
     public function testItAddsDataWithoutTextualContentAndItQueuesItForDownloading()
     {
-        $sampleUUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
         $sampleTextualContent = '';
-        $data = ModelHelper::createDataModel($sampleUUID);
+        $data = ModelHelper::createDataModel(self::DATA_UUID);
 
-        $solrServiceMock = $this->getMockBuilder(SolrService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->solrService->expects($this->once())
+            ->method('add')
+            ->with($this->callback(function (SolrEntityData $data) {
+                $this->assertEquals(SolrEntityData::DATA_STATUS_QUEUED, $data->getField('str_ss_data_status'));
 
-        $solrServiceMock->expects($this->once())
-            ->method('add');
+                return true;
+            }), '');
 
-        $dataHelper = $this->createMock(DataHelper::class);
-        $dataHelper->expects($this->once())
-            ->method('isIndexable')
-            ->willReturn(true);
-
-        $queueService = $this->createMock(QueueService::class);
-        $queueService->expects($this->once())
+        $this->queueService->expects($this->once())
             ->method('enqueueUUID');
 
-        $downloadService = $this->createMock(DataDownloaderService::class);
-
-        $dataService = new DataService($queueService, $solrServiceMock, $dataHelper, $downloadService);
+        $dataService = new DataService($this->queueService, $this->solrService, $this->downloadService);
         $this->assertTrue($dataService->addData($data, $sampleTextualContent));
     }
 
     public function testItProccessDataFromQueue()
     {
         $sampleContent = 'fake content';
-        $sampleUUID = '123';
-        $data = ModelHelper::createDataModel($sampleUUID);
+        $data = ModelHelper::createDataModel(self::DATA_UUID);
 
-        $queueService = $this->createMock(QueueService::class);
-        $queueService->expects($this->once())
+        $this->queueService->expects($this->once())
             ->method('dequeueUUID')
-            ->willReturn('123');
+            ->willReturn(self::DATA_UUID);
 
-        $solrService = $this->createMock(SolrService::class);
-        $solrService->expects($this->once())
+        $this->solrService->expects($this->once())
             ->method('add')
-            ->with($this->anything(), $sampleContent);
+            ->with($this->callback(function (SolrEntityData $data) {
+                $this->assertEquals(SolrEntityData::DATA_STATUS_OK, $data->getField('str_ss_data_status'));
 
-        $dataHelper = $this->createMock(DataHelper::class);
+                return true;
+            }), $sampleContent);
 
-        $downloadService = $this->createMock(DataDownloaderService::class);
-        $downloadService->expects($this->once())
+        $this->downloadService->expects($this->once())
             ->method('getFileContents')
             ->with($data)
             ->willReturn($sampleContent);
 
         $dataService = $this->getMockBuilder(DataService::class)
             ->setMethods(['getData'])
-            ->setConstructorArgs([$queueService, $solrService, $dataHelper, $downloadService])
+            ->setConstructorArgs([$this->queueService, $this->solrService, $this->downloadService])
             ->getMock();
 
         $dataService->expects($this->once())
             ->method('getData')
-            ->with($sampleUUID)
+            ->with(self::DATA_UUID)
             ->willReturn($data);
 
         $dataService->processDataFromQueue();
@@ -158,22 +135,17 @@ class DataServiceTest extends TestCase
 
     public function testItHandlesWhenThereIsNoMoreItemsInQueue()
     {
-        $queueService = $this->createMock(QueueService::class);
-        $queueService->expects($this->once())
+        $this->queueService->expects($this->once())
             ->method('dequeueUUID')
             ->willReturn(null);
 
-        $solrService = $this->createMock(SolrService::class);
-        $solrService->expects($this->never())
+        $this->solrService->expects($this->never())
             ->method('add');
 
-        $dataHelper = $this->createMock(DataHelper::class);
-
-        $downloadService = $this->createMock(DataDownloaderService::class);
-        $downloadService->expects($this->never())
+        $this->downloadService->expects($this->never())
             ->method('getFileContents');
 
-        $dataService = new DataService($queueService, $solrService, $dataHelper, $downloadService);
+        $dataService = new DataService($this->queueService, $this->solrService, $this->downloadService);
 
         $this->assertFalse($dataService->processDataFromQueue());
     }

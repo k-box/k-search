@@ -14,6 +14,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Data
 {
+    const DATA_TYPE_DOCUMENT = 'document';
+    const DATA_TYPE_VIDEO = 'video';
+
     /**
      * The Universally unique identifier of this data.
      *
@@ -90,4 +93,11 @@ class Data
      * @SWG\Property()
      */
     public $properties;
+
+    /**
+     * The status of the data, internal use only, not exposed.
+     *
+     * @var string
+     */
+    public $status;
 }

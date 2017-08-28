@@ -13,10 +13,6 @@ class DataService
      * @var SolrService
      */
     private $solrService;
-    /**
-     * @var DataHelper
-     */
-    private $dataHelper;
 
     /**
      * @var QueueService
@@ -27,10 +23,9 @@ class DataService
      */
     private $downloaderService;
 
-    public function __construct(QueueService $queueService, SolrService $solrService, DataHelper $dataHelper, DataDownloaderService $downloaderService)
+    public function __construct(QueueService $queueService, SolrService $solrService, DataDownloaderService $downloaderService)
     {
         $this->solrService = $solrService;
-        $this->dataHelper = $dataHelper;
         $this->queueService = $queueService;
         $this->downloaderService = $downloaderService;
     }
@@ -50,6 +45,8 @@ class DataService
     /**
      * Retrieves the Data from the index, given its UUID.
      *
+     * @todo: filter retrievable data, to return only "STATUS = OK" Data from the index
+     *
      * @param string $uuid the data UUID
      *
      * @return Data
@@ -62,6 +59,14 @@ class DataService
         return $solrEntityData->buildModel();
     }
 
+    /**
+     * Adds teh specific data to the indexing queue, ff the textualContents are provided, the indexing is performed without queuing.
+     *
+     * @param Data        $data            The Data object
+     * @param null|string $textualContents The textual contents
+     *
+     * @return bool
+     */
     public function addData(Data $data, ?string $textualContents): bool
     {
         if (!$data->properties->updated_at) {
@@ -69,12 +74,14 @@ class DataService
             $data->properties->updated_at->setTimezone(new DateTimeZone('UTC'));
         }
 
-        $dataEntity = SolrEntityData::buildFromModel($data);
-
-        if (empty($textualContents) && $this->dataHelper->isIndexable($data)) {
+        if (empty($textualContents) && DataHelper::isIndexable($data)) {
+            $data->status = SolrEntityData::DATA_STATUS_QUEUED;
             $this->queueService->enqueueUUID($data);
+        } else {
+            $data->status = SolrEntityData::DATA_STATUS_OK;
         }
 
+        $dataEntity = SolrEntityData::buildFromModel($data);
         $this->solrService->add($dataEntity, $textualContents);
 
         return true;
@@ -90,6 +97,9 @@ class DataService
 
         $data = $this->getData($dataUUID);
         $contents = $this->downloaderService->getFileContents($data);
+
+        $data->status = SolrEntityData::DATA_STATUS_OK;
+
         $this->addData($data, $contents);
 
         return true;

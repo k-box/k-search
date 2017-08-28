@@ -5,12 +5,14 @@ namespace App\Controller;
 use App\Exception\BadRequestException;
 use App\Model\Data\AddRequest;
 use App\Model\Data\AddResponse;
+use App\Model\Data\DataStatus;
+use App\Model\Data\DataStatusRequest;
+use App\Model\Data\DataStatusResponse;
 use App\Model\Data\DeleteRequest;
 use App\Model\Data\GetRequest;
 use App\Model\Data\GetResponse;
 use App\Model\Data\SearchRequest;
 use App\Model\Data\SearchResponse;
-use App\Model\Error\Error;
 use App\Model\RPCRequest;
 use App\Model\Status\StatusResponse;
 use App\Service\DataService;
@@ -153,6 +155,58 @@ class DataController extends Controller
         $getResponse = new GetResponse($data, $getRequest->id);
 
         return $this->getJsonResponse($getResponse);
+    }
+
+    /**
+     * Get the status information of a Data piece in the search index.
+     *
+     * @Route(
+     *     path="api/{version}/data.status",
+     *     methods={"POST"},
+     *     requirements={
+     *        "version":"0.0"
+     *     }
+     * )
+     *
+     * @SWG\Post(
+     *     path="/api/0.0/data.status",
+     *     description="Get the status information of a Data piece in the search index.",
+     *     tags={"Data"},
+     *     @SWG\Parameter(
+     *         name="body",
+     *         in="body",
+     *         required=true,
+     *         @SWG\Schema(ref="#/definitions/Data\DataStatusRequest")
+     *     ),
+     *     @SWG\Response(
+     *         response="200",
+     *         description="Returned when successful",
+     *         @SWG\Schema(ref="#/definitions/Data\DataStatusResponse")
+     *     ),
+     *     @SWG\Response(
+     *         response="400",
+     *         description="Returned when the data is not correct",
+     *         @SWG\Schema(ref="#/definitions/Error\ErrorResponse"),
+     *         examples={}
+     *     ),
+     * )
+     *
+     * @param Request $request
+     * @param string  $version
+     *
+     * @return JsonResponse
+     */
+    public function postDataStatus(Request $request, string $version)
+    {
+        /** @var DataStatusRequest $dataStatusRequest */
+        $dataStatusRequest = $this->getRequestModelFromJson($request, DataStatusRequest::class);
+
+        $data = $this->searchService->getData($dataStatusRequest->params->uuid);
+
+        $status = new DataStatus($data->status);
+        $statusResponse = new DataStatusResponse($status, $dataStatusRequest->id);
+
+        return $this->getJsonResponse($statusResponse);
     }
 
     /**

@@ -71,7 +71,7 @@ class Properties
      *
      * @var \DateTime
      * @Assert\NotBlank()
-     * @JMS\Type("DateTime<'Y-m-d\TH:i:s\Z'>")
+     * @JMS\Type("DateTime<'Y-m-d\TH:i:s\Z', 'UTC'>")
      * @SWG\Property(
      *     example="2008-07-28T14:47:31Z",
      * )
@@ -82,7 +82,7 @@ class Properties
      * Data’s or document’s updated date in [RFC-3339](https://www.ietf.org/rfc/rfc3339.txt) format.
      *
      * @var \DateTime
-     * @JMS\Type("DateTime<'Y-m-d\TH:i:s\Z'>")
+     * @JMS\Type("DateTime<'Y-m-d\TH:i:s\Z', 'UTC'>")
      * @SWG\Property(
      *     example="2008-09-28T15:47:31Z",
      * )
