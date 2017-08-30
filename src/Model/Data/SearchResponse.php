@@ -17,18 +17,17 @@ class SearchResponse extends RPCResponse
     /**
      * The response data.
      *
-     * @var Data
+     * @var SearchResults
      *
-     * @JMS\Type("App\Model\Data\Data")
+     * @JMS\Type("App\Model\Data\SearchResults")
      * @JMS\ReadOnly()
      * @SWG\Property()
      */
     public $result;
 
-    public function __construct($data, string $responseId = null)
+    public function __construct($result, string $responseId = null)
     {
-        // @todo include the correct response fields here
-        $this->result = $data;
+        $this->result = $result;
         $this->id = $responseId;
     }
 }

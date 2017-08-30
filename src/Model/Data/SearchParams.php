@@ -20,7 +20,9 @@ class SearchParams
      * @var string
      * @Assert\NotBlank()
      * @JMS\Type("string")
-     * @SWG\Property()
+     * @SWG\Property(
+     *     example="Sherlock Holmes"
+     * )
      */
     public $search;
 
@@ -30,7 +32,9 @@ class SearchParams
      * @var string
      * @Assert\NotBlank()
      * @JMS\Type("string")
-     * @SWG\Property()
+     * @SWG\Property(
+     *     example="(language=en AND (type=(spreadsheet OR presentation))) AND (created_at=('2017-03-10'-'2017-03-20') OR updated_at<'2017-03-15') "
+     * )
      */
     public $filters;
 
@@ -39,7 +43,7 @@ class SearchParams
      *
      * @var Aggregation[]
      * @Assert\Valid()
-     * @JMS\Type(array<string,\App\Model\Data\Aggregation>)
+     * @JMS\Type("array<string,App\Model\Data\Aggregation>")
      * @SWG\Property(
      *    type="object",
      *    additionalProperties=
