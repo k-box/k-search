@@ -2,12 +2,19 @@
 
 namespace App\Service;
 
+use App\Entity\SolrEntity;
 use App\Entity\SolrEntityData;
 use App\Exception\BadRequestException;
 use App\Helper\DataHelper;
 use App\Model\Data\Data;
+<<<<<<< 3f7063317f64d17d4937712b8bfe3269b2124d81
 use App\Queue\Message\UUIDMessage;
+=======
+use App\Model\Data\SearchParams;
+use App\Model\Data\SearchResults;
+>>>>>>> First data.search logic in services
 use DateTimeZone;
+use Solarium\QueryType\Select\Result\AbstractDocument;
 
 class DataService
 {
@@ -133,5 +140,24 @@ class DataService
         if (!$data->properties->updated_at) {
             $data->properties->updated_at = new \DateTime('now', new DateTimeZone('UTC'));
         }
+    }
+
+    public function queryData( SearchParams $searchParams)
+    {
+        $solrResult = $this->solrService->select($searchParams, SolrEntityData::class);
+
+
+        $searchResult = new SearchResults();
+        $searchResult->query = $searchParams;
+        $searchResult->query_time = $solrResult->getQueryTime();
+        $searchResult->total_matches = $solrResult->getNumFound();
+        $searchResult->items = array_map(function (AbstractDocument $document) {
+            $idField = SolrEntity::FIELD_ENTITY_ID;
+            $documentId = $document->$idField;
+            $entityData = new SolrEntityData($documentId, $document);
+            return $entityData->buildModel();
+        }, $solrResult->getDocuments());
+
+        return $searchResult;
     }
 }

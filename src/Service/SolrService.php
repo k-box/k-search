@@ -4,12 +4,17 @@ namespace App\Service;
 
 use App\Entity\BaseSolrEntity;
 use App\Entity\SolrEntity;
+use App\Entity\SolrEntityData;
 use App\Exception\InternalSearchException;
 use App\Exception\ResourceNotFoundException;
+use App\Model\Data\SearchParams;
 use Solarium\Client;
 use Solarium\Exception\ExceptionInterface;
 use Solarium\QueryType\Select\Query\FilterQuery;
 use Symfony\Component\Finder\SplFileInfo;
+use Solarium\QueryType\Select\Result\AbstractDocument;
+use Solarium\QueryType\Select\Result\DocumentInterface;
+use Solarium\QueryType\Select\Result\Result;
 
 class SolrService
 {
@@ -141,5 +146,31 @@ class SolrService
             $exception->getCode(),
             $exception
         );
+    }
+
+    /**
+     * @param SearchParams $searchParams
+     * @param string $solrEntityClass
+     * @return Result
+     */
+    public function select(SearchParams $searchParams, string $solrEntityClass): Result
+    {
+        if (!is_a($solrEntityClass, SolrEntity::class, true)) {
+            throw new \RuntimeException(sprintf('Wrong class name for Solr entity fetching, %s given', $solrEntityClass));
+        }
+
+        $query = sprintf('%s:"%s"', SolrEntityData::FIELD_PROPERTIES_STORED, $searchParams->search);
+        $select = $this->solrClient->createSelect();
+        $select->setQuery($query)
+            ->setStart($searchParams->offset)
+            ->setRows($searchParams->limit);
+
+        $entityType = call_user_func([$solrEntityClass, 'getEntityType']);
+
+        $filterQuery = new FilterQuery(['key' => 'entity-filter']);
+        $filterQuery->setQuery(BaseSolrEntity::FIELD_ENTITY_TYPE.':"'.$entityType.'"');
+        $select->addFilterQueries([$filterQuery]);
+
+        return $this->solrClient->select($select);
     }
 }
