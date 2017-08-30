@@ -24,7 +24,7 @@ class SolrEntityData extends SolrEntity
     protected const FIELD_TYPE = 'str_ss_data_type';
     protected const FIELD_URL = 'str_ss_data_url';
     protected const FIELD_COPYRIGHT_STORED = 'str_ss_data_copyright';
-    protected const FIELD_PROPERTIES_STORED = 'str_ss_data_properties';
+    public const FIELD_PROPERTIES_STORED = 'str_ss_data_properties';
 
     protected const FIELD_COPYRIGHT_OWNER_NAME = 'str_sis_data_copyright_owner_name';
     protected const FIELD_COPYRIGHT_OWNER_CONTACT = 'str_sis_data_copyright_owner_contact';

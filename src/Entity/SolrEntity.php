@@ -10,8 +10,8 @@ use Solarium\QueryType\Update\Query\Document\Document;
  */
 abstract class SolrEntity
 {
-    protected const FIELD_ENTITY_TYPE = 'entity_type';
-    protected const FIELD_ENTITY_ID = 'entity_id';
+    const FIELD_ENTITY_TYPE = 'entity_type';
+    const FIELD_ENTITY_ID = 'entity_id';
 
     /**
      * @var AbstractDocument
@@ -68,4 +68,5 @@ abstract class SolrEntity
 
         return $this->document->__get($fieldName);
     }
+
 }
