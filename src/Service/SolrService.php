@@ -103,7 +103,7 @@ class SolrService
      *
      * @return bool
      */
-    public function addWithTextExtraction(SolrEntity $entity, SplFileInfo $fileInfo)
+    public function addWithTextExtraction(SolrEntity $entity, \SplFileInfo $fileInfo)
     {
         $extract = $this->solrClient->createExtract();
         $extract->setFile($fileInfo->getRealPath());

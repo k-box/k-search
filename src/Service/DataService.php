@@ -120,7 +120,7 @@ class DataService
      *
      * @return bool
      */
-    public function addDataWithFileExtraction(Data $data, SplFileInfo $fileInfo): bool
+    public function addDataWithFileExtraction(Data $data, \SplFileInfo $fileInfo): bool
     {
         $this->dataCleanup($data);
         $data->status = Data::DATA_STATUS_OK;
