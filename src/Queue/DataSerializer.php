@@ -18,7 +18,7 @@ class DataSerializer implements \Bernard\Serializer
         $dataForProcessing = $envelope->getMessage();
 
         return json_encode([
-            'uuid' => $dataForProcessing->getDataUUID(),
+            'uuid' => $dataForProcessing->getUUID(),
             'timestamp' => $envelope->getTimestamp(),
         ]);
     }
