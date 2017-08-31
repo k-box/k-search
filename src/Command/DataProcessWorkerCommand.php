@@ -12,11 +12,9 @@ use Psr\Http\Message\ResponseInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Finder\SplFileInfo;
 
 class DataProcessWorkerCommand extends ContainerAwareCommand
 {
-
     /** @var string */
     private $tempFolder;
 
@@ -82,9 +80,8 @@ class DataProcessWorkerCommand extends ContainerAwareCommand
                         $output->writeln('<info>Item processed</info>');
                     }
                 }
-
             } catch (\Exception $e) {
-                $output->writeln('<error>' . $e->getMessage() . '</error>');
+                $output->writeln('<error>'.$e->getMessage().'</error>');
                 // @todo Expose the error in the API?
             }
         }
@@ -93,6 +90,7 @@ class DataProcessWorkerCommand extends ContainerAwareCommand
     /**
      * @param $response
      * @param $message
+     * @param mixed $uuid
      *
      * @return false|\SplFileInfo
      */
@@ -107,12 +105,12 @@ class DataProcessWorkerCommand extends ContainerAwareCommand
         $destStream = fopen($file, 'w');
         $copiedBytes = stream_copy_to_stream($originalStream, $destStream);
 
-        $isAllCopied = $copiedBytes == $bodyStream->getSize();
+        $isAllCopied = $copiedBytes === $bodyStream->getSize();
 
         fclose($destStream);
         fclose($originalStream);
 
-        if ( $isAllCopied) {
+        if (!$isAllCopied) {
             return false;
         }
 
