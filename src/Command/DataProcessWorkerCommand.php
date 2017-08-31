@@ -59,14 +59,14 @@ class DataProcessWorkerCommand extends ContainerAwareCommand
                 $output->writeln('<info>Getting next UUID to process from queue</info>');
 
                 $message = $this->queueService->dequeMessage(QueueService::DATA_PROCESS_QUEUE);
+
                 if ($message instanceof UUIDMessage) {
                     $data = $this->dataService->getData($message->getUUID());
                     $request = $this->messageFactory->createRequest('GET',
                       $data->url);
                     $response = $this->httpClient->sendRequest($request);
 
-                    $file = $this->saveResponseAsFile($response,
-                      $message->getUUID());
+                    $file = $this->saveResponseAsFile($response, $message->getUUID());
 
                     if (!$file) {
                         $output->writeln(sprintf('<error>Error retrieving the file for document %s</error>',

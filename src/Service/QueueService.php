@@ -36,12 +36,16 @@ class QueueService
         $this->queues[$queueName]->enqueue(new Envelope($message));
     }
 
-    public function dequeMessage(string $queueName): Message
+    public function dequeMessage(string $queueName): ?Message
     {
-        return $this->dequeEnvelope($queueName)->getMessage();
+        $envelope = $this->dequeEnvelope($queueName);
+        if (!$envelope) {
+            return null;
+        }
+        return $envelope->getMessage();
     }
 
-    public function dequeEnvelope(string $queueName): Envelope
+    public function dequeEnvelope(string $queueName): ?Envelope
     {
         $this->ensureQueueExists($queueName);
 
