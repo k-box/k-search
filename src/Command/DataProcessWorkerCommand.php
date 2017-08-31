@@ -112,7 +112,7 @@ class DataProcessWorkerCommand extends ContainerAwareCommand
         fclose($destStream);
         fclose($originalStream);
 
-        if falseAllCopied) {
+        if ( $isAllCopied) {
             return false;
         }
 
