@@ -42,6 +42,7 @@ class QueueService
         if (!$envelope) {
             return null;
         }
+
         return $envelope->getMessage();
     }
 

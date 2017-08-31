@@ -31,11 +31,7 @@ class DataProcessWorkerCommand extends ContainerAwareCommand
     private $messageFactory;
 
     public function __construct(
-      QueueService $queueService,
-      DataService $dataService,
-      PluginClient $httpClient,
-      MessageFactory $messageFactory,
-      $tempFolder = null
+        QueueService $queueService, DataService $dataService, PluginClient $httpClient, MessageFactory $messageFactory, $tempFolder = null
     ) {
         parent::__construct();
         $this->queueService = $queueService;
@@ -49,7 +45,7 @@ class DataProcessWorkerCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this->setName('ksearch:data-process:worker')
-          ->setDescription('It goes through the Data for processing queue downloading the documents and trying to get the textual content');
+            ->setDescription('It goes through the Data for processing queue downloading the documents and trying to get the textual content');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -62,21 +58,17 @@ class DataProcessWorkerCommand extends ContainerAwareCommand
 
                 if ($message instanceof UUIDMessage) {
                     $data = $this->dataService->getData($message->getUUID());
-                    $request = $this->messageFactory->createRequest('GET',
-                      $data->url);
+                    $request = $this->messageFactory->createRequest('GET', $data->url);
                     $response = $this->httpClient->sendRequest($request);
 
                     $file = $this->saveResponseAsFile($response, $message->getUUID());
 
                     if (!$file) {
-                        $output->writeln(sprintf('<error>Error retrieving the file for document %s</error>',
-                          $message->getUUID()));
-                        $this->queueService->enqueueMessage(QueueService::DATA_PROCESS_QUEUE,
-                          $message);
+                        $output->writeln(sprintf('<error>Error retrieving the file for document %s</error>', $message->getUUID()));
+                        $this->queueService->enqueueMessage(QueueService::DATA_PROCESS_QUEUE, $message);
                     } else {
                         // Index the data with text extraction from the file
-                        $this->dataService->addDataWithFileExtraction($data,
-                          $file);
+                        $this->dataService->addDataWithFileExtraction($data, $file);
                         $output->writeln('<info>Item processed</info>');
                     }
                 }
@@ -98,8 +90,7 @@ class DataProcessWorkerCommand extends ContainerAwareCommand
     {
         $bodyStream = $response->getBody();
 
-        $originalStream = fopen(sprintf('data://text/plain,%s',
-          $bodyStream->getContents()), 'r');
+        $originalStream = fopen(sprintf('data://text/plain,%s', $bodyStream->getContents()), 'r');
 
         $file = sprintf('%s/%s', $this->tempFolder, $uuid);
         $destStream = fopen($file, 'w');
