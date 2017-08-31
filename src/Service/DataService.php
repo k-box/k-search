@@ -129,24 +129,6 @@ class DataService
         return $this->solrService->addWithTextExtraction($dataEntity, $fileInfo);
     }
 
-    public function processDataFromQueue()
-    {
-        $dataUUID = $this->queueService->dequeueUUID();
-
-        if (!$dataUUID) {
-            return false;
-        }
-
-        $data = $this->getData($dataUUID);
-        $contents = $this->downloaderService->getFileContents($data);
-
-        $data->status = SolrEntityData::DATA_STATUS_OK;
-
-        $this->addData($data, $contents);
-
-        return true;
-    }
-
     /**
      * Cleanup the given data, updates the missing fields.
      *
