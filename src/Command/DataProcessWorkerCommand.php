@@ -7,10 +7,13 @@ use App\Service\DataService;
 use App\Service\QueueService;
 use Bernard\Queue;
 use Http\Client\Common\PluginClient;
+use Http\Client\HttpClient;
 use Http\Message\MessageFactory;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class DataProcessWorkerCommand extends ContainerAwareCommand
@@ -24,14 +27,14 @@ class DataProcessWorkerCommand extends ContainerAwareCommand
     /** @var DataService */
     private $dataService;
 
-    /** @var PluginClient */
+    /** @var HttpClient */
     private $httpClient;
 
     /** @var MessageFactory */
     private $messageFactory;
 
     public function __construct(
-        QueueService $queueService, DataService $dataService, PluginClient $httpClient, MessageFactory $messageFactory, $tempFolder = null
+        QueueService $queueService, DataService $dataService, HttpClient $httpClient, MessageFactory $messageFactory, $tempFolder = null
     ) {
         parent::__construct();
         $this->queueService = $queueService;
@@ -45,12 +48,21 @@ class DataProcessWorkerCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this->setName('ksearch:data-process:worker')
-            ->setDescription('It goes through the Data for processing queue downloading the documents and trying to get the textual content');
+            ->setDescription('It goes through the Data for processing queue downloading the documents and trying to get the textual content')
+            ->addOption('loops', null, InputOption::VALUE_OPTIONAL, 'How many asks to the queue. Default is infinite.', 0);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        while (true) {
+        $loops = $input->getOption('loops');
+
+        $isInfinite = false;
+        if ($loops == 0) {
+            $isInfinite = true;
+        }
+
+        for($i = 0; $i < $loops || $isInfinite; $i++)
+        {
             try {
                 $output->writeln('<info>Getting next UUID to process from queue</info>');
 
@@ -90,7 +102,8 @@ class DataProcessWorkerCommand extends ContainerAwareCommand
     {
         $bodyStream = $response->getBody();
 
-        $originalStream = fopen(sprintf('data://text/plain,%s', $bodyStream->getContents()), 'r');
+
+        $originalStream = fopen(sprintf('data://text/plain;base64,%s', base64_encode($bodyStream->getContents())), 'r');
 
         $file = sprintf('%s/%s', $this->tempFolder, $uuid);
         $destStream = fopen($file, 'w');
