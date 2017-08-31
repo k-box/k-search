@@ -140,7 +140,7 @@ class SolrEntityData extends SolrEntity
         $this->inflateModelWithData($properties, $fields, $data ?? []);
 
         $properties->updated_at = DataHelper::createUtcDate($data['updated_at']['date']);
-        $properties->updated_at = DataHelper::createUtcDate($data['created_at']['date']);
+        $properties->created_at = DataHelper::createUtcDate($data['created_at']['date']);
 
         return $properties;
     }
