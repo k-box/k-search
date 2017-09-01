@@ -22,7 +22,7 @@ forwarded_ports: {}
 # database_name: "example"
 
 # Root directory of your project for the webserver and other purposes
-root_directory: "/vagrant/web"
+root_directory: "/vagrant/public"
 
 # Synced folder type to use. Only "nfs" and "virtualbox" are supported by
 # drifter. Defaults to "nfs". Uncomment the following line to use the

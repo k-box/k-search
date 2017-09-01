@@ -3,12 +3,16 @@
 namespace App\Tests\Service;
 
 use App\Entity\SolrEntityData;
+use App\Exception\BadRequestException;
+use App\Model\Data\Data;
+use App\Queue\Message\UUIDMessage;
 use App\Service\DataDownloaderService;
 use App\Service\DataService;
 use App\Service\QueueService;
 use App\Service\SolrService;
 use App\Tests\Helper\ModelHelper;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Finder\SplFileInfo;
 
 class DataServiceTest extends TestCase
 {
@@ -31,16 +35,30 @@ class DataServiceTest extends TestCase
         $this->queueService = $this->createMock(QueueService::class);
     }
 
-    public function testItDeletesData()
+    public function dataProviderForDeleteData()
     {
-        $this->solrService->expects($this->exactly(2))
+        return [
+            'existing' => [true, true],
+            'not-existing' => [false, false],
+        ];
+    }
+
+    /**
+     * @dataProvider dataProviderForDeleteData
+     *
+     * @param bool $expected
+     * @param bool $existing
+     */
+    public function testItDeletesData(bool $expected, bool $existing)
+    {
+        $this->solrService->expects($this->exactly(1))
             ->method('delete')
-            ->willReturnOnConsecutiveCalls(true, false);
+            ->with(SolrEntityData::getEntityType(), self::DATA_UUID)
+            ->willReturn($existing);
 
         $dataService = new DataService($this->queueService, $this->solrService, $this->downloadService);
 
-        $this->assertTrue($dataService->deleteData('existing-uuid'));
-        $this->assertFalse($dataService->deleteData('uneexisting-uuid'));
+        $this->assertEquals($expected, $dataService->deleteData(self::DATA_UUID));
     }
 
     public function testItAddDataWithTextualContent()
@@ -50,103 +68,100 @@ class DataServiceTest extends TestCase
 
         $this->solrService->expects($this->once())
             ->method('add')
-            ->with($this->anything(), $sampleTextualContent)
+            ->with(
+                $this->callback(function (SolrEntityData $data) {
+                    $this->assertEquals(Data::DATA_STATUS_OK, $data->getField(SolrEntityData::FIELD_STATUS));
+
+                    return true;
+                }))
             ->willReturn(true);
 
         $this->queueService->expects($this->never())
-            ->method('enqueueUUID');
+            ->method('enqueueMessage');
 
         $dataService = new DataService($this->queueService, $this->solrService, $this->downloadService);
         $this->assertTrue($dataService->addData($data, $sampleTextualContent));
     }
 
-    public function testItAddsDataNotIndexable()
+    public function dataProviderForNotIndexableContentAndType()
     {
-        $sampleTextualContent = '';
+        return [
+            ['', 'non-indexable-type'],
+            [null, 'non-indexable-type'],
+        ];
+    }
+
+    /**
+     * @dataProvider dataProviderForNotIndexableContentAndType
+     *
+     * @param        $textContents
+     * @param string $type
+     */
+    public function testThrowsExceptionIfDataIsNotIndexable($textContents, string $type)
+    {
         $data = ModelHelper::createDataModel(self::DATA_UUID);
-        $data->type = 'non-indexable-type';
+        $data->type = $type;
+
+        $dataService = new DataService($this->queueService, $this->solrService, $this->downloadService);
+
+        $this->queueService->expects($this->never())
+            ->method('enqueueMessage');
+
+        $this->expectException(BadRequestException::class);
+        $dataService->addData($data, $textContents);
+    }
+
+    public function testItQueuesIndexableData()
+    {
+        $data = ModelHelper::createDataModel(self::DATA_UUID);
 
         $this->solrService->expects($this->once())
             ->method('add')
-            ->with($this->anything(), $sampleTextualContent)
+            ->with(
+            $this->callback(function (SolrEntityData $data) {
+                $this->assertEquals(Data::DATA_STATUS_QUEUED, $data->getField(SolrEntityData::FIELD_STATUS));
+
+                return true;
+            }))
+            ->willReturn(true);
+
+        $this->queueService->expects($this->once())
+            ->method('enqueueMessage')
+            ->with(QueueService::DATA_PROCESS_QUEUE, $this->callback(function (UUIDMessage $message) {
+                $this->assertSame(self::DATA_UUID, $message->getUUID());
+
+                return true;
+            }))
+        ;
+
+        $dataService = new DataService($this->queueService, $this->solrService, $this->downloadService);
+        $this->assertTrue($dataService->addData($data));
+    }
+
+    public function testAddDataWithFileExtraction()
+    {
+        $data = ModelHelper::createDataModel(self::DATA_UUID);
+        /** @var SplFileInfo|\PHPUnit_Framework_MockObject_MockObject $file */
+        $file = $this->createMock(SplFileInfo::class);
+
+        $this->solrService->expects($this->once())
+            ->method('addWithTextExtraction')
+            ->with(
+                $this->callback(function (SolrEntityData $data) {
+                    $this->assertEquals(Data::DATA_STATUS_OK, $data->getField(SolrEntityData::FIELD_STATUS));
+
+                    return true;
+                }),
+                $this->callback(function (\SplFileInfo $file) {
+                    return true;
+                }))
             ->willReturn(true);
 
         $this->queueService->expects($this->never())
-            ->method('enqueueUUID');
+            ->method('enqueueMessage')
+        ;
 
         $dataService = new DataService($this->queueService, $this->solrService, $this->downloadService);
-        $this->assertTrue($dataService->addData($data, $sampleTextualContent));
-    }
-
-    public function testItAddsDataWithoutTextualContentAndItQueuesItForDownloading()
-    {
-        $sampleTextualContent = '';
-        $data = ModelHelper::createDataModel(self::DATA_UUID);
-
-        $this->solrService->expects($this->once())
-            ->method('add')
-            ->with($this->callback(function (SolrEntityData $data) {
-                $this->assertEquals(SolrEntityData::DATA_STATUS_QUEUED, $data->getField('str_ss_data_status'));
-
-                return true;
-            }), '');
-
-        $this->queueService->expects($this->once())
-            ->method('enqueueUUID');
-
-        $dataService = new DataService($this->queueService, $this->solrService, $this->downloadService);
-        $this->assertTrue($dataService->addData($data, $sampleTextualContent));
-    }
-
-    public function testItProccessDataFromQueue()
-    {
-        $sampleContent = 'fake content';
-        $data = ModelHelper::createDataModel(self::DATA_UUID);
-
-        $this->queueService->expects($this->once())
-            ->method('dequeueUUID')
-            ->willReturn(self::DATA_UUID);
-
-        $this->solrService->expects($this->once())
-            ->method('add')
-            ->with($this->callback(function (SolrEntityData $data) {
-                $this->assertEquals(SolrEntityData::DATA_STATUS_OK, $data->getField('str_ss_data_status'));
-
-                return true;
-            }), $sampleContent);
-
-        $this->downloadService->expects($this->once())
-            ->method('getFileContents')
-            ->with($data)
-            ->willReturn($sampleContent);
-
-        $dataService = $this->getMockBuilder(DataService::class)
-            ->setMethods(['getData'])
-            ->setConstructorArgs([$this->queueService, $this->solrService, $this->downloadService])
-            ->getMock();
-
-        $dataService->expects($this->once())
-            ->method('getData')
-            ->with(self::DATA_UUID)
-            ->willReturn($data);
-
-        $dataService->processDataFromQueue();
-    }
-
-    public function testItHandlesWhenThereIsNoMoreItemsInQueue()
-    {
-        $this->queueService->expects($this->once())
-            ->method('dequeueUUID')
-            ->willReturn(null);
-
-        $this->solrService->expects($this->never())
-            ->method('add');
-
-        $this->downloadService->expects($this->never())
-            ->method('getFileContents');
-
-        $dataService = new DataService($this->queueService, $this->solrService, $this->downloadService);
-
-        $this->assertFalse($dataService->processDataFromQueue());
+        $this->assertTrue($dataService->addDataWithFileExtraction($data, $file));
     }
 }

@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @SWG\Definition(
- *     definition="Data\StatusRequest",
+ *     definition="Data\DataStatusRequest",
  *     required={"params"}
  * )
  */

@@ -6,10 +6,14 @@ services:
         public: false
 
     App\:
-        resource: '../../src/*'
-        exclude: '../../src/{Entity,Repository,Tests,Model,Search}'
+        resource: '../../src/{Command,EventListener,Service,Queue}'
 
     App\Controller\:
         resource: '../../src/Controller'
         public: true
         tags: ['controller.service_arguments']
+
+    # Autowiring the httpclient
+    App\Service\DataDownloaderService:
+        $httpClient: "@httplug.client.downloader"
+        $tempFolder: '%kernel.project_dir%/var/temp'

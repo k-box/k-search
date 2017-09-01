@@ -2,10 +2,11 @@
 
 namespace App\Queue;
 
-use App\Queue\Message\UUIDForProcessing;
+use App\Queue\Message\UUIDMessage;
 use Bernard\Envelope;
+use Bernard\Serializer;
 
-class DataSerializer implements \Bernard\Serializer
+class DataSerializer implements Serializer
 {
     /**
      * @param Envelope $envelope
@@ -14,11 +15,11 @@ class DataSerializer implements \Bernard\Serializer
      */
     public function serialize(Envelope $envelope)
     {
-        /** @var UUIDForProcessing $dataForProcessing */
+        /** @var UUIDMessage $dataForProcessing */
         $dataForProcessing = $envelope->getMessage();
 
         return json_encode([
-            'uuid' => $dataForProcessing->getDataUUID(),
+            'uuid' => $dataForProcessing->getUUID(),
             'timestamp' => $envelope->getTimestamp(),
         ]);
     }
@@ -31,7 +32,7 @@ class DataSerializer implements \Bernard\Serializer
     public function deserialize($serialized)
     {
         $data = json_decode($serialized, true);
-        $envelope = new DataEnvelope(new UUIDForProcessing($data['uuid']));
+        $envelope = new DataEnvelope(new UUIDMessage($data['uuid']));
         $envelope->setTimestamp($data['timestamp']);
 
         return $envelope;

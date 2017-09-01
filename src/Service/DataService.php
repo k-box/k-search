@@ -3,8 +3,10 @@
 namespace App\Service;
 
 use App\Entity\SolrEntityData;
+use App\Exception\BadRequestException;
 use App\Helper\DataHelper;
 use App\Model\Data\Data;
+use App\Queue\Message\UUIDMessage;
 use DateTimeZone;
 
 class DataService
@@ -18,16 +20,11 @@ class DataService
      * @var QueueService
      */
     private $queueService;
-    /**
-     * @var DataDownloaderService
-     */
-    private $downloaderService;
 
-    public function __construct(QueueService $queueService, SolrService $solrService, DataDownloaderService $downloaderService)
+    public function __construct(QueueService $queueService, SolrService $solrService)
     {
         $this->solrService = $solrService;
         $this->queueService = $queueService;
-        $this->downloaderService = $downloaderService;
     }
 
     /**
@@ -60,48 +57,81 @@ class DataService
     }
 
     /**
-     * Adds teh specific data to the indexing queue, ff the textualContents are provided, the indexing is performed without queuing.
+     * Adds the specific data to the index.
+     * If the textualContents are provided, the indexing is performed without queuing.
      *
      * @param Data        $data            The Data object
-     * @param null|string $textualContents The textual contents
+     * @param null|string $textualContents The textual contents to be indexed
+     *
+     * @throws BadRequestException if the data provided can not be indexed
      *
      * @return bool
      */
-    public function addData(Data $data, ?string $textualContents): bool
+    public function addData(Data $data, ?string $textualContents = null): bool
     {
-        if (!$data->properties->updated_at) {
-            $data->properties->updated_at = new \DateTime();
-            $data->properties->updated_at->setTimezone(new DateTimeZone('UTC'));
+        $this->dataCleanup($data);
+
+        $dataEntity = null;
+        $enqueue = true;
+
+        if (!empty($textualContents)) {
+            // If the textual contents are provided, we straight index them
+            $data->status = Data::DATA_STATUS_OK;
+            $dataEntity = SolrEntityData::buildFromModel($data);
+            $dataEntity->addTextualContents($textualContents);
+            $enqueue = false;
         }
 
-        if (empty($textualContents) && DataHelper::isIndexable($data)) {
-            $data->status = SolrEntityData::DATA_STATUS_QUEUED;
-            $this->queueService->enqueueUUID($data);
-        } else {
-            $data->status = SolrEntityData::DATA_STATUS_OK;
+        if ($enqueue && DataHelper::isIndexable($data)) {
+            // Otherwise, we queue the data to be indexed later.
+            $data->status = Data::DATA_STATUS_QUEUED;
+            $dataEntity = SolrEntityData::buildFromModel($data);
         }
 
-        $dataEntity = SolrEntityData::buildFromModel($data);
-        $this->solrService->add($dataEntity, $textualContents);
+        if (!$dataEntity) {
+            // We are not able to index this data!
+            throw new BadRequestException(['The given Data could not be indexed.']);
+        }
+
+        $this->solrService->add($dataEntity);
+
+        if ($enqueue) {
+            // We enqueue the data to be processed later, only if we were able to add it to the Index!
+            $this->queueService->enqueueMessage(
+                QueueService::DATA_PROCESS_QUEUE,
+                new UUIDMessage($data->uuid)
+            );
+        }
 
         return true;
     }
 
-    public function processDataFromQueue()
+    /**
+     * Adds the specific data to the index, by extracting the text from the given file.
+     *
+     * @param Data         $data     The Data object
+     * @param \SplFileInfo $fileInfo The file to extract the textual contents from
+     *
+     * @return bool
+     */
+    public function addDataWithFileExtraction(Data $data, \SplFileInfo $fileInfo): bool
     {
-        $dataUUID = $this->queueService->dequeueUUID();
+        $this->dataCleanup($data);
+        $data->status = Data::DATA_STATUS_OK;
+        $dataEntity = SolrEntityData::buildFromModel($data);
 
-        if (!$dataUUID) {
-            return false;
+        return $this->solrService->addWithTextExtraction($dataEntity, $fileInfo);
+    }
+
+    /**
+     * Cleanup the given data, updates the missing fields.
+     *
+     * @param Data $data
+     */
+    protected function dataCleanup(Data $data)
+    {
+        if (!$data->properties->updated_at) {
+            $data->properties->updated_at = new \DateTime('now', new DateTimeZone('UTC'));
         }
-
-        $data = $this->getData($dataUUID);
-        $contents = $this->downloaderService->getFileContents($data);
-
-        $data->status = SolrEntityData::DATA_STATUS_OK;
-
-        $this->addData($data, $contents);
-
-        return true;
     }
 }
