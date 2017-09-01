@@ -10,6 +10,7 @@ use App\Model\Error\Error;
 use App\Model\Error\ErrorResponse;
 use App\Model\RPCRequest;
 use JMS\Serializer\Exception\RuntimeException as JMSRuntimeException;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
@@ -17,6 +18,14 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class ExceptionListener implements EventSubscriberInterface
 {
+    /** @var LoggerInterface */
+    private $logger;
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
     public function onKernelException(GetResponseForExceptionEvent $event)
     {
         $exception = $event->getException();
@@ -41,7 +50,7 @@ class ExceptionListener implements EventSubscriberInterface
                 break;
             case InternalSearchException::class:
                 /** @var InternalSearchException $exception */
-                $error = new Error(500, 'Error while communicating with the Indexing service!', [
+                $error = new Error(500, 'Error communicating with the Indexing service!', [
                     $exception->getMessage(),
                 ]);
                 break;
@@ -50,6 +59,13 @@ class ExceptionListener implements EventSubscriberInterface
                     'type' => get_class($exception),
                     'message' => $exception->getMessage(),
                 ]);
+        }
+
+        if (500 >= $error->code) {
+            $this->logger->error('Internal exception: while handling {url} request', [
+                'url' => $event->getRequest()->getUri(),
+                'exception' => $exception,
+            ]);
         }
 
         $response = new JsonResponse(new ErrorResponse($error, $requestId));

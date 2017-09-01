@@ -7,6 +7,7 @@ use App\Entity\SolrEntity;
 use App\Exception\InternalSearchException;
 use App\Exception\ResourceNotFoundException;
 use Solarium\Client;
+use Solarium\Exception\ExceptionInterface;
 use Solarium\QueryType\Select\Query\FilterQuery;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -49,9 +50,17 @@ class SolrService
         $filterQuery->setQuery(BaseSolrEntity::FIELD_ENTITY_TYPE.':"'.$entityType.'"');
         $select->addFilterQueries([$filterQuery]);
 
-        $resultSet = $this->solrClient->select($select);
+        $resultSet = null;
+        try {
+            $resultSet = $this->solrClient->select($select);
+        } catch (ExceptionInterface $exception) {
+            $this->handleSolariumExceptions(
+                $exception,
+                sprintf('Error while loading from Index, type=%s, id=%s', $entityType, $id)
+            );
+        }
 
-        if ($resultSet->count() !== 1) {
+        if (!$resultSet || $resultSet->count() !== 1) {
             throw new ResourceNotFoundException(sprintf('Resource %s::%s not found!', $entityType, $id));
         }
 
@@ -83,11 +92,10 @@ class SolrService
             $result = $this->solrClient->update($update);
 
             return 0 === $result->getStatus();
-        } catch (\Throwable $e) {
-            throw new InternalSearchException(
-                sprintf('Error while deleting from Index, type=%s, id=%s', $entityType, $id),
-                $e->getCode(),
-                $e
+        } catch (ExceptionInterface $exception) {
+            $this->handleSolariumExceptions(
+                $exception,
+                sprintf('Error while deleting from Index, type=%s, id=%s', $entityType, $id)
             );
         }
     }
@@ -124,5 +132,14 @@ class SolrService
             }
             throw $e;
         }
+    }
+
+    private function handleSolariumExceptions(ExceptionInterface $exception, string $additionalMessage)
+    {
+        throw new InternalSearchException(
+            $additionalMessage,
+            $exception->getCode(),
+            $exception
+        );
     }
 }
