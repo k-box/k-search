@@ -4,8 +4,9 @@ namespace App\Queue;
 
 use App\Queue\Message\UUIDMessage;
 use Bernard\Envelope;
+use Bernard\Serializer;
 
-class DataSerializer implements \Bernard\Serializer
+class DataSerializer implements Serializer
 {
     /**
      * @param Envelope $envelope
