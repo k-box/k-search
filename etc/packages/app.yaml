@@ -6,8 +6,7 @@ services:
         public: false
 
     App\:
-        resource: '../../src/*'
-        exclude: '../../src/{Entity,Repository,Model,Search}'
+        resource: '../../src/{Command,EventListener,Service,Queue}'
 
     App\Controller\:
         resource: '../../src/Controller'
@@ -15,5 +14,6 @@ services:
         tags: ['controller.service_arguments']
 
     # Autowiring the httpclient
-    App\Command\DataProcessWorkerCommand:
+    App\Service\DataDownloaderService:
         $httpClient: "@httplug.client.downloader"
+        $tempFolder: '%kernel.project_dir%/var/temp'

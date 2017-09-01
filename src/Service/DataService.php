@@ -8,7 +8,6 @@ use App\Helper\DataHelper;
 use App\Model\Data\Data;
 use App\Queue\Message\UUIDMessage;
 use DateTimeZone;
-use Symfony\Component\Finder\SplFileInfo;
 
 class DataService
 {
@@ -21,16 +20,11 @@ class DataService
      * @var QueueService
      */
     private $queueService;
-    /**
-     * @var DataDownloaderService
-     */
-    private $downloaderService;
 
-    public function __construct(QueueService $queueService, SolrService $solrService, DataDownloaderService $downloaderService)
+    public function __construct(QueueService $queueService, SolrService $solrService)
     {
         $this->solrService = $solrService;
         $this->queueService = $queueService;
-        $this->downloaderService = $downloaderService;
     }
 
     /**
@@ -115,8 +109,8 @@ class DataService
     /**
      * Adds the specific data to the index, by extracting the text from the given file.
      *
-     * @param Data        $data     The Data object
-     * @param SplFileInfo $fileInfo The file to extract the textual contents from
+     * @param Data         $data     The Data object
+     * @param \SplFileInfo $fileInfo The file to extract the textual contents from
      *
      * @return bool
      */

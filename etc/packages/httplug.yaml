@@ -4,3 +4,6 @@ httplug:
     clients:
         downloader:
             factory: 'httplug.factory.guzzle6'
+            plugins:
+                - 'httplug.plugin.redirect'
+                - 'httplug.plugin.retry'

@@ -13,7 +13,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class DataProcessWorkerCommandTest extends KernelTestCase
 {
-    /** @var  CommandTester */
+    /** @var CommandTester */
     private $commandTester;
 
     private $dataService;
@@ -42,9 +42,10 @@ class DataProcessWorkerCommandTest extends KernelTestCase
         $this->commandTester = new CommandTester($command);
     }
 
-    public function testItDownloadsAndAddsDataToIndex() {
+    public function testItDownloadsAndAddsDataToIndex()
+    {
         $this->commandTester->execute([
-            '--loops' => 1
+            '--loops' => 1,
         ]);
 
         $this->assertFalse(true);
