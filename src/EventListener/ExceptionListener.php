@@ -54,10 +54,8 @@ class ExceptionListener implements EventSubscriberInterface
 
         $response = new JsonResponse(new ErrorResponse($error, $requestId));
 
-        // Ensure the response is a "200", as we are implementing a RPC call even during errors.
-        $response->headers->set('X-Status-Code', 200);
-
         // Send the modified response object to the event
+        $event->allowCustomResponseCode();
         $event->setResponse($response);
     }
 
