@@ -1,10 +1,10 @@
 <?php
+
 namespace App\Tests\Command;
 
 use App\Command\DataProcessWorkerCommand;
 use App\Service\DataService;
 use App\Service\QueueService;
-use Http\Client\Common\PluginClient;
 use Http\Client\HttpClient;
 use Http\Message\MessageFactory;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
