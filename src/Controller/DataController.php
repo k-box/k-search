@@ -41,11 +41,11 @@ class DataController extends Controller
     /**
      * @var DataService
      */
-    private $searchService;
+    private $dataService;
 
     public function __construct(DataService $searchService, ValidatorInterface $validator, SerializerInterface $serializer)
     {
-        $this->searchService = $searchService;
+        $this->dataService = $searchService;
         $this->validator = $validator;
         $this->serializer = $serializer;
     }
@@ -93,7 +93,7 @@ class DataController extends Controller
         /** @var DeleteRequest $deleteRequest */
         $deleteRequest = $this->getRequestModelFromJson($request, DeleteRequest::class);
 
-        $success = $this->searchService->deleteData($deleteRequest->params->uuid);
+        $success = $this->dataService->deleteData($deleteRequest->params->uuid);
 
         if ($success) {
             $statusResponse = StatusResponse::withStatusMessage(200, 'Ok', $deleteRequest->id);
@@ -150,7 +150,7 @@ class DataController extends Controller
         /** @var GetRequest $get */
         $getRequest = $this->getRequestModelFromJson($request, GetRequest::class);
 
-        $data = $this->searchService->getData($getRequest->params->uuid);
+        $data = $this->dataService->getData($getRequest->params->uuid);
 
         $getResponse = new GetResponse($data, $getRequest->id);
 
@@ -201,7 +201,7 @@ class DataController extends Controller
         /** @var DataStatusRequest $dataStatusRequest */
         $dataStatusRequest = $this->getRequestModelFromJson($request, DataStatusRequest::class);
 
-        $data = $this->searchService->getData($dataStatusRequest->params->uuid);
+        $data = $this->dataService->getData($dataStatusRequest->params->uuid);
 
         $status = new DataStatus($data->status);
         $statusResponse = new DataStatusResponse($status, $dataStatusRequest->id);
@@ -255,9 +255,9 @@ class DataController extends Controller
         /** @var AddRequest $addRequest */
         $addRequest = $this->getRequestModelFromJson($request, AddRequest::class);
 
-        $res = $this->searchService->addData($addRequest->params->data, $addRequest->params->dataTextualContents);
+        $res = $this->dataService->addData($addRequest->params->data, $addRequest->params->dataTextualContents);
 
-        $data = $this->searchService->getData($addRequest->params->data->uuid);
+        $data = $this->dataService->getData($addRequest->params->data->uuid);
         $addResponse = new AddResponse($data, $addRequest->id);
 
         return $this->getJsonResponse($addResponse);
@@ -302,13 +302,15 @@ class DataController extends Controller
      */
     public function postDataSearch(Request $request, string $version)
     {
-        /** @var SearchRequest $addRequest */
-        $addRequest = $this->getRequestModelFromJson($request, SearchRequest::class);
+        /** @var SearchRequest $searchRequest */
+        $searchRequest = $this->getRequestModelFromJson($request, SearchRequest::class);
+
+        $searchResult = $this->dataService->queryData($searchRequest->params);
 
         // @todo Implement the logic here
-        $statusResponse = new SearchResponse(null, $addRequest->id);
+        $searchResponse = new SearchResponse(null, $searchRequest->id);
 
-        return $this->getJsonResponse($statusResponse);
+        return $this->getJsonResponse($searchResponse);
     }
 
     /**
