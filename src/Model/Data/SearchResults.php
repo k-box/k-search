@@ -4,6 +4,7 @@ namespace App\Model\Data;
 
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @SWG\Definition(
@@ -27,7 +28,7 @@ class SearchResults
      * The time needed to run the search query
      *
      * @var integer
-     * @JSM\Type("integer")
+     * @JMS\Type("integer")
      * @JMS\ReadOnly()
      * @SWG\Property(
      *     example="104"
@@ -39,7 +40,7 @@ class SearchResults
      * The total amount of found items.
      *
      * @var integer
-     * @JSM\Type("integer")
+     * @JMS\Type("integer")
      * @JMS\ReadOnly()
      * @SWG\Property(
      *     example="1"

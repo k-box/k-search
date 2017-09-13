@@ -307,8 +307,7 @@ class DataController extends Controller
 
         $searchResult = $this->dataService->queryData($searchRequest->params);
 
-        // @todo Implement the logic here
-        $searchResponse = new SearchResponse(null, $searchRequest->id);
+        $searchResponse = new SearchResponse($searchResult, $searchRequest->id);
 
         return $this->getJsonResponse($searchResponse);
     }

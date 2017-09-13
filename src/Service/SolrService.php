@@ -160,9 +160,9 @@ class SolrService
         }
 
         $select = $this->solrClient->createSelect();
-        /*$select
+        $select
             ->setStart($searchParams->offset)
-            ->setRows($searchParams->limit);*/
+            ->setRows($searchParams->limit);
 
         $entityType = call_user_func([$solrEntityClass, 'getEntityType']);
 
