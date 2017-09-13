@@ -32,6 +32,10 @@ class SolrEntityData extends SolrEntity
     public const FIELD_COPYRIGHT_USAGE_SHORT = 'str_sis_data_copyright_usage_short';
     public const FIELD_COPYRIGHT_USAGE_REFERENCE = 'str_sis_data_copyright_usage_reference';
 
+    protected const FIELD_INDEXABLE_ABSTRACT = 'str_si_data_abstract';
+    protected const FIELD_INDEXABLE_TITLE = 'str_si_data_title';
+
+
     public static function getEntityType(): string
     {
         return 'data';
@@ -61,6 +65,8 @@ class SolrEntityData extends SolrEntity
         // Specific sub-entity handling
         $doc->addCopyright($data->copyright);
         $doc->addProperties($data->properties);
+        
+        $doc->addIndexableFields($data);
 
         return $doc;
     }
@@ -78,6 +84,20 @@ class SolrEntityData extends SolrEntity
         $data->properties = $this->buildPropertiesFromModel();
 
         return $data;
+    }
+
+    public static function getIndexableFields(): array
+    {
+        return [
+            self::FIELD_INDEXABLE_ABSTRACT,
+            self::FIELD_INDEXABLE_TITLE,
+        ];
+    }
+
+    private function addIndexableFields(Data $data)
+    {
+        $this->addField(self::FIELD_INDEXABLE_ABSTRACT, $data->properties->abstract);
+        $this->addField(self::FIELD_INDEXABLE_TITLE, $data->properties->title);
     }
 
     private function addCopyright(Copyright $copyright)

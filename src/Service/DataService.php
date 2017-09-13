@@ -7,12 +7,9 @@ use App\Entity\SolrEntityData;
 use App\Exception\BadRequestException;
 use App\Helper\DataHelper;
 use App\Model\Data\Data;
-<<<<<<< 3f7063317f64d17d4937712b8bfe3269b2124d81
 use App\Queue\Message\UUIDMessage;
-=======
 use App\Model\Data\SearchParams;
 use App\Model\Data\SearchResults;
->>>>>>> First data.search logic in services
 use DateTimeZone;
 use Solarium\QueryType\Select\Result\AbstractDocument;
 
@@ -145,7 +142,6 @@ class DataService
     public function queryData( SearchParams $searchParams)
     {
         $solrResult = $this->solrService->select($searchParams, SolrEntityData::class);
-
 
         $searchResult = new SearchResults();
         $searchResult->query = $searchParams;

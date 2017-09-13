@@ -159,17 +159,22 @@ class SolrService
             throw new \RuntimeException(sprintf('Wrong class name for Solr entity fetching, %s given', $solrEntityClass));
         }
 
-        $query = sprintf('%s:"%s"', SolrEntityData::FIELD_PROPERTIES_STORED, $searchParams->search);
         $select = $this->solrClient->createSelect();
-        $select->setQuery($query)
+        /*$select
             ->setStart($searchParams->offset)
-            ->setRows($searchParams->limit);
+            ->setRows($searchParams->limit);*/
 
         $entityType = call_user_func([$solrEntityClass, 'getEntityType']);
 
-        $filterQuery = new FilterQuery(['key' => 'entity-filter']);
-        $filterQuery->setQuery(BaseSolrEntity::FIELD_ENTITY_TYPE.':"'.$entityType.'"');
-        $select->addFilterQueries([$filterQuery]);
+        $select->setQuery('*%P1%*', [$searchParams->search]);
+
+        // EDisMax fields
+        $indexableFields = call_user_func([$solrEntityClass, 'getIndexableFields']);
+        $edisMax = $select->getEDisMax();
+        $edisMax->setQueryFields(implode(' ', $indexableFields));
+
+        //$filterQuery = new FilterQuery(['key' => 'entity-filter']);
+        //$select->addFilterQueries([$filterQuery]);
 
         return $this->solrClient->select($select);
     }
