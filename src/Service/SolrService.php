@@ -7,7 +7,9 @@ use App\Entity\SolrEntity;
 use App\Entity\SolrEntityData;
 use App\Exception\InternalSearchException;
 use App\Exception\ResourceNotFoundException;
+use App\Helper\SearchHelper;
 use App\Model\Data\SearchParams;
+use PHPUnit\Util\Filter;
 use Solarium\Client;
 use Solarium\Exception\ExceptionInterface;
 use Solarium\QueryType\Select\Query\FilterQuery;
@@ -173,8 +175,27 @@ class SolrService
         $edisMax = $select->getEDisMax();
         $edisMax->setQueryFields(implode(' ', $indexableFields));
 
-        //$filterQuery = new FilterQuery(['key' => 'entity-filter']);
-        //$select->addFilterQueries([$filterQuery]);
+        $facets = $select->getFacetSet();
+        $facets->createFacetField('usage')
+            ->setField(SolrEntityData::FIELD_COPYRIGHT_USAGE_SHORT);
+
+        $availableFilters = [];
+        $entityFilter = new FilterQuery(['key' => 'entity-filter']);
+        $entityFilter->setQuery(sprintf('%s:%s', SolrEntity::FIELD_ENTITY_TYPE, $entityType));
+        $availableFilters[] = $entityFilter;
+
+        if (!empty($searchParams->filters)) {
+            $userFilter = new FilterQuery([
+                'key' => 'user-filter'
+            ]);
+
+            //die(SearchHelper::transformFieldNames($solrEntityClass, $searchParams->filters));
+            $userFilter->setQuery(SearchHelper::transformFieldNames($solrEntityClass, $searchParams->filters));
+
+            $availableFilters[] = $userFilter;
+        }
+
+        $select->addFilterQueries($availableFilters);
 
         return $this->solrClient->select($select);
     }

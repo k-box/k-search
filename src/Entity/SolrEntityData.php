@@ -32,8 +32,8 @@ class SolrEntityData extends SolrEntity
     public const FIELD_COPYRIGHT_USAGE_SHORT = 'str_sis_data_copyright_usage_short';
     public const FIELD_COPYRIGHT_USAGE_REFERENCE = 'str_sis_data_copyright_usage_reference';
 
-    protected const FIELD_INDEXABLE_ABSTRACT = 'str_si_data_abstract';
-    protected const FIELD_INDEXABLE_TITLE = 'str_si_data_title';
+    public const FIELD_INDEXABLE_ABSTRACT = 'str_si_data_abstract';
+    public const FIELD_INDEXABLE_TITLE = 'str_si_data_title';
 
 
     public static function getEntityType(): string
@@ -89,8 +89,9 @@ class SolrEntityData extends SolrEntity
     public static function getIndexableFields(): array
     {
         return [
-            self::FIELD_INDEXABLE_ABSTRACT,
-            self::FIELD_INDEXABLE_TITLE,
+            'abstract' => self::FIELD_INDEXABLE_ABSTRACT,
+            'title' => self::FIELD_INDEXABLE_TITLE,
+            'copyright' => self::FIELD_COPYRIGHT_USAGE_SHORT,
         ];
     }
 
