@@ -48,7 +48,16 @@ class SearchResults
      */
     public $total_matches;
 
-    //public $aggregations;
+
+    /**
+     * Array of aggregations
+     *
+     * @Assert\Valid()
+     * @JMS\Type("array<App\Model\Data\AggregationResult>")
+     * @SWG\Property()
+     * @var AggregationResult[]
+     */
+    public $aggregations;
 
     /**
      * Array of results.

@@ -189,13 +189,18 @@ class SolrService
                 'key' => 'user-filter'
             ]);
 
-            //die(SearchHelper::transformFieldNames($solrEntityClass, $searchParams->filters));
             $userFilter->setQuery(SearchHelper::transformFieldNames($solrEntityClass, $searchParams->filters));
 
             $availableFilters[] = $userFilter;
         }
 
         $select->addFilterQueries($availableFilters);
+
+        $facets = $select->getFacetSet();
+        foreach ($searchParams->aggregations as $facetField => $aggregation) {
+            $facets->createFacetField($facetField)
+                ->setField(SearchHelper::transformFieldNames($solrEntityClass, $facetField));
+        }
 
         return $this->solrClient->select($select);
     }

@@ -6,6 +6,8 @@ use App\Entity\SolrEntity;
 use App\Entity\SolrEntityData;
 use App\Exception\BadRequestException;
 use App\Helper\DataHelper;
+use App\Model\Data\AggregationItem;
+use App\Model\Data\AggregationResult;
 use App\Model\Data\Data;
 use App\Queue\Message\UUIDMessage;
 use App\Model\Data\SearchParams;
@@ -153,6 +155,23 @@ class DataService
             $entityData = new SolrEntityData($documentId, $document);
             return $entityData->buildModel();
         }, $solrResult->getDocuments());
+
+
+        $facets = $solrResult->getFacetSet();
+        $searchResult->aggregations = [];
+        foreach( $searchParams->aggregations as $aggregationName => $aggregationParams) {
+            $facet = $facets->getFacet($aggregationName);
+            $searchResult->aggregations[$aggregationName] = new AggregationResult();
+            $searchResult->aggregations[$aggregationName]->name = $aggregationName;
+            $searchResult->aggregations[$aggregationName]->data = [];
+
+            foreach ( $facet as $value => $count ) {
+                $item = new AggregationItem();
+                $item->count = $count;
+                $item->value = $value;
+                $searchResult->aggregations[$aggregationName]->data[] = $item;
+            }
+        }
 
         return $searchResult;
     }
