@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class SearchResults
 {
     /**
-     * The complete SearchQuery object from the request
+     * The complete SearchQuery object from the request.
      *
      * @var \App\Model\Data\SearchParams
      * @JMS\Type("App\Model\Data\SearchParams")
@@ -25,9 +25,9 @@ class SearchResults
     public $query;
 
     /**
-     * The time needed to run the search query
+     * The time needed to run the search query.
      *
-     * @var integer
+     * @var int
      * @JMS\Type("integer")
      * @JMS\ReadOnly()
      * @SWG\Property(
@@ -39,7 +39,7 @@ class SearchResults
     /**
      * The total amount of found items.
      *
-     * @var integer
+     * @var int
      * @JMS\Type("integer")
      * @JMS\ReadOnly()
      * @SWG\Property(
@@ -48,13 +48,13 @@ class SearchResults
      */
     public $total_matches;
 
-
     /**
-     * Array of aggregations
+     * Array of aggregations.
      *
      * @Assert\Valid()
      * @JMS\Type("array<App\Model\Data\AggregationResult>")
      * @SWG\Property()
+     *
      * @var AggregationResult[]
      */
     public $aggregations;

@@ -13,10 +13,8 @@ use PHPUnit\Util\Filter;
 use Solarium\Client;
 use Solarium\Exception\ExceptionInterface;
 use Solarium\QueryType\Select\Query\FilterQuery;
-use Symfony\Component\Finder\SplFileInfo;
-use Solarium\QueryType\Select\Result\AbstractDocument;
-use Solarium\QueryType\Select\Result\DocumentInterface;
 use Solarium\QueryType\Select\Result\Result;
+use Symfony\Component\Finder\SplFileInfo;
 
 class SolrService
 {
@@ -141,18 +139,10 @@ class SolrService
         }
     }
 
-    private function handleSolariumExceptions(ExceptionInterface $exception, string $additionalMessage)
-    {
-        throw new InternalSearchException(
-            $additionalMessage,
-            $exception->getCode(),
-            $exception
-        );
-    }
-
     /**
      * @param SearchParams $searchParams
-     * @param string $solrEntityClass
+     * @param string       $solrEntityClass
+     *
      * @return Result
      */
     public function select(SearchParams $searchParams, string $solrEntityClass): Result
@@ -186,7 +176,7 @@ class SolrService
 
         if (!empty($searchParams->filters)) {
             $userFilter = new FilterQuery([
-                'key' => 'user-filter'
+                'key' => 'user-filter',
             ]);
 
             $userFilter->setQuery(SearchHelper::transformFieldNames($solrEntityClass, $searchParams->filters));
@@ -203,5 +193,14 @@ class SolrService
         }
 
         return $this->solrClient->select($select);
+    }
+
+    private function handleSolariumExceptions(ExceptionInterface $exception, string $additionalMessage)
+    {
+        throw new InternalSearchException(
+            $additionalMessage,
+            $exception->getCode(),
+            $exception
+        );
     }
 }

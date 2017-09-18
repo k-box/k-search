@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\Data;
 
 use JMS\Serializer\Annotation as JMS;
@@ -14,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class AggregationResult
 {
     /**
-     * The aggregation name
+     * The aggregation name.
      *
      * @var string
      * @Assert\NotBlank()
@@ -25,9 +26,8 @@ class AggregationResult
      */
     public $name;
 
-
     /**
-     * The aggregation result
+     * The aggregation result.
      *
      * @var array
      * @Assert\NotBlank()

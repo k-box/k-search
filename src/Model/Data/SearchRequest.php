@@ -3,9 +3,9 @@
 namespace App\Model\Data;
 
 use App\Model\RPCRequest;
+use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
-use JMS\Serializer\Annotation as JMS;
 
 /**
  * @SWG\Definition(

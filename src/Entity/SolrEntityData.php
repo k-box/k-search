@@ -39,7 +39,6 @@ class SolrEntityData extends SolrEntity
     public const FIELD_INDEXABLE_UPDATED_AT = 'date_data_updated_at';
     public const FIELD_INDEXABLE_SIZE = 'int_ii_data_size';
 
-
     public static function getEntityType(): string
     {
         return 'data';
@@ -69,7 +68,7 @@ class SolrEntityData extends SolrEntity
         // Specific sub-entity handling
         $doc->addCopyright($data->copyright);
         $doc->addProperties($data->properties);
-        
+
         $doc->addIndexableFields($data);
 
         return $doc;

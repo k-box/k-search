@@ -9,9 +9,9 @@ use App\Helper\DataHelper;
 use App\Model\Data\AggregationItem;
 use App\Model\Data\AggregationResult;
 use App\Model\Data\Data;
-use App\Queue\Message\UUIDMessage;
 use App\Model\Data\SearchParams;
 use App\Model\Data\SearchResults;
+use App\Queue\Message\UUIDMessage;
 use DateTimeZone;
 use Solarium\QueryType\Select\Result\AbstractDocument;
 
@@ -129,19 +129,7 @@ class DataService
         return $this->solrService->addWithTextExtraction($dataEntity, $fileInfo);
     }
 
-    /**
-     * Cleanup the given data, updates the missing fields.
-     *
-     * @param Data $data
-     */
-    protected function dataCleanup(Data $data)
-    {
-        if (!$data->properties->updated_at) {
-            $data->properties->updated_at = new \DateTime('now', new DateTimeZone('UTC'));
-        }
-    }
-
-    public function queryData( SearchParams $searchParams)
+    public function queryData(SearchParams $searchParams)
     {
         $solrResult = $this->solrService->select($searchParams, SolrEntityData::class);
 
@@ -153,19 +141,19 @@ class DataService
             $idField = SolrEntity::FIELD_ENTITY_ID;
             $documentId = $document->$idField;
             $entityData = new SolrEntityData($documentId, $document);
+
             return $entityData->buildModel();
         }, $solrResult->getDocuments());
 
-
         $facets = $solrResult->getFacetSet();
         $searchResult->aggregations = [];
-        foreach( $searchParams->aggregations as $aggregationName => $aggregationParams) {
+        foreach ($searchParams->aggregations as $aggregationName => $aggregationParams) {
             $facet = $facets->getFacet($aggregationName);
             $searchResult->aggregations[$aggregationName] = new AggregationResult();
             $searchResult->aggregations[$aggregationName]->name = $aggregationName;
             $searchResult->aggregations[$aggregationName]->data = [];
 
-            foreach ( $facet as $value => $count ) {
+            foreach ($facet as $value => $count) {
                 $item = new AggregationItem();
                 $item->count = $count;
                 $item->value = $value;
@@ -174,5 +162,17 @@ class DataService
         }
 
         return $searchResult;
+    }
+
+    /**
+     * Cleanup the given data, updates the missing fields.
+     *
+     * @param Data $data
+     */
+    protected function dataCleanup(Data $data)
+    {
+        if (!$data->properties->updated_at) {
+            $data->properties->updated_at = new \DateTime('now', new DateTimeZone('UTC'));
+        }
     }
 }

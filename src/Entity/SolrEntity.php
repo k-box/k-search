@@ -70,5 +70,4 @@ abstract class SolrEntity
 
         return $this->document->__get($fieldName);
     }
-
 }
