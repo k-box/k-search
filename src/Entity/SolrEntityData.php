@@ -34,6 +34,10 @@ class SolrEntityData extends SolrEntity
 
     public const FIELD_INDEXABLE_ABSTRACT = 'str_si_data_abstract';
     public const FIELD_INDEXABLE_TITLE = 'str_si_data_title';
+    public const FIELD_INDEXABLE_LANGUAGE = 'str_si_data_language';
+    public const FIELD_INDEXABLE_CREATED_AT = 'date_data_created_at';
+    public const FIELD_INDEXABLE_UPDATED_AT = 'date_data_updated_at';
+    public const FIELD_INDEXABLE_SIZE = 'int_ii_data_size';
 
 
     public static function getEntityType(): string
@@ -92,6 +96,13 @@ class SolrEntityData extends SolrEntity
             'abstract' => self::FIELD_INDEXABLE_ABSTRACT,
             'title' => self::FIELD_INDEXABLE_TITLE,
             'copyright' => self::FIELD_COPYRIGHT_USAGE_SHORT,
+            'uuid' => self::FIELD_ENTITY_ID,
+            'language' => self::FIELD_INDEXABLE_LANGUAGE,
+            'created_at' => self::FIELD_INDEXABLE_CREATED_AT,
+            'updated_at' => self::FIELD_INDEXABLE_UPDATED_AT,
+            'size' => self::FIELD_INDEXABLE_SIZE,
+            'copyright_owner_name' => self::FIELD_COPYRIGHT_OWNER_NAME,
+            'copyright_usage_short' => self::FIELD_COPYRIGHT_USAGE_SHORT,
         ];
     }
 
@@ -99,6 +110,10 @@ class SolrEntityData extends SolrEntity
     {
         $this->addField(self::FIELD_INDEXABLE_ABSTRACT, $data->properties->abstract);
         $this->addField(self::FIELD_INDEXABLE_TITLE, $data->properties->title);
+        $this->addField(self::FIELD_INDEXABLE_LANGUAGE, $data->properties->language);
+        $this->addField(self::FIELD_INDEXABLE_CREATED_AT, $data->properties->created_at);
+        $this->addField(self::FIELD_INDEXABLE_UPDATED_AT, $data->properties->updated_at);
+        $this->addField(self::FIELD_INDEXABLE_SIZE, $data->properties->size);
     }
 
     private function addCopyright(Copyright $copyright)
