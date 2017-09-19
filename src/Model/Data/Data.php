@@ -103,10 +103,23 @@ class Data
      * @var Author[]
      * @Assert\NotBlank()
      * @Assert\Valid()
-     * @JMS\Type("array<App\Model\Data\Author>)
+     * @JMS\Type("array<App\Model\Data\Author>")
      * @SWG\Property()
      */
     public $author;
+
+    /**
+     * The originating source where the data has been uploaded or created.
+     *
+     * @var Source
+     * @Assert\NotBlank()
+     * @Assert\Valid()
+     * @JMS\Type("App\Model\Data\Source")
+     * @SWG\Property(
+     *     example={}
+     * )
+     */
+    public $source;
 
     /**
      * The status of the data, internal use only, not exposed.
