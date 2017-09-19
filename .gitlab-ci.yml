@@ -47,3 +47,29 @@ php-tests:7.1:
     - vendor/bin/phpunit
   tags:
     - docker
+
+## Normal branch release, we create local images for being used during tests
+branch_release:
+  stage: release
+  script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE:${CI_BUILD_REF_NAME/v/} .
+    - docker push $CI_REGISTRY_IMAGE:${CI_BUILD_REF_NAME/v/}
+  tags:
+    - dind
+  except:
+    - tags
+
+## Tagged releases
+tagged_release:
+  stage: release
+  script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE:${CI_BUILD_REF_NAME/v/} .
+    - docker push $CI_REGISTRY_IMAGE:${CI_BUILD_REF_NAME/v/}
+    - docker tag -f $CI_REGISTRY_IMAGE:${CI_BUILD_REF_NAME/v/} "$CI_REGISTRY_IMAGE:latest"
+    - docker push "$CI_REGISTRY_IMAGE:latest"
+  tags:
+    - dind
+  only:
+    - tags
