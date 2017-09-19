@@ -98,6 +98,17 @@ class Data
     public $properties;
 
     /**
+     * List of authors (multiple).
+     *
+     * @var Author[]
+     * @Assert\NotBlank()
+     * @Assert\Valid()
+     * @JMS\Type("array<App\Model\Data\Author>)
+     * @SWG\Property()
+     */
+    public $author;
+
+    /**
      * The status of the data, internal use only, not exposed.
      *
      * @var string
