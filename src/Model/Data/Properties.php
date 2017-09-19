@@ -105,6 +105,9 @@ class Properties
      *
      * @var string
      * @JMS\Type("string")
+     * @SWG\Property(
+     *     example="This is an example of abstract",
+     * )
      */
     public $abstract;
 
@@ -114,6 +117,33 @@ class Properties
      * @var string
      * @Assert\Url()
      * @JMS\Type("string")
+     * @SWG\Property(
+     *     example="http://thumbnailserver.com/get/thumbnail123"
+     * )
      */
     public $thumbnail;
+
+    /**
+     * User-definet tags associated to the data (multiple).
+     *
+     * @var array
+     * @Assert\Type("array")
+     * @JMS\Type("array<string>")
+     * @SWG\Property(
+     *     example={"tag1", "tag2"}
+     * )
+     */
+    public $tags;
+
+    /**
+     * Search data and browse within the hierarchy (multiple). However be careful to expose the hierarchy to a public search index, as it may contain confidential data. Example: List [ "prj01/forestry/", "prj04/forestry/foobar/" ].
+     *
+     * @var array
+     * @Assert\Type("array")
+     * @JMS\Type("array<string>")
+     * @SWG\Property(
+     *     example={"prj01/forestry/", "prj04/forestry/foobar/"}
+     * )
+     */
+    public $hierarchy;
 }
