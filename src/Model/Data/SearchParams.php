@@ -45,9 +45,16 @@ class SearchParams
      * @Assert\Valid()
      * @JMS\Type("array<string,App\Model\Data\Aggregation>")
      * @SWG\Property(
-     *    type="object",
-     *    additionalProperties=
-     *        @SWG\Schema(ref="#/definitions/Data\Aggregation"),
+     *      example={
+     *          "language": {
+     *              "limit": 5,
+     *              "counts_filtered": false
+     *           },
+     *          "copyright_usage_short": {
+     *              "limit": 4,
+     *              "counts_filtered": true
+     *          }
+     *     }
      * )
      */
     public $aggregations;

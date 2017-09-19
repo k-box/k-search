@@ -38,6 +38,7 @@ class Aggregation
      *
      * @var bool
      * @JMS\Type("boolean")
+     * @Assert\Type("boolean")
      * @SWG\Property(
      *     type="boolean",
      *     default=false

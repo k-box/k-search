@@ -19,6 +19,8 @@ use Symfony\Component\Finder\SplFileInfo;
 class SolrService
 {
     const DATA_TEXTUAL_DYNAMIC_FIELD_NAME = 'str_ss_file_content';
+    const USER_FILTER_KEY = 'user-filter';
+    const USER_FILTER_TAG = 'user-filter';
 
     /**
      * @var Client
@@ -176,10 +178,11 @@ class SolrService
 
         if (!empty($searchParams->filters)) {
             $userFilter = new FilterQuery([
-                'key' => 'user-filter',
+                'key' => self::USER_FILTER_KEY,
             ]);
 
             $userFilter->setQuery(SearchHelper::transformFieldNames($solrEntityClass, $searchParams->filters));
+            $userFilter->addTag(self::USER_FILTER_TAG);
 
             $availableFilters[] = $userFilter;
         }
@@ -188,8 +191,13 @@ class SolrService
 
         $facets = $select->getFacetSet();
         foreach ($searchParams->aggregations as $facetField => $aggregation) {
-            $facets->createFacetField($facetField)
-                ->setField(SearchHelper::transformFieldNames($solrEntityClass, $facetField));
+            $facet = $facets->createFacetField($facetField)
+                ->setField(SearchHelper::transformFieldNames($solrEntityClass, $facetField))
+                ->setLimit($aggregation->limit);
+
+            if (!$aggregation->countsFiltered) {
+                $facet->addExclude(self::USER_FILTER_TAG);
+            }
         }
 
         return $this->solrClient->select($select);
