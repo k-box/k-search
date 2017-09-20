@@ -245,7 +245,7 @@ class SolrEntityData extends SolrEntity
     private function buildAuthorModel(): array
     {
         $json = $this->getField(self::FIELD_AUTHOR_STORED);
-        $data = json_decode($json, true);
+        $data = json_decode($json, true) ?? [];
         $authors = [];
         foreach ($data as $authorData) {
             $author = new Author();

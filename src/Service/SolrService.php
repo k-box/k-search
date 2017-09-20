@@ -157,12 +157,7 @@ class SolrService
             ->setStart($searchParams->offset)
             ->setRows($searchParams->limit);
 
-        $select->setQuery('*%P1%*', [$searchParams->search]);
-
-        // EDisMax fields
-        $indexableFields = call_user_func([$solrEntityClass, 'getSearchableFields']);
-        $edisMax = $select->getEDisMax();
-        $edisMax->setQueryFields(implode(' ', $indexableFields));
+        $this->handleQuery($searchParams, $solrEntityClass, $select);
 
         $this->handleFilters($searchParams, $solrEntityClass, $select);
 
@@ -242,5 +237,24 @@ class SolrService
         }
 
         $select->addFilterQueries($solrFilters);
+    }
+
+    /**
+     * @param SearchParams $searchParams
+     * @param string $solrEntityClass
+     * @param \Solarium\QueryType\Select\Query\Query $select
+     */
+    private function handleQuery(SearchParams $searchParams, string $solrEntityClass, \Solarium\QueryType\Select\Query\Query $select): void
+    {
+        $select->setQuery('*%P1%*', [$searchParams->search]);
+
+        // EDisMax fields
+        $searchableFields = call_user_func([$solrEntityClass, 'getSearchableFields']);
+        $indexableFields = call_user_func([$solrEntityClass, 'getIndexableFields']);
+        $searchableRealFields = array_map(function ($exposedName) use ($indexableFields) {
+            return $indexableFields[$exposedName];
+        }, $searchableFields);
+        $edisMax = $select->getEDisMax();
+        $edisMax->setQueryFields(implode(' ', $searchableRealFields));
     }
 }
