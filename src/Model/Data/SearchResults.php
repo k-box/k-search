@@ -64,7 +64,7 @@ class SearchResults
      *
      * @var Data[]
      * @Assert\Valid()
-     * @JMS\Type("array<string,App\Model\Data\Data>")
+     * @JMS\Type("array<App\Model\Data\Data>")
      * @SWG\Property()
      */
     public $items;
