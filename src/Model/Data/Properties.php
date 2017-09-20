@@ -151,6 +151,7 @@ class Properties
      * Object containing information on the video file.
      *
      * @var Properties\Video
+     * @Assert\Callback({"App\Validation\AvailableOnlyForVideo", "validate"})
      * @Assert\Callback({"App\Validation\RequiredOnlyForVideo", "validate"})
      * @Assert\Valid()
      * @JMS\Type("App\Model\Data\Properties\Video")

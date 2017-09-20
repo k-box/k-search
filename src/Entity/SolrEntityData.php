@@ -9,6 +9,9 @@ use App\Model\Data\CopyrightOwner;
 use App\Model\Data\CopyrightUsage;
 use App\Model\Data\Data;
 use App\Model\Data\Properties;
+use App\Model\Data\Properties\Source;
+use App\Model\Data\Properties\Streaming;
+use App\Model\Data\Properties\Video;
 use App\Model\Data\Uploader;
 
 /**
@@ -90,7 +93,7 @@ class SolrEntityData extends SolrEntity
         $data->status = $this->getField(self::FIELD_STATUS);
 
         $data->copyright = $this->buildCopyrightModel();
-        $data->properties = $this->buildPropertiesFromModel();
+        $data->properties = $this->buildPropertiesModel();
         $data->author = $this->buildAuthorModel();
         $data->uploader = $this->buildUploaderModel();
 
@@ -223,18 +226,20 @@ class SolrEntityData extends SolrEntity
         $this->addField(self::FIELD_PROPERTIES_STORED, json_encode($properties));
     }
 
-    private function buildPropertiesFromModel(): Properties
+    private function buildPropertiesModel(): Properties
     {
         $properties = new Properties();
         $json = $this->getField(self::FIELD_PROPERTIES_STORED);
         $data = json_decode($json, true);
 
-        $fields = ['title', 'filename', 'mime_type', 'created_at', 'updated_at', 'size', 'abstract', 'thumbnail', 'language', 'video', 'audio', 'subtitles'];
+        $fields = ['title', 'filename', 'mime_type', 'created_at', 'updated_at', 'size', 'abstract', 'thumbnail', 'language'];
 
         $this->inflateModelWithData($properties, $fields, $data ?? []);
 
         $properties->updated_at = DataHelper::createUtcDate($data['updated_at']['date']);
         $properties->created_at = DataHelper::createUtcDate($data['created_at']['date']);
+
+        $this->buildVideoRelatedModels($data, $properties);
 
         return $properties;
     }
@@ -281,6 +286,36 @@ class SolrEntityData extends SolrEntity
     {
         foreach ($fields as $field) {
             $model->{$field} = $data[$field] ?? null;
+        }
+    }
+
+    /**
+     * @param $data
+     * @param $properties
+     */
+    private function buildVideoRelatedModels($data, $properties): void
+    {
+        if (isset($data['video'])) {
+            $video = new Video;
+            $this->inflateModelWithData($video, ['duration', 'streaming'], $data['video']);
+
+            if ($data['video']['source']) {
+                $source = new Source;
+                $this->inflateModelWithData($source, ['format', 'resolution', 'bitrate'], $data['video']['source']);
+                $video->source = $source;
+            }
+
+            if ($data['video']['streaming']) {
+                $streamings = [];
+                foreach ($data['video']['streaming'] ?? [] as $streamingData) {
+                    $streaming = new Streaming;
+                    $this->inflateModelWithData($streaming, ['type', 'resolution'], $streamingData);
+                    $streamings[] = $streaming;
+                }
+                $video->streaming = $streamings;
+            }
+
+            $properties->video = $video;
         }
     }
 }
