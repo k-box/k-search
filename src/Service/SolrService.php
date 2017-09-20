@@ -240,8 +240,8 @@ class SolrService
     }
 
     /**
-     * @param SearchParams $searchParams
-     * @param string $solrEntityClass
+     * @param SearchParams                           $searchParams
+     * @param string                                 $solrEntityClass
      * @param \Solarium\QueryType\Select\Query\Query $select
      */
     private function handleQuery(SearchParams $searchParams, string $solrEntityClass, \Solarium\QueryType\Select\Query\Query $select): void
