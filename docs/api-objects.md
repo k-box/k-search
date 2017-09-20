@@ -3,9 +3,8 @@
 | Property                     | Type   | Required | Description |
 | ---------------------------- | ------ | -------- | ----------- |
 | `uuid`                       | String | ✔ | Universally unique identifier. |
-| `source[]`                   | Object | ✔ | The source where the data is stored. |
-| `source[type]`               | String | ✔ | The type of the source data (accepted values are `file` or `page`). |
-| `source[value]`              | String | ✔ | The source url. |
+| `url`                   | String | ✔ | The URI where the source data is stored and retrievable. |
+| `hash`               | String | ✔ | The SHA-2 (SHA-512) hash of the data content. |
 | `type`                       | String | ✔ | The general type of the provided data. Can be only 'document' or 'video'. |
 | `properties[]`               | Object | ✔ | The metadata of a piece of data. |
 | `properties[mime_type]`      | String | ✔ | The Mime type of the provided data. |
@@ -17,7 +16,7 @@
 | `properties[size]`           | Integer|   | The file size of the data. |
 | `properties[abstract]`       | String |   | A short abstract about the data or document. |
 | `properties[thumbnail]`      | String |   | The URI where the a thumbnail of this data is stored. |
-| `properties[tags][]`         | List   |   | User-definet tags associated to the data (multiple). |
+| `properties[tags][]`         | List   |   | User-defined tags associated to the data (multiple). |
 | `properties[hierarchy][]`    | List   |   | Search data and browse within the hierarchy (multiple). However be careful to expose the hierarchy to a public search index, as it may contain confidential data. Example: List [ "prj01/forestry/", "prj04/forestry/foobar/" ]. |
 | `author[]`                   | List   | ✔ | List of authors (multiple). |
 | `author[][]`                 | Object | ✔ | An object containing author's information. |
@@ -80,7 +79,7 @@ In case that `type`==`video`. It is expected to extend the `properties` by this 
 | --------- | ------- | ---------- | ----------- |
 | `code`    | Integer | ✔          | JSON-RPC inspired error codes. (minimum: -32768; maximum: -30000) |
 | `message` | String  | ✔          | Human readable error message. |
-| `data[]`  | Object  | ✔          | Additional information can optionally be provided on errors for better debugging. |
+| `data`    | Object  | ✔          | Additional information can optionally be provided on errors for better debugging. |
 
 
 ## Status object
