@@ -6,7 +6,7 @@ Describe the Search request.
 | -------- | ------ | -------- | ----------- |
 | `search`  | String | ✔       | URI encoded string of the search query. If no query is specified, an empty result set will be returned |
 | `filters` | String |         | Search [filters](#supported-filters) in the [Lucene query parser syntax](https://lucene.apache.org/core/2_9_4/queryparsersyntax.html) |
-| `aggregations` | List of [Aggregation](#aggregation) |    | An object containing the aggregations to be retrieved |
+| `aggregations` | [Aggregation](#aggregation) |    | An object containing the aggregations to be retrieved |
 | `limit` | Integer | | Specify the number of results to retrieve. If no value is given the default value of 10 is used. |
 | `offset` | Integer | | Specify the first result to return from the complete set of retrieved documents, the value is 0-based; If no value is given the default value of 0 is used. |
 
@@ -16,19 +16,32 @@ Aggregations are used to retrieve summaries of the data based on a search query.
 a unit-of-work that builds analytic information over a set of documents. More aggregations can be combined to obtain 
 a more complex summary.
 
-An aggregation is an object with a variable key
+The aggregation object properties define the aggregation to be calculated. Each property is an object that contains 
+the configuration for the specific aggregation. The code block below shows an example of the object.
 
-| Property | Type   | Required | Description |
-| -------- | ------ | -------- | ----------- |
-| `$AGGREGATION_NAME` | [AggregationConfiguration](#aggregationconfiguration) | ✔ | The aggregation to enable and configure |
-
-Where `$AGGREGATION_NAME` can be one of the following:
+```json
+"aggregations" : {
+    "language" : {
+        "limit" : 10,
+        "counts_filtered" : false
+    },
+    "type": {
+        "limit" : 5,
+        "counts_filtered" : false
+    }
+},
+```
+The supported aggregations are:
 
 - `type`
-- `language`
+- `language`, which maps to `properties.language`
+- `created_at`, which maps to `properties.created_at`
+- `updated_at`, which maps to `properties.updated_at`
+- `size`, which maps to `properties.size`
+- `copyright_owner_name`, which maps to `copyright.owner.name`
+- `copyright_usage_short`, which maps to `copyright.usage.short`
 
-
-##### AggregationConfiguration
+The table below defines the aggregation configuration properties
 
 | Property | Type   | Required | Description |
 | -------- | ------ | -------- | ----------- |
@@ -56,20 +69,17 @@ Currently supported filters are:
 ```json
 {
     "search" : "K-Link",
-    "filters" : "title:*Holmes AND language:en AND updated_at:[\"2008-07-28T14:47:31Z\" TO NOW] AND size:[717589 TO 717591] AND copyright_usage_short:\"MPL-2.0\"",
-    "aggregations" : [
-        {
-            "language" : {
-                "limit" : 10,
-                "counts_filtered" : false
-            }
+    "filters" : "title:*Holmes AND language:en AND (updated_at:[\"2008-07-28T14:47:31Z\" TO NOW] OR created_at:[\"2008-07-28T14:47:31Z\" TO NOW]) AND copyright_usage_short:\"MPL-2.0\")",
+    "aggregations" : {
+        "language" : {
+            "limit" : 10,
+            "counts_filtered" : false
         },
-        {
-            "type" : {
-                "counts_filtered" : true
-            }
+        "type": {
+            "limit" : 5,
+            "counts_filtered" : false
         }
-    ],
+    },
     "limit" : 30,
     "offset" : 0,
 }
@@ -85,27 +95,78 @@ Describe how search results are returned.
 | `results`  | Object | An object holding the result from the search |
 | `results.query_time` | Integer | The time needed to run the search query |
 | `results.total_matches` | Integer | The total amount of found items. |
-| `results.aggregations[]` | List | Results of the aggregations |
-| `results.aggregations[{NAME}].count` | Integer | Count of the results of the aggregation named `{NAME}` |
+| `results.aggregations` | [AggregationResult](#aggregationresult) | Object representing the result of the aggregations |
 | `results.items` | List of [Data](./api-objects.md#data-object) | The list of results, as [Data objects instances](./api-objects.md#data-object), up to the specified `query.limit`. |
 
 
-## Example SearchResults object
+### AggregationResult
+
+The aggregation object properties define the retrieved aggregations. Each property is an array containing
+the most common terms for the specific aggregation. The code block below shows an example of the object.
+
+```json
+{
+    "copyright_usage_short": [
+        {
+            "value": "MPL-2.0",
+            "count": 12
+        },
+        {
+            "value": "MPL-3.0",
+            "count": 3
+        }
+    ],
+    "language": [
+        {
+            "value": "en",
+            "count": 10
+        },
+        {
+            "value": "ru",
+            "count": 5
+        }
+    ]
+}
+```
+
+| Property | Type   | Description |
+| -------- | ------ | ----------- |
+| `value` | String | The value of the field that was aggregated |
+| `count` | Integer | The number of results in the set that matches the term in `value`. Calculated before or after filtering based on the search query |
+
+
+### Example SearchResults object
 
 
 ```json
 {
     "query": {
-        "search": "K-Link",
+        "search": "Example",
         "filters": "language:en",
-        "aggregations": [],
+        "aggregations": {
+            "copyright_usage_short": {
+                "limit" : 5,
+                "counts_filtered" : false
+            }
+        },
         "limit": 12,
         "offset": 0
     },
     "results": {
         "query_time": 6,
         "total_matches": 3,
-        "aggregations": [],
+        "aggregations": {
+            "copyright_usage_short": [
+                {
+                    "value": "MPL-2.0",
+                    "count": 1
+                },
+                {
+                    "value": "MPL-3.0",
+                    "count": 0
+                }
+            ]
+        },
         "items": [
             {
                 "uuid": "cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd",
