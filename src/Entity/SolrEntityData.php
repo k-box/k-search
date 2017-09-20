@@ -247,12 +247,13 @@ class SolrEntityData extends SolrEntity
         $json = $this->getField(self::FIELD_AUTHOR_STORED);
         $data = json_decode($json, true);
         $authors = [];
-        foreach($data as $authorData) {
-            $author = new Author;
+        foreach ($data as $authorData) {
+            $author = new Author();
             $fields = ['name', 'email', 'contact'];
             $this->inflateModelWithData($author, $fields, $authorData);
             $authors[] = $author;
         }
+
         return $authors;
     }
 

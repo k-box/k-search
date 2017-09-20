@@ -1,10 +1,9 @@
 <?php
+
 namespace App\Validation;
 
 use App\Model\Data\Data;
-use App\Model\RPCRequest;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
-
 
 class RequiredOnlyForVideo
 {
@@ -17,8 +16,7 @@ class RequiredOnlyForVideo
                     ->atPath($context->getPropertyPath())
                     ->addViolation();
             }
-        }
-        else {
+        } else {
             if (!empty($object)) {
                 $context->buildViolation(sprintf('The field %s is only available when the data type is "video"', $context->getPropertyPath()))
                     ->atPath($context->getPropertyPath())
@@ -29,6 +27,7 @@ class RequiredOnlyForVideo
 
     /**
      * @param ExecutionContextInterface $context
+     *
      * @return bool
      */
     private static function isAVideoData(ExecutionContextInterface $context): bool
@@ -40,12 +39,13 @@ class RequiredOnlyForVideo
         $currentObject = $root;
         foreach ($pathSteps as $step) {
             if ($currentObject instanceof Data) {
-                if ($currentObject->type == 'video') {
+                if ($currentObject->type === 'video') {
                     return true;
                 }
             }
             $currentObject = $currentObject->$step;
         }
+
         return false;
     }
 }

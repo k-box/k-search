@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\Data\Properties;
 
 use JMS\Serializer\Annotation as JMS;

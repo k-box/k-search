@@ -1,9 +1,9 @@
 <?php
+
 namespace App\Model\Data\Properties;
 
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @SWG\Definition(
