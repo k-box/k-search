@@ -105,6 +105,19 @@ class SolrEntityData extends SolrEntity
         ];
     }
 
+    public static function getAggregableFields() : array
+    {
+        return [
+            'type',
+            'language',
+            'created_at',
+            'updated_at',
+            'size',
+            'copyright_owner_name',
+            'copyright_usage_short',
+        ];
+    }
+
     private function addIndexableFields(Data $data)
     {
         $this->addField(self::FIELD_INDEXABLE_ABSTRACT, $data->properties->abstract);

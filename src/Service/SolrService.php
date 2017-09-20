@@ -189,16 +189,7 @@ class SolrService
 
         $select->addFilterQueries($availableFilters);
 
-        $facets = $select->getFacetSet();
-        foreach ($searchParams->aggregations as $facetField => $aggregation) {
-            $facet = $facets->createFacetField($facetField)
-                ->setField(SearchHelper::transformFieldNames($solrEntityClass, $facetField))
-                ->setLimit($aggregation->limit);
-
-            if (!$aggregation->countsFiltered) {
-                $facet->addExclude(self::USER_FILTER_TAG);
-            }
-        }
+        $this->handleFacets($searchParams, $solrEntityClass, $select);
 
         return $this->solrClient->select($select);
     }
@@ -210,5 +201,32 @@ class SolrService
             $exception->getCode(),
             $exception
         );
+    }
+
+    /**
+     * @param SearchParams $searchParams
+     * @param string $solrEntityClass
+     * @param \Solarium\QueryType\Select\Query\Query $select
+     * @throws \Exception
+     */
+    private function handleFacets(SearchParams $searchParams, string $solrEntityClass, \Solarium\QueryType\Select\Query\Query $select): void
+    {
+        $availableFacets = call_user_func([$solrEntityClass, 'getAggregableFields']);
+        $facets = $select->getFacetSet();
+
+        foreach ($searchParams->aggregations as $facetField => $aggregation) {
+
+            if (!in_array($facetField, $availableFacets)) {
+                throw new \Exception(sprintf('%s is not a valid aggregation', $facetField));
+            }
+
+            $facet = $facets->createFacetField($facetField)
+                ->setField(SearchHelper::transformFieldNames($solrEntityClass, $facetField))
+                ->setLimit($aggregation->limit);
+
+            if (!$aggregation->countsFiltered) {
+                $facet->addExclude(self::USER_FILTER_TAG);
+            }
+        }
     }
 }

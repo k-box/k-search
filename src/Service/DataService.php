@@ -145,6 +145,7 @@ class DataService
             return $entityData->buildModel();
         }, $solrResult->getDocuments());
 
+
         $facets = $solrResult->getFacetSet();
         $searchResult->aggregations = [];
         foreach ($searchParams->aggregations as $aggregationName => $aggregationParams) {
