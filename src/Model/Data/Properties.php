@@ -146,4 +146,31 @@ class Properties
      * )
      */
     public $hierarchy;
+
+    /**
+     * Object containing information on the video file.
+     *
+     * @var Properties\Video
+     * @JMS\Type("App\Model\Data\Properties\Video")
+     * @SWG\Property()
+     */
+    public $video;
+
+    /**
+     * Audio tracks attached to the video (multiple).
+     *
+     * @var Properties\Audio[]
+     * @JMS\Type("array<App\Model\Data\Properties\Audio>")
+     * @SWG\Property()
+     */
+    public $audio;
+
+    /**
+     * Subtitles attached to the video (multiple).
+     *
+     * @var Properties\Subtitles[]
+     * @JMS\Type("array<App\Model\Data\Properties\Subtitles>")
+     * @SWG\Property()
+     */
+    public $subtitles;
 }
