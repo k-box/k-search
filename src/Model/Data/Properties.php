@@ -151,6 +151,8 @@ class Properties
      * Object containing information on the video file.
      *
      * @var Properties\Video
+     * @Assert\Callback({"App\Validation\RequiredOnlyForVideo", "validate"})
+     * @Assert\Valid()
      * @JMS\Type("App\Model\Data\Properties\Video")
      * @SWG\Property()
      */
@@ -160,6 +162,7 @@ class Properties
      * Audio tracks attached to the video (multiple).
      *
      * @var Properties\Audio[]
+     * @Assert\Callback({"App\Validation\RequiredOnlyForVideo", "validate"})
      * @JMS\Type("array<App\Model\Data\Properties\Audio>")
      * @SWG\Property()
      */
@@ -169,6 +172,7 @@ class Properties
      * Subtitles attached to the video (multiple).
      *
      * @var Properties\Subtitles[]
+     * @Assert\Callback({"App\Validation\RequiredOnlyForVideo", "validate"})
      * @JMS\Type("array<App\Model\Data\Properties\Subtitles>")
      * @SWG\Property()
      */

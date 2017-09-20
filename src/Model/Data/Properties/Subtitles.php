@@ -28,7 +28,7 @@ class Subtitles
     /**
      * The URI where the subtitle file is stored and retrievable (or "built-in for wrapped subtitles").
      *
-     * @var Source
+     * @var string
      * @JMS\Type("string")
      * @SWG\Property(
      *     example="http://opensubtitles.org/get/uniq_id"
@@ -39,7 +39,7 @@ class Subtitles
     /**
      * Format of the subtitles track.
      *
-     * @var Source
+     * @var string
      * @JMS\Type("string")
      * @SWG\Property(
      *     example="txt"
