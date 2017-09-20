@@ -8,18 +8,19 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @SWG\Definition(
- *     definition="Data\Source",
- *     description="An object containing author's information.",
+ *     definition="Data\Uploader",
+ *     description="Information about the origin of the publication of data.",
  *     required={""}
  * )
  */
-class Source
+class Uploader
 {
     /**
-     * Freely definable source (could be an organization or project).
+     * Freely definable name. Can be a single user, an organization, a project or a group.
      *
      * @var string
      * @Assert\Type("string")
+     * @Assert\NotBlank()
      * @JMS\Type("string")
      * @SWG\Property()
      */
@@ -56,15 +57,4 @@ class Source
      * @SWG\Property()
      */
     public $email;
-
-    /**
-     * Information which lets the source contact track back internally the origin of the data. It is suggested to save this information on the client side together with the id of the API request. In easier setups it could also just be the encoded or encrypted “user id” value on the client side. We recommend not to expose personal data here..
-     *
-     * @var string
-     * @Assert\Type("string")
-     * @JMS\Type("string")
-     * @SWG\Property()
-     */
-    public $uploadReference;
-
 }
