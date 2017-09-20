@@ -4,7 +4,6 @@ namespace App\Service;
 
 use App\Entity\BaseSolrEntity;
 use App\Entity\SolrEntity;
-use App\Entity\SolrEntityData;
 use App\Exception\InternalSearchException;
 use App\Exception\ResourceNotFoundException;
 use App\Helper\SearchHelper;
@@ -182,9 +181,10 @@ class SolrService
     }
 
     /**
-     * @param SearchParams $searchParams
-     * @param string $solrEntityClass
+     * @param SearchParams                           $searchParams
+     * @param string                                 $solrEntityClass
      * @param \Solarium\QueryType\Select\Query\Query $select
+     *
      * @throws \Exception
      */
     private function handleFacets(SearchParams $searchParams, string $solrEntityClass, \Solarium\QueryType\Select\Query\Query $select): void
@@ -193,8 +193,7 @@ class SolrService
         $facets = $select->getFacetSet();
 
         foreach ($searchParams->aggregations as $facetField => $aggregation) {
-
-            if (!in_array($facetField, $availableFacets)) {
+            if (!in_array($facetField, $availableFacets, true)) {
                 throw new \Exception(sprintf('%s is not a valid aggregation', $facetField));
             }
 
@@ -209,9 +208,10 @@ class SolrService
     }
 
     /**
-     * @param SearchParams $searchParams
-     * @param string $solrEntityClass
+     * @param SearchParams                           $searchParams
+     * @param string                                 $solrEntityClass
      * @param \Solarium\QueryType\Select\Query\Query $select
+     *
      * @throws \Exception
      */
     private function handleFilters(SearchParams $searchParams, string $solrEntityClass, \Solarium\QueryType\Select\Query\Query $select): void
@@ -231,7 +231,7 @@ class SolrService
 
             $fieldsInFilters = SearchHelper::getFieldsInFilterQuery($solrEntityClass, $searchParams->filters);
 
-            if (array_intersect($fieldsInFilters, $filterableFields) != $fieldsInFilters) {
+            if (array_intersect($fieldsInFilters, $filterableFields) !== $fieldsInFilters) {
                 throw new \Exception(sprintf('You have used an unrecognized filter. The available filters are %s', implode(', ', $filterableFields)));
             }
 

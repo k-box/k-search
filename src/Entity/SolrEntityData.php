@@ -111,7 +111,7 @@ class SolrEntityData extends SolrEntity
     {
         return [
             'title',
-            'abstract'
+            'abstract',
         ];
     }
 
@@ -129,7 +129,7 @@ class SolrEntityData extends SolrEntity
         ];
     }
 
-    public static function getAggregableFields() : array
+    public static function getAggregableFields(): array
     {
         return [
             'type',

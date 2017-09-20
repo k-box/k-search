@@ -6,7 +6,6 @@ use App\Entity\SolrEntity;
 use App\Entity\SolrEntityData;
 use App\Exception\BadRequestException;
 use App\Helper\DataHelper;
-use App\Model\Data\AggregationItem;
 use App\Model\Data\AggregationResult;
 use App\Model\Data\Data;
 use App\Model\Data\SearchParams;
@@ -144,7 +143,6 @@ class DataService
 
             return $entityData->buildModel();
         }, $solrResult->getDocuments());
-
 
         $facets = $solrResult->getFacetSet();
         $searchResult->aggregations = [];
