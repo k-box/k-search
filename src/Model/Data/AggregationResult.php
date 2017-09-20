@@ -9,30 +9,32 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @SWG\Definition(
  *     definition="Data\AggregationResult",
- *     required={"name", "data"}
+ *     required={"value", "count"}
  * )
  */
 class AggregationResult
 {
     /**
-     * The aggregation name.
+     * The aggregation value.
      *
      * @var string
      * @Assert\NotBlank()
      * @JMS\Type("string")
      * @SWG\Property(
-     *     example="language"
+     *     example="es"
      * )
      */
-    public $name;
+    public $value;
 
     /**
-     * The aggregation result.
+     * How many items in aggregation.
      *
-     * @var array
+     * @var int
      * @Assert\NotBlank()
-     * @JMS\Type("array<App\Model\Data\AggregationItem>")
-     * @SWG\Property()
+     * @JMS\Type("integer")
+     * @SWG\Property(
+     *     example="102"
+     * )
      */
-    public $data;
+    public $count;
 }

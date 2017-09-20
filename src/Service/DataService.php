@@ -150,14 +150,13 @@ class DataService
         foreach ($searchParams->aggregations as $aggregationName => $aggregationParams) {
             $facet = $facets->getFacet($aggregationName);
             $searchResult->aggregations[$aggregationName] = new AggregationResult();
-            $searchResult->aggregations[$aggregationName]->name = $aggregationName;
-            $searchResult->aggregations[$aggregationName]->data = [];
+            $searchResult->aggregations[$aggregationName] = [];
 
             foreach ($facet as $value => $count) {
-                $item = new AggregationItem();
-                $item->count = $count;
-                $item->value = $value;
-                $searchResult->aggregations[$aggregationName]->data[] = $item;
+                $result = new AggregationResult();
+                $result->count = $count;
+                $result->value = $value;
+                $searchResult->aggregations[$aggregationName][] = $result;
             }
         }
 
