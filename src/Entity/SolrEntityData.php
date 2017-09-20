@@ -262,7 +262,6 @@ class SolrEntityData extends SolrEntity
         $json = $this->getField(self::FIELD_UPLOADER_STORED);
         $data = json_decode($json, true);
 
-        var_dump($data); die();
         $fields = ['name', 'url', 'app_url', 'email'];
 
         $this->inflateModelWithData($uploader, $fields, $data ?? []);
