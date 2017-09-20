@@ -33,7 +33,7 @@ class SearchParams
      * @Assert\NotBlank()
      * @JMS\Type("string")
      * @SWG\Property(
-     *     example="title:*Holmes AND uuid:cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd AND language:en AND created_at:[""2008-07-28T14:47:31Z"" TO NOW] AND updated_at:[""2008-07-28T14:47:31Z"" TO NOW] AND size:[717589 TO 717591] copyright_owner_name:""KLink Organization"" AND copyright_usage_short:""MPL-2.0"""
+     *     example="language:en AND created_at:[""2008-07-28T14:47:31Z"" TO NOW] AND updated_at:[""2008-07-28T14:47:31Z"" TO NOW] AND size:[717589 TO 717591] copyright_owner_name:""KLink Organization"" AND copyright_usage_short:""MPL-2.0"""
      * )
      */
     public $filters;
