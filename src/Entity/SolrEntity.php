@@ -50,7 +50,15 @@ abstract class SolrEntity
 
     abstract public static function getIndexableFields(): array;
 
-    public static function getAggregableFields() {
+    public static function getSearchableFields(): array {
+        return array_keys(self::getIndexableFields());
+    }
+
+    public static function getFilterableFields(): array {
+        return array_keys(self::getIndexableFields());
+    }
+
+    public static function getAggregableFields(): array {
         return array_keys(self::getIndexableFields());
     }
 

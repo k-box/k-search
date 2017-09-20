@@ -158,36 +158,14 @@ class SolrService
             ->setStart($searchParams->offset)
             ->setRows($searchParams->limit);
 
-        $entityType = call_user_func([$solrEntityClass, 'getEntityType']);
-
         $select->setQuery('*%P1%*', [$searchParams->search]);
 
         // EDisMax fields
-        $indexableFields = call_user_func([$solrEntityClass, 'getIndexableFields']);
+        $indexableFields = call_user_func([$solrEntityClass, 'getSearchableFields']);
         $edisMax = $select->getEDisMax();
         $edisMax->setQueryFields(implode(' ', $indexableFields));
 
-        $facets = $select->getFacetSet();
-        $facets->createFacetField('usage')
-            ->setField(SolrEntityData::FIELD_COPYRIGHT_USAGE_SHORT);
-
-        $availableFilters = [];
-        $entityFilter = new FilterQuery(['key' => 'entity-filter']);
-        $entityFilter->setQuery(sprintf('%s:%s', SolrEntity::FIELD_ENTITY_TYPE, $entityType));
-        $availableFilters[] = $entityFilter;
-
-        if (!empty($searchParams->filters)) {
-            $userFilter = new FilterQuery([
-                'key' => self::USER_FILTER_KEY,
-            ]);
-
-            $userFilter->setQuery(SearchHelper::transformFieldNames($solrEntityClass, $searchParams->filters));
-            $userFilter->addTag(self::USER_FILTER_TAG);
-
-            $availableFilters[] = $userFilter;
-        }
-
-        $select->addFilterQueries($availableFilters);
+        $this->handleFilters($searchParams, $solrEntityClass, $select);
 
         $this->handleFacets($searchParams, $solrEntityClass, $select);
 
@@ -228,5 +206,41 @@ class SolrService
                 $facet->addExclude(self::USER_FILTER_TAG);
             }
         }
+    }
+
+    /**
+     * @param SearchParams $searchParams
+     * @param string $solrEntityClass
+     * @param \Solarium\QueryType\Select\Query\Query $select
+     * @throws \Exception
+     */
+    private function handleFilters(SearchParams $searchParams, string $solrEntityClass, \Solarium\QueryType\Select\Query\Query $select): void
+    {
+        $entityType = call_user_func([$solrEntityClass, 'getEntityType']);
+        $filterableFields = call_user_func([$solrEntityClass, 'getFilterableFileds']);
+
+        $entityFilter = new FilterQuery(['key' => 'entity-filter']);
+        $entityFilter->setQuery(sprintf('%s:%s', SolrEntity::FIELD_ENTITY_TYPE, $entityType));
+        $solrFilters = [];
+        $solrFilters[] = $entityFilter;
+
+        if (!empty($searchParams->filters)) {
+            $userFilter = new FilterQuery([
+                'key' => self::USER_FILTER_KEY,
+            ]);
+
+            $fieldsInFilters = SearchHelper::getFieldsInFilterQuery($solrEntityClass, $searchParams->filters);
+
+            if (array_intersect($fieldsInFilters, $filterableFields) != $fieldsInFilters) {
+                throw new \Exception(sprintf('You have used an unrecognized filter. The available filters are %s', implode(', ', $filterableFields)));
+            }
+
+            $userFilter->setQuery(SearchHelper::transformFieldNames($solrEntityClass, $searchParams->filters));
+            $userFilter->addTag(self::USER_FILTER_TAG);
+
+            $solrFilters[] = $userFilter;
+        }
+
+        $select->addFilterQueries($solrFilters);
     }
 }
