@@ -105,7 +105,6 @@ class SolrEntityDataTest extends TestCase
         $data->properties->video->source->format = 'format';
         $data->properties->video->source->bitrate = 'bitrate';
 
-            
         $entity = SolrEntityData::buildFromModel($data);
 
         $dataBuilt = $entity->buildModel();
