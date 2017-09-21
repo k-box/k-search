@@ -296,11 +296,11 @@ class SolrEntityData extends SolrEntity
     private function buildVideoRelatedModels($data, $properties): void
     {
         if (isset($data['video'])) {
-            $video = new Video;
+            $video = new Video();
             $this->inflateModelWithData($video, ['duration', 'streaming'], $data['video']);
 
             if ($data['video']['source']) {
-                $source = new Source;
+                $source = new Source();
                 $this->inflateModelWithData($source, ['format', 'resolution', 'bitrate'], $data['video']['source']);
                 $video->source = $source;
             }
@@ -308,7 +308,7 @@ class SolrEntityData extends SolrEntity
             if ($data['video']['streaming']) {
                 $streamings = [];
                 foreach ($data['video']['streaming'] ?? [] as $streamingData) {
-                    $streaming = new Streaming;
+                    $streaming = new Streaming();
                     $this->inflateModelWithData($streaming, ['type', 'resolution'], $streamingData);
                     $streamings[] = $streaming;
                 }
