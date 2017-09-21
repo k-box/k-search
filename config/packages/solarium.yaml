@@ -1,8 +1,6 @@
 parameters:
     solrcore_host: '%env(SOLRCORE_HOST)%'
-    env(SOLRCORE_HOST): "127.0.0.1"
     solrcore_name: '%env(SOLRCORE_NAME)%'
-    env(SOLRCORE_NAME): "k-search"
 
 # Solarium Configuration
 nelmio_solarium:

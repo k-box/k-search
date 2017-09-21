@@ -7,6 +7,7 @@ use App\Exception\BadRequestException;
 use App\Service\DataService;
 use App\Tests\Helper\ModelHelper;
 use JMS\Serializer\SerializerInterface;
+use Psr\Container\ContainerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,13 +28,18 @@ class DataControllerTest extends KernelTestCase
     /** @var SerializerInterface */
     private $serializer;
 
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+
     public function setUp()
     {
         self::bootKernel();
 
-        $container = self::$kernel->getContainer();
-        $this->validator = $container->get('validator');
-        $this->serializer = $container->get('jms_serializer');
+        $this->container = self::$kernel->getContainer();
+        $this->validator = $this->container->get('validator');
+        $this->serializer = $this->container->get('jms_serializer');
         $this->dataService = $this->createMock(DataService::class);
     }
 
@@ -54,6 +60,7 @@ class DataControllerTest extends KernelTestCase
 
         $request = $this->createRequest($requestContent);
         $dataController = $this->createDataController();
+        $dataController->setContainer($this->container);
 
         $expectedResponse = [
             'result' => [
@@ -161,6 +168,8 @@ class DataControllerTest extends KernelTestCase
             ],
         ];
 
+        $dataModel->uploader->app_url = 'klink.test';
+
         $this->dataService->expects($this->once())
             ->method('addData')
             ->with($dataModel, $sampleTextualContent)
@@ -176,6 +185,8 @@ class DataControllerTest extends KernelTestCase
         $request = $this->createRequest(json_encode($addRequest));
 
         $response = $dataController->postDataAdd($request, self::API_VERSION);
+
+        $dataArray['uploader']['app_url'] = 'klink.test';
 
         $expectedResponse = [
             'id' => self::REQUEST_ID,

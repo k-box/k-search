@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "d9a721a0c5a24746ea76c811111f78f2",
+    "content-hash": "db6196f65ae9ade7c759fd3de23847cb",
     "packages": [
         {
             "name": "bernard/bernard",
@@ -1124,6 +1124,51 @@
                 "solr"
             ],
             "time": "2017-08-08T16:38:38+00:00"
+        },
+        {
+            "name": "oneofftech/k-link-registry-client",
+            "version": "dev-update",
+            "source": {
+                "type": "git",
+                "url": "https://git.klink.asia/main/k-registry-client.git",
+                "reference": "aa278c8e82270bd291e8cb8416b5a41a2d6aa90c"
+            },
+            "require": {
+                "guzzlehttp/psr7": "^1.3",
+                "php": ">=7.0",
+                "php-http/client-common": "^1.1",
+                "php-http/discovery": "^1.0",
+                "php-http/httplug": "^1.0",
+                "php-http/message": "^1.0",
+                "php-http/message-factory": "^1.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.7",
+                "php-http/curl-client": "^1.6",
+                "phpstan/phpstan": "^0.8.5",
+                "phpunit/phpunit": "^6.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "OneOffTech\\KLinkRegistryClient\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "AGPL-3.0"
+            ],
+            "description": "Client library for K-Registry API",
+            "keywords": [
+                "k-registry",
+                "k-search",
+                "oneofftech"
+            ],
+            "time": "2017-10-13T07:51:15+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -7311,7 +7356,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "oneofftech/k-link-registry-client": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

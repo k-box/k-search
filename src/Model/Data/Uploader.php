@@ -43,10 +43,12 @@ class Uploader
 
     /**
      * The URL of the application that triggered the data upload.
+     * This data is coming from the Application data in the K-Link Registry.
      *
      * @var string
      * @JMS\Type("string")
      * @JMS\ReadOnly()
+     * @JMS\Groups({"details"})
      * @SWG\Property(
      *     property="app_url",
      *     example="https://wwww.johndoe-inc.org/uploader-app",
@@ -60,6 +62,7 @@ class Uploader
      *
      * @var string
      * @JMS\Type("string")
+     * @JMS\Groups({"details"})
      * @JMS\ReadOnly()
      * @SWG\Property(
      *     example="admin@johndoe-inc.org",
