@@ -2,53 +2,23 @@
 
 namespace App\Helper;
 
-use App\Entity\DocumentDescriptor;
-use App\Services\CoreService;
-
 class SearchHelper
 {
-    /**
-     * Returns the Solarium Client given the core name.
-     *
-     * @param string $coreName
-     *
-     * @return string|null
-     */
-    public static function getVisibilityByCore($coreName)
+    public static function transformFieldNames(string $entityData, string $filter): string
     {
-        switch ($coreName) {
-            case 'private':
-                return DocumentDescriptor::DOCUMENT_VISIBILITY_PRIVATE;
-                break;
-            case 'public':
-                return DocumentDescriptor::DOCUMENT_VISIBILITY_PUBLIC;
-                break;
+        $indexableFields = call_user_func([$entityData, 'getIndexableFields']);
+        foreach ($indexableFields as $alias => $fieldName) {
+            $filter = preg_replace(sprintf('/\b%s\b/', $alias), $fieldName, $filter);
         }
 
-        return null;
+        return $filter;
     }
 
-    /**
-     * Returns the Solarium Client given the core name.
-     *
-     * @param CoreService $coreService The KSearch service
-     * @param string      $coreName    The Core name
-     *
-     * @return null|\Solarium\Client
-     */
-    public static function getClientByCoreName(CoreService $coreService, $coreName)
+    public static function getFieldsInFilterQuery(string $entityData, string $filter): array
     {
-        switch ($coreName) {
-            case 'private':
-                $client = $coreService->getPrivateSolrClient();
-                break;
-            case 'public':
-                $client = $coreService->getPublicSolrClient();
-                break;
-            default:
-                $client = null;
-        }
+        $matches = [];
+        preg_match_all('/\b([a-z_]+):/', $filter, $matches);
 
-        return $client;
+        return $matches[1];
     }
 }

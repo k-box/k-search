@@ -20,7 +20,9 @@ class SearchParams
      * @var string
      * @Assert\NotBlank()
      * @JMS\Type("string")
-     * @SWG\Property()
+     * @SWG\Property(
+     *     example="Sherlock Holmes"
+     * )
      */
     public $search;
 
@@ -30,7 +32,9 @@ class SearchParams
      * @var string
      * @Assert\NotBlank()
      * @JMS\Type("string")
-     * @SWG\Property()
+     * @SWG\Property(
+     *     example="language:en AND created_at:[""2008-07-28T14:47:31Z"" TO NOW] AND updated_at:[""2008-07-28T14:47:31Z"" TO NOW] AND size:[717589 TO 717591] copyright_owner_name:""KLink Organization"" AND copyright_usage_short:""MPL-2.0"""
+     * )
      */
     public $filters;
 
@@ -39,11 +43,18 @@ class SearchParams
      *
      * @var Aggregation[]
      * @Assert\Valid()
-     * @JMS\Type(array<string,\App\Model\Data\Aggregation>)
+     * @JMS\Type("array<string,App\Model\Data\Aggregation>")
      * @SWG\Property(
-     *    type="object",
-     *    additionalProperties=
-     *        @SWG\Schema(ref="#/definitions/Data\Aggregation"),
+     *      example={
+     *          "language": {
+     *              "limit": 5,
+     *              "counts_filtered": false
+     *           },
+     *          "copyright_usage_short": {
+     *              "limit": 4,
+     *              "counts_filtered": true
+     *          }
+     *     }
      * )
      */
     public $aggregations;

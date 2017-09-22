@@ -10,9 +10,8 @@ use Solarium\QueryType\Update\Query\Document\Document;
  */
 abstract class SolrEntity
 {
-    public const FIELD_CONTENTS = 'text_contents';
-    public const FIELD_ENTITY_TYPE = 'entity_type';
-    public const FIELD_ENTITY_ID = 'entity_id';
+    const FIELD_ENTITY_TYPE = 'entity_type';
+    const FIELD_ENTITY_ID = 'entity_id';
 
     /**
      * @var AbstractDocument
@@ -49,6 +48,23 @@ abstract class SolrEntity
 
     abstract public static function getEntityType(): string;
 
+    abstract public static function getIndexableFields(): array;
+
+    public static function getSearchableFields(): array
+    {
+        return array_keys(self::getIndexableFields());
+    }
+
+    public static function getFilterableFields(): array
+    {
+        return array_keys(self::getIndexableFields());
+    }
+
+    public static function getAggregableFields(): array
+    {
+        return array_keys(self::getIndexableFields());
+    }
+
     public function getSolrDocument(): Document
     {
         return $this->document;
@@ -68,15 +84,5 @@ abstract class SolrEntity
         }
 
         return $this->document->__get($fieldName);
-    }
-
-    /**
-     * Returns the entity field containing the indexed full-text contents.
-     *
-     * @return string
-     */
-    public function getContentsField(): string
-    {
-        return static::FIELD_CONTENTS;
     }
 }

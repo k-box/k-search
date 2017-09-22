@@ -2,12 +2,17 @@
 
 namespace App\Service;
 
+use App\Entity\SolrEntity;
 use App\Entity\SolrEntityData;
 use App\Exception\BadRequestException;
 use App\Helper\DataHelper;
+use App\Model\Data\AggregationResult;
 use App\Model\Data\Data;
+use App\Model\Data\SearchParams;
+use App\Model\Data\SearchResults;
 use App\Queue\Message\UUIDMessage;
 use DateTimeZone;
+use Solarium\QueryType\Select\Result\AbstractDocument;
 
 class DataService
 {
@@ -121,6 +126,40 @@ class DataService
         $dataEntity = SolrEntityData::buildFromModel($data);
 
         return $this->solrService->addWithTextExtraction($dataEntity, $fileInfo);
+    }
+
+    public function queryData(SearchParams $searchParams)
+    {
+        $solrResult = $this->solrService->select($searchParams, SolrEntityData::class);
+
+        $searchResult = new SearchResults();
+        $searchResult->query = $searchParams;
+        $searchResult->query_time = $solrResult->getQueryTime();
+        $searchResult->total_matches = $solrResult->getNumFound();
+        $searchResult->items = array_map(function (AbstractDocument $document) {
+            $idField = SolrEntity::FIELD_ENTITY_ID;
+            $documentId = $document->$idField;
+            $entityData = new SolrEntityData($documentId, $document);
+
+            return $entityData->buildModel();
+        }, $solrResult->getDocuments());
+
+        $facets = $solrResult->getFacetSet();
+        $searchResult->aggregations = [];
+        foreach ($searchParams->aggregations as $aggregationName => $aggregationParams) {
+            $facet = $facets->getFacet($aggregationName);
+            $searchResult->aggregations[$aggregationName] = new AggregationResult();
+            $searchResult->aggregations[$aggregationName] = [];
+
+            foreach ($facet as $value => $count) {
+                $result = new AggregationResult();
+                $result->count = $count;
+                $result->value = $value;
+                $searchResult->aggregations[$aggregationName][] = $result;
+            }
+        }
+
+        return $searchResult;
     }
 
     /**

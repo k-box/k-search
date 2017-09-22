@@ -76,6 +76,28 @@ class Data
     public $type;
 
     /**
+     * The properties of the data.
+     *
+     * @var Properties
+     * @Assert\NotBlank()
+     * @Assert\Valid()
+     * @JMS\Type("App\Model\Data\Properties")
+     * @SWG\Property()
+     */
+    public $properties;
+
+    /**
+     * List of authors (multiple).
+     *
+     * @var Author[]
+     * @Assert\NotBlank()
+     * @Assert\Valid()
+     * @JMS\Type("array<App\Model\Data\Author>")
+     * @SWG\Property()
+     */
+    public $author;
+
+    /**
      * Information on the copyright.
      *
      * @var Copyright
@@ -87,15 +109,15 @@ class Data
     public $copyright;
 
     /**
-     * The properties of the data.
+     * The originating source where the data has been uploaded or created.
      *
-     * @var Properties
+     * @var Uploader
      * @Assert\NotBlank()
      * @Assert\Valid()
-     * @JMS\Type("App\Model\Data\Properties")
+     * @JMS\Type("App\Model\Data\Uploader")
      * @SWG\Property()
      */
-    public $properties;
+    public $uploader;
 
     /**
      * The status of the data, internal use only, not exposed.

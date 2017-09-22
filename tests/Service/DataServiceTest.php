@@ -6,7 +6,6 @@ use App\Entity\SolrEntityData;
 use App\Exception\BadRequestException;
 use App\Model\Data\Data;
 use App\Queue\Message\UUIDMessage;
-use App\Service\DataDownloaderService;
 use App\Service\DataService;
 use App\Service\QueueService;
 use App\Service\SolrService;
@@ -21,9 +20,6 @@ class DataServiceTest extends TestCase
     /** @var SolrService|\PHPUnit_Framework_MockObject_MockObject */
     private $solrService;
 
-    /** @var DataDownloaderService|\PHPUnit_Framework_MockObject_MockObject */
-    private $downloadService;
-
     /** @var QueueService|\PHPUnit_Framework_MockObject_MockObject */
     private $queueService;
 
@@ -31,7 +27,6 @@ class DataServiceTest extends TestCase
     {
         parent::setUp();
         $this->solrService = $this->createMock(SolrService::class);
-        $this->downloadService = $this->createMock(DataDownloaderService::class);
         $this->queueService = $this->createMock(QueueService::class);
     }
 
@@ -56,7 +51,7 @@ class DataServiceTest extends TestCase
             ->with(SolrEntityData::getEntityType(), self::DATA_UUID)
             ->willReturn($existing);
 
-        $dataService = new DataService($this->queueService, $this->solrService, $this->downloadService);
+        $dataService = new DataService($this->queueService, $this->solrService);
 
         $this->assertEquals($expected, $dataService->deleteData(self::DATA_UUID));
     }
@@ -79,7 +74,7 @@ class DataServiceTest extends TestCase
         $this->queueService->expects($this->never())
             ->method('enqueueMessage');
 
-        $dataService = new DataService($this->queueService, $this->solrService, $this->downloadService);
+        $dataService = new DataService($this->queueService, $this->solrService);
         $this->assertTrue($dataService->addData($data, $sampleTextualContent));
     }
 
@@ -102,7 +97,7 @@ class DataServiceTest extends TestCase
         $data = ModelHelper::createDataModel(self::DATA_UUID);
         $data->type = $type;
 
-        $dataService = new DataService($this->queueService, $this->solrService, $this->downloadService);
+        $dataService = new DataService($this->queueService, $this->solrService);
 
         $this->queueService->expects($this->never())
             ->method('enqueueMessage');
@@ -134,7 +129,7 @@ class DataServiceTest extends TestCase
             }))
         ;
 
-        $dataService = new DataService($this->queueService, $this->solrService, $this->downloadService);
+        $dataService = new DataService($this->queueService, $this->solrService);
         $this->assertTrue($dataService->addData($data));
     }
 
@@ -161,7 +156,7 @@ class DataServiceTest extends TestCase
             ->method('enqueueMessage')
         ;
 
-        $dataService = new DataService($this->queueService, $this->solrService, $this->downloadService);
+        $dataService = new DataService($this->queueService, $this->solrService);
         $this->assertTrue($dataService->addDataWithFileExtraction($data, $file));
     }
 }

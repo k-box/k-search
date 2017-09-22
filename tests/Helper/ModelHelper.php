@@ -2,11 +2,13 @@
 
 namespace App\Tests\Helper;
 
+use App\Model\Data\Author;
 use App\Model\Data\Copyright;
 use App\Model\Data\CopyrightOwner;
 use App\Model\Data\CopyrightUsage;
 use App\Model\Data\Data;
 use App\Model\Data\Properties;
+use App\Model\Data\Uploader;
 
 class ModelHelper
 {
@@ -44,6 +46,18 @@ class ModelHelper
         $data->properties->size = self::SIZE;
         $data->properties->abstract = 'It is a novel about a detective';
         $data->properties->thumbnail = 'https://ichef.bbci.co.uk/news/660/cpsprodpb/153B4/production/_89046968_89046967.jpg';
+        $data->properties->tags = ['tag1', 'tag2'];
+        $data->properties->hierarchy = ['prj01/forestry/', 'prj04/forestry/foobar/'];
+
+        $data->uploader = new Uploader();
+        $data->uploader->name = 'Uploader name';
+
+        $author = new Author();
+        $author->email = 'arthur@conan.doyle';
+        $author->name = 'Arthur Conan Doyle';
+        $author->contact = '221B Baker Street';
+
+        $data->author = [$author];
 
         return $data;
     }
@@ -77,6 +91,18 @@ class ModelHelper
                 'size' => self::SIZE,
                 'abstract' => 'It is a novel about a detective',
                 'thumbnail' => 'https://ichef.bbci.co.uk/news/660/cpsprodpb/153B4/production/_89046968_89046967.jpg',
+                'tags' => ['tag1', 'tag2'],
+                'hierarchy' => ['prj01/forestry/', 'prj04/forestry/foobar/'],
+            ],
+            'uploader' => [
+                'name' => 'Uploader name',
+            ],
+            'author' => [
+                [
+                    'email' => 'arthur@conan.doyle',
+                    'name' => 'Arthur Conan Doyle',
+                    'contact' => '221B Baker Street',
+                ],
             ],
         ];
     }
