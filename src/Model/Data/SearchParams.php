@@ -35,7 +35,7 @@ class SearchParams
      *     example="language:en AND created_at:[""2008-07-28T14:47:31Z"" TO NOW] AND updated_at:[""2008-07-28T14:47:31Z"" TO NOW] AND size:[717589 TO 717591] copyright_owner_name:""KLink Organization"" AND copyright_usage_short:""MPL-2.0"""
      * )
      */
-    public $filters;
+    public $filters = '';
 
     /**
      * An object containing the aggregations to be retrieved, keyed by the Aggregation field name.
@@ -56,7 +56,7 @@ class SearchParams
      *     }
      * )
      */
-    public $aggregations;
+    public $aggregations = [];
 
     /**
      * Specify the number of results to retrieve. If no value is given the default value of 10 is used.
