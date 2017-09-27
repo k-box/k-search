@@ -30,7 +30,6 @@ class SearchParams
      * Search filters in the [Lucene query parser syntax](https://lucene.apache.org/core/2_9_4/queryparsersyntax.html).
      *
      * @var string
-     * @Assert\NotBlank()
      * @JMS\Type("string")
      * @SWG\Property(
      *     example="language:en AND created_at:[""2008-07-28T14:47:31Z"" TO NOW] AND updated_at:[""2008-07-28T14:47:31Z"" TO NOW] AND size:[717589 TO 717591] copyright_owner_name:""KLink Organization"" AND copyright_usage_short:""MPL-2.0"""
