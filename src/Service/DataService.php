@@ -4,7 +4,6 @@ namespace App\Service;
 
 use App\Entity\SolrEntityData;
 use App\Exception\BadRequestException;
-use App\Helper\DataHelper;
 use App\Model\Data\Data;
 use App\Model\Data\SearchParams;
 use App\Model\Data\SearchResults;
@@ -34,11 +33,28 @@ class DataService
      */
     private $logger;
 
-    public function __construct(QueueService $queueService, SolrService $solrService, LoggerInterface $logger)
+    /**
+     * @var DataDownloaderService
+     */
+    private $dataDownloaderService;
+
+    /**
+     * @var string[]
+     */
+    private $indexableContentTypes = [];
+
+    public function __construct(
+        QueueService $queueService,
+        SolrService $solrService,
+        DataDownloaderService $downloaderService,
+        LoggerInterface $logger,
+        array $indexableContentTypes = [])
     {
         $this->solrService = $solrService;
         $this->queueService = $queueService;
         $this->logger = $logger;
+        $this->dataDownloaderService = $downloaderService;
+        $this->indexableContentTypes = $indexableContentTypes;
     }
 
     /**
@@ -94,14 +110,11 @@ class DataService
             $dataEntity = SolrEntityData::buildFromModel($data);
             $dataEntity->addTextualContents($textualContents);
             $enqueue = false;
-        } elseif (DataHelper::isIndexable($data)) {
+        } else {
+            $this->ensureDataIsIndexable($data);
             // Otherwise, we queue the data to be indexed later.
             $data->status = Data::DATA_STATUS_QUEUED;
             $dataEntity = SolrEntityData::buildFromModel($data);
-        } else {
-            throw new BadRequestException([
-                sprintf('The given Data type "%s" could not be indexed.', $data->type),
-            ]);
         }
 
         $this->logger->info('Adding Data object to the index, enqueue={enqueue}, id={uuid}', [
@@ -216,6 +229,32 @@ class DataService
         $searchResults->aggregations = $this->solrService->buildAggregationsFromResult($queryResult);
 
         return $searchResults;
+    }
+
+    /**
+     * Checks if the given Data is indexable, without providing the textual-contents directly.
+     *
+     * @param Data $data
+     *
+     * @throws BadRequestException
+     */
+    public function ensureDataIsIndexable(Data $data)
+    {
+        $headers = $this->dataDownloaderService->getDataUrlHeaders($data);
+
+        if (!$headers || !isset($headers['Content-Type'])) {
+            throw new BadRequestException([
+                sprintf('The given Data could not be indexed. No Content-Type returned while downloading from %s', $data->url),
+            ]);
+        }
+
+        $contentType = reset($headers['Content-Type']);
+
+        if (!in_array($contentType, $this->indexableContentTypes, true)) {
+            throw new BadRequestException([
+                sprintf('The given Data could not be indexed: the Content-Type %s is not supported.', $contentType),
+            ]);
+        }
     }
 
     /**

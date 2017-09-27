@@ -6,6 +6,7 @@ use App\Entity\SolrEntityData;
 use App\Exception\BadRequestException;
 use App\Model\Data\Data;
 use App\Queue\Message\UUIDMessage;
+use App\Service\DataDownloaderService;
 use App\Service\DataService;
 use App\Service\QueueService;
 use App\Service\SolrService;
@@ -27,16 +28,66 @@ class DataServiceTest extends TestCase
     /** @var DataService */
     private $dataService;
 
+    /** @var DataDownloaderService|\PHPUnit_Framework_MockObject_MockObject */
+    private $downloaderService;
+
     protected function setUp()
     {
         parent::setUp();
         $this->solrService = $this->createMock(SolrService::class);
         $this->queueService = $this->createMock(QueueService::class);
+        $this->downloaderService = $this->createMock(DataDownloaderService::class);
+        $types = ['application/pdf', 'image/jpg'];
+
         $this->dataService = new DataService(
             $this->queueService,
             $this->solrService,
-            $this->createMock(LoggerInterface::class)
+            $this->downloaderService,
+            $this->createMock(LoggerInterface::class),
+            $types
         );
+    }
+
+    public function testHasIndexableContentType()
+    {
+        $data = new Data();
+        $data->url = 'http://someurls.com/data.ext';
+
+        $this->downloaderService->expects($this->once())
+            ->method('getDataUrlHeaders')
+            ->willReturn([
+                'Content-Type' => ['image/jpg'],
+            ]);
+
+        $this->assertNull($this->dataService->ensureDataIsIndexable($data));
+    }
+
+    public function testHasNotIndexableContentType()
+    {
+        $data = new Data();
+        $data->url = 'http://someurls.com/data.ext';
+
+        $this->downloaderService->expects($this->once())
+            ->method('getDataUrlHeaders')
+            ->willReturn([
+                'Content-Type' => ['image/jpeg2000'],
+            ]);
+
+        $this->expectException(BadRequestException::class);
+        $this->dataService->ensureDataIsIndexable($data);
+    }
+
+    public function testHasNoContentTypeHeaders()
+    {
+        $data = new Data();
+        $data->url = 'http://someurls.com/data.ext';
+
+        $this->downloaderService->expects($this->once())
+            ->method('getDataUrlHeaders')
+            ->willReturn([]);
+        $this->expectException(BadRequestException::class);
+
+        $this->dataService->ensureDataIsIndexable($data);
     }
 
     public function dataProviderForDeleteData()
@@ -132,6 +183,12 @@ class DataServiceTest extends TestCase
                 return true;
             }))
         ;
+
+        $this->downloaderService->expects($this->once())
+            ->method('getDataUrlHeaders')
+            ->willReturn([
+                'Content-Type' => ['image/jpg'],
+            ]);
 
         $this->assertTrue($this->dataService->addData($data));
     }

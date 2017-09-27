@@ -2,6 +2,20 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: 'en'
+    indexable_content_types:
+        - 'text/html'
+        - 'application/msword'
+        - 'application/vnd.ms-excel'
+        - 'application/vnd.ms-powerpoint'
+        - 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        - 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+        - 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        - 'application/pdf'
+        - 'image/jpg'
+        - 'image/jpeg'
+        - 'image/gif'
+        - 'image/png'
+        - 'image/tiff'
 
 services:
     Symfony\Component\Security\Core\Authorization\Voter\RoleHierarchyVoter:

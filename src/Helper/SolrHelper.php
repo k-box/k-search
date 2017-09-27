@@ -57,4 +57,9 @@ class SolrHelper
     {
         return str_replace('_', '-', strtolower($name));
     }
+
+    public static function createUtcDate(string $dateString)
+    {
+        return new \DateTime($dateString, new \DateTimeZone('UTC'));
+    }
 }

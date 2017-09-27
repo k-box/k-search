@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use App\Helper\DataHelper;
+use App\Helper\SolrHelper;
 use App\Model\Data\Author;
 use App\Model\Data\Copyright;
 use App\Model\Data\CopyrightOwner;
@@ -240,8 +240,8 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
 
         $this->inflateModelWithData($properties, $fields, $data ?? []);
 
-        $properties->updatedAt = DataHelper::createUtcDate($data['updatedAt']['date']);
-        $properties->createdAt = DataHelper::createUtcDate($data['createdAt']['date']);
+        $properties->updatedAt = SolrHelper::createUtcDate($data['updatedAt']['date']);
+        $properties->createdAt = SolrHelper::createUtcDate($data['createdAt']['date']);
 
         $this->updateVideoProperties($data, $properties);
 
