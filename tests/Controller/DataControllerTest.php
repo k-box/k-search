@@ -174,6 +174,7 @@ class DataControllerTest extends KernelTestCase
         $dataController = $this->createDataController();
 
         $request = $this->createRequest(json_encode($addRequest));
+
         $response = $dataController->postDataAdd($request, self::API_VERSION);
 
         $expectedResponse = [

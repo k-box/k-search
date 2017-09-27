@@ -17,7 +17,7 @@
 | `properties[abstract]`       | String |   | A short abstract about the data or document. |
 | `properties[thumbnail]`      | String |   | The URI where the a thumbnail of this data is stored. |
 | `properties[tags][]`         | List   |   | User-defined tags associated to the data (multiple). |
-| `properties[hierarchy][]`    | List   |   | Search data and browse within the hierarchy (multiple). However be careful to expose the hierarchy to a public search index, as it may contain confidential data. Example: List [ "prj01/forestry/", "prj04/forestry/foobar/" ]. |
+| `properties[collection][]`   | List   |   | Search data and browse within the hierarchy (multiple). Example: List [ "COLLECTION_ID_1", "COLLECTION_ID_2" ]. [internalOnly=true]  |
 | `author[]`                   | List   | ✔ | List of authors (multiple). |
 | `author[][]`                 | Object | ✔ | An object containing author's information. |
 | `author[][name]`             | String | ✔ | Name of the author. |

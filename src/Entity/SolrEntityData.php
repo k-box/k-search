@@ -232,7 +232,7 @@ class SolrEntityData extends SolrEntity
         $json = $this->getField(self::FIELD_PROPERTIES_STORED);
         $data = json_decode($json, true);
 
-        $fields = ['title', 'filename', 'mime_type', 'created_at', 'updated_at', 'size', 'abstract', 'thumbnail', 'language', 'tags', 'hierarchy'];
+        $fields = ['title', 'filename', 'mime_type', 'created_at', 'updated_at', 'size', 'abstract', 'thumbnail', 'language', 'tags', 'collection'];
 
         $this->inflateModelWithData($properties, $fields, $data ?? []);
 
