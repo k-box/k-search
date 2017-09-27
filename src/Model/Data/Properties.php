@@ -136,16 +136,16 @@ class Properties
     public $tags;
 
     /**
-     * Search data and browse within the hierarchy (multiple). However be careful to expose the hierarchy to a public search index, as it may contain confidential data. Example: List [ "prj01/forestry/", "prj04/forestry/foobar/" ].
+     * Search data and browse within the hierarchy (multiple). However be careful to expose the hierarchy to a public search index, as it may contain confidential data. Example: List [ "COLLECTION_ID_1", "COLLECTION_ID_2" ].
      *
      * @var array
      * @Assert\Type("array")
      * @JMS\Type("array<string>")
      * @SWG\Property(
-     *     example={"prj01/forestry/", "prj04/forestry/foobar/"}
+     *     example={"COLLECTION_ID_1", "COLLECTION_ID_2"}
      * )
      */
-    public $hierarchy;
+    public $collection;
 
     /**
      * Object containing information on the video file.

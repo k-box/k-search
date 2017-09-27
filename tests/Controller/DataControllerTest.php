@@ -116,7 +116,7 @@ class DataControllerTest extends KernelTestCase
 
         $response = $dataController->postDataDelete($request, self::API_VERSION);
     }
-
+    
     public function testItGetsData()
     {
         $dataModel = ModelHelper::createDataModel(self::DATA_UUID);
@@ -174,6 +174,7 @@ class DataControllerTest extends KernelTestCase
         $dataController = $this->createDataController();
 
         $request = $this->createRequest(json_encode($addRequest));
+
         $response = $dataController->postDataAdd($request, self::API_VERSION);
 
         $expectedResponse = [
