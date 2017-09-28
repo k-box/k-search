@@ -66,7 +66,7 @@ class SolrService
             );
         }
 
-        if (!$resultSet || $resultSet->count() !== 1) {
+        if (!$resultSet || 1 !== $resultSet->count()) {
             throw new ResourceNotFoundException(sprintf('Resource %s::%s not found!', $entityType, $id));
         }
 
@@ -133,7 +133,7 @@ class SolrService
 
             return true;
         } catch (\Throwable $e) {
-            if (strpos($e->getMessage(), '.PDFParser') !== false) {
+            if (false !== strpos($e->getMessage(), '.PDFParser')) {
                 throw new \Exception('PDF Parsing Exception', 500, $e);
             }
             throw $e;

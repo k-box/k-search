@@ -41,7 +41,7 @@ class SearchRequestParameters
                     $searchFacet->setLimit($this->options[self::FACET_PREFIX.$facetKey.'_count']);
                     $searchFacet->setMinCount($this->options[self::FACET_PREFIX.$facetKey.'_mincount']);
                     $prefix = $this->options[self::FACET_PREFIX.$facetKey.'_prefix'];
-                    if ($prefix !== '') {
+                    if ('' !== $prefix) {
                         $searchFacet->setPrefix($prefix);
                     }
                     $this->searchFacets[] = $searchFacet;
@@ -50,7 +50,7 @@ class SearchRequestParameters
         }
 
         foreach ($this->options as $optionName => $optionValue) {
-            if (strpos($optionName, self::FILTER_PREFIX) === 0) {
+            if (0 === strpos($optionName, self::FILTER_PREFIX)) {
                 $filterKey = substr($optionName, strlen(self::FILTER_PREFIX));
                 $searchFilter = $this->documentService->createFilter($filterKey);
                 if ($searchFilter) {

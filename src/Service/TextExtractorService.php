@@ -46,7 +46,7 @@ class TextExtractorService
 
         $result = $client->extract($extractor);
 
-        if ((int) $result->getResponse()->getStatusCode() !== 200) {
+        if (200 !== (int) $result->getResponse()->getStatusCode()) {
             throw new \Exception($result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode());
         }
 

@@ -17,7 +17,7 @@ class LanguageFacet extends Field implements FacetInterface
          * another way to exclude tag/tags
          */
         foreach ($filters as $filter) {
-            if ($filter->getKey() === 'language') {
+            if ('language' === $filter->getKey()) {
                 $this->addExclude('language');
             }
         }

@@ -73,7 +73,7 @@ class StaticUserProvider implements UserProviderInterface
      */
     public function supportsClass($class)
     {
-        return $class === KLinkUser::class;
+        return KLinkUser::class === $class;
     }
 
     protected function initUsers()

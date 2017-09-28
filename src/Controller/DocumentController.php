@@ -64,7 +64,7 @@ class DocumentController extends Controller
 
         $result = $documentService->deleteDocumentDescriptor($documentDescriptor);
 
-        if ($result->getStatus() !== 0 || (int) $result->getResponse()->getStatusCode() !== 200) {
+        if (0 !== $result->getStatus() || 200 !== (int) $result->getResponse()->getStatusCode()) {
             throw new \RuntimeException($result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode());
         }
 
@@ -193,7 +193,7 @@ class DocumentController extends Controller
 
         $tempFileName = null;
 
-        if ($documentDescriptor->getMimeType() !== 'text/plain') {
+        if ('text/plain' !== $documentDescriptor->getMimeType()) {
             $tempFileName = $this->getTemporaryFile();
             file_put_contents($tempFileName, $fileContents);
             $file = new File($tempFileName);
@@ -211,7 +211,7 @@ class DocumentController extends Controller
             $this->removeTemporaryFile($tempFileName);
             throw new \RuntimeException($e->getMessage());
         }
-        if ((int) $result->getStatus() !== 0) {
+        if (0 !== (int) $result->getStatus()) {
             // Remove the temporary file, if any
             $this->removeTemporaryFile($tempFileName);
             throw new \RuntimeException($result->getResponse()->getStatusMessage(), $result->getStatus());

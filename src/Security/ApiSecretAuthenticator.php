@@ -23,7 +23,7 @@ class ApiSecretAuthenticator extends AbstractGuardAuthenticator
         $authorizationHeader = $request->headers->get('Authorization');
         $appUrl = $request->headers->get('Origin');
 
-        if (!$appUrl || !$authorizationHeader || strpos($authorizationHeader, 'token ') !== 0) {
+        if (!$appUrl || !$authorizationHeader || 0 !== strpos($authorizationHeader, 'token ')) {
             // Missing Authorization headers, return null and no other methods will be called
             return null;
         }

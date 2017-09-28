@@ -74,30 +74,30 @@ class SearchVoter implements VoterInterface
             return VoterInterface::ACCESS_DENIED;
         }
 
-        if ($this->roleHierarchyVoter->vote($token, null, ['ROLE_ADMIN']) === VoterInterface::ACCESS_GRANTED) {
+        if (VoterInterface::ACCESS_GRANTED === $this->roleHierarchyVoter->vote($token, null, ['ROLE_ADMIN'])) {
             return VoterInterface::ACCESS_GRANTED;
         }
 
-        if ($this->roleHierarchyVoter->vote($token, null, ['ROLE_LINK_DMS']) === VoterInterface::ACCESS_GRANTED) {
-            if ($searchObjectForVoter->getVisibility() === DocumentDescriptor::DOCUMENT_VISIBILITY_PUBLIC) {
+        if (VoterInterface::ACCESS_GRANTED === $this->roleHierarchyVoter->vote($token, null, ['ROLE_LINK_DMS'])) {
+            if (DocumentDescriptor::DOCUMENT_VISIBILITY_PUBLIC === $searchObjectForVoter->getVisibility()) {
                 return VoterInterface::ACCESS_GRANTED;
             }
             $isOwnCore = $user->getInstitutionId() === $this->institutionId;
-            if ($searchObjectForVoter->getVisibility() === DocumentDescriptor::DOCUMENT_VISIBILITY_PRIVATE && $isOwnCore) {
+            if (DocumentDescriptor::DOCUMENT_VISIBILITY_PRIVATE === $searchObjectForVoter->getVisibility() && $isOwnCore) {
                 return VoterInterface::ACCESS_GRANTED;
             }
 
             return VoterInterface::ACCESS_DENIED;
         }
 
-        if ($this->roleHierarchyVoter->vote($token, null, ['ROLE_LINK_ADAPTER']) === VoterInterface::ACCESS_GRANTED) {
-            if ($searchObjectForVoter->getVisibility() === DocumentDescriptor::DOCUMENT_VISIBILITY_PUBLIC) {
+        if (VoterInterface::ACCESS_GRANTED === $this->roleHierarchyVoter->vote($token, null, ['ROLE_LINK_ADAPTER'])) {
+            if (DocumentDescriptor::DOCUMENT_VISIBILITY_PUBLIC === $searchObjectForVoter->getVisibility()) {
                 return VoterInterface::ACCESS_GRANTED;
             }
         }
 
-        if ($this->roleHierarchyVoter->vote($token, null, ['ROLE_SEARCH_ONLY']) === VoterInterface::ACCESS_GRANTED) {
-            if ($searchObjectForVoter->getVisibility() === DocumentDescriptor::DOCUMENT_VISIBILITY_PUBLIC) {
+        if (VoterInterface::ACCESS_GRANTED === $this->roleHierarchyVoter->vote($token, null, ['ROLE_SEARCH_ONLY'])) {
+            if (DocumentDescriptor::DOCUMENT_VISIBILITY_PUBLIC === $searchObjectForVoter->getVisibility()) {
                 return VoterInterface::ACCESS_GRANTED;
             }
 

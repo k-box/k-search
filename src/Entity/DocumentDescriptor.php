@@ -283,7 +283,7 @@ class DocumentDescriptor extends BaseEntity
     public static function splitDocumentId($id)
     {
         $split = explode('-', $id, 2);
-        if (count($split) !== 2) {
+        if (2 !== count($split)) {
             $split = null;
         }
 
@@ -553,7 +553,7 @@ class DocumentDescriptor extends BaseEntity
      */
     public function isPublicDocument()
     {
-        return $this->getVisibility() === self::DOCUMENT_VISIBILITY_PUBLIC;
+        return self::DOCUMENT_VISIBILITY_PUBLIC === $this->getVisibility();
     }
 
     /**
@@ -561,7 +561,7 @@ class DocumentDescriptor extends BaseEntity
      */
     public function isPrivateDocument()
     {
-        return $this->getVisibility() === self::DOCUMENT_VISIBILITY_PRIVATE;
+        return self::DOCUMENT_VISIBILITY_PRIVATE === $this->getVisibility();
     }
 
     /**

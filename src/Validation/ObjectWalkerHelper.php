@@ -21,7 +21,7 @@ class ObjectWalkerHelper
         $currentObject = $root;
         foreach ($pathSteps as $step) {
             if ($currentObject instanceof Data) {
-                if ($currentObject->type === 'video') {
+                if ('video' === $currentObject->type) {
                     return true;
                 }
             }

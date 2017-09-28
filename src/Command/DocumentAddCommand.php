@@ -40,7 +40,7 @@ class DocumentAddCommand extends ContainerAwareCommand
         } catch (\Exception $e) {
             throw $e;
         }
-        if ((int) $result->getStatus() !== 0) {
+        if (0 !== (int) $result->getStatus()) {
             throw new \Exception($result->getResponse()->getStatusMessage(), $result->getStatus());
         }
 

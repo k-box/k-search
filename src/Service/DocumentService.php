@@ -169,8 +169,8 @@ class DocumentService
         $client = $this->getClientByDocumentVisibility($documentDescriptor->getVisibility());
 
         try {
-            $extractLocationsFromDocumentDescriptor = count($documentDescriptor->getLocations()) === 0 &&
-                count($documentDescriptor->getLocationsString()) === 0;
+            $extractLocationsFromDocumentDescriptor = 0 === count($documentDescriptor->getLocations()) &&
+                0 === count($documentDescriptor->getLocationsString());
 
             // parse the given file
             if ($file instanceof File && $file->isReadable()) {
@@ -219,7 +219,7 @@ class DocumentService
 
             return $client->update($update);
         } catch (HttpException $e) {
-            if (strpos($e->getMessage(), '.PDFParser') !== false) {
+            if (false !== strpos($e->getMessage(), '.PDFParser')) {
                 throw new \Exception('PDF Parsing Exception', 500, $e);
             }
             throw $e;
@@ -287,7 +287,7 @@ class DocumentService
     public function getDocumentDescriptorById($documentId, $visibility = DocumentDescriptor::DOCUMENT_VISIBILITY_PUBLIC)
     {
         $ids = DocumentDescriptor::splitDocumentId($documentId);
-        if ($ids === null) {
+        if (null === $ids) {
             return $ids;
         }
 
@@ -474,7 +474,7 @@ class DocumentService
 
         $resultSet = $client->select($select);
 
-        if ($resultSet->count() !== 1) {
+        if (1 !== $resultSet->count()) {
             return null;
         }
         /** @var SolrDocumentDescriptor $obj */
@@ -490,9 +490,9 @@ class DocumentService
      */
     private function getClientByDocumentVisibility($visibility)
     {
-        if ($visibility === DocumentDescriptor::DOCUMENT_VISIBILITY_PRIVATE) {
+        if (DocumentDescriptor::DOCUMENT_VISIBILITY_PRIVATE === $visibility) {
             $client = $this->coreService->getPrivateSolrClient();
-        } elseif ($visibility === DocumentDescriptor::DOCUMENT_VISIBILITY_PUBLIC) {
+        } elseif (DocumentDescriptor::DOCUMENT_VISIBILITY_PUBLIC === $visibility) {
             $client = $this->coreService->getPublicSolrClient();
         } else {
             return null;

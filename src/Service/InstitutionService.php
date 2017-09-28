@@ -109,7 +109,7 @@ class InstitutionService
 
         $resultSet = $client->select($select);
 
-        if ($resultSet->count() !== 1) {
+        if (1 !== $resultSet->count()) {
             return null;
         }
 
@@ -156,7 +156,7 @@ class InstitutionService
      */
     public function isEnabled()
     {
-        return $this->coreService->getCoreType() === CoreService::TYPE_PUBLIC;
+        return CoreService::TYPE_PUBLIC === $this->coreService->getCoreType();
     }
 
     /**
