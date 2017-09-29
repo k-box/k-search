@@ -11,6 +11,7 @@ class BadRequestException extends KSearchException
 
     public function __construct(array $errors = [])
     {
+        parent::__construct();
         $this->errors = $errors;
     }
 

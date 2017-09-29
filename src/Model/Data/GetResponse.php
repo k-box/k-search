@@ -27,7 +27,7 @@ class GetResponse extends RPCResponse
 
     public function __construct(Data $data, string $responseId = null)
     {
+        parent::__construct($responseId);
         $this->result = $data;
-        $this->id = $responseId;
     }
 }
