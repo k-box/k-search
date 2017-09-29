@@ -10,10 +10,10 @@ use Solarium\Client;
 
 class SolrServiceTest extends TestCase
 {
-    /** @var  SolrService */
+    /** @var SolrService */
     private $solrService;
 
-    /** @var  \PHPUnit_Framework_MockObject_MockObject */
+    /** @var \PHPUnit_Framework_MockObject_MockObject */
     private $client;
 
     public function setUp()
@@ -22,12 +22,13 @@ class SolrServiceTest extends TestCase
         $this->solrService = new SolrService($this->client);
     }
 
-    public function testItReplacesTheAliases() {
+    public function testItReplacesTheAliases()
+    {
         $searchParams = new SearchParams();
         $searchParams->search = 'test string';
         $searchParams->filters = 'properties.language:es';
 
-        $select = new \Solarium\QueryType\Select\Query\Query;
+        $select = new \Solarium\QueryType\Select\Query\Query();
 
         $this->client->expects($this->once())
             ->method('createSelect')
@@ -35,9 +36,10 @@ class SolrServiceTest extends TestCase
 
         $this->client->expects($this->once())
             ->method('select')
-            ->with($this->callback(function($select){
+            ->with($this->callback(function ($select) {
                 $expectedFilter = sprintf('%s:es', SolrEntityData::FIELD_INDEXABLE_LANGUAGE);
                 $this->assertEquals($expectedFilter, $select->getFilterQuery(SolrService::USER_FILTER_KEY)->getQuery());
+
                 return true;
             }))
             ->willReturn($this->createMock(\Solarium\QueryType\Select\Result\Result::class));
