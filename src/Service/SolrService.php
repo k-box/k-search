@@ -153,9 +153,8 @@ class SolrService
         }
 
         $select = $this->solrClient->createSelect();
-        $select
-            ->setStart($searchParams->offset)
-            ->setRows($searchParams->limit);
+        $select->setStart($searchParams->offset);
+        $select->setRows($searchParams->limit);
 
         $this->handleQuery($searchParams, $solrEntityClass, $select);
 
