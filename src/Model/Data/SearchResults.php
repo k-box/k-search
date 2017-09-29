@@ -17,7 +17,7 @@ class SearchResults
     /**
      * The complete SearchQuery object from the request.
      *
-     * @var \App\Model\Data\SearchParams
+     * @var SearchParams
      * @JMS\Type("App\Model\Data\SearchParams")
      * @JMS\ReadOnly()
      * @SWG\Property()
@@ -51,11 +51,10 @@ class SearchResults
     /**
      * Array of aggregations.
      *
+     * @var array
      * @Assert\Valid()
      * @JMS\Type("array<string,array<App\Model\Data\AggregationResult>>")
      * @SWG\Property()
-     *
-     * @var array
      */
     public $aggregations;
 

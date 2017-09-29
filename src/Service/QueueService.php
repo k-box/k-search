@@ -16,7 +16,7 @@ class QueueService
     ];
 
     /**
-     * @var QueueFactory\
+     * @var QueueFactory
      */
     private $factory;
 
@@ -30,12 +30,25 @@ class QueueService
         $this->factory = $factory;
     }
 
+    /**
+     * Queue into the given queue the provided message. The queue is created if does not exist.
+     *
+     * @param string  $queueName
+     * @param Message $message
+     */
     public function enqueueMessage(string $queueName, Message $message)
     {
         $this->ensureQueueExists($queueName);
         $this->queues[$queueName]->enqueue(new Envelope($message));
     }
 
+    /**
+     * Returns a message from the given queue.
+     *
+     * @param string $queueName
+     *
+     * @return Message|null
+     */
     public function dequeMessage(string $queueName): ?Message
     {
         $envelope = $this->dequeEnvelope($queueName);

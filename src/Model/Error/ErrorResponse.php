@@ -28,8 +28,8 @@ class ErrorResponse extends RPCResponse
 
     public function __construct(Error $error, string $responseId = null)
     {
+        parent::__construct($responseId);
         $this->error = $error;
-        $this->id = $responseId;
     }
 
     public static function withErrorMessage(int $errorCode, string $errorMessage, string $responseId = null): ErrorResponse

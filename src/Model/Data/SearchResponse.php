@@ -27,7 +27,7 @@ class SearchResponse extends RPCResponse
 
     public function __construct($result, string $responseId = null)
     {
+        parent::__construct($responseId);
         $this->result = $result;
-        $this->id = $responseId;
     }
 }

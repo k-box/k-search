@@ -15,7 +15,7 @@ use App\Model\Data\Properties\Video;
 use App\Model\Data\Uploader;
 
 /**
- * Entity for Data.
+ * Solr entity for Data model.
  */
 class SolrEntityData extends SolrEntity
 {

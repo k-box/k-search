@@ -2,18 +2,16 @@
 
 namespace App\Service;
 
-use App\Entity\BaseSolrEntity;
 use App\Entity\SolrEntity;
 use App\Exception\InternalSearchException;
 use App\Exception\ResourceNotFoundException;
 use App\Helper\SearchHelper;
 use App\Model\Data\SearchParams;
-use PHPUnit\Util\Filter;
 use Solarium\Client;
 use Solarium\Exception\ExceptionInterface;
 use Solarium\QueryType\Select\Query\FilterQuery;
+use Solarium\QueryType\Select\Query\Query;
 use Solarium\QueryType\Select\Result\Result;
-use Symfony\Component\Finder\SplFileInfo;
 
 class SolrService
 {
@@ -50,10 +48,10 @@ class SolrService
         $select
             ->setStart(0)
             ->setRows(1)
-            ->setQuery(BaseSolrEntity::FIELD_ENTITY_ID.':"'.$id.'"');
+            ->setQuery(SolrEntity::FIELD_ENTITY_ID.':"'.$id.'"');
 
         $filterQuery = new FilterQuery(['key' => 'entity-filter']);
-        $filterQuery->setQuery(BaseSolrEntity::FIELD_ENTITY_TYPE.':"'.$entityType.'"');
+        $filterQuery->setQuery(SolrEntity::FIELD_ENTITY_TYPE.':"'.$entityType.'"');
         $select->addFilterQueries([$filterQuery]);
 
         $resultSet = null;
@@ -87,8 +85,8 @@ class SolrService
     public function delete(string $entityType, string $id): bool
     {
         $update = $this->solrClient->createUpdate();
-        $query = ' +'.BaseSolrEntity::FIELD_ENTITY_TYPE.':"'.$entityType.'"'.
-                 ' +'.BaseSolrEntity::FIELD_ENTITY_ID.':"'.$id.'"'
+        $query = ' +'.SolrEntity::FIELD_ENTITY_TYPE.':"'.$entityType.'"'.
+                 ' +'.SolrEntity::FIELD_ENTITY_ID.':"'.$id.'"'
         ;
 
         $update->addDeleteQuery($query);
@@ -109,8 +107,8 @@ class SolrService
     /**
      * Add an entity to the index, with text extraction from a file.
      *
-     * @param SolrEntity  $entity   The entity to add to the index
-     * @param SplFileInfo $fileInfo The file to be used to extract the contents from
+     * @param SolrEntity   $entity   The entity to add to the index
+     * @param \SplFileInfo $fileInfo The file to be used to extract the contents from
      *
      * @throws \Exception
      * @throws \Throwable
@@ -176,13 +174,13 @@ class SolrService
     }
 
     /**
-     * @param SearchParams                           $searchParams
-     * @param string                                 $solrEntityClass
-     * @param \Solarium\QueryType\Select\Query\Query $select
+     * @param SearchParams $searchParams
+     * @param string       $solrEntityClass
+     * @param Query        $select
      *
      * @throws \Exception
      */
-    private function handleFacets(SearchParams $searchParams, string $solrEntityClass, \Solarium\QueryType\Select\Query\Query $select): void
+    private function handleFacets(SearchParams $searchParams, string $solrEntityClass, Query $select): void
     {
         $availableFacets = call_user_func([$solrEntityClass, 'getAggregableFields']);
         $facets = $select->getFacetSet();
@@ -203,16 +201,16 @@ class SolrService
     }
 
     /**
-     * @param SearchParams                           $searchParams
-     * @param string                                 $solrEntityClass
-     * @param \Solarium\QueryType\Select\Query\Query $select
+     * @param SearchParams $searchParams
+     * @param string       $solrEntityClass
+     * @param Query        $select
      *
      * @throws \Exception
      */
-    private function handleFilters(SearchParams $searchParams, string $solrEntityClass, \Solarium\QueryType\Select\Query\Query $select): void
+    private function handleFilters(SearchParams $searchParams, string $solrEntityClass, Query $select): void
     {
         $entityType = call_user_func([$solrEntityClass, 'getEntityType']);
-        $filterableFields = call_user_func([$solrEntityClass, 'getFilterableFileds']);
+        $filterableFields = call_user_func([$solrEntityClass, 'getFilterableFields']);
 
         $entityFilter = new FilterQuery(['key' => 'entity-filter']);
         $entityFilter->setQuery(sprintf('%s:%s', SolrEntity::FIELD_ENTITY_TYPE, $entityType));
@@ -240,11 +238,11 @@ class SolrService
     }
 
     /**
-     * @param SearchParams                           $searchParams
-     * @param string                                 $solrEntityClass
-     * @param \Solarium\QueryType\Select\Query\Query $select
+     * @param SearchParams $searchParams
+     * @param string       $solrEntityClass
+     * @param Query        $select
      */
-    private function handleQuery(SearchParams $searchParams, string $solrEntityClass, \Solarium\QueryType\Select\Query\Query $select): void
+    private function handleQuery(SearchParams $searchParams, string $solrEntityClass, Query $select): void
     {
         $select->setQuery('*%P1%*', [$searchParams->search]);
 
