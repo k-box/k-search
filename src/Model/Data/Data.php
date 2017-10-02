@@ -70,7 +70,8 @@ class Data
      *     choices={"document", "video"}
      * )
      * @SWG\Property(
-     *     enum={"document", "video"}
+     *     enum={"document", "video"},
+     *     example="video"
      * )
      */
     public $type;

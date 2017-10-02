@@ -105,23 +105,22 @@ class SolrEntityData extends SolrEntity
         return [
             'uuid' => self::FIELD_ENTITY_ID,
             'type' => self::FIELD_INDEXABLE_TYPE,
-            'language' => self::FIELD_INDEXABLE_LANGUAGE,
-            'created_at' => self::FIELD_INDEXABLE_CREATED_AT,
-            'updated_at' => self::FIELD_INDEXABLE_UPDATED_AT,
-            'size' => self::FIELD_INDEXABLE_SIZE,
-            'copyright_owner_name' => self::FIELD_COPYRIGHT_OWNER_NAME,
-            'copyright_usage_short' => self::FIELD_COPYRIGHT_USAGE_SHORT,
-            'abstract' => self::FIELD_INDEXABLE_ABSTRACT,
-            'title' => self::FIELD_INDEXABLE_TITLE,
-            'copyright' => self::FIELD_COPYRIGHT_USAGE_SHORT,
+            'properties.language' => self::FIELD_INDEXABLE_LANGUAGE,
+            'properties.created_at' => self::FIELD_INDEXABLE_CREATED_AT,
+            'properties.updated_at' => self::FIELD_INDEXABLE_UPDATED_AT,
+            'properties.size' => self::FIELD_INDEXABLE_SIZE,
+            'properties.abstract' => self::FIELD_INDEXABLE_ABSTRACT,
+            'properties.title' => self::FIELD_INDEXABLE_TITLE,
+            'copyright.owner.name' => self::FIELD_COPYRIGHT_OWNER_NAME,
+            'copyright.usage.short' => self::FIELD_COPYRIGHT_USAGE_SHORT,
         ];
     }
 
     public static function getSearchableFields(): array
     {
         return [
-            'title',
-            'abstract',
+            'properties.title',
+            'properties.abstract',
         ];
     }
 
@@ -130,12 +129,12 @@ class SolrEntityData extends SolrEntity
         return [
             'uuid',
             'type',
-            'language',
-            'created_at',
-            'updated_at',
-            'size',
-            'copyright_owner_name',
-            'copyright_usage_short',
+            'properties.language',
+            'properties.created_at',
+            'properties.updated_at',
+            'properties.size',
+            'copyright.owner.name',
+            'copyright.usage.short',
         ];
     }
 
@@ -143,12 +142,12 @@ class SolrEntityData extends SolrEntity
     {
         return [
             'type',
-            'language',
-            'created_at',
-            'updated_at',
-            'size',
-            'copyright_owner_name',
-            'copyright_usage_short',
+            'properties.language',
+            'properties.created_at',
+            'properties.updated_at',
+            'properties.size',
+            'copyright.owner.name',
+            'copyright.usage.short',
         ];
     }
 

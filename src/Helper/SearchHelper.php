@@ -17,7 +17,7 @@ class SearchHelper
     public static function getFieldsInFilterQuery(string $entityData, string $filter): array
     {
         $matches = [];
-        preg_match_all('/\b([a-z_]+):/', $filter, $matches);
+        preg_match_all('/\b([a-z_.]+):/', $filter, $matches);
 
         return $matches[1];
     }

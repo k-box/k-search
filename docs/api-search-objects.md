@@ -21,7 +21,7 @@ the configuration for the specific aggregation. The code block below shows an ex
 
 ```json
 "aggregations" : {
-    "language" : {
+    "properties.language" : {
         "limit" : 10,
         "counts_filtered" : false
     },
@@ -34,12 +34,12 @@ the configuration for the specific aggregation. The code block below shows an ex
 The supported aggregations are:
 
 - `type`
-- `language`, which maps to `properties.language`
-- `created_at`, which maps to `properties.created_at`
-- `updated_at`, which maps to `properties.updated_at`
-- `size`, which maps to `properties.size`
-- `copyright_owner_name`, which maps to `copyright.owner.name`
-- `copyright_usage_short`, which maps to `copyright.usage.short`
+- `properties.`
+- `properties.created_at`
+- `properties.updated_at`
+- `properties.size`
+- `copyright.owner.name`
+- `copyright.usage.short`
 
 The table below defines the aggregation configuration properties
 
@@ -57,21 +57,21 @@ Currently supported filters are:
 
 - `uuid`
 - `type`
-- `language`, which maps to `properties.language`
-- `created_at`, which maps to `properties.created_at`
-- `updated_at`, which maps to `properties.updated_at`
-- `size`, which maps to `properties.size`
-- `copyright_owner_name`, which maps to `copyright.owner.name`
-- `copyright_usage_short`, which maps to `copyright.usage.short`
+- `properties.language`
+- `properties.created_at`
+- `properties.updated_at`
+- `properties.size`
+- `copyright.owner.name`
+- `copyright.usage.short`
 
 ### Example
 
 ```json
 {
     "search" : "K-Link",
-    "filters" : "title:*Holmes AND language:en AND (updated_at:[\"2008-07-28T14:47:31Z\" TO NOW] OR created_at:[\"2008-07-28T14:47:31Z\" TO NOW]) AND copyright_usage_short:\"MPL-2.0\")",
+    "filters" : "properties.language:en AND (properties.updated_at:[\"2008-07-28T14:47:31Z\" TO NOW] OR properties.created_at:[\"2008-07-28T14:47:31Z\" TO NOW]) AND copyright.usage.short:\"MPL-2.0\")",
     "aggregations" : {
-        "language" : {
+        "properties.language" : {
             "limit" : 10,
             "counts_filtered" : false
         },
@@ -106,7 +106,7 @@ the most common terms for the specific aggregation. The code block below shows a
 
 ```json
 {
-    "copyright_usage_short": [
+    "copyright.usage.short": [
         {
             "value": "MPL-2.0",
             "count": 12
@@ -116,7 +116,7 @@ the most common terms for the specific aggregation. The code block below shows a
             "count": 3
         }
     ],
-    "language": [
+    "properties.language": [
         {
             "value": "en",
             "count": 10
@@ -142,9 +142,9 @@ the most common terms for the specific aggregation. The code block below shows a
 {
     "query": {
         "search": "Example",
-        "filters": "language:en",
+        "filters": "properties.language:en",
         "aggregations": {
-            "copyright_usage_short": {
+            "copyright.usage.short": {
                 "limit" : 5,
                 "counts_filtered" : false
             }
@@ -156,7 +156,7 @@ the most common terms for the specific aggregation. The code block below shows a
         "query_time": 6,
         "total_matches": 3,
         "aggregations": {
-            "copyright_usage_short": [
+            "copyright.usage.short": [
                 {
                     "value": "MPL-2.0",
                     "count": 1
