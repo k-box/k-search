@@ -13,9 +13,7 @@ abstract class SolrEntity
     const FIELD_ENTITY_TYPE = 'entity_type';
     const FIELD_ENTITY_ID = 'entity_id';
 
-    /**
-     * @var AbstractDocument
-     */
+    /** @var Document */
     private $document;
 
     /**
@@ -44,8 +42,18 @@ abstract class SolrEntity
         $this->document->addField($key, $value);
     }
 
+    /**
+     * Builds a model from the Solr document.
+     *
+     * @return mixed
+     */
     abstract public function buildModel();
 
+    /**
+     * Returns the entity type for this Solr document.
+     *
+     * @return string
+     */
     abstract public static function getEntityType(): string;
 
     abstract public static function getIndexableFields(): array;
@@ -65,6 +73,11 @@ abstract class SolrEntity
         return array_keys(self::getIndexableFields());
     }
 
+    /**
+     * Returns the inner Solr document.
+     *
+     * @return Document
+     */
     public function getSolrDocument(): Document
     {
         return $this->document;

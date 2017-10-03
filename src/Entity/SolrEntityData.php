@@ -124,7 +124,7 @@ class SolrEntityData extends SolrEntity
         ];
     }
 
-    public static function getFilterableFileds(): array
+    public static function getFilterableFields(): array
     {
         return [
             'uuid',
@@ -238,7 +238,7 @@ class SolrEntityData extends SolrEntity
         $properties->updated_at = DataHelper::createUtcDate($data['updated_at']['date']);
         $properties->created_at = DataHelper::createUtcDate($data['created_at']['date']);
 
-        $this->buildVideoRelatedModels($data, $properties);
+        $this->updateVideoProperties($data, $properties);
 
         return $properties;
     }
@@ -289,10 +289,12 @@ class SolrEntityData extends SolrEntity
     }
 
     /**
-     * @param $data
-     * @param $properties
+     * Updates the given properties with video related data.
+     *
+     * @param array      $data       The raw data
+     * @param Properties $properties The current Properties
      */
-    private function buildVideoRelatedModels($data, $properties): void
+    private function updateVideoProperties(array $data, Properties $properties)
     {
         if (isset($data['video'])) {
             $video = new Video();
@@ -305,13 +307,13 @@ class SolrEntityData extends SolrEntity
             }
 
             if ($data['video']['streaming']) {
-                $streamings = [];
+                $streamingList = [];
                 foreach ($data['video']['streaming'] ?? [] as $streamingData) {
                     $streaming = new Streaming();
                     $this->inflateModelWithData($streaming, ['type', 'url'], $streamingData);
-                    $streamings[] = $streaming;
+                    $streamingList[] = $streaming;
                 }
-                $video->streaming = $streamings;
+                $video->streaming = $streamingList;
             }
 
             $properties->video = $video;
