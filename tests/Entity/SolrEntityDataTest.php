@@ -57,7 +57,7 @@ class SolrEntityDataTest extends TestCase
         $data->properties->video = new Video();
         $streaming = new Streaming();
         $streaming->type = 'type_s1';
-        $streaming->resolution = '1080';
+        $streaming->url = 'https://www.youtube.com/watch?v=iEueWyu0TXA';
         $data->properties->video->streaming = [$streaming];
 
         $data->properties->video->duration = '10 min';
@@ -96,7 +96,7 @@ class SolrEntityDataTest extends TestCase
         $data->properties->video = new Video();
         $streaming = new Streaming();
         $streaming->type = 'type_s1';
-        $streaming->resolution = '1080';
+        $streaming->url = 'https://www.youtube.com/watch?v=iEueWyu0TXA';
         $data->properties->video->streaming = [$streaming];
 
         $data->properties->video->duration = '10 min';
