@@ -81,6 +81,6 @@ RUN \
     # fix file ownership, since some commands were being run with root
     chown www-data:www-data . --recursive
 
-COPY dist/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY docker/conf/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 ENTRYPOINT ["supervisord"]
 CMD []
