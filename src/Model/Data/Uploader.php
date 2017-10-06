@@ -16,13 +16,16 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Uploader
 {
     /**
-     * Freely definable name. Can be a single user, an organization, a project or a group.
+     * Freely definable name.
+     * Can be a single user, an organization, a project or a group.
      *
      * @var string
      * @Assert\Type("string")
      * @Assert\NotBlank()
      * @JMS\Type("string")
-     * @SWG\Property()
+     * @SWG\Property(
+     *     example="John Doe Inc."
+     * )
      */
     public $name;
 
@@ -32,7 +35,9 @@ class Uploader
      * @var string
      * @Assert\Type("string")
      * @JMS\Type("string")
-     * @SWG\Property()
+     * @SWG\Property(
+     *     example="https://johndoe-inc.org",
+     * )
      */
     public $url;
 
@@ -40,21 +45,25 @@ class Uploader
      * The URL of the application that triggered the data upload.
      *
      * @var string
-     * @Assert\Type("string")
      * @JMS\Type("string")
      * @JMS\ReadOnly()
-     * @SWG\Property()
+     * @SWG\Property(
+     *     property="app_url",
+     *     example="https://wwww.johndoe-inc.org/uploader-app",
+     * )
      */
-    public $app_url;
+    public $appUrl;
 
     /**
-     * Contact email to of an administrator, who can be contacted in case of any issues related to uploaded documents. This data is coming from the Application data in the K-Link Registry.
+     * Contact email to of an administrator, who can be contacted in case of any issues related to uploaded documents.
+     * This data is coming from the Application data in the K-Link Registry.
      *
      * @var string
-     * @Assert\Type("string")
      * @JMS\Type("string")
      * @JMS\ReadOnly()
-     * @SWG\Property()
+     * @SWG\Property(
+     *     example="admin@johndoe-inc.org",
+     * )
      */
     public $email;
 }

@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Exception\BadRequestException;
 use App\Model\RPCRequest;
+use App\Model\RPCResponse;
+use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -63,12 +65,16 @@ abstract class AbstractRpcController extends Controller
     }
 
     /**
-     * @param mixed $model
+     * @param RPCResponse $model  The RpcResponse object to render
+     * @param array       $groups the JSM serialization groups to use, by default the no-groups (aka 'Default') will be rendered
      *
      * @return JsonResponse
      */
-    protected function getJsonResponse($model): JsonResponse
+    protected function getJsonResponse(RPCResponse $model, array $groups = ['Default']): JsonResponse
     {
-        return new JsonResponse($this->serializer->serialize($model, 'json'), 200, [], true);
+        $context = SerializationContext::create();
+        $context->setGroups($groups);
+
+        return new JsonResponse($this->serializer->serialize($model, 'json', $context), 200, [], true);
     }
 }

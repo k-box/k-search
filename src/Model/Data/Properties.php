@@ -46,10 +46,11 @@ class Properties
      * @Assert\NotBlank()
      * @JMS\Type("string")
      * @SWG\Property(
+     *     property="mime_type",
      *     example="application/pdf",
      * )
      */
-    public $mime_type;
+    public $mimeType;
 
     /**
      * ISO code of the main language (explicitly the abstract and title).
@@ -73,10 +74,11 @@ class Properties
      * @Assert\NotBlank()
      * @JMS\Type("DateTime<'Y-m-d\TH:i:s\Z', 'UTC'>")
      * @SWG\Property(
+     *     property="created_at",
      *     example="2008-07-28T14:47:31Z",
      * )
      */
-    public $created_at;
+    public $createdAt;
 
     /**
      * Data’s or document’s updated date in [RFC-3339](https://www.ietf.org/rfc/rfc3339.txt) format.
@@ -84,10 +86,11 @@ class Properties
      * @var \DateTime
      * @JMS\Type("DateTime<'Y-m-d\TH:i:s\Z', 'UTC'>")
      * @SWG\Property(
+     *     property="updated_at",
      *     example="2008-09-28T15:47:31Z",
      * )
      */
-    public $updated_at;
+    public $updatedAt;
 
     /**
      * The file size of the data, in bytes.
@@ -130,18 +133,21 @@ class Properties
      * @Assert\Type("array")
      * @JMS\Type("array<string>")
      * @SWG\Property(
-     *     example={"tag1", "tag2"}
+     *     @SWG\Items(type="string"),
+     *     example={"tag1", "tag2"},
      * )
      */
     public $tags;
 
     /**
-     * Search data and browse within the hierarchy (multiple). However be careful to expose the hierarchy to a public search index, as it may contain confidential data. Example: List [ "COLLECTION_ID_1", "COLLECTION_ID_2" ].
+     * Search data and browse within the hierarchy (multiple).
+     * However be careful to expose the hierarchy to a public search index, as it may contain confidential data.
      *
      * @var array
      * @Assert\Type("array")
      * @JMS\Type("array<string>")
      * @SWG\Property(
+     *     @SWG\Items(type="string"),
      *     example={"COLLECTION_ID_1", "COLLECTION_ID_2"}
      * )
      */

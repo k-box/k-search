@@ -169,8 +169,8 @@ class DataService
      */
     protected function dataCleanup(Data $data)
     {
-        if (!$data->properties->updated_at) {
-            $data->properties->updated_at = new \DateTime('now', new DateTimeZone('UTC'));
+        if (!$data->properties->updatedAt) {
+            $data->properties->updatedAt = new \DateTime('now', new DateTimeZone('UTC'));
         }
     }
 }

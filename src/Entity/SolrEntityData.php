@@ -231,12 +231,24 @@ class SolrEntityData extends SolrEntity
         $json = $this->getField(self::FIELD_PROPERTIES_STORED);
         $data = json_decode($json, true);
 
-        $fields = ['title', 'filename', 'mime_type', 'created_at', 'updated_at', 'size', 'abstract', 'thumbnail', 'language', 'tags', 'collection'];
+        $fields = [
+            'abstract',
+            'collection',
+            'filename',
+            'language',
+            'mimeType',
+            'size',
+            'tags',
+            'thumbnail',
+            'title',
+            'createdAt',
+            'updatedAt',
+        ];
 
         $this->inflateModelWithData($properties, $fields, $data ?? []);
 
-        $properties->updated_at = DataHelper::createUtcDate($data['updated_at']['date']);
-        $properties->created_at = DataHelper::createUtcDate($data['created_at']['date']);
+        $properties->updatedAt = DataHelper::createUtcDate($data['updatedAt']['date']);
+        $properties->createdAt = DataHelper::createUtcDate($data['createdAt']['date']);
 
         $this->updateVideoProperties($data, $properties);
 
@@ -267,7 +279,7 @@ class SolrEntityData extends SolrEntity
         $json = $this->getField(self::FIELD_UPLOADER_STORED);
         $data = json_decode($json, true);
 
-        $fields = ['name', 'url', 'app_url', 'email'];
+        $fields = ['name', 'url', 'appUrl', 'email'];
 
         $this->inflateModelWithData($uploader, $fields, $data ?? []);
 

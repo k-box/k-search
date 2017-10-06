@@ -33,7 +33,9 @@ class AddParams
      *
      * @var string
      * @JMS\Type("string")
-     * @SWG\Property()
+     * @SWG\Property(
+     *     property="data_textual_contents"
+     * )
      */
     public $dataTextualContents;
 }
