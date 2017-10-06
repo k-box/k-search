@@ -9,6 +9,7 @@ RUN \
     apt-get update &&\
     apt-get install --no-install-recommends --yes \
         git \
+        supervisor \
         unzip \
         # gettext provides envsubst command
         gettext &&\
@@ -79,3 +80,7 @@ RUN \
     cp .env.dist .env &&\
     # fix file ownership, since some commands were being run with root
     chown www-data:www-data . --recursive
+
+COPY dist/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+ENTRYPOINT ["supervisord"]
+CMD []
