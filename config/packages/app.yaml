@@ -17,3 +17,6 @@ services:
     App\Service\DataDownloaderService:
         $httpClient: "@httplug.client.downloader"
         $tempFolder: '%kernel.project_dir%/var/temp'
+
+    App\Service\DataService:
+        $indexableContentTypes: "%indexable_content_types%"

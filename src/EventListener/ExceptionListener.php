@@ -3,9 +3,10 @@
 namespace App\EventListener;
 
 use App\Exception\BadRequestException;
+use App\Exception\DataDownloadErrorException;
 use App\Exception\InternalSearchException;
 use App\Exception\KSearchException;
-use App\Exception\ResourceNotFoundException;
+use App\Exception\SolrEntityNotFoundException;
 use App\Model\Error\Error;
 use App\Model\Error\ErrorResponse;
 use App\Model\RPCRequest;
@@ -45,7 +46,10 @@ class ExceptionListener implements EventSubscriberInterface
                 /** @var BadRequestException $exception */
                 $error = new Error(400, 'Wrong data provided!', $exception->getErrors());
                 break;
-            case ResourceNotFoundException::class:
+            case DataDownloadErrorException::class:
+                $error = new Error(400, $exception->getMessage(), $exception->getPrevious()->getMessage());
+                break;
+            case SolrEntityNotFoundException::class:
                 $error = new Error(404, $exception->getMessage());
                 break;
             case InternalSearchException::class:

@@ -10,4 +10,9 @@ class DataDownloaderServiceTest extends TestCase
     {
         $this->markTestSkipped('Not implemented');
     }
+
+    public function testItGetsDataHeaders()
+    {
+        $this->markTestSkipped('Not implemented');
+    }
 }

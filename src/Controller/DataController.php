@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Exception\BadRequestException;
 use App\Model\Data\AddRequest;
 use App\Model\Data\AddResponse;
 use App\Model\Data\DataStatus;
@@ -29,8 +30,11 @@ class DataController extends AbstractRpcController
      */
     private $dataService;
 
-    public function __construct(DataService $searchService, ValidatorInterface $validator, SerializerInterface $serializer)
-    {
+    public function __construct(
+        DataService $searchService,
+        ValidatorInterface $validator,
+        SerializerInterface $serializer
+    ) {
         parent::__construct($validator, $serializer);
         $this->dataService = $searchService;
     }
@@ -232,6 +236,8 @@ class DataController extends AbstractRpcController
      *
      * @param Request $request
      * @param string  $version
+     *
+     * @throws BadRequestException
      *
      * @return JsonResponse
      */

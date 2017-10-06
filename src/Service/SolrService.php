@@ -7,7 +7,7 @@ use App\Entity\SolrEntity;
 use App\Entity\SolrEntityExtractText;
 use App\Exception\BadRequestException;
 use App\Exception\InternalSearchException;
-use App\Exception\ResourceNotFoundException;
+use App\Exception\SolrEntityNotFoundException;
 use App\Helper\SolrHelper;
 use App\Model\Data\Aggregation;
 use App\Model\Data\AggregationResult;
@@ -64,7 +64,7 @@ class SolrService
         }
 
         if (!$resultSet || 1 !== $resultSet->getNumFound()) {
-            throw new ResourceNotFoundException(sprintf('Resource %s::%s not found!', $entityType, $id));
+            throw new SolrEntityNotFoundException(sprintf('Resource %s::%s not found!', $entityType, $id));
         }
 
         // Building the required SolrEntity object from the result document
