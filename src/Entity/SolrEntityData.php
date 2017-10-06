@@ -17,49 +17,42 @@ use App\Model\Data\Uploader;
 /**
  * Solr entity for Data model.
  */
-class SolrEntityData extends SolrEntity
+class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
 {
-    public const FIELD_HASH = 'str_ss_data_hash';
-    public const FIELD_STATUS = 'str_ss_data_status';
-    public const FIELD_UUID = 'str_ss_data_uuid';
-    public const FIELD_TYPE = 'str_ss_data_type';
-    public const FIELD_URL = 'str_ss_data_url';
+    public const FIELD_HASH = 'str_sis_data_hash';
+    public const FIELD_STATUS = 'str_sis_data_status';
+    public const FIELD_UUID = 'str_sis_data_uuid';
+    public const FIELD_TYPE = 'str_sis_data_type';
+    public const FIELD_URL = 'str_sis_data_url';
     public const FIELD_COPYRIGHT_STORED = 'str_ss_data_copyright';
     public const FIELD_PROPERTIES_STORED = 'str_ss_data_properties';
     public const FIELD_AUTHOR_STORED = 'str_ss_data_author';
     public const FIELD_UPLOADER_STORED = 'str_ss_data_uploader';
 
     public const FIELD_CONTENTS = 'text_data_contents';
-    public const FIELD_COPYRIGHT_OWNER_NAME = 'str_sis_data_copyright_owner_name';
+    public const FIELD_COPYRIGHT_OWNER_NAME = 'str_si_data_copyright_owner_name';
 
     public const FIELD_COPYRIGHT_OWNER_CONTACT = 'str_sis_data_copyright_owner_contact';
-    public const FIELD_COPYRIGHT_OWNER_EMAIL = 'str_sis_data_copyright_owner_email';
-    public const FIELD_COPYRIGHT_USAGE_NAME = 'str_sis_data_copyright_usage_name';
+    public const FIELD_COPYRIGHT_OWNER_EMAIL = 'str_si_data_copyright_owner_email';
+    public const FIELD_COPYRIGHT_USAGE_NAME = 'str_si_data_copyright_usage_name';
 
-    public const FIELD_COPYRIGHT_USAGE_SHORT = 'str_sis_data_copyright_usage_short';
-    public const FIELD_COPYRIGHT_USAGE_REFERENCE = 'str_sis_data_copyright_usage_reference';
-    public const FIELD_INDEXABLE_TYPE = 'str_si_data_type';
-    public const FIELD_INDEXABLE_ABSTRACT = 'str_si_data_abstract';
-    public const FIELD_INDEXABLE_TITLE = 'str_si_data_title';
-    public const FIELD_INDEXABLE_LANGUAGE = 'str_si_data_language';
-    public const FIELD_INDEXABLE_CREATED_AT = 'date_data_created_at';
-    public const FIELD_INDEXABLE_UPDATED_AT = 'date_data_updated_at';
-    public const FIELD_INDEXABLE_SIZE = 'int_ii_data_size';
+    public const FIELD_COPYRIGHT_USAGE_SHORT = 'str_si_data_copyright_usage_short';
+    public const FIELD_COPYRIGHT_USAGE_REFERENCE = 'str_si_data_copyright_usage_reference';
+    public const FIELD_PROPERTIES_ABSTRACT = 'text_data_abstract';
+    public const FIELD_PROPERTIES_TITLE = 'text_data_title';
+    public const FIELD_PROPERTIES_LANGUAGE = 'str_si_data_language';
+    public const FIELD_PROPERTIES_CREATED_AT = 'date_data_created_at';
+    public const FIELD_PROPERTIES_UPDATED_AT = 'date_data_updated_at';
+    public const FIELD_PROPERTIES_SIZE = 'int_ii_data_size';
 
     public static function getEntityType(): string
     {
         return 'data';
     }
 
-    /**
-     * Add the textual contents of the entity.
-     * This is a read-only property, used only for indexing, not for retrieving data.
-     *
-     * @param string $text
-     */
-    public function addTextualContents(string $text)
+    public static function getTextualContentsField(): string
     {
-        $this->addField(self::FIELD_CONTENTS, $text);
+        return self::FIELD_CONTENTS;
     }
 
     public static function buildFromModel(Data $data): SolrEntityData
@@ -78,19 +71,17 @@ class SolrEntityData extends SolrEntity
         $doc->addAuthor($data->author);
         $doc->addUploader($data->uploader);
 
-        $doc->addIndexableFields($data);
-
         return $doc;
     }
 
     public function buildModel(): Data
     {
         $data = new Data();
-        $data->hash = $this->getField(self::FIELD_HASH);
-        $data->uuid = $this->getField(self::FIELD_UUID);
-        $data->type = $this->getField(self::FIELD_TYPE);
-        $data->url = $this->getField(self::FIELD_URL);
-        $data->status = $this->getField(self::FIELD_STATUS);
+        $data->hash = (string) $this->getField(self::FIELD_HASH);
+        $data->uuid = (string) $this->getField(self::FIELD_UUID);
+        $data->type = (string) $this->getField(self::FIELD_TYPE);
+        $data->url = (string) $this->getField(self::FIELD_URL);
+        $data->status = (string) $this->getField(self::FIELD_STATUS);
 
         $data->copyright = $this->buildCopyrightModel();
         $data->properties = $this->buildPropertiesModel();
@@ -100,78 +91,72 @@ class SolrEntityData extends SolrEntity
         return $data;
     }
 
-    public static function getIndexableFields(): array
+    public static function getModelPropertyToFieldMappings(): array
     {
         return [
             'uuid' => self::FIELD_ENTITY_ID,
-            'type' => self::FIELD_INDEXABLE_TYPE,
-            'properties.language' => self::FIELD_INDEXABLE_LANGUAGE,
-            'properties.created_at' => self::FIELD_INDEXABLE_CREATED_AT,
-            'properties.updated_at' => self::FIELD_INDEXABLE_UPDATED_AT,
-            'properties.size' => self::FIELD_INDEXABLE_SIZE,
-            'properties.abstract' => self::FIELD_INDEXABLE_ABSTRACT,
-            'properties.title' => self::FIELD_INDEXABLE_TITLE,
+            'type' => self::FIELD_TYPE,
+            'properties.language' => self::FIELD_PROPERTIES_LANGUAGE,
+            'properties.created_at' => self::FIELD_PROPERTIES_CREATED_AT,
+            'properties.updated_at' => self::FIELD_PROPERTIES_UPDATED_AT,
+            'properties.size' => self::FIELD_PROPERTIES_SIZE,
+            'properties.abstract' => self::FIELD_PROPERTIES_ABSTRACT,
+            'properties.title' => self::FIELD_PROPERTIES_TITLE,
             'copyright.owner.name' => self::FIELD_COPYRIGHT_OWNER_NAME,
             'copyright.usage.short' => self::FIELD_COPYRIGHT_USAGE_SHORT,
         ];
     }
 
-    public static function getSearchableFields(): array
+    public static function getTextSearchFields(): array
     {
         return [
-            'properties.title',
-            'properties.abstract',
+            self::FIELD_CONTENTS,
+            self::FIELD_PROPERTIES_TITLE,
+            self::FIELD_PROPERTIES_ABSTRACT,
         ];
     }
 
-    public static function getFilterableFileds(): array
+    public static function getFilterFields(): array
     {
         return [
-            'uuid',
-            'type',
-            'properties.language',
-            'properties.created_at',
-            'properties.updated_at',
-            'properties.size',
-            'copyright.owner.name',
-            'copyright.usage.short',
+            self::FIELD_ENTITY_ID,
+            self::FIELD_TYPE,
+            self::FIELD_PROPERTIES_LANGUAGE,
+            self::FIELD_PROPERTIES_CREATED_AT,
+            self::FIELD_PROPERTIES_UPDATED_AT,
+            self::FIELD_PROPERTIES_SIZE,
+            self::FIELD_COPYRIGHT_OWNER_NAME,
+            self::FIELD_COPYRIGHT_USAGE_SHORT,
         ];
     }
 
-    public static function getAggregableFields(): array
+    public static function getAggregationFields(): array
     {
-        return [
-            'type',
-            'properties.language',
-            'properties.created_at',
-            'properties.updated_at',
-            'properties.size',
-            'copyright.owner.name',
-            'copyright.usage.short',
-        ];
+        return self::getFilterFields();
     }
 
-    private function addIndexableFields(Data $data)
+    /**
+     * Add the textual contents of the entity.
+     * This is a read-only property, used only for indexing, not for retrieving data.
+     *
+     * @param string $text
+     */
+    public function addTextualContents(string $text)
     {
-        $this->addField(self::FIELD_INDEXABLE_ABSTRACT, $data->properties->abstract);
-        $this->addField(self::FIELD_INDEXABLE_TITLE, $data->properties->title);
-        $this->addField(self::FIELD_INDEXABLE_LANGUAGE, $data->properties->language);
-        $this->addField(self::FIELD_INDEXABLE_CREATED_AT, $data->properties->created_at);
-        $this->addField(self::FIELD_INDEXABLE_UPDATED_AT, $data->properties->updated_at);
-        $this->addField(self::FIELD_INDEXABLE_SIZE, $data->properties->size);
+        $this->addField(self::FIELD_CONTENTS, $text);
     }
 
     private function addCopyright(Copyright $copyright)
     {
-        $this->addField(self::FIELD_COPYRIGHT_STORED, json_encode($copyright));
-
         $this->addField(self::FIELD_COPYRIGHT_OWNER_CONTACT, $copyright->owner->contact);
         $this->addField(self::FIELD_COPYRIGHT_OWNER_EMAIL, $copyright->owner->email);
         $this->addField(self::FIELD_COPYRIGHT_OWNER_NAME, $copyright->owner->name);
-
         $this->addField(self::FIELD_COPYRIGHT_USAGE_NAME, $copyright->usage->name);
         $this->addField(self::FIELD_COPYRIGHT_USAGE_SHORT, $copyright->usage->short);
         $this->addField(self::FIELD_COPYRIGHT_USAGE_REFERENCE, $copyright->usage->reference);
+
+        // Adding the whole object as JSON
+        $this->addField(self::FIELD_COPYRIGHT_STORED, json_encode($copyright));
     }
 
     /**
@@ -222,6 +207,14 @@ class SolrEntityData extends SolrEntity
 
     private function addProperties(Properties $properties)
     {
+        $this->addField(self::FIELD_PROPERTIES_ABSTRACT, $properties->abstract);
+        $this->addField(self::FIELD_PROPERTIES_TITLE, $properties->title);
+        $this->addField(self::FIELD_PROPERTIES_LANGUAGE, $properties->language);
+        $this->addField(self::FIELD_PROPERTIES_CREATED_AT, $properties->createdAt);
+        $this->addField(self::FIELD_PROPERTIES_UPDATED_AT, $properties->updatedAt);
+        $this->addField(self::FIELD_PROPERTIES_SIZE, $properties->size);
+
+        // Adding the whole object as JSON
         $this->addField(self::FIELD_PROPERTIES_STORED, json_encode($properties));
     }
 
@@ -231,14 +224,26 @@ class SolrEntityData extends SolrEntity
         $json = $this->getField(self::FIELD_PROPERTIES_STORED);
         $data = json_decode($json, true);
 
-        $fields = ['title', 'filename', 'mime_type', 'created_at', 'updated_at', 'size', 'abstract', 'thumbnail', 'language', 'tags', 'collection'];
+        $fields = [
+            'abstract',
+            'collection',
+            'filename',
+            'language',
+            'mimeType',
+            'size',
+            'tags',
+            'thumbnail',
+            'title',
+            'createdAt',
+            'updatedAt',
+        ];
 
         $this->inflateModelWithData($properties, $fields, $data ?? []);
 
-        $properties->updated_at = DataHelper::createUtcDate($data['updated_at']['date']);
-        $properties->created_at = DataHelper::createUtcDate($data['created_at']['date']);
+        $properties->updatedAt = DataHelper::createUtcDate($data['updatedAt']['date']);
+        $properties->createdAt = DataHelper::createUtcDate($data['createdAt']['date']);
 
-        $this->buildVideoRelatedModels($data, $properties);
+        $this->updateVideoProperties($data, $properties);
 
         return $properties;
     }
@@ -267,7 +272,7 @@ class SolrEntityData extends SolrEntity
         $json = $this->getField(self::FIELD_UPLOADER_STORED);
         $data = json_decode($json, true);
 
-        $fields = ['name', 'url', 'app_url', 'email'];
+        $fields = ['name', 'url', 'appUrl', 'email'];
 
         $this->inflateModelWithData($uploader, $fields, $data ?? []);
 
@@ -289,10 +294,12 @@ class SolrEntityData extends SolrEntity
     }
 
     /**
-     * @param $data
-     * @param $properties
+     * Updates the given properties with video related data.
+     *
+     * @param array      $data       The raw data
+     * @param Properties $properties The current Properties
      */
-    private function buildVideoRelatedModels($data, $properties): void
+    private function updateVideoProperties(array $data, Properties $properties)
     {
         if (isset($data['video'])) {
             $video = new Video();
@@ -305,13 +312,13 @@ class SolrEntityData extends SolrEntity
             }
 
             if ($data['video']['streaming']) {
-                $streamings = [];
+                $streamingList = [];
                 foreach ($data['video']['streaming'] ?? [] as $streamingData) {
                     $streaming = new Streaming();
                     $this->inflateModelWithData($streaming, ['type', 'url'], $streamingData);
-                    $streamings[] = $streaming;
+                    $streamingList[] = $streaming;
                 }
-                $video->streaming = $streamings;
+                $video->streaming = $streamingList;
             }
 
             $properties->video = $video;

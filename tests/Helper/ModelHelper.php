@@ -39,10 +39,10 @@ class ModelHelper
         $data->properties = new Properties();
         $data->properties->title = 'Adventures of Sherlock Holmes';
         $data->properties->filename = 'adventures-of-sherlock-holmes.pdf';
-        $data->properties->mime_type = 'application/pdf';
+        $data->properties->mimeType = 'application/pdf';
         $data->properties->language = 'en';
-        $data->properties->created_at = $date;
-        $data->properties->updated_at = $date;
+        $data->properties->createdAt = $date;
+        $data->properties->updatedAt = $date;
         $data->properties->size = self::SIZE;
         $data->properties->abstract = 'It is a novel about a detective';
         $data->properties->thumbnail = 'https://ichef.bbci.co.uk/news/660/cpsprodpb/153B4/production/_89046968_89046967.jpg';

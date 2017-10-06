@@ -2,20 +2,23 @@
 
 namespace App\Service;
 
-use App\Entity\SolrEntity;
 use App\Entity\SolrEntityData;
 use App\Exception\BadRequestException;
 use App\Helper\DataHelper;
-use App\Model\Data\AggregationResult;
 use App\Model\Data\Data;
 use App\Model\Data\SearchParams;
 use App\Model\Data\SearchResults;
 use App\Queue\Message\UUIDMessage;
 use DateTimeZone;
-use Solarium\QueryType\Select\Result\AbstractDocument;
+use Psr\Log\LoggerInterface;
 
 class DataService
 {
+    private const SEARCH_USER_FILTER_KEY = 'user-filter';
+    private const SEARCH_ENTITY_TYPE_KEY = 'entity-type';
+    private const SEARCH_DATA_STATUS_KEY = 'data-status';
+    private const SEARCH_USER_FILTER_TAG = 'user-filter';
+
     /**
      * @var SolrService
      */
@@ -26,10 +29,16 @@ class DataService
      */
     private $queueService;
 
-    public function __construct(QueueService $queueService, SolrService $solrService)
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct(QueueService $queueService, SolrService $solrService, LoggerInterface $logger)
     {
         $this->solrService = $solrService;
         $this->queueService = $queueService;
+        $this->logger = $logger;
     }
 
     /**
@@ -85,18 +94,20 @@ class DataService
             $dataEntity = SolrEntityData::buildFromModel($data);
             $dataEntity->addTextualContents($textualContents);
             $enqueue = false;
-        }
-
-        if ($enqueue && DataHelper::isIndexable($data)) {
+        } elseif (DataHelper::isIndexable($data)) {
             // Otherwise, we queue the data to be indexed later.
             $data->status = Data::DATA_STATUS_QUEUED;
             $dataEntity = SolrEntityData::buildFromModel($data);
+        } else {
+            throw new BadRequestException([
+                sprintf('The given Data type "%s" could not be indexed.', $data->type),
+            ]);
         }
 
-        if (!$dataEntity) {
-            // We are not able to index this data!
-            throw new BadRequestException(['The given Data could not be indexed.']);
-        }
+        $this->logger->info('Adding Data object to the index, enqueue={enqueue}, id={uuid}', [
+            'uuid' => $data->uuid,
+            'enqueue' => $enqueue,
+        ]);
 
         $this->solrService->add($dataEntity);
 
@@ -128,38 +139,83 @@ class DataService
         return $this->solrService->addWithTextExtraction($dataEntity, $fileInfo);
     }
 
-    public function queryData(SearchParams $searchParams)
+    /**
+     * Executes a search for a set of Data entities with the specified params.
+     *
+     * @param SearchParams $searchParams
+     *
+     * @throws BadRequestException
+     *
+     * @return SearchResults
+     */
+    public function searchData(SearchParams $searchParams): SearchResults
     {
-        $solrResult = $this->solrService->select($searchParams, SolrEntityData::class);
+        // Building the search query
+        $query = $this->solrService->buildSelectQueryByEntityType(SolrEntityData::class, self::SEARCH_ENTITY_TYPE_KEY);
 
-        $searchResult = new SearchResults();
-        $searchResult->query = $searchParams;
-        $searchResult->query_time = $solrResult->getQueryTime();
-        $searchResult->total_matches = $solrResult->getNumFound();
-        $searchResult->items = array_map(function (AbstractDocument $document) {
-            $idField = SolrEntity::FIELD_ENTITY_ID;
-            $documentId = $document->$idField;
-            $entityData = new SolrEntityData($documentId, $document);
+        // Find only Data that is correctly indexed
+        $query->addFilterQuery($this->solrService->buildFilterQuery(
+            SolrEntityData::FIELD_STATUS,
+            Data::DATA_STATUS_OK,
+            self::SEARCH_DATA_STATUS_KEY
+        ));
 
-            return $entityData->buildModel();
-        }, $solrResult->getDocuments());
+        // Setting limit and offset
+        $query->setRows($searchParams->limit);
+        $query->setStart($searchParams->offset);
 
-        $facets = $solrResult->getFacetSet();
-        $searchResult->aggregations = [];
-        foreach ($searchParams->aggregations as $aggregationName => $aggregationParams) {
-            $facet = $facets->getFacet($aggregationName);
-            $searchResult->aggregations[$aggregationName] = new AggregationResult();
-            $searchResult->aggregations[$aggregationName] = [];
+        // Setting the search terms
+        $query->setQuery($searchParams->search);
 
-            foreach ($facet as $value => $count) {
-                $result = new AggregationResult();
-                $result->count = $count;
-                $result->value = $value;
-                $searchResult->aggregations[$aggregationName][] = $result;
+        // Enabling Full-Text search
+        $edisMax = $query->getEDisMax();
+        $edisMax->setQueryFields(implode(' ', SolrEntityData::getTextSearchFields()));
+
+        // Adding aggregations (aka Solr Facets)
+        $facets = [];
+        foreach ($searchParams->aggregations as $property => $aggregation) {
+            if (!array_key_exists($property, SolrEntityData::getModelPropertyToFieldMappings())) {
+                throw new BadRequestException([
+                    'aggregations' => sprintf('Aggregation on property "%s" is not available', $property),
+                ]);
             }
+
+            $fieldName = SolrEntityData::getModelPropertyToFieldMappings()[$property];
+            $facet = $this->solrService->buildFacet($fieldName, $aggregation->limit, $property);
+
+            if (!$aggregation->countsFiltered) {
+                $facet->setExcludes([self::SEARCH_USER_FILTER_TAG]);
+            }
+            $facets[] = $facet;
         }
 
-        return $searchResult;
+        if ($facets) {
+            $query->getFacetSet()->addFacets($facets);
+        }
+
+        // Adding search filters
+        if ($searchParams->filters) {
+            $filterQuery = $this->solrService->buildFilterFromString(
+                $searchParams->filters,
+                SolrEntityData::getModelPropertyToFieldMappings(),
+                self::SEARCH_USER_FILTER_KEY
+            );
+            $filterQuery->addTag(self::SEARCH_USER_FILTER_TAG);
+
+            $query->addFilterQuery($filterQuery);
+        }
+
+        $queryResult = $this->solrService->executeSelectQuery($query);
+
+        $searchResults = new SearchResults($searchParams);
+        $searchResults->queryTime = $queryResult->getQueryTime();
+        $searchResults->totalMatches = $queryResult->getNumFound();
+
+        $searchResults->items = $this->solrService->buildSolrModelsFromResult($queryResult, SolrEntityData::class);
+
+        $searchResults->aggregations = $this->solrService->buildAggregationsFromResult($queryResult);
+
+        return $searchResults;
     }
 
     /**
@@ -169,8 +225,8 @@ class DataService
      */
     protected function dataCleanup(Data $data)
     {
-        if (!$data->properties->updated_at) {
-            $data->properties->updated_at = new \DateTime('now', new DateTimeZone('UTC'));
+        if (!$data->properties->updatedAt) {
+            $data->properties->updatedAt = new \DateTime('now', new DateTimeZone('UTC'));
         }
     }
 }

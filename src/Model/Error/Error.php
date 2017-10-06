@@ -14,7 +14,8 @@ use Swagger\Annotations as SWG;
 class Error
 {
     /**
-     * The error constants are a representation of the RPC standard error codes. More info in http://json-rpc.readthedocs.io/en/latest/exceptions.html.
+     * The error constants are a representation of the RPC standard error codes.
+     * More info in http://json-rpc.readthedocs.io/en/latest/exceptions.html.
      */
     const PARSE_ERROR = -32700;
     const INVALID_REQUEST = -32600;
@@ -28,7 +29,7 @@ class Error
      * @var int
      * @JMS\Type("integer")
      * @SWG\Property(
-     *     example=404
+     *     example=400
      * )
      */
     public $code;
@@ -39,7 +40,7 @@ class Error
      * @var string
      * @JMS\Type("string")
      * @SWG\Property(
-     *     example="Not Found"
+     *     example="Invalid data provided"
      * )
      */
     public $message;

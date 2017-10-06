@@ -11,6 +11,7 @@ use App\Service\QueueService;
 use App\Service\SolrService;
 use App\Tests\Helper\ModelHelper;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Finder\SplFileInfo;
 
 class DataServiceTest extends TestCase
@@ -23,11 +24,19 @@ class DataServiceTest extends TestCase
     /** @var QueueService|\PHPUnit_Framework_MockObject_MockObject */
     private $queueService;
 
+    /** @var DataService */
+    private $dataService;
+
     protected function setUp()
     {
         parent::setUp();
         $this->solrService = $this->createMock(SolrService::class);
         $this->queueService = $this->createMock(QueueService::class);
+        $this->dataService = new DataService(
+            $this->queueService,
+            $this->solrService,
+            $this->createMock(LoggerInterface::class)
+        );
     }
 
     public function dataProviderForDeleteData()
@@ -51,9 +60,7 @@ class DataServiceTest extends TestCase
             ->with(SolrEntityData::getEntityType(), self::DATA_UUID)
             ->willReturn($existing);
 
-        $dataService = new DataService($this->queueService, $this->solrService);
-
-        $this->assertEquals($expected, $dataService->deleteData(self::DATA_UUID));
+        $this->assertEquals($expected, $this->dataService->deleteData(self::DATA_UUID));
     }
 
     public function testItAddDataWithTextualContent()
@@ -74,8 +81,7 @@ class DataServiceTest extends TestCase
         $this->queueService->expects($this->never())
             ->method('enqueueMessage');
 
-        $dataService = new DataService($this->queueService, $this->solrService);
-        $this->assertTrue($dataService->addData($data, $sampleTextualContent));
+        $this->assertTrue($this->dataService->addData($data, $sampleTextualContent));
     }
 
     public function dataProviderForNotIndexableContentAndType()
@@ -97,13 +103,11 @@ class DataServiceTest extends TestCase
         $data = ModelHelper::createDataModel(self::DATA_UUID);
         $data->type = $type;
 
-        $dataService = new DataService($this->queueService, $this->solrService);
-
         $this->queueService->expects($this->never())
             ->method('enqueueMessage');
 
         $this->expectException(BadRequestException::class);
-        $dataService->addData($data, $textContents);
+        $this->dataService->addData($data, $textContents);
     }
 
     public function testItQueuesIndexableData()
@@ -129,8 +133,7 @@ class DataServiceTest extends TestCase
             }))
         ;
 
-        $dataService = new DataService($this->queueService, $this->solrService);
-        $this->assertTrue($dataService->addData($data));
+        $this->assertTrue($this->dataService->addData($data));
     }
 
     public function testAddDataWithFileExtraction()
@@ -156,7 +159,6 @@ class DataServiceTest extends TestCase
             ->method('enqueueMessage')
         ;
 
-        $dataService = new DataService($this->queueService, $this->solrService);
-        $this->assertTrue($dataService->addDataWithFileExtraction($data, $file));
+        $this->assertTrue($this->dataService->addDataWithFileExtraction($data, $file));
     }
 }

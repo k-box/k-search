@@ -15,7 +15,7 @@ class RPCResponse
      *
      * @see RPCRequest::$id
      *
-     * @var string
+     * @var string|null
      * @JMS\Type("string")
      * @JMS\ReadOnly()
      * @SWG\Property(

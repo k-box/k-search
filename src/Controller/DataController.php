@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Exception\BadRequestException;
 use App\Model\Data\AddRequest;
 use App\Model\Data\AddResponse;
 use App\Model\Data\DataStatus;
@@ -13,31 +12,18 @@ use App\Model\Data\GetRequest;
 use App\Model\Data\GetResponse;
 use App\Model\Data\SearchRequest;
 use App\Model\Data\SearchResponse;
-use App\Model\RPCRequest;
 use App\Model\Status\StatusResponse;
 use App\Service\DataService;
 use JMS\Serializer\SerializerInterface;
 use Swagger\Annotations as SWG;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class DataController extends Controller
+class DataController extends AbstractRpcController
 {
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    /**
-     * @var SerializerInterface
-     */
-    private $serializer;
-
     /**
      * @var DataService
      */
@@ -45,9 +31,8 @@ class DataController extends Controller
 
     public function __construct(DataService $searchService, ValidatorInterface $validator, SerializerInterface $serializer)
     {
+        parent::__construct($validator, $serializer);
         $this->dataService = $searchService;
-        $this->validator = $validator;
-        $this->serializer = $serializer;
     }
 
     /**
@@ -305,53 +290,10 @@ class DataController extends Controller
         /** @var SearchRequest $searchRequest */
         $searchRequest = $this->getRequestModelFromJson($request, SearchRequest::class);
 
-        $searchResult = $this->dataService->queryData($searchRequest->params);
+        $searchResult = $this->dataService->searchData($searchRequest->params);
 
         $searchResponse = new SearchResponse($searchResult, $searchRequest->id);
 
         return $this->getJsonResponse($searchResponse);
-    }
-
-    /**
-     * Returns the given RequestModel from the request.
-     *
-     * @param Request $request
-     * @param string  $class
-     *
-     * @throws BadRequestException
-     *
-     * @return mixed
-     */
-    private function getRequestModelFromJson(Request $request, string $class)
-    {
-        $requestModel = $this->serializer->deserialize($request->getContent(), $class, 'json');
-
-        // We handle the request-id as a HTTP header, it will be used in the KSearchExceptionListener
-        // to correctly set the "response->id" if available.
-        if ($requestModel instanceof  RPCRequest && $requestModel->id) {
-            $request->headers->set(RPCRequest::REQUEST_ID_HEADER, $requestModel->id);
-        }
-
-        $validationErrors = $this->validator->validate($requestModel);
-        if (count($validationErrors) > 0) {
-            $errors = [];
-            /** @var ConstraintViolationInterface $error */
-            foreach ($validationErrors as $error) {
-                $errors[$error->getPropertyPath()] = $error->getMessage();
-            }
-            throw new BadRequestException($errors);
-        }
-
-        return $requestModel;
-    }
-
-    /**
-     * @param mixed $model
-     *
-     * @return JsonResponse
-     */
-    private function getJsonResponse($model): JsonResponse
-    {
-        return new JsonResponse($this->serializer->serialize($model, 'json'), 200, [], true);
     }
 }

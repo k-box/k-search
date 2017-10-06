@@ -2,73 +2,30 @@
 
 namespace App\Entity;
 
-use Solarium\QueryType\Select\Result\AbstractDocument;
 use Solarium\QueryType\Update\Query\Document\Document;
 
-/**
- * Default entity for Documents stored in Solr.
- */
-abstract class SolrEntity
+interface SolrEntity
 {
-    const FIELD_ENTITY_TYPE = 'entity_type';
-    const FIELD_ENTITY_ID = 'entity_id';
-
     /**
-     * @var AbstractDocument
-     */
-    private $document;
-
-    /**
-     * @param string                $id       The ID of the Entity
-     * @param null|AbstractDocument $document The SolrDocument to build the Entity from
-     */
-    public function __construct(string $id, ?AbstractDocument $document = null)
-    {
-        if ($document) {
-            $this->document = new Document($document->getFields());
-        } else {
-            $this->document = new Document();
-        }
-        $this->addField(self::FIELD_ENTITY_ID, $id);
-        $this->addField(self::FIELD_ENTITY_TYPE, static::getEntityType());
-    }
-
-    /**
-     * Add the given field/value to the underlying Solr document.
+     * Returns the entity type for this Solr document.
      *
-     * @param string $key
-     * @param mixed  $value
+     * @return string
      */
-    public function addField(string $key, $value)
-    {
-        $this->document->addField($key, $value);
-    }
+    public static function getEntityType(): string;
 
-    abstract public function buildModel();
+    /**
+     * Returns the inner Solr document.
+     *
+     * @return Document
+     */
+    public function getSolrUpdateDocument(): Document;
 
-    abstract public static function getEntityType(): string;
-
-    abstract public static function getIndexableFields(): array;
-
-    public static function getSearchableFields(): array
-    {
-        return array_keys(self::getIndexableFields());
-    }
-
-    public static function getFilterableFields(): array
-    {
-        return array_keys(self::getIndexableFields());
-    }
-
-    public static function getAggregableFields(): array
-    {
-        return array_keys(self::getIndexableFields());
-    }
-
-    public function getSolrDocument(): Document
-    {
-        return $this->document;
-    }
+    /**
+     * Builds a model from the Solr document.
+     *
+     * @return mixed
+     */
+    public function buildModel();
 
     /**
      * Get the specified field from the underlying Solr document, if exists.
@@ -77,12 +34,48 @@ abstract class SolrEntity
      *
      * @return string|array|null
      */
-    public function getField(string $fieldName)
-    {
-        if (!array_key_exists($fieldName, $this->document->getFields())) {
-            return null;
-        }
+    public function getField(string $fieldName);
 
-        return $this->document->__get($fieldName);
-    }
+    /**
+     * Add the given field/value to the underlying Solr document.
+     *
+     * @param string $key
+     * @param mixed  $value
+     */
+    public function addField(string $key, $value);
+
+    /**
+     * Return the fields used to perform a text search, may include boosting.
+     *
+     * @return string[]
+     */
+    public static function getTextSearchFields(): array;
+
+    /**
+     * Return the fields used to perform aggregations.
+     *
+     * @return string[]
+     */
+    public static function getAggregationFields(): array;
+
+    /**
+     * Return the fields used to filters.
+     *
+     * @return string[]
+     */
+    public static function getFilterFields(): array;
+
+    /**
+     * Return a mapping from model properties (json) to the Solr field.
+     *
+     * @return string[]
+     */
+    public static function getModelPropertyToFieldMappings(): array;
+
+    /**
+     * Return a mapping from Solr fields to their model property (json).
+     *
+     * @return string[]
+     */
+    public static function getFieldToModelPropertyMappings(): array;
 }
