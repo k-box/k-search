@@ -2,23 +2,24 @@
 
 namespace App\Service;
 
+use App\Entity\AbstractSolrEntity;
 use App\Entity\SolrEntity;
+use App\Entity\SolrEntityExtractText;
+use App\Exception\BadRequestException;
 use App\Exception\InternalSearchException;
 use App\Exception\ResourceNotFoundException;
-use App\Helper\SearchHelper;
-use App\Model\Data\SearchParams;
+use App\Helper\SolrHelper;
+use App\Model\Data\Aggregation;
+use App\Model\Data\AggregationResult;
 use Solarium\Client;
 use Solarium\Exception\ExceptionInterface;
+use Solarium\QueryType\Select\Query\Component\Facet\Field;
 use Solarium\QueryType\Select\Query\FilterQuery;
 use Solarium\QueryType\Select\Query\Query;
 use Solarium\QueryType\Select\Result\Result;
 
 class SolrService
 {
-    const DATA_TEXTUAL_DYNAMIC_FIELD_NAME = 'str_ss_file_content';
-    const USER_FILTER_KEY = 'user-filter';
-    const USER_FILTER_TAG = 'user-filter';
-
     /**
      * @var Client
      */
@@ -29,10 +30,10 @@ class SolrService
         $this->solrClient = $solrClient;
     }
 
-    public function add(SolrEntity $solrEntity)
+    public function add(AbstractSolrEntity $solrEntity)
     {
         $update = $this->solrClient->createUpdate();
-        $update->addDocument($solrEntity->getSolrDocument());
+        $update->addDocument($solrEntity->getSolrUpdateDocument());
         $update->addCommit();
 
         return $this->solrClient->update($update);
@@ -40,35 +41,33 @@ class SolrService
 
     public function get(string $entityType, string $id, string $solrEntityClass)
     {
-        if (!is_a($solrEntityClass, SolrEntity::class, true)) {
+        if (!in_array(SolrEntity::class, class_implements($solrEntityClass), true)) {
             throw new \RuntimeException(sprintf('Wrong class name for Solr entity fetching, %s given', $solrEntityClass));
         }
 
         $select = $this->solrClient->createSelect();
-        $select
-            ->setStart(0)
-            ->setRows(1)
-            ->setQuery(SolrEntity::FIELD_ENTITY_ID.':"'.$id.'"');
+        $select->setRows(1);
 
-        $filterQuery = new FilterQuery(['key' => 'entity-filter']);
-        $filterQuery->setQuery(SolrEntity::FIELD_ENTITY_TYPE.':"'.$entityType.'"');
-        $select->addFilterQueries([$filterQuery]);
+        $select->addFilterQueries([
+            $this->buildFilterQuery(AbstractSolrEntity::FIELD_ENTITY_TYPE, $entityType, 'type'),
+            $this->buildFilterQuery(AbstractSolrEntity::FIELD_ENTITY_ID, $id, 'id'),
+        ]);
 
         $resultSet = null;
         try {
-            $resultSet = $this->solrClient->select($select);
-        } catch (ExceptionInterface $exception) {
+            $resultSet = $this->executeSelectQuery($select);
+        } catch (ExceptionInterface|\Throwable $exception) {
             $this->handleSolariumExceptions(
                 $exception,
                 sprintf('Error while loading from Index, type=%s, id=%s', $entityType, $id)
             );
         }
 
-        if (!$resultSet || 1 !== $resultSet->count()) {
+        if (!$resultSet || 1 !== $resultSet->getNumFound()) {
             throw new ResourceNotFoundException(sprintf('Resource %s::%s not found!', $entityType, $id));
         }
 
-        // Building the required SolrEntity object
+        // Building the required SolrEntity object from the result document
         return new $solrEntityClass($id, $resultSet->getIterator()[0]);
     }
 
@@ -85,9 +84,12 @@ class SolrService
     public function delete(string $entityType, string $id): bool
     {
         $update = $this->solrClient->createUpdate();
-        $query = ' +'.SolrEntity::FIELD_ENTITY_TYPE.':"'.$entityType.'"'.
-                 ' +'.SolrEntity::FIELD_ENTITY_ID.':"'.$id.'"'
-        ;
+        $helper = $update->getHelper();
+
+        $query = sprintf('+%s:"%s" +%s:"%s"',
+            AbstractSolrEntity::FIELD_ENTITY_TYPE, $entityType,
+                 AbstractSolrEntity::FIELD_ENTITY_ID, $helper->escapeTerm($id)
+        );
 
         $update->addDeleteQuery($query);
         $update->addCommit();
@@ -107,20 +109,28 @@ class SolrService
     /**
      * Add an entity to the index, with text extraction from a file.
      *
-     * @param SolrEntity   $entity   The entity to add to the index
-     * @param \SplFileInfo $fileInfo The file to be used to extract the contents from
+     * @param AbstractSolrEntity $entity   The entity to add to the index
+     * @param \SplFileInfo       $fileInfo The file to be used to extract the contents from
      *
      * @throws \Exception
      * @throws \Throwable
      *
      * @return bool
      */
-    public function addWithTextExtraction(SolrEntity $entity, \SplFileInfo $fileInfo)
+    public function addWithTextExtraction(AbstractSolrEntity $entity, \SplFileInfo $fileInfo)
     {
+        if (!$entity instanceof SolrEntityExtractText) {
+            throw new \RuntimeException(sprintf(
+                'Wrong object type for text-extracting. %s does not implement %s',
+                get_class($entity),
+                SolrEntityExtractText::class)
+            );
+        }
+
         $extract = $this->solrClient->createExtract();
         $extract->setFile($fileInfo->getRealPath());
-        $extract->setFieldMappings(['content' => $entity->getContentsField()]);
-        $extract->setDocument($entity->getSolrDocument());
+        $extract->setFieldMappings(['content' => $entity::getTextualContentsField()]);
+        $extract->setDocument($entity->getSolrUpdateDocument());
 
         // Adding extra attributes to store the extracted data
         // $extract->setUprefix('str_sm_doc_attributes_');
@@ -130,7 +140,7 @@ class SolrService
             $this->solrClient->update($extract);
 
             return true;
-        } catch (\Throwable $e) {
+        } catch (ExceptionInterface $e) {
             if (false !== strpos($e->getMessage(), '.PDFParser')) {
                 throw new \Exception('PDF Parsing Exception', 500, $e);
             }
@@ -139,28 +149,136 @@ class SolrService
     }
 
     /**
-     * @param SearchParams $searchParams
-     * @param string       $solrEntityClass
+     * Returns a Solr Query to return only results of the given class.
      *
-     * @return Result
+     * @param string      $solrEntityClass The Entity to filter for
+     * @param string|null $filterKey       The filter key for the entity-type filtering
+     *
+     * @return Query
      */
-    public function select(SearchParams $searchParams, string $solrEntityClass): Result
+    public function buildSelectQueryByEntityType(string $solrEntityClass, ?string $filterKey = 'entity-type'): Query
     {
-        if (!is_a($solrEntityClass, SolrEntity::class, true)) {
+        if (!is_a($solrEntityClass, AbstractSolrEntity::class, true)) {
             throw new \RuntimeException(sprintf('Wrong class name for Solr entity fetching, %s given', $solrEntityClass));
         }
 
-        $select = $this->solrClient->createSelect();
-        $select->setStart($searchParams->offset);
-        $select->setRows($searchParams->limit);
+        $query = $this->solrClient->createSelect();
 
-        $this->handleQuery($searchParams, $solrEntityClass, $select);
+        /** @var AbstractSolrEntity $solrEntity */
+        $solrEntity = new $solrEntityClass('');
 
-        $this->handleFilters($searchParams, $solrEntityClass, $select);
+        // Filter the returned entities to be of the given type
+        $query->addFilterQuery($this->buildFilterQuery($solrEntity::FIELD_ENTITY_TYPE, $solrEntity::getEntityType(), $filterKey));
 
-        $this->handleFacets($searchParams, $solrEntityClass, $select);
+        return $query;
+    }
 
-        return $this->solrClient->select($select);
+    /**
+     * Builds a filter query for the given field and value.
+     *
+     * @param string      $field The Solr field
+     * @param string      $value The value to filter for
+     * @param string|null $key   The filter key
+     *
+     * @return FilterQuery
+     */
+    public function buildFilterQuery(string $field, string $value, ?string $key = null): FilterQuery
+    {
+        $filterQuery = new FilterQuery();
+        $filterQuery->setKey(SolrHelper::buildSolrKey($key ?? strtolower($field)));
+        $filterQuery->setQuery(sprintf('%s:%s', $field, $value));
+
+        return $filterQuery;
+    }
+
+    /**
+     * Build a Solr facet.
+     *
+     * @param string      $field The field name
+     * @param int|null    $limit The number of facet items to return
+     * @param string|null $key   The facet key
+     *
+     * @return Field
+     */
+    public function buildFacet(string $field, ?int $limit = null, ?string $key = null): Field
+    {
+        $facet = new Field();
+        $facet->setLimit($limit);
+        $facet->setField($field);
+        $facet->setKey($key ?? SolrHelper::buildSolrKey($field));
+
+        return $facet;
+    }
+
+    /**
+     * Builds a FilterQuery from the given string and the property -> field mapping.
+     *
+     * @param string $filterString           The filter string
+     * @param array  $propertyToFieldMapping the ['property-name' => 'solr_field_name'] mapping
+     * @param string $key                    The filter key
+     *
+     * @throws BadRequestException
+     *
+     * @return FilterQuery
+     */
+    public function buildFilterFromString(string $filterString, array $propertyToFieldMapping, string $key): FilterQuery
+    {
+        $filter = new FilterQuery();
+        $filter->setKey($key);
+
+        $properties = SolrHelper::getModelPropertiesInFilterQuery($filterString);
+
+        $flippedProperties = array_flip($properties);
+        $invalidProperties = array_diff_key($flippedProperties, $propertyToFieldMapping);
+        if (count($invalidProperties)) {
+            throw new BadRequestException([
+                sprintf('Invalid filter properties: %s', implode(',', $invalidProperties)),
+            ]);
+        }
+
+        $filter->setQuery(SolrHelper::replacePropertyToFieldNames($filterString, array_intersect_key($propertyToFieldMapping, $flippedProperties)));
+
+        return $filter;
+    }
+
+    public function executeSelectQuery(Query $query): Result
+    {
+        return $this->solrClient->select($query);
+    }
+
+    public function buildSolrModelsFromResult(Result $result, string $solrEntityClass): array
+    {
+        if (!is_a($solrEntityClass, AbstractSolrEntity::class, true)) {
+            throw new \RuntimeException(sprintf('Wrong class name for Solr entity building, %s given', $solrEntityClass));
+        }
+
+        $models = [];
+
+        foreach ($result->getDocuments() as $document) {
+            /** @var AbstractSolrEntity $entity */
+            $entity = new $solrEntityClass($document->{AbstractSolrEntity::FIELD_ENTITY_ID}, $document);
+            $models[] = $entity->buildModel();
+        }
+
+        return $models;
+    }
+
+    /**
+     * @param $result
+     *
+     * @return Aggregation[]
+     */
+    public function buildAggregationsFromResult(Result $result): array
+    {
+        $aggregations = [];
+
+        foreach ($result->getFacetSet()->getFacets() as $property => $facets) {
+            foreach ($facets as $value => $count) {
+                $aggregations[$property][] = new AggregationResult($value, $count);
+            }
+        }
+
+        return $aggregations;
     }
 
     private function handleSolariumExceptions(ExceptionInterface $exception, string $additionalMessage)
@@ -170,88 +288,5 @@ class SolrService
             $exception->getCode(),
             $exception
         );
-    }
-
-    /**
-     * @param SearchParams $searchParams
-     * @param string       $solrEntityClass
-     * @param Query        $select
-     *
-     * @throws \Exception
-     */
-    private function handleFacets(SearchParams $searchParams, string $solrEntityClass, Query $select): void
-    {
-        $availableFacets = call_user_func([$solrEntityClass, 'getAggregableFields']);
-        $facets = $select->getFacetSet();
-
-        foreach ($searchParams->aggregations as $facetField => $aggregation) {
-            if (!in_array($facetField, $availableFacets, true)) {
-                throw new \Exception(sprintf('%s is not a valid aggregation', $facetField));
-            }
-
-            $facet = $facets->createFacetField($facetField)
-                ->setField(SearchHelper::transformFieldNames($solrEntityClass, $facetField))
-                ->setLimit($aggregation->limit);
-
-            if (!$aggregation->countsFiltered) {
-                $facet->addExclude(self::USER_FILTER_TAG);
-            }
-        }
-    }
-
-    /**
-     * @param SearchParams $searchParams
-     * @param string       $solrEntityClass
-     * @param Query        $select
-     *
-     * @throws \Exception
-     */
-    private function handleFilters(SearchParams $searchParams, string $solrEntityClass, Query $select): void
-    {
-        $entityType = call_user_func([$solrEntityClass, 'getEntityType']);
-        $filterableFields = call_user_func([$solrEntityClass, 'getFilterableFields']);
-
-        $entityFilter = new FilterQuery(['key' => 'entity-filter']);
-        $entityFilter->setQuery(sprintf('%s:%s', SolrEntity::FIELD_ENTITY_TYPE, $entityType));
-        $solrFilters = [];
-        $solrFilters[] = $entityFilter;
-
-        if (!empty($searchParams->filters)) {
-            $userFilter = new FilterQuery([
-                'key' => self::USER_FILTER_KEY,
-            ]);
-
-            $fieldsInFilters = SearchHelper::getFieldsInFilterQuery($solrEntityClass, $searchParams->filters);
-
-            if (array_intersect($fieldsInFilters, $filterableFields) !== $fieldsInFilters) {
-                throw new \Exception(sprintf('You have used an unrecognized filter. The available filters are %s', implode(', ', $filterableFields)));
-            }
-
-            $userFilter->setQuery(SearchHelper::transformFieldNames($solrEntityClass, $searchParams->filters));
-            $userFilter->addTag(self::USER_FILTER_TAG);
-
-            $solrFilters[] = $userFilter;
-        }
-
-        $select->addFilterQueries($solrFilters);
-    }
-
-    /**
-     * @param SearchParams $searchParams
-     * @param string       $solrEntityClass
-     * @param Query        $select
-     */
-    private function handleQuery(SearchParams $searchParams, string $solrEntityClass, Query $select): void
-    {
-        $select->setQuery('*%P1%*', [$searchParams->search]);
-
-        // EDisMax fields
-        $searchableFields = call_user_func([$solrEntityClass, 'getSearchableFields']);
-        $indexableFields = call_user_func([$solrEntityClass, 'getIndexableFields']);
-        $searchableRealFields = array_map(function ($exposedName) use ($indexableFields) {
-            return $indexableFields[$exposedName];
-        }, $searchableFields);
-        $edisMax = $select->getEDisMax();
-        $edisMax->setQueryFields(implode(' ', $searchableRealFields));
     }
 }

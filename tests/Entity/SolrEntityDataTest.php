@@ -2,7 +2,7 @@
 
 namespace App\Tests\Entity;
 
-use App\Entity\SolrEntity;
+use App\Entity\AbstractSolrEntity;
 use App\Entity\SolrEntityData;
 use App\Model\Data\Properties\Source;
 use App\Model\Data\Properties\Streaming;
@@ -19,8 +19,8 @@ class SolrEntityDataTest extends TestCase
         $data = ModelHelper::createDataModel(self::SAMPLE_UUID);
         $entity = SolrEntityData::buildFromModel($data);
 
-        $this->assertEquals($entity->getField(SolrEntity::FIELD_ENTITY_ID), self::SAMPLE_UUID);
-        $this->assertEquals($entity->getField(SolrEntity::FIELD_ENTITY_TYPE), SolrEntityData::getEntityType());
+        $this->assertEquals($entity->getField(AbstractSolrEntity::FIELD_ENTITY_ID), self::SAMPLE_UUID);
+        $this->assertEquals($entity->getField(AbstractSolrEntity::FIELD_ENTITY_TYPE), SolrEntityData::getEntityType());
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_UUID), self::SAMPLE_UUID);
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_HASH), $data->hash);
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_TYPE), $data->type);
@@ -68,8 +68,8 @@ class SolrEntityDataTest extends TestCase
 
         $entity = SolrEntityData::buildFromModel($data);
 
-        $this->assertEquals($entity->getField(SolrEntity::FIELD_ENTITY_ID), self::SAMPLE_UUID);
-        $this->assertEquals($entity->getField(SolrEntity::FIELD_ENTITY_TYPE), SolrEntityData::getEntityType());
+        $this->assertEquals($entity->getField(AbstractSolrEntity::FIELD_ENTITY_ID), self::SAMPLE_UUID);
+        $this->assertEquals($entity->getField(AbstractSolrEntity::FIELD_ENTITY_TYPE), SolrEntityData::getEntityType());
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_UUID), self::SAMPLE_UUID);
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_HASH), $data->hash);
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_TYPE), $data->type);

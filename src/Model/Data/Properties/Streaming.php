@@ -35,7 +35,7 @@ class Streaming
      * )
      * @JMS\Type("string")
      * @SWG\Property(
-     *     enum={"youtube", "dash", "hls"}
+     *     enum={"youtube", "dash", "hls"},
      *     example="youtube",
      * )
      */

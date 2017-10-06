@@ -114,7 +114,7 @@ class DataControllerTest extends KernelTestCase
 
         $request = $this->createRequest($requestContent);
 
-        $response = $dataController->postDataDelete($request, self::API_VERSION);
+        $dataController->postDataDelete($request, self::API_VERSION);
     }
 
     public function testItGetsData()

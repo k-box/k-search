@@ -290,7 +290,7 @@ class DataController extends AbstractRpcController
         /** @var SearchRequest $searchRequest */
         $searchRequest = $this->getRequestModelFromJson($request, SearchRequest::class);
 
-        $searchResult = $this->dataService->queryData($searchRequest->params);
+        $searchResult = $this->dataService->searchData($searchRequest->params);
 
         $searchResponse = new SearchResponse($searchResult, $searchRequest->id);
 

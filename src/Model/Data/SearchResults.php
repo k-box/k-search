@@ -31,10 +31,11 @@ class SearchResults
      * @JMS\Type("integer")
      * @JMS\ReadOnly()
      * @SWG\Property(
-     *     example="104"
+     *     property="query_time",
+     *     example="104",
      * )
      */
-    public $query_time;
+    public $queryTime;
 
     /**
      * The total amount of found items.
@@ -43,10 +44,11 @@ class SearchResults
      * @JMS\Type("integer")
      * @JMS\ReadOnly()
      * @SWG\Property(
-     *     example="1"
+     *     property="total_matches",
+     *     example="1",
      * )
      */
-    public $total_matches;
+    public $totalMatches;
 
     /**
      * Array of aggregations.
@@ -67,4 +69,9 @@ class SearchResults
      * @SWG\Property()
      */
     public $items;
+
+    public function __construct(SearchParams $query)
+    {
+        $this->query = $query;
+    }
 }
