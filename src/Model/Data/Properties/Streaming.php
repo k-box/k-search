@@ -15,7 +15,7 @@ use Swagger\Annotations as SWG;
 class Streaming
 {
     /**
-     * URL of the video stream type (youtube, dash, hls).
+     * Type of the video stream (youtube, dash, hls).
      *
      * @var string
      * @JMS\Type("string")
@@ -34,5 +34,5 @@ class Streaming
      *     example="https://www.youtube.com/watch?v=M7g7Pfx6zjg",
      * )
      */
-    public $resolution;
+    public $url;
 }

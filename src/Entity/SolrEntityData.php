@@ -308,7 +308,7 @@ class SolrEntityData extends SolrEntity
                 $streamings = [];
                 foreach ($data['video']['streaming'] ?? [] as $streamingData) {
                     $streaming = new Streaming();
-                    $this->inflateModelWithData($streaming, ['type', 'resolution'], $streamingData);
+                    $this->inflateModelWithData($streaming, ['type', 'url'], $streamingData);
                     $streamings[] = $streaming;
                 }
                 $video->streaming = $streamings;
