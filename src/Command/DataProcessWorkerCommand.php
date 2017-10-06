@@ -53,10 +53,9 @@ class DataProcessWorkerCommand extends ContainerAwareCommand
         $limit = $input->getOption('limit');
         $consumedMessages = 0;
 
+        $output->writeln('<info>Waiting for data to process...</info>');
         do {
             try {
-                $output->writeln('<info>Getting next UUID to process from queue</info>');
-
                 $message = $this->queueService->dequeMessage(QueueService::DATA_PROCESS_QUEUE);
                 ++$consumedMessages;
 
