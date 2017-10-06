@@ -56,7 +56,6 @@ class DataProcessWorkerCommand extends ContainerAwareCommand
         $output->writeln('<info>Waiting for data to process...</info>');
         do {
             try {
-
                 $message = $this->queueService->dequeMessage(QueueService::DATA_PROCESS_QUEUE);
                 ++$consumedMessages;
 
