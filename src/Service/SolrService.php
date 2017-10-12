@@ -272,6 +272,11 @@ class SolrService
     {
         $aggregations = [];
 
+        if (!$result->getFacetSet()) {
+            // if facets are unset, return empty aggregations list
+            return $aggregations;
+        }
+
         foreach ($result->getFacetSet()->getFacets() as $property => $facets) {
             foreach ($facets as $value => $count) {
                 $aggregations[$property][] = new AggregationResult($value, $count);
