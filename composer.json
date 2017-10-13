@@ -14,7 +14,7 @@
         "bernard/bernard": "^0.12.3",
         "jms/serializer-bundle": "^2.0",
         "nelmio/solarium-bundle": "^2.4",
-        "oneofftech/k-link-registry-client": "dev-update",
+        "oneofftech/k-link-registry-client": "^0.1.0",
         "php-http/guzzle6-adapter": "^1.1",
         "php-http/httplug-bundle": "^1.7",
         "ramsey/uuid": "^3.6",
@@ -38,7 +38,9 @@
         "friendsofphp/php-cs-fixer": "^2.0",
         "phpstan/phpstan": "^0.8.0",
         "phpunit/phpunit": "^6.0",
-        "symfony/dotenv": "^3.3"
+        "symfony/browser-kit": "^3.3",
+        "symfony/dotenv": "^3.3",
+        "symfony/phpunit-bridge": "^3.3"
     },
     "config": {
         "preferred-install": {
