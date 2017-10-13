@@ -218,6 +218,7 @@ class DataService
             $query->addFilterQuery($filterQuery);
         }
 
+        $query->setOmitHeader(false);
         $queryResult = $this->solrService->executeSelectQuery($query);
 
         $searchResults = new SearchResults($searchParams);
