@@ -32,9 +32,17 @@ RUN { \
         echo "\t\tOrder Allow,Deny"; \
         echo "\t\tAllow from All"; \
 
+        echo "\t\tHeader always set Access-Control-Allow-Origin \"*\""; \
+        echo "\t\tHeader always set Access-Control-Allow-Methods \"GET, POST, OPTIONS\""; \
+        echo "\t\tHeader always set Access-Control-Max-Age \"1\""; \
+        echo "\t\tHeader always set Access-Control-Allow-Headers \"x-requested-with, Content-Type, origin, authorization, accept\""; \
+
         echo "\t\t<IfModule mod_rewrite.c>"; \
         echo "\t\t\tOptions -MultiViews"; \
         echo "\t\t\tRewriteEngine On"; \
+        echo "\t\t\t# Added a rewrite to respond with a 200 SUCCESS on every OPTIONS request."; \
+        echo "\t\t\tRewriteCond %{REQUEST_METHOD} OPTIONS"; \
+        echo "\t\t\tRewriteRule ^(.*)$ \" \" [R=200,QSA,L]"; \
         echo "\t\t\tRewriteCond %{REQUEST_FILENAME} !-f"; \
         echo "\t\t\tRewriteRule ^(.*)$ index.php [QSA,L]"; \
         echo "\t\t</IfModule>"; \
@@ -51,7 +59,7 @@ RUN { \
         echo "\t</Directory>"; \
         echo "</VirtualHost>" ; \
     } | tee "$APACHE_CONFDIR/sites-available/symfony.conf" \
-    && a2dissite 000-default && a2enmod rewrite && a2ensite symfony
+    && a2dissite 000-default && a2enmod rewrite && a2enmod headers && a2ensite symfony
 
 # copy over our entire directory into /var/www in the container
 COPY . /var/www/k-search
