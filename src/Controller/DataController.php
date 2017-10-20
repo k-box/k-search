@@ -78,11 +78,15 @@ class DataController extends AbstractRpcController
      */
     public function postDataDelete(Request $request, string $version)
     {
+        // First we check if the user has at least the needed credentials
+        $this->denyAccessUnlessGranted(DataVoter::REMOVE);
+
         /** @var DeleteRequest $deleteRequest */
         $deleteRequest = $this->buildRpcRequestModelFromJson($request, DeleteRequest::class);
 
         $data = $this->dataService->getData($deleteRequest->params->uuid);
 
+        // And here we check if it can remove the data given data
         $this->denyAccessUnlessGranted(DataVoter::REMOVE, $data);
 
         $success = $this->dataService->deleteData($deleteRequest->params->uuid);
@@ -90,7 +94,7 @@ class DataController extends AbstractRpcController
         if ($success) {
             $statusResponse = StatusResponse::withStatusMessage(200, 'Ok', $deleteRequest->id);
         } else {
-            $statusResponse = StatusResponse::withStatusMessage(400, 'Error', $deleteRequest->id);
+            $statusResponse = StatusResponse::withStatusMessage(500, 'Error', $deleteRequest->id);
         }
 
         return $this->buildRpcJsonResponse($statusResponse);

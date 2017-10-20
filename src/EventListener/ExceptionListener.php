@@ -63,7 +63,7 @@ class ExceptionListener implements EventSubscriberInterface
                 ]);
                 break;
             case AccessDeniedException::class:
-                $error = new Error(403, 'Access denied');
+                $error = new Error(403, $exception->getMessage());
                 break;
             case KRegistryException::class:
                 $error = new Error(500, $exception->getMessage(), $exception->getPrevious()->getMessage());

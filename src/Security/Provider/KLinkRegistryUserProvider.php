@@ -4,22 +4,17 @@ namespace App\Security\Provider;
 
 use App\Entity\ApiUser;
 use App\Exception\KRegistryException;
+use App\Security\Authorization\Voter\DataVoter;
 use OneOffTech\KLinkRegistryClient\Client;
+use OneOffTech\KLinkRegistryClient\Exception\ApplicationVerificationException;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class KLinkRegistryUserProvider implements UserProviderInterface
 {
-    const ALL_ROLES = [
-        'ROLE_DATA_ADD',
-        'ROLE_DATA_EDIT',
-        'ROLE_DATA_REMOVE_OWN',
-        'ROLE_DATA_REMOVE_ALL',
-        'ROLE_DATA_SEARCH',
-        'ROLE_DATA_VIEW',
-    ];
     /**
      * @var Client
      */
@@ -53,26 +48,31 @@ class KLinkRegistryUserProvider implements UserProviderInterface
         if (!$this->enabled) {
             $this->logger->info('Building local ApiUser: K-Registry is disabled!');
 
-            return new ApiUser('local', 'local@email.ext', $appUrl, $appSecret, self::ALL_ROLES);
+            return new ApiUser('local', 'local@email.ext', $appUrl, $appSecret, DataVoter::ALL_ROLES);
         }
 
         try {
-            // @todo: Remove the unnecessary $permissions array []
-            $application = $this->registryClient->access()->getApplication($appSecret, $appUrl, []);
+            $application = $this->registryClient->access()->getApplication($appSecret, $appUrl);
 
-            $this->logger->info('Application found: id={id}, name={name}', [
-                'id' => $application->getAppId(),
-                'name' => $application->getName(),
-                'permissions' => $application->getPermissions(),
-            ]);
+            $this->logger->info(
+                'Application found: id={id}, name="{name}"',
+                [
+                    'id' => $application->getAppId(),
+                    'name' => $application->getName(),
+                    'email' => $application->getEmail(),
+                    'permissions' => $application->getPermissions(),
+                ]
+            );
 
             return new ApiUser(
                 $application->getName(),
-                '',  // @todo: Use the email. when implemented on KRegistry $application->getEmail()
+                $application->getEmail(),
                 $application->getAppUrl(),
                 $appSecret,
                 $application->getPermissions()
             );
+        } catch (ApplicationVerificationException $e) {
+            throw new BadCredentialsException();
         } catch (\Exception $e) {
             throw new KRegistryException('Error communicating with the K-Link Registry.', $e->getCode(), $e);
         }

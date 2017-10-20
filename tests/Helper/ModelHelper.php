@@ -12,7 +12,7 @@ use App\Model\Data\Uploader;
 
 class ModelHelper
 {
-    public const DATE = '2008-07-28T14:47:31Z';
+    public const DATE = '2017-07-28T14:47:31Z';
     public const SIZE = 717590;
 
     public static function createDataModel($sampleUUID): Data
@@ -94,15 +94,15 @@ class ModelHelper
                 'tags' => ['tag1', 'tag2'],
                 'collection' => ['123', '456'],
             ],
-            'uploader' => [
-                'name' => 'Uploader name',
-            ],
             'author' => [
                 [
                     'email' => 'arthur@conan.doyle',
                     'name' => 'Arthur Conan Doyle',
                     'contact' => '221B Baker Street',
                 ],
+            ],
+            'uploader' => [
+                'name' => 'Uploader name',
             ],
         ];
     }

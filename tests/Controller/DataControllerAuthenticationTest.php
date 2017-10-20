@@ -3,17 +3,18 @@
 namespace App\Tests\Controller;
 
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 
 class DataControllerAuthenticationTest extends AbstractJsonRpcControllerTest
 {
     public function authenticatedApiEndpointsProvider(): array
     {
         return [
-            ['POST', '/api/0.0/data.get'],
-            ['POST', '/api/0.0/data.search'],
-            ['POST', '/api/0.0/data.delete'],
-            ['POST', '/api/0.0/data.add'],
-            ['POST', '/api/0.0/data.status'],
+            [self::RPC_METHOD, '/api/0.0/data.get'],
+            [self::RPC_METHOD, '/api/0.0/data.search'],
+            [self::RPC_METHOD, '/api/0.0/data.delete'],
+            [self::RPC_METHOD, '/api/0.0/data.add'],
+            [self::RPC_METHOD, '/api/0.0/data.status'],
         ];
     }
 
@@ -29,7 +30,60 @@ class DataControllerAuthenticationTest extends AbstractJsonRpcControllerTest
 
         $response = $this->client->getResponse();
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
-        $this->assertJsonRpcError($response->getContent(), 401, 'API Authentication Required');
+        $this->assertJsonRpcErrorResponse(
+            $response->getContent(),
+            401,
+            'API Authentication Required',
+            'Authentication credentials could not be found.'
+        );
+    }
+
+    /**
+     * @dataProvider authenticatedApiEndpointsProvider
+     *
+     * @param string $method
+     * @param string $url
+     */
+    public function testApiEndpointRequiresAuthenticationWithOriginOnly(string $method, string $url)
+    {
+        $headers = [
+            'HTTP_Origin' => 'https://some-url/ext ',
+        ];
+
+        $this->sendRequest($method, $url, $headers);
+
+        $response = $this->client->getResponse();
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertJsonRpcErrorResponse(
+            $response->getContent(),
+            401,
+            'API Authentication Required',
+            'Authentication credentials could not be found.'
+        );
+    }
+
+    /**
+     * @dataProvider authenticatedApiEndpointsProvider
+     *
+     * @param string $method
+     * @param string $url
+     */
+    public function testApiEndpointRequiresAuthenticationWithAuthOnly(string $method, string $url)
+    {
+        $headers = [
+            'HTTP_Authorization' => 'Token wrong-token',
+        ];
+
+        $this->sendRequest($method, $url, $headers);
+
+        $response = $this->client->getResponse();
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertJsonRpcErrorResponse(
+            $response->getContent(),
+            401,
+            'API Authentication Required',
+            'Authentication credentials could not be found.'
+        );
     }
 
     /**
@@ -40,13 +94,26 @@ class DataControllerAuthenticationTest extends AbstractJsonRpcControllerTest
      */
     public function testApiEndpointRequiresCorrectCredentials(string $method, string $url)
     {
-        $parameters = [
+        $registry = $this->setMockedKLinkRegistryUserProvider();
+        $registry->expects($this->once())
+            ->method('loadUserFromApplicationUrlAndSecret')
+            ->willThrowException(new BadCredentialsException());
+
+        $headers = [
+            'HTTP_Authorization' => 'Token not-existing-token-for-app',
+            'HTTP_Origin' => 'http://domain.app/app-url',
         ];
 
-        $this->sendRequest($method, $url);
+        $this->sendRequest($method, $url, $headers);
 
         $response = $this->client->getResponse();
-        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
-        $this->assertJsonRpcError($response->getContent(), 401, 'API Authentication Required');
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+
+        $this->assertJsonRpcErrorResponse(
+            $response->getContent(),
+            401,
+            'Wrong API Authentication provided',
+            'Invalid credentials.'
+        );
     }
 }

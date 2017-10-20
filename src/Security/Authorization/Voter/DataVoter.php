@@ -29,6 +29,22 @@ class DataVoter extends Voter
         self::VIEW,
     ];
 
+    public const ROLE_DATA_ADD = 'ROLE_DATA_ADD';
+    public const ROLE_DATA_EDIT = 'ROLE_DATA_EDIT';
+    public const ROLE_DATA_SEARCH = 'ROLE_DATA_SEARCH';
+    public const ROLE_DATA_VIEW = 'ROLE_DATA_VIEW';
+    public const ROLE_DATA_REMOVE_ALL = 'ROLE_DATA_REMOVE_ALL';
+    public const ROLE_DATA_REMOVE_OWN = 'ROLE_DATA_REMOVE_OWN';
+
+    public const ALL_ROLES = [
+        self::ROLE_DATA_ADD,
+        self::ROLE_DATA_EDIT,
+        self::ROLE_DATA_SEARCH,
+        self::ROLE_DATA_VIEW,
+        self::ROLE_DATA_REMOVE_ALL,
+        self::ROLE_DATA_REMOVE_OWN,
+    ];
+
     /**
      * @var AccessDecisionManagerInterface
      */
@@ -45,10 +61,6 @@ class DataVoter extends Voter
             return false;
         }
 
-        if (!$subject instanceof Data) {
-            return false;
-        }
-
         return true;
     }
 
@@ -62,26 +74,30 @@ class DataVoter extends Voter
 
         switch ($attribute) {
             case self::ADD:
-                return $this->decisionManager->decide($token, ['ROLE_DATA_ADD']);
+                return $this->decisionManager->decide($token, [self::ROLE_DATA_ADD]);
             case self::EDIT:
-                return $this->decisionManager->decide($token, ['ROLE_DATA_EDIT']);
+                return $this->decisionManager->decide($token, [self::ROLE_DATA_EDIT]);
             case self::SEARCH:
-                return $this->decisionManager->decide($token, ['ROLE_DATA_SEARCH']);
+                return $this->decisionManager->decide($token, [self::ROLE_DATA_SEARCH]);
             case self::VIEW:
-                return $this->decisionManager->decide($token, ['ROLE_DATA_VIEW']);
+                return $this->decisionManager->decide($token, [self::ROLE_DATA_VIEW]);
             case self::REMOVE_ALL:
-                return $this->decisionManager->decide($token, ['ROLE_DATA_REMOVE_ALL']);
+                return $this->decisionManager->decide($token, [self::ROLE_DATA_REMOVE_ALL]);
             // Handle the remove as remove_own
             case self::REMOVE:
             case self::REMOVE_OWN:
-                if ($this->decisionManager->decide($token, ['ROLE_DATA_REMOVE_ALL'])) {
+                if ($this->decisionManager->decide($token, [self::ROLE_DATA_REMOVE_ALL])) {
                     return true;
                 }
 
-                /* @var $subject Data */
-                // Return true only if the user has the remove_own and it is the owner of the data
-                return $this->decisionManager->decide($token, ['ROLE_DATA_REMOVE_OWN']) &&
-                    $subject->uploader->appUrl === $user->getUsername();
+                // If we have no data, check if the user has at least the permissions
+                $removeOwnGranted = $this->decisionManager->decide($token, [self::ROLE_DATA_REMOVE_OWN]);
+                if (!$subject instanceof Data) {
+                    return $removeOwnGranted;
+                }
+
+                // Additionally we check if the user is also the uploader
+                return $removeOwnGranted && $subject->uploader->appUrl === $user->getUsername();
             default:
                 return false;
         }

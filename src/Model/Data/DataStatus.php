@@ -8,7 +8,7 @@ use Swagger\Annotations as SWG;
 /**
  * @SWG\Definition(
  *     definition="Data\DataStatus",
- *     required={"code", "status"}
+ *     required={"status"}
  * )
  */
 class DataStatus
@@ -20,7 +20,7 @@ class DataStatus
      * @JMS\Type("string")
      * @JMS\ReadOnly()
      * @SWG\Property(
-     *     example="queued",
+     *     example="Queued",
      * )
      */
     public $status;

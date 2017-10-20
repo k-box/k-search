@@ -5,6 +5,7 @@ namespace App\Security\Authenticator;
 use App\Model\Error\Error;
 use App\Model\Error\ErrorResponse;
 use App\Security\Provider\KLinkRegistryUserProvider;
+use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,6 +17,8 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
 class ApiSecretAuthenticator extends AbstractGuardAuthenticator
 {
+    private const TOKEN_MIN_LENGTH = 5;
+
     /**
      * Called on every request. Return the credentials needed or null to stop authentication.
      *
@@ -23,9 +26,9 @@ class ApiSecretAuthenticator extends AbstractGuardAuthenticator
      */
     public function getCredentials(Request $request)
     {
-        $authorizationHeader = $request->headers->get('Authorization');
-        if (!$authorizationHeader || 0 !== strpos($authorizationHeader, 'Token ')) {
-            // Missing Authorization headers, return null and no other methods will be called
+        $appSecret = $this->getAppSecretFromHeaders($request->headers);
+        if (null === $appSecret) {
+            // Missing Authorization header or wrong format: return null and no other methods will be called
             return null;
         }
 
@@ -34,9 +37,6 @@ class ApiSecretAuthenticator extends AbstractGuardAuthenticator
             // Missing app-url: return null and no other methods will be called
             return null;
         }
-
-        // Extract the app-secret from "Authorization: Token A1B2C3...."
-        $appSecret = substr($authorizationHeader, 6);
 
         return [
             'app_url' => $appUrl,
@@ -73,11 +73,13 @@ class ApiSecretAuthenticator extends AbstractGuardAuthenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
-        $data = [
-            'message' => strtr($exception->getMessageKey(), $exception->getMessageData()),
-        ];
+        $errorResponse = new ErrorResponse(new Error(
+            Response::HTTP_UNAUTHORIZED,
+            'Wrong API Authentication provided',
+            $exception->getMessageKey()
+        ));
 
-        return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
+        return new JsonResponse($errorResponse);
     }
 
     /**
@@ -99,5 +101,34 @@ class ApiSecretAuthenticator extends AbstractGuardAuthenticator
     public function supportsRememberMe()
     {
         return false;
+    }
+
+    /**
+     * Returns the app-secret form the request headers.
+     *
+     * @param HeaderBag $headers
+     *
+     * @return string|null The app-secret as a string, null if not valid or not found
+     */
+    private function getAppSecretFromHeaders(HeaderBag $headers): ?string
+    {
+        $authorizationHeader = $headers->get('Authorization');
+
+        if (!is_string($authorizationHeader)) {
+            return null;
+        }
+
+        // Remove any extra spaces
+        $authorizationHeader = trim($authorizationHeader);
+        if (!$authorizationHeader || 0 !== strpos($authorizationHeader, 'Token ')) {
+            return null;
+        }
+
+        if (strlen($authorizationHeader) < (6 + self::TOKEN_MIN_LENGTH)) {
+            return null;
+        }
+
+        // Extract the app-secret from "Authorization: Token A1B2C3...."
+        return substr($authorizationHeader, 6);
     }
 }
