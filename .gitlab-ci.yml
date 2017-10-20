@@ -52,9 +52,9 @@ php-tests:7.1:
 branch_release:
   stage: release
   script:
-    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
-    - docker build -t $CI_REGISTRY_IMAGE:${CI_BUILD_REF_NAME/v/} .
-    - docker push $CI_REGISTRY_IMAGE:${CI_BUILD_REF_NAME/v/}
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_NAME/v/} .
+    - docker push $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_NAME/v/}
   tags:
     - dind
   except:
@@ -64,10 +64,10 @@ branch_release:
 tagged_release:
   stage: release
   script:
-    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
-    - docker build -t $CI_REGISTRY_IMAGE:${CI_BUILD_REF_NAME/v/} .
-    - docker push $CI_REGISTRY_IMAGE:${CI_BUILD_REF_NAME/v/}
-    - docker tag -f $CI_REGISTRY_IMAGE:${CI_BUILD_REF_NAME/v/} "$CI_REGISTRY_IMAGE:latest"
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_NAME/v/} .
+    - docker push $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_NAME/v/}
+    - docker tag -f $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_NAME/v/} "$CI_REGISTRY_IMAGE:latest"
     - docker push "$CI_REGISTRY_IMAGE:latest"
   tags:
     - dind
