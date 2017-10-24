@@ -20,12 +20,32 @@ class ApiSecretAuthenticator extends AbstractGuardAuthenticator
     private const TOKEN_MIN_LENGTH = 5;
 
     /**
+     * @var bool
+     */
+    private $enabled;
+
+    /**
+     * ApiSecretAuthenticator constructor.
+     */
+    public function __construct(bool $enabled)
+    {
+        $this->enabled = $enabled;
+    }
+
+    /**
      * Called on every request. Return the credentials needed or null to stop authentication.
      *
      * {@inheritdoc}
      */
     public function getCredentials(Request $request)
     {
+        if (!$this->enabled) {
+            return [
+                'app_url' => $request->headers->get('Origin') ?: 'not provided',
+                'app_secret' => $this->getAppSecretFromHeaders($request->headers) ?: 'not provided',
+            ];
+        }
+
         $appSecret = $this->getAppSecretFromHeaders($request->headers);
         if (null === $appSecret) {
             // Missing Authorization header or wrong format: return null and no other methods will be called

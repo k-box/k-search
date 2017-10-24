@@ -11,3 +11,7 @@ services:
     # Autowire KLinkRegistry user provider
     App\Security\Provider\KLinkRegistryUserProvider:
         $enabled: true
+
+    # Autowire ApiSecretAuthenticator user provider
+    App\Security\Authenticator\ApiSecretAuthenticator:
+        $enabled: true
