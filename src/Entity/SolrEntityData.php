@@ -46,7 +46,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     public const FIELD_PROPERTIES_SIZE = 'int_ii_data_size';
     public const FIELD_PROPERTIES_COLLECTIONS = 'str_sim_data_collections';
     public const FIELD_PROPERTIES_TAGS = 'str_sim_data_tags';
-    public const FIELD_PROPERTIES_MIME_TYPE = 'str_sim_data_mime_type';
+    public const FIELD_PROPERTIES_MIME_TYPE = 'str_si_data_mime_type';
 
     public static function getEntityType(): string
     {
