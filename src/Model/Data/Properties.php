@@ -151,7 +151,7 @@ class Properties
      *     example={"COLLECTION_ID_1", "COLLECTION_ID_2"}
      * )
      */
-    public $collection;
+    public $collections;
 
     /**
      * Object containing information on the video file.
