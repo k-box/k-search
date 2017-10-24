@@ -3,17 +3,23 @@
     "description": "The Search API",
     "type": "project",
     "license": "proprietary",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://git.klink.asia/main/k-registry-client.git"
+        }
+    ],
     "require": {
         "php": "^7.1",
         "bernard/bernard": "^0.12.3",
         "jms/serializer-bundle": "^2.0",
         "nelmio/solarium-bundle": "^2.4",
+        "oneofftech/k-link-registry-client": "^0.1.0",
         "php-http/guzzle6-adapter": "^1.1",
         "php-http/httplug-bundle": "^1.7",
         "ramsey/uuid": "^3.6",
         "sensio/framework-extra-bundle": "^3.0",
         "swagger-api/swagger-ui": "3.2.2",
-        "symfony/annotations-pack": "^1.0",
         "symfony/asset": "^3.3",
         "symfony/console": "^3.3",
         "symfony/flex": "^1.0",
@@ -30,8 +36,10 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.0",
         "phpstan/phpstan": "^0.8.0",
-        "phpunit/phpunit": "^6.0",
-        "symfony/dotenv": "^3.3"
+        "phpunit/phpunit": "^6.3",
+        "symfony/browser-kit": "^3.3",
+        "symfony/dotenv": "^3.3",
+        "symfony/phpunit-bridge": "^3.3"
     },
     "config": {
         "preferred-install": {

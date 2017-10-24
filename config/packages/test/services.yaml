@@ -1,0 +1,13 @@
+services:
+    # Overriding services visibility for mocking
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    # Autowiring DataService parameters
+    App\Service\DataService: ~
+
+    # Autowire KLinkRegistry user provider
+    App\Security\Provider\KLinkRegistryUserProvider:
+        $enabled: true

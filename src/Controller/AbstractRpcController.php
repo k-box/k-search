@@ -41,7 +41,7 @@ abstract class AbstractRpcController extends Controller
      *
      * @return mixed
      */
-    protected function getRequestModelFromJson(Request $request, string $class)
+    protected function buildRpcRequestModelFromJson(Request $request, string $class)
     {
         $requestModel = $this->serializer->deserialize((string) $request->getContent(), $class, 'json');
 
@@ -65,12 +65,14 @@ abstract class AbstractRpcController extends Controller
     }
 
     /**
+     * Builds the RPC Json response from the given model.
+     *
      * @param RPCResponse $model  The RpcResponse object to render
      * @param array       $groups the JSM serialization groups to use, by default the no-groups (aka 'Default') will be rendered
      *
      * @return JsonResponse
      */
-    protected function getJsonResponse(RPCResponse $model, array $groups = ['Default']): JsonResponse
+    protected function buildRpcJsonResponse(RPCResponse $model, array $groups = ['Default']): JsonResponse
     {
         $context = SerializationContext::create();
         $context->setGroups($groups);

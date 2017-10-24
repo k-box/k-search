@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\ApiUser;
 use App\Exception\BadRequestException;
 use App\Model\Data\AddRequest;
 use App\Model\Data\AddResponse;
@@ -14,6 +15,7 @@ use App\Model\Data\GetResponse;
 use App\Model\Data\SearchRequest;
 use App\Model\Data\SearchResponse;
 use App\Model\Status\StatusResponse;
+use App\Security\Authorization\Voter\DataVoter;
 use App\Service\DataService;
 use JMS\Serializer\SerializerInterface;
 use Swagger\Annotations as SWG;
@@ -30,11 +32,8 @@ class DataController extends AbstractRpcController
      */
     private $dataService;
 
-    public function __construct(
-        DataService $searchService,
-        ValidatorInterface $validator,
-        SerializerInterface $serializer
-    ) {
+    public function __construct(DataService $searchService, ValidatorInterface $validator, SerializerInterface $serializer)
+    {
         parent::__construct($validator, $serializer);
         $this->dataService = $searchService;
     }
@@ -79,18 +78,26 @@ class DataController extends AbstractRpcController
      */
     public function postDataDelete(Request $request, string $version)
     {
+        // First we check if the user has at least the needed credentials
+        $this->denyAccessUnlessGranted(DataVoter::REMOVE);
+
         /** @var DeleteRequest $deleteRequest */
-        $deleteRequest = $this->getRequestModelFromJson($request, DeleteRequest::class);
+        $deleteRequest = $this->buildRpcRequestModelFromJson($request, DeleteRequest::class);
+
+        $data = $this->dataService->getData($deleteRequest->params->uuid);
+
+        // And here we check if it can remove the data given data
+        $this->denyAccessUnlessGranted(DataVoter::REMOVE, $data);
 
         $success = $this->dataService->deleteData($deleteRequest->params->uuid);
 
         if ($success) {
             $statusResponse = StatusResponse::withStatusMessage(200, 'Ok', $deleteRequest->id);
         } else {
-            $statusResponse = StatusResponse::withStatusMessage(400, 'Error', $deleteRequest->id);
+            $statusResponse = StatusResponse::withStatusMessage(500, 'Error', $deleteRequest->id);
         }
 
-        return $this->getJsonResponse($statusResponse);
+        return $this->buildRpcJsonResponse($statusResponse);
     }
 
     /**
@@ -136,14 +143,16 @@ class DataController extends AbstractRpcController
      */
     public function postDataGet(Request $request, string $version)
     {
+        $this->denyAccessUnlessGranted(DataVoter::VIEW);
+
         /** @var GetRequest $get */
-        $getRequest = $this->getRequestModelFromJson($request, GetRequest::class);
+        $getRequest = $this->buildRpcRequestModelFromJson($request, GetRequest::class);
 
         $data = $this->dataService->getData($getRequest->params->uuid);
 
         $getResponse = new GetResponse($data, $getRequest->id);
 
-        return $this->getJsonResponse($getResponse);
+        return $this->buildRpcJsonResponse($getResponse);
     }
 
     /**
@@ -187,15 +196,17 @@ class DataController extends AbstractRpcController
      */
     public function postDataStatus(Request $request, string $version)
     {
+        $this->denyAccessUnlessGranted(DataVoter::VIEW);
+
         /** @var DataStatusRequest $dataStatusRequest */
-        $dataStatusRequest = $this->getRequestModelFromJson($request, DataStatusRequest::class);
+        $dataStatusRequest = $this->buildRpcRequestModelFromJson($request, DataStatusRequest::class);
 
         $data = $this->dataService->getData($dataStatusRequest->params->uuid);
 
         $status = new DataStatus($data->status);
         $statusResponse = new DataStatusResponse($status, $dataStatusRequest->id);
 
-        return $this->getJsonResponse($statusResponse);
+        return $this->buildRpcJsonResponse($statusResponse);
     }
 
     /**
@@ -243,15 +254,25 @@ class DataController extends AbstractRpcController
      */
     public function postDataAdd(Request $request, string $version)
     {
-        /** @var AddRequest $addRequest */
-        $addRequest = $this->getRequestModelFromJson($request, AddRequest::class);
+        $this->denyAccessUnlessGranted(DataVoter::ADD);
 
-        $res = $this->dataService->addData($addRequest->params->data, $addRequest->params->dataTextualContents);
+        /** @var AddRequest $addRequest */
+        $addRequest = $this->buildRpcRequestModelFromJson($request, AddRequest::class);
+
+        $data = $addRequest->params->data;
+
+        // Updating Data with the current API user
+        /** @var ApiUser $apiUser */
+        $apiUser = $this->getUser();
+        $data->uploader->appUrl = $apiUser->getUsername();
+        $data->uploader->email = $apiUser->getEmail();
+
+        $res = $this->dataService->addData($data, $addRequest->params->dataTextualContents);
 
         $data = $this->dataService->getData($addRequest->params->data->uuid);
         $addResponse = new AddResponse($data, $addRequest->id);
 
-        return $this->getJsonResponse($addResponse);
+        return $this->buildRpcJsonResponse($addResponse);
     }
 
     /**
@@ -293,13 +314,15 @@ class DataController extends AbstractRpcController
      */
     public function postDataSearch(Request $request, string $version)
     {
+        $this->denyAccessUnlessGranted(DataVoter::SEARCH);
+
         /** @var SearchRequest $searchRequest */
-        $searchRequest = $this->getRequestModelFromJson($request, SearchRequest::class);
+        $searchRequest = $this->buildRpcRequestModelFromJson($request, SearchRequest::class);
 
         $searchResult = $this->dataService->searchData($searchRequest->params);
 
         $searchResponse = new SearchResponse($searchResult, $searchRequest->id);
 
-        return $this->getJsonResponse($searchResponse);
+        return $this->buildRpcJsonResponse($searchResponse);
     }
 }

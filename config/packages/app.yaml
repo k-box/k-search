@@ -6,7 +6,7 @@ services:
         public: false
 
     App\:
-        resource: '../../src/{Command,EventListener,Service,Queue}'
+        resource: '../../src/{Command,Security,EventListener,Service,Queue}'
 
     App\Controller\:
         resource: '../../src/Controller'
@@ -18,5 +18,14 @@ services:
         $httpClient: "@httplug.client.downloader"
         $tempFolder: '%kernel.project_dir%/var/temp'
 
+    # Autowiring DataService parameters
     App\Service\DataService:
         $indexableContentTypes: "%indexable_content_types%"
+
+    # Autowire KLinkRegistry client
+    OneOffTech\KLinkRegistryClient\Client:
+        $url: '%env(KLINK_REGISTRY_API_URL)%'
+
+    # Autowire KLinkRegistry user provider
+    App\Security\Provider\KLinkRegistryUserProvider:
+        $enabled: '%env(KLINK_REGISTRY_ENABLED)%'

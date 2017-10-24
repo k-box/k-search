@@ -1,23 +1,32 @@
 security:
-    # https://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
     providers:
-        in_memory: { memory: null }
+        klink_registry:
+            id: App\Security\Provider\KLinkRegistryUserProvider
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        main:
-            anonymous: null
 
-            # activate different ways to authenticate
+        docs:
+            pattern: ^/api/docs
+            security: false
+        api0.0:
+            pattern: "^/api/0.0/"
+            security: true
+            stateless: true
+            provider: klink_registry
+            guard:
+                authenticators:
+                    - App\Security\Authenticator\ApiSecretAuthenticator
 
-            # http_basic: null
-            # https://symfony.com/doc/current/book/security.html#a-configuring-how-your-users-will-authenticate
-
-            # form_login: null
-            # https://symfony.com/doc/current/cookbook/security/form_login_setup.html
     role_hierarchy:
-        ROLE_ADMIN: [ROLE_LINK_DMS, ROLE_LINK_ADAPTER]
-        ROLE_LINK_DMS: ~
-        ROLE_LINK_ADAPTER: [ROLE_SEARCH_ONLY]
-        ROLE_SEARCH_ONLY: ~
+        ROLE_ADMIN: [ROLE_API_USER]
+        ROLE_API_USER: ~
+        # Roles mapped to the K-Registry permissions
+        ROLE_DATA_ADD: ~
+        ROLE_DATA_EDIT: ~
+        ROLE_DATA_REMOVE_OWN: ~
+        ROLE_DATA_REMOVE_ALL: ~
+        ROLE_DATA_SEARCH: ~
+        ROLE_DATA_VIEW: ~
