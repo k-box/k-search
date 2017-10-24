@@ -83,6 +83,9 @@ class SolrEntityDataTest extends TestCase
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_COPYRIGHT_USAGE_SHORT), $data->copyright->usage->short);
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_COPYRIGHT_USAGE_REFERENCE), $data->copyright->usage->reference);
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_PROPERTIES_STORED), json_encode($data->properties));
+        $this->assertEquals($entity->getField(SolrEntityData::FIELD_PROPERTIES_COLLECTIONS), $data->properties->collections);
+        $this->assertEquals($entity->getField(SolrEntityData::FIELD_PROPERTIES_TAGS), $data->properties->tags);
+        $this->assertEquals($entity->getField(SolrEntityData::FIELD_PROPERTIES_MIME_TYPE), $data->properties->mimeType);
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_AUTHOR_STORED), json_encode($data->author));
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_UPLOADER_STORED), json_encode($data->uploader));
     }

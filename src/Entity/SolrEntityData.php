@@ -44,6 +44,9 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     public const FIELD_PROPERTIES_CREATED_AT = 'date_data_created_at';
     public const FIELD_PROPERTIES_UPDATED_AT = 'date_data_updated_at';
     public const FIELD_PROPERTIES_SIZE = 'int_ii_data_size';
+    public const FIELD_PROPERTIES_COLLECTIONS = 'str_sim_data_collections';
+    public const FIELD_PROPERTIES_TAGS = 'str_sim_data_tags';
+    public const FIELD_PROPERTIES_MIME_TYPE = 'str_si_data_mime_type';
 
     public static function getEntityType(): string
     {
@@ -102,6 +105,9 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
             'properties.size' => self::FIELD_PROPERTIES_SIZE,
             'properties.abstract' => self::FIELD_PROPERTIES_ABSTRACT,
             'properties.title' => self::FIELD_PROPERTIES_TITLE,
+            'properties.collections' => self::FIELD_PROPERTIES_COLLECTIONS,
+            'properties.tags' => self::FIELD_PROPERTIES_TAGS,
+            'properties.mime_type' => self::FIELD_PROPERTIES_MIME_TYPE,
             'copyright.owner.name' => self::FIELD_COPYRIGHT_OWNER_NAME,
             'copyright.usage.short' => self::FIELD_COPYRIGHT_USAGE_SHORT,
         ];
@@ -125,6 +131,9 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
             self::FIELD_PROPERTIES_CREATED_AT,
             self::FIELD_PROPERTIES_UPDATED_AT,
             self::FIELD_PROPERTIES_SIZE,
+            self::FIELD_PROPERTIES_COLLECTIONS,
+            self::FIELD_PROPERTIES_TAGS,
+            self::FIELD_PROPERTIES_MIME_TYPE,
             self::FIELD_COPYRIGHT_OWNER_NAME,
             self::FIELD_COPYRIGHT_USAGE_SHORT,
         ];
@@ -213,6 +222,9 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         $this->addField(self::FIELD_PROPERTIES_CREATED_AT, $properties->createdAt);
         $this->addField(self::FIELD_PROPERTIES_UPDATED_AT, $properties->updatedAt);
         $this->addField(self::FIELD_PROPERTIES_SIZE, $properties->size);
+        $this->addField(self::FIELD_PROPERTIES_COLLECTIONS, $properties->collections);
+        $this->addField(self::FIELD_PROPERTIES_TAGS, $properties->tags);
+        $this->addField(self::FIELD_PROPERTIES_MIME_TYPE, $properties->mimeType);
 
         // Adding the whole object as JSON
         $this->addField(self::FIELD_PROPERTIES_STORED, json_encode($properties));
@@ -226,7 +238,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
 
         $fields = [
             'abstract',
-            'collection',
+            'collections',
             'filename',
             'language',
             'mimeType',
