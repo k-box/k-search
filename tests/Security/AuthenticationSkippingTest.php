@@ -7,10 +7,10 @@ use App\Tests\Controller\DataControllerGetTest;
 use App\Tests\Helper\ModelHelper;
 use Symfony\Component\HttpFoundation\Response;
 
-class AuthenticationSkippingTest extends AbstractJsonRpcControllerTest {
-
-    public function testWithKlinkRegistryAuthenticationDisabled() {
-
+class AuthenticationSkippingTest extends AbstractJsonRpcControllerTest
+{
+    public function testWithKlinkRegistryAuthenticationDisabled()
+    {
         $this->setKlinkRegistrationMode(false);
 
         $data = ModelHelper::createDataModel(self::DATA_UUID);
@@ -33,7 +33,8 @@ class AuthenticationSkippingTest extends AbstractJsonRpcControllerTest {
     /**
      * @group current
      */
-    public function testWithKlinkRegistryAuthenticationEnabled() {
+    public function testWithKlinkRegistryAuthenticationEnabled()
+    {
         $this->setKlinkRegistrationMode(true);
 
         $statusRequest = $this->getUUIDRequest();
@@ -42,6 +43,12 @@ class AuthenticationSkippingTest extends AbstractJsonRpcControllerTest {
         $response = $this->client->getResponse();
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
         $this->assertJsonRpcErrorResponse($response->getContent(), Response::HTTP_UNAUTHORIZED, 'API Authentication Required');
+    }
+
+    protected function setKlinkRegistrationMode(bool $mode): void
+    {
+        $this->overrideKlinkRegistryUserProvider($mode);
+        $this->overrideApiSecretAuthenticator($mode);
     }
 
     /**
@@ -59,7 +66,8 @@ class AuthenticationSkippingTest extends AbstractJsonRpcControllerTest {
         return $data;
     }
 
-    private function overrideKlinkRegistryUserProvider(bool $mode) {
+    private function overrideKlinkRegistryUserProvider(bool $mode)
+    {
         $this->client->getContainer()->set(\App\Security\Provider\KLinkRegistryUserProvider::class, new \App\Security\Provider\KLinkRegistryUserProvider(
             $this->createMock(\OneOffTech\KLinkRegistryClient\Client::class),
             $mode,
@@ -67,13 +75,8 @@ class AuthenticationSkippingTest extends AbstractJsonRpcControllerTest {
         ));
     }
 
-    private function overrideApiSecretAuthenticator(bool $mode) {
-        $this->client->getContainer()->set(\App\Security\Authenticator\ApiSecretAuthenticator::class, new \App\Security\Authenticator\ApiSecretAuthenticator($mode));
-    }
-
-    protected function setKlinkRegistrationMode(bool $mode): void
+    private function overrideApiSecretAuthenticator(bool $mode)
     {
-        $this->overrideKlinkRegistryUserProvider($mode);
-        $this->overrideApiSecretAuthenticator($mode);
+        $this->client->getContainer()->set(\App\Security\Authenticator\ApiSecretAuthenticator::class, new \App\Security\Authenticator\ApiSecretAuthenticator($mode));
     }
 }
