@@ -56,7 +56,12 @@ class SearchResults
      * @var array
      * @Assert\Valid()
      * @JMS\Type("array<string,array<App\Model\Data\AggregationResult>>")
-     * @SWG\Property()
+     * @SWG\Property(
+     *     @SWG\Items(
+     *        type="array",
+     *        @SWG\Items(ref="#/definitions/Data\AggregationResult")
+     *     ),
+     * )
      */
     public $aggregations;
 
@@ -64,7 +69,6 @@ class SearchResults
      * Array of results.
      *
      * @var Data[]
-     * @Assert\Valid()
      * @JMS\Type("array<App\Model\Data\Data>")
      * @SWG\Property()
      */

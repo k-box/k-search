@@ -15,13 +15,10 @@ use Swagger\Annotations as SWG;
 class StatusResponse extends RPCResponse
 {
     /**
-     * The status data.
-     *
      * @var Status
      *
      * @JMS\Type("App\Model\Status\Status")
      * @SWG\Property(
-     *     readOnly=true,
      *     ref="#/definitions/Status\Status")
      * )
      */
