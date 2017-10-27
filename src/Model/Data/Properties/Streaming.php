@@ -29,6 +29,7 @@ class Streaming
      * Type of the video stream.
      *
      * @var string
+     * @Assert\NotBlank()
      * @Assert\Choice(
      *     callback="getTypes",
      *     multiple=false,
@@ -46,6 +47,7 @@ class Streaming
      *
      * @var string
      * @Assert\Url()
+     * @Assert\NotBlank()
      * @JMS\Type("string")
      * @SWG\Property(
      *     example="https://www.youtube.com/watch?v=M7g7Pfx6zjg",

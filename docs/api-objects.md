@@ -59,18 +59,18 @@ In case that `type`==`video`. It is expected to extend the `properties` by this 
 | `properties[video][source][resolution]`| String | ✔ | Resolution of the video. |
 | `properties[video][source][bitrate]`   | String |   | Bitrate of the video file. |
 | `properties[video][streaming][]`       | List   |   | Information about the streaming services. |
-| `properties[video][streaming][][type]` | Object |   | URL of the video stream type (youtube, dash, hls). |
-| `properties[video][streaming][][url]`  | Object |   | URL of the video stream. |
+| `properties[video][streaming][][type]` | Object | ✔ | URL of the video stream type (youtube, dash, hls). |
+| `properties[video][streaming][][url]`  | Object | ✔ | URL of the video stream. |
 | `properties[audio][]`              | List   |   | Audio tracks attached to the video (multiple). |
 | `properties[audio][][]`            | Object |   | Object with information on one audio track |
 | `properties[audio][][language]`    | String |   | Main language(s) spoken in the audio track, free text. |
-| `properties[audio][][bitrate]`     | String |   | Bitrate of the audio track. |
-| `properties[audio][][format]`      | String |   | Format of the audio track. |
+| `properties[audio][][bitrate]`     | String | ✔ | Bitrate of the audio track. |
+| `properties[audio][][format]`      | String | ✔ | Format of the audio track. Example: "mp3" |
 | `properties[subtitles][]`          | List   |   | Subtitles attached to the video (multiple). |
 | `properties[subtitles][][]`        | Object |   | Object with information on one subtitles track. |
-| `properties[subtitles][][language]`| String |   | Language of the subtitles. |
-| `properties[subtitles][][file]`    | String |   | The URI where the subtitle file is stored and retrievable (or "built-in for wrapped subtitles"). |
-| `properties[subtitles][][format]`  | String |   | Format of the subtitles track. |
+| `properties[subtitles][][language]`| String | ✔ | Language of the subtitles. |
+| `properties[subtitles][][file]`    | String | ✔ | The URI where the subtitle file is stored and retrievable (or "built-in for wrapped subtitles"). |
+| `properties[subtitles][][format]`  | String | ✔ | Format of the subtitles track. |
 
 
 ## Error object

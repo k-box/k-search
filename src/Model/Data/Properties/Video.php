@@ -42,6 +42,7 @@ class Video
      * Information about the streaming services.
      *
      * @var Streaming[]
+     * @Assert\Valid()
      * @JMS\Type("array<App\Model\Data\Properties\Streaming>")
      * @SWG\Property()
      */
