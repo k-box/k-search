@@ -181,9 +181,9 @@ class DataControllerDeleteTest extends AbstractJsonRpcControllerTest
     /**
      * @dataProvider provideFailingRoles
      *
-     * @param $roles
+     * @param array $roles
      */
-    public function testDataDeleteWithoutPermissionFails($roles)
+    public function testDataDeleteWithoutPermissionFails(array $roles)
     {
         $this->setUserRoles($roles);
 
@@ -201,10 +201,7 @@ class DataControllerDeleteTest extends AbstractJsonRpcControllerTest
         $this->assertJsonRpcErrorResponse($response->getContent(), Response::HTTP_FORBIDDEN, 'Access Denied.');
     }
 
-    /**
-     * @return string
-     */
-    public function getDeleteRequestData(): string
+    private function getDeleteRequestData(): string
     {
         $data = json_encode([
             'id' => self::REQUEST_ID,
