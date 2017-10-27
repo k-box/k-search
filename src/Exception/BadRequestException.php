@@ -23,6 +23,17 @@ class BadRequestException extends KSearchException
         return $this->errors;
     }
 
+    public function getErrorsForJsonProperties(): array
+    {
+        $jsonKeys = [];
+        foreach ($this->errors as $errorKey => $errorMessage) {
+            $key = strtolower(preg_replace('/[A-Z]/', '_\\0', lcfirst($errorKey)));
+            $jsonKeys[$key] = $errorMessage;
+        }
+
+        return $jsonKeys;
+    }
+
     public function getErrorsAsString(): string
     {
         $message = '';
