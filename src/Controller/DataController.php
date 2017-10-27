@@ -51,7 +51,7 @@ class DataController extends AbstractRpcController
      *
      * @SWG\Post(
      *     path="/api/0.0/data.delete",
-     *     description="Delete piece of data from the search index.",
+     *     description="Delete piece of data from the search index. This API requires the `data-remove-own` or `data-remove-all` permission.",
      *     tags={"Data"},
      *     @SWG\Parameter(
      *         name="body",
@@ -113,7 +113,7 @@ class DataController extends AbstractRpcController
      *
      * @SWG\Post(
      *     path="/api/0.0/data.get",
-     *     description="Get detailed information of piece of data in the search index",
+     *     description="Get detailed information of piece of data in the search index. This API requires the `data-view` permission.",
      *     tags={"Data"},
      *     @SWG\Parameter(
      *         name="body",
@@ -168,7 +168,7 @@ class DataController extends AbstractRpcController
      *
      * @SWG\Post(
      *     path="/api/0.0/data.status",
-     *     description="Get the status information of a Data piece in the search index.",
+     *     description="Get the status information of a Data piece in the search index. This API requires the `data-view` permission.",
      *     tags={"Data"},
      *     @SWG\Parameter(
      *         name="body",
@@ -222,7 +222,7 @@ class DataController extends AbstractRpcController
      *
      * @SWG\Post(
      *     path="/api/0.0/data.add",
-     *     description="Add piece of data to the search index",
+     *     description="Add piece of data to the search index. This API requires the `data-add` permission.",
      *     tags={"Data"},
      *     @SWG\Parameter(
      *         name="body",
@@ -287,7 +287,7 @@ class DataController extends AbstractRpcController
      * )
      * @SWG\Post(
      *     path="/api/0.0/data.search",
-     *     description="Allows to query the index and returns search results.",
+     *     description="Allows to query the index and returns search results. This API requires the `data-search` permission.",
      *     tags={"Data"},
      *     @SWG\Parameter(
      *         name="body",
