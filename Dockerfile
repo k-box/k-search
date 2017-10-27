@@ -11,11 +11,15 @@ RUN \
         git \
         supervisor \
         unzip \
+        # icu is required by php-intl
+        libicu-dev \
         # gettext provides envsubst command
         gettext &&\
     # remove the cached packages and artifacts created during installation
     apt-get clean &&\
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* &&\
+    # install the missing 'intl' extension
+    docker-php-ext-install -j$(nproc) intl &&\
     # composer is still missing, we install it the way it says on the
     # website.
     curl -sS https://getcomposer.org/installer  \
