@@ -11,19 +11,27 @@ class ApiUser implements UserInterface
      */
     private $email;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $name;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $username;
 
-    /** @var string */
+    /**
+     * @var string|null
+     */
     private $password;
 
-    /** @var string[] */
+    /**
+     * @var string[]
+     */
     private $roles;
 
-    public function __construct(string $name, string $email, string $username, string $password, array $roles)
+    public function __construct(string $name, string $email, string $username, ?string $password, array $roles)
     {
         $this->username = $username;
         $this->password = $password;

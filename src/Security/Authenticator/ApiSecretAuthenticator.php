@@ -2,8 +2,10 @@
 
 namespace App\Security\Authenticator;
 
+use App\Entity\ApiUser;
 use App\Model\Error\Error;
 use App\Model\Error\ErrorResponse;
+use App\Security\Authorization\Voter\DataVoter;
 use App\Security\Provider\KLinkRegistryUserProvider;
 use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,10 +26,7 @@ class ApiSecretAuthenticator extends AbstractGuardAuthenticator
      */
     private $enabled;
 
-    /**
-     * ApiSecretAuthenticator constructor.
-     */
-    public function __construct(bool $enabled)
+    public function __construct(bool $enabled = false)
     {
         $this->enabled = $enabled;
     }
@@ -41,8 +40,8 @@ class ApiSecretAuthenticator extends AbstractGuardAuthenticator
     {
         if (!$this->enabled) {
             return [
-                'app_url' => $request->headers->get('Origin') ?: 'not provided',
-                'app_secret' => $this->getAppSecretFromHeaders($request->headers) ?: 'not provided',
+                'app_url' => null,
+                'app_secret' => null,
             ];
         }
 
@@ -64,7 +63,7 @@ class ApiSecretAuthenticator extends AbstractGuardAuthenticator
         ];
     }
 
-    public function getUser($credentials, UserProviderInterface $userProvider)
+    public function getUser($credentials, UserProviderInterface $userProvider): ?UserInterface
     {
         if (!$userProvider instanceof KLinkRegistryUserProvider) {
             throw new \RuntimeException(sprintf('Authenticator %s is expecting %s provider, while %s has been used',
@@ -72,6 +71,11 @@ class ApiSecretAuthenticator extends AbstractGuardAuthenticator
                     get_class($userProvider),
                 KLinkRegistryUserProvider::class
             ));
+        }
+
+        if (!$this->enabled) {
+            // We set a 'null' password, to be able to comply to checkCredentials
+            return new ApiUser('local', 'local@local', 'local', null, DataVoter::ALL_ROLES);
         }
 
         return $userProvider->loadUserFromApplicationUrlAndSecret(
