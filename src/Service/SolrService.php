@@ -39,29 +39,39 @@ class SolrService
         return $this->solrClient->update($update);
     }
 
-    public function get(string $entityType, string $id, string $solrEntityClass)
+    public function getByFilter(string $entityType, string $solrEntityClass, array $filterQueries = [], int $limit = 10, int $offset = 0): Result
     {
         if (!in_array(SolrEntity::class, class_implements($solrEntityClass), true)) {
             throw new \RuntimeException(sprintf('Wrong class name for Solr entity fetching, %s given', $solrEntityClass));
         }
 
         $select = $this->solrClient->createSelect();
-        $select->setRows(1);
+        $select->setRows($limit);
+        $select->setStart($offset);
 
-        $select->addFilterQueries([
-            $this->buildFilterQuery(AbstractSolrEntity::FIELD_ENTITY_TYPE, $entityType, 'type'),
-            $this->buildFilterQuery(AbstractSolrEntity::FIELD_ENTITY_ID, $id, 'id'),
-        ]);
+        $select->addFilterQuery($this->buildFilterQuery(AbstractSolrEntity::FIELD_ENTITY_TYPE, $entityType, 'type'));
+        $select->addFilterQueries($filterQueries);
 
         $resultSet = null;
         try {
-            $resultSet = $this->executeSelectQuery($select);
+            return $this->executeSelectQuery($select);
         } catch (ExceptionInterface|\Throwable $exception) {
             $this->handleSolariumExceptions(
                 $exception,
-                sprintf('Error while loading from Index, type=%s, id=%s', $entityType, $id)
+                sprintf('Error while loading/filtering from Index, type=%s', $entityType)
             );
         }
+    }
+
+    public function getOne(string $entityType, string $solrEntityClass, string $id)
+    {
+        if (!in_array(SolrEntity::class, class_implements($solrEntityClass), true)) {
+            throw new \RuntimeException(sprintf('Wrong class name for Solr entity fetching, %s given', $solrEntityClass));
+        }
+
+        $idFilter = $this->buildFilterQuery(AbstractSolrEntity::FIELD_ENTITY_ID, $id, 'id');
+
+        $resultSet = $this->getByFilter($entityType, $solrEntityClass, [$idFilter], 1, 0);
 
         if (!$resultSet || 1 !== $resultSet->getNumFound()) {
             throw new SolrEntityNotFoundException(sprintf('Resource %s::%s not found!', $entityType, $id));

@@ -6,6 +6,7 @@ use App\Entity\ApiUser;
 use App\Exception\BadRequestException;
 use App\Model\Data\AddRequest;
 use App\Model\Data\AddResponse;
+use App\Model\Data\Data;
 use App\Model\Data\DataStatus;
 use App\Model\Data\DataStatusRequest;
 use App\Model\Data\DataStatusResponse;
@@ -148,7 +149,7 @@ class DataController extends AbstractRpcController
         /** @var GetRequest $get */
         $getRequest = $this->buildRpcRequestModelFromJson($request, GetRequest::class);
 
-        $data = $this->dataService->getData($getRequest->params->uuid);
+        $data = $this->dataService->getData($getRequest->params->uuid, Data::DATA_STATUS_OK);
 
         $getResponse = new GetResponse($data, $getRequest->id);
 
