@@ -18,7 +18,7 @@
         "php-http/guzzle6-adapter": "^1.1",
         "php-http/httplug-bundle": "^1.7",
         "ramsey/uuid": "^3.6",
-        "sensio/framework-extra-bundle": "^3.0",
+        "sensio/framework-extra-bundle": "^5.0",
         "swagger-api/swagger-ui": "3.2.2",
         "symfony/asset": "^3.3",
         "symfony/console": "^3.3",
