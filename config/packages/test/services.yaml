@@ -5,9 +5,11 @@ services:
         autoconfigure: true
         public: true
 
-    # Autowiring DataService parameters
-    App\Service\DataService: ~
 
-    # Autowire KLinkRegistry user provider
-    App\Security\Provider\KLinkRegistryUserProvider:
+    # Define here the services that will be overridden to be public
+    App\Service\DataService: ~
+    App\Security\Provider\KLinkRegistryUserProvider: ~
+
+    # Autowire ApiSecretAuthenticator user provider
+    App\Security\Authenticator\ApiSecretAuthenticator:
         $enabled: true

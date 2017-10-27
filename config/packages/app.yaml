@@ -26,6 +26,6 @@ services:
     OneOffTech\KLinkRegistryClient\Client:
         $url: '%env(KLINK_REGISTRY_API_URL)%'
 
-    # Autowire KLinkRegistry user provider
-    App\Security\Provider\KLinkRegistryUserProvider:
+    # Autowire ApiSecretAuthenticator user provider
+    App\Security\Authenticator\ApiSecretAuthenticator:
         $enabled: '%env(KLINK_REGISTRY_ENABLED)%'

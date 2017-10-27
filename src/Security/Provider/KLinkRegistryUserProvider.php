@@ -4,7 +4,6 @@ namespace App\Security\Provider;
 
 use App\Entity\ApiUser;
 use App\Exception\KRegistryException;
-use App\Security\Authorization\Voter\DataVoter;
 use OneOffTech\KLinkRegistryClient\Client;
 use OneOffTech\KLinkRegistryClient\Exception\ApplicationVerificationException;
 use Psr\Log\LoggerInterface;
@@ -21,19 +20,13 @@ class KLinkRegistryUserProvider implements UserProviderInterface
     private $registryClient;
 
     /**
-     * @var bool
-     */
-    private $enabled;
-
-    /**
      * @var LoggerInterface
      */
     private $logger;
 
-    public function __construct(Client $registryClient, bool $enabled, LoggerInterface $logger)
+    public function __construct(Client $registryClient, LoggerInterface $logger)
     {
         $this->registryClient = $registryClient;
-        $this->enabled = $enabled;
         $this->logger = $logger;
     }
 
@@ -42,14 +35,7 @@ class KLinkRegistryUserProvider implements UserProviderInterface
         $this->logger->info('Querying for application', [
             'app-url' => $appUrl,
             'app-secret' => $appSecret,
-            'enabled' => $this->enabled,
         ]);
-
-        if (!$this->enabled) {
-            $this->logger->info('Building local ApiUser: K-Registry is disabled!');
-
-            return new ApiUser('local', 'local@email.ext', $appUrl, $appSecret, DataVoter::ALL_ROLES);
-        }
 
         try {
             $application = $this->registryClient->access()->getApplication($appSecret, $appUrl);
