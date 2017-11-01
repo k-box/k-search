@@ -52,12 +52,14 @@ class ModelHelper
         $data->uploader = new Uploader();
         $data->uploader->name = 'Uploader name';
 
+        $data->author = [];
         $author = new Author();
-        $author->email = 'arthur@conan.doyle';
         $author->name = 'Arthur Conan Doyle';
+        $author->email = 'arthur@conan.doyle';
         $author->contact = '221B Baker Street';
+        $data->author[] = $author;
 
-        $data->author = [$author];
+        $data->status = '';
 
         return $data;
     }

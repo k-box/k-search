@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @SWG\Definition(
  *     definition="Data\Uploader",
  *     description="Information about the origin of the publication of data.",
- *     required={""}
+ *     required={"name"}
  * )
  */
 class Uploader

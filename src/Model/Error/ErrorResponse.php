@@ -15,8 +15,6 @@ use Swagger\Annotations as SWG;
 class ErrorResponse extends RPCResponse
 {
     /**
-     * The error data.
-     *
      * @var Error
      *
      * @JMS\Type("App\Model\Error\Error")

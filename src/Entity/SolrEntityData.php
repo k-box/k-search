@@ -219,8 +219,8 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         $this->addField(self::FIELD_PROPERTIES_ABSTRACT, $properties->abstract);
         $this->addField(self::FIELD_PROPERTIES_TITLE, $properties->title);
         $this->addField(self::FIELD_PROPERTIES_LANGUAGE, $properties->language);
-        $this->addField(self::FIELD_PROPERTIES_CREATED_AT, $properties->createdAt);
-        $this->addField(self::FIELD_PROPERTIES_UPDATED_AT, $properties->updatedAt);
+        $this->addField(self::FIELD_PROPERTIES_CREATED_AT, $properties->createdAt->format(SolrHelper::DATE_FORMAT));
+        $this->addField(self::FIELD_PROPERTIES_UPDATED_AT, $properties->updatedAt->format(SolrHelper::DATE_FORMAT));
         $this->addField(self::FIELD_PROPERTIES_SIZE, $properties->size);
         $this->addField(self::FIELD_PROPERTIES_COLLECTIONS, $properties->collections);
         $this->addField(self::FIELD_PROPERTIES_TAGS, $properties->tags);
@@ -246,14 +246,16 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
             'tags',
             'thumbnail',
             'title',
-            'createdAt',
-            'updatedAt',
         ];
 
         $this->inflateModelWithData($properties, $fields, $data ?? []);
 
-        $properties->updatedAt = SolrHelper::createUtcDate($data['updatedAt']['date']);
-        $properties->createdAt = SolrHelper::createUtcDate($data['createdAt']['date']);
+        if ($dateString = $this->getField(self::FIELD_PROPERTIES_UPDATED_AT)) {
+            $properties->updatedAt = SolrHelper::createUtcDate($dateString);
+        }
+        if ($dateString = $this->getField(self::FIELD_PROPERTIES_CREATED_AT)) {
+            $properties->createdAt = SolrHelper::createUtcDate($dateString);
+        }
 
         $this->updateVideoProperties($data, $properties);
 

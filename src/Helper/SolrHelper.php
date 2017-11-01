@@ -4,6 +4,8 @@ namespace App\Helper;
 
 class SolrHelper
 {
+    public const DATE_FORMAT = 'Y-m-d\TH:i:s\Z';
+
     public static function transformFieldNames(string $entityData, string $filter): string
     {
         $indexableFields = call_user_func([$entityData, 'getIndexableFields']);

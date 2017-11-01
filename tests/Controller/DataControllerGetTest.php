@@ -96,9 +96,9 @@ class DataControllerGetTest extends AbstractJsonRpcControllerTest
     /**
      * @dataProvider provideFailingRoles
      *
-     * @param $roles
+     * @param array $roles
      */
-    public function testDataGetWithoutPermissionFails($roles)
+    public function testDataGetWithoutPermissionFails(array $roles)
     {
         $this->setUserRoles($roles);
 
@@ -114,9 +114,6 @@ class DataControllerGetTest extends AbstractJsonRpcControllerTest
         $this->assertJsonRpcErrorResponse($response->getContent(), Response::HTTP_FORBIDDEN, 'Access Denied.');
     }
 
-    /**
-     * @return string
-     */
     private function getStatusRequestData(): string
     {
         $data = json_encode([

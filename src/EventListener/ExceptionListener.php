@@ -49,7 +49,7 @@ class ExceptionListener implements EventSubscriberInterface
                 break;
             case BadRequestException::class:
                 /** @var BadRequestException $exception */
-                $error = new Error(400, 'Wrong data provided!', $exception->getErrors());
+                $error = new Error(400, 'Wrong data provided!', $exception->getErrorsForJsonProperties());
                 break;
             case DataDownloadErrorException::class:
                 $error = new Error(400, $exception->getMessage(), $exception->getPrevious()->getMessage());

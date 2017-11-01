@@ -19,7 +19,7 @@ class RPCResponse
      * @JMS\Type("string")
      * @JMS\ReadOnly()
      * @SWG\Property(
-     *     example="request-3d254173"
+     *     example="request3d254173"
      * )
      */
     public $id;

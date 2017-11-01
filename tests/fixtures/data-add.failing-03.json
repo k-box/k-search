@@ -1,0 +1,26 @@
+{
+    "params": {
+        "data": {
+            "author": [
+                {
+                    "name": null
+                }
+            ],
+            "copyright": {
+                "owner": null,
+                "usage": null
+            },
+            "uploader": {
+                "name": null
+            },
+            "properties": {
+                "title": null,
+                "filename": null,
+                "mime_type": null,
+                "language": null,
+                "created_at": null
+            }
+        }
+    },
+    "id": "a1b2c3d4e5f6"
+}

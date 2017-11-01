@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @SWG\Definition(
  *     definition="Data\Data",
- *     required={"uuid", "hash", "type", "url"}
+ *     required={"uuid", "hash", "type", "url", "author", "copyright", "uploader", "properties"}
  * )
  */
 class Data
@@ -63,7 +63,7 @@ class Data
      * The general type of the provided data.
      *
      * @var string
-     * @Assert\NotNull()
+     * @Assert\NotBlank()
      * @JMS\Type("string")
      * @Assert\Choice(
      *     strict=true,
@@ -91,6 +91,7 @@ class Data
      * List of authors (multiple).
      *
      * @var Author[]
+     * @Assert\Type("array")
      * @Assert\NotBlank()
      * @Assert\Valid()
      * @JMS\Type("array<App\Model\Data\Author>")
