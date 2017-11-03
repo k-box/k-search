@@ -7,6 +7,8 @@ use App\Model\Data\Data;
 use Http\Client\Exception;
 use Http\Client\HttpClient;
 use Http\Message\MessageFactory;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
@@ -71,7 +73,7 @@ class DataDownloaderService
         ]);
 
         $request = $this->messageFactory->createRequest('GET', $data->url);
-        $response = $this->httpClient->sendRequest($request);
+        $response = $this->handleRequest($data, $request);
 
         $tempFile = $this->buildTempFilenameForData($data);
         $this->fileSystem->mkdir($this->tempFolder);
@@ -89,11 +91,26 @@ class DataDownloaderService
         ]);
 
         $request = $this->messageFactory->createRequest('HEAD', $data->url);
+        $response = $this->handleRequest($data, $request);
 
+        return $response->getHeaders();
+    }
+
+    /**
+     * @param Data             $data
+     * @param RequestInterface $request
+     *
+     * @throws DataDownloadErrorException
+     *
+     * @return ResponseInterface
+     */
+    private function handleRequest(Data $data, RequestInterface $request): ResponseInterface
+    {
         try {
             $response = $this->httpClient->sendRequest($request);
         } catch (Exception $exception) {
-            $this->logger->error('Exception while getting HEADERs for {uuid}.', [
+            $this->logger->warning('Exception while executing {method} request for {uuid}.', [
+                'method' => $request->getMethod(),
                 'uuid' => $data->uuid,
                 'url' => $data->url,
                 'exception' => $exception,
@@ -106,12 +123,19 @@ class DataDownloaderService
         }
 
         if (200 !== $response->getStatusCode()) {
+            $this->logger->warning('Wrong http code returned  while executing {method} request for {uuid}: HTTP {code}.', [
+                'method' => $request->getMethod(),
+                'uuid' => $data->uuid,
+                'code' => $response->getStatusCode(),
+                'url' => $data->url,
+            ]);
+
             throw new DataDownloadErrorException(
                 sprintf('Wrong response while downloading contents for Data %s from %s. Got HTTP %s response code.', $data->uuid, $data->url, $response->getStatusCode())
             );
         }
 
-        return $response->getHeaders();
+        return $response;
     }
 
     /**

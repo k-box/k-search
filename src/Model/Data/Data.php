@@ -14,11 +14,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Data
 {
-    public const DATA_STATUS_QUEUED = 'Queued';
-    public const DATA_STATUS_OK = 'Ok';
-
     public const DATA_TYPE_DOCUMENT = 'document';
     public const DATA_TYPE_VIDEO = 'video';
+    const STATUS_QUEUED = 'queued';
+    const STATUS_OK = 'ok';
+    const STATUS_ERROR = 'error';
 
     /**
      * The Universally unique identifier of this data.
@@ -128,4 +128,12 @@ class Data
      * @JMS\Groups({"details"})
      */
     public $status;
+
+    /**
+     * The error status of the data, internal use only, not exposed.
+     *
+     * @var string
+     * @JMS\Groups({"details"})
+     */
+    public $errorStatus;
 }

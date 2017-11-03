@@ -124,14 +124,14 @@ class DataService
 
         if (!empty($textualContents)) {
             // If the textual contents are provided, we straight index them
-            $data->status = Data::DATA_STATUS_OK;
+            $data->status = $data->status ?? Data::STATUS_OK;
             $dataEntity = SolrEntityData::buildFromModel($data);
             $dataEntity->addTextualContents($textualContents);
             $enqueue = false;
         } else {
             $this->ensureDataIsIndexable($data);
             // Otherwise, we queue the data to be indexed later.
-            $data->status = Data::DATA_STATUS_QUEUED;
+            $data->status = Data::STATUS_QUEUED;
             $dataEntity = SolrEntityData::buildFromModel($data);
         }
 
@@ -164,7 +164,7 @@ class DataService
     public function addDataWithFileExtraction(Data $data, \SplFileInfo $fileInfo): bool
     {
         $this->dataCleanup($data);
-        $data->status = Data::DATA_STATUS_OK;
+        $data->status = Data::STATUS_OK;
         $dataEntity = SolrEntityData::buildFromModel($data);
 
         return $this->solrService->addWithTextExtraction($dataEntity, $fileInfo);
@@ -187,7 +187,7 @@ class DataService
         // Find only Data that is correctly indexed
         $query->addFilterQuery($this->solrService->buildFilterQuery(
             SolrEntityData::FIELD_STATUS,
-            Data::DATA_STATUS_OK,
+            Data::STATUS_OK,
             self::SEARCH_DATA_STATUS_KEY
         ));
 
