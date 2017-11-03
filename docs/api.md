@@ -33,39 +33,18 @@ On any application where pieces of data (documents) are handled first, they rece
 
 ### Authentication
 
-The K-Search API requires authentication of applications to use the services and distinguish between the different
-permissions:
+The K-Search APIs are protected by authentication and each API consumer must provide an API token in the request.
 
-* `data-search` - allows an application to access the search endpoint.
-* `data-add` - allows an application to add a piece of data (such as a document).
-* `data-remove-own` - allows an application to delete a data piece which was previously added by the same application.
-* `data-remove-all` - allows an application to delete any data piece within the search-index (e.g. some K-Link admin app)
-
-The configuration flag `data-auth=no` (default `=yes`) on the K-Search can disable the authentication.
-
-The K-Search API offers **two simple ways** of authenticating an application to the use of the API:
-
-##### 1. Basic authentication
-
-The K-Search-API uses [HTTP Basic Authentication](https://en.wikipedia.org/wiki/Basic_access_authentication), where
-the username is the cleaned `app_url` of the application and the password is a provided by the user throught the
-settings of the adapter using the `app_secret`. These are base64-encoded and used for basic authentication:
-
+The authentication is performed by providing the Authorization header in the HTTP request, as an example:
 ```
-curl -H "Authorization: Basic QWxhZGRpbjpPcGVuU2VzYW1l" https://K-LINK-URL/k-search/
+curl -H "Authorization: Bearer ZTI0NTg1MzFhODliZTZlMzM4ZWUxMGJjZTQxYzIzYjQ=" https://K-SEARCH-URL/api/...
 ```
 
+The K-Search API uses a centralized registry to verify the provided credentials: both the Bearer token and the origin of the request are used to authenticate and validate all API requests.
+Refer to the K-Registry documentation for details about the credentials and the registration process, the registry also provides details for the permission system.
 
-##### 2. Token authentication
-
-The K-Search-API provides a very simple token authentication. Using the `app_secret` as the token:
-
-```
-curl -H "Authorization: token ZTI0NTg1MzFhODliZTZlMzM4ZWUxMGJjZTQxYzIzYjQ=" https://K-LINK-URL/k-search/
-```
-
-The `app_url` is taken from the HTTP header entry `Origin` and the `app_secret` is provided through the token.
-
+The environent variable `KLINK_REGISTRY_ENABLED` controls, if a KLink Registry should be used for authenticating clients (default is `false`).
+The location of the KLink Registry can be controlled with the `KLINK_REGISTRY_API_URL` variable.
 
 ### Common deployments:
 
@@ -79,7 +58,7 @@ The `app_url` is taken from the HTTP header entry `Origin` and the `app_secret` 
   * Authentication is disabled.
   * Only one application, the K-Box, accesses the K-Search-API through a local channel.
 
-## Basic API calls
+## API calls
 
 ### Requests
 

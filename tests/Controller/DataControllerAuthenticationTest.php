@@ -71,7 +71,7 @@ class DataControllerAuthenticationTest extends AbstractJsonRpcControllerTest
     public function testApiEndpointRequiresAuthenticationWithAuthOnly(string $method, string $url)
     {
         $headers = [
-            'HTTP_Authorization' => 'Token wrong-token',
+            'HTTP_Authorization' => 'Bearer wrong-token',
         ];
 
         $this->sendRequest($method, $url, $headers);
@@ -100,7 +100,7 @@ class DataControllerAuthenticationTest extends AbstractJsonRpcControllerTest
             ->willThrowException(new BadCredentialsException());
 
         $headers = [
-            'HTTP_Authorization' => 'Token not-existing-token-for-app',
+            'HTTP_Authorization' => 'Bearer not-existing-token-for-app',
             'HTTP_Origin' => 'http://domain.app/app-url',
         ];
 

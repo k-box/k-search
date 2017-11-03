@@ -19,7 +19,7 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
 class ApiSecretAuthenticator extends AbstractGuardAuthenticator
 {
-    private const TOKEN_MIN_LENGTH = 5;
+    private const BEARER_MIN_LENGTH = 5;
 
     /**
      * @var bool
@@ -144,15 +144,15 @@ class ApiSecretAuthenticator extends AbstractGuardAuthenticator
 
         // Remove any extra spaces
         $authorizationHeader = trim($authorizationHeader);
-        if (!$authorizationHeader || 0 !== strpos($authorizationHeader, 'Token ')) {
+        if (!$authorizationHeader || 0 !== strpos($authorizationHeader, 'Bearer ')) {
             return null;
         }
 
-        if (strlen($authorizationHeader) < (6 + self::TOKEN_MIN_LENGTH)) {
+        if (strlen($authorizationHeader) < (7 + self::BEARER_MIN_LENGTH)) {
             return null;
         }
 
         // Extract the app-secret from "Authorization: Token A1B2C3...."
-        return substr($authorizationHeader, 6);
+        return substr($authorizationHeader, 7);
     }
 }

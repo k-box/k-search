@@ -78,7 +78,7 @@ class ApiSecretAuthenticatorTest extends KernelTestCase
     public function testGetCredentialsFromRequestNoSecret()
     {
         $authenticator = new ApiSecretAuthenticator(true);
-        $request = $this->createRequestWithHeaders('Token ABCDEF', null);
+        $request = $this->createRequestWithHeaders('Bearer ABCDEF', null);
         $credentials = $authenticator->getCredentials($request);
         $this->assertNull($credentials);
     }
@@ -86,11 +86,11 @@ class ApiSecretAuthenticatorTest extends KernelTestCase
     public function incorrectAuthDataProvider(): array
     {
         return [
-            'null-token' => [null],
-            'no-token' => ['Bearer '],
-            'no-token-val' => ['Bearer ABCDEFG'],
-            'empty-token' => ['Token '],
-            'short-token' => ['Token ABCD'],
+            'null-bearer' => [null],
+            'no-bearer' => ['Something '],
+            'no-bearer-val' => ['Something ABCDEFG'],
+            'empty-bearer' => ['Bearer '],
+            'short-bearer' => ['Bearer ABCD'],
         ];
     }
 
@@ -110,7 +110,7 @@ class ApiSecretAuthenticatorTest extends KernelTestCase
     public function testGetCredentialsFromRequest()
     {
         $authenticator = new ApiSecretAuthenticator(true);
-        $request = $this->createRequestWithHeaders('Token ABCDEF', 'origin');
+        $request = $this->createRequestWithHeaders('Bearer ABCDEF', 'origin');
         $credentials = $authenticator->getCredentials($request);
 
         $this->assertInternalType('array', $credentials);
