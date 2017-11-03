@@ -58,7 +58,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         return self::FIELD_CONTENTS;
     }
 
-    public static function buildFromModel(Data $data): SolrEntityData
+    public static function buildFromModel(Data $data): self
     {
         $doc = new self($data->uuid);
 
