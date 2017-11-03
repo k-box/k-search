@@ -107,7 +107,7 @@ class DataDownloaderService
 
         if (200 !== $response->getStatusCode()) {
             throw new DataDownloadErrorException(
-                sprintf('Wrong response while downloading contents for Data %s from %s, return code=%s', $data->uuid, $data->url, $response->getStatusCode())
+                sprintf('Wrong response while downloading contents for Data %s from %s. Got HTTP %s response code.', $data->uuid, $data->url, $response->getStatusCode())
             );
         }
 

@@ -40,6 +40,12 @@ class ExceptionListener implements EventSubscriberInterface
             return;
         }
 
+        $this->logger->debug('Handling exception: {message}', [
+            'message' => $exception->getMessage(),
+            'exception' => $exception,
+            'request' => $event->getRequest(),
+        ]);
+
         // Get the request-id, if any.
         $requestId = $event->getRequest()->headers->get(RPCRequest::REQUEST_ID_HEADER, null);
 
@@ -52,7 +58,8 @@ class ExceptionListener implements EventSubscriberInterface
                 $error = new Error(400, 'Wrong data provided!', $exception->getErrorsForJsonProperties());
                 break;
             case DataDownloadErrorException::class:
-                $error = new Error(400, $exception->getMessage(), $exception->getPrevious()->getMessage());
+                $previous = $exception->getPrevious();
+                $error = new Error(400, $exception->getMessage(), $previous ? $previous->getMessage() : null);
                 break;
             case SolrEntityNotFoundException::class:
                 $error = new Error(404, $exception->getMessage());
