@@ -20,7 +20,7 @@ variables:
     - composer install --prefer-dist --no-interaction
 
 ##### Jobs
-php-coding-styles:7.1:
+php-coding-and-tests:7.1:
   image: docker.klink.asia/main/docker-php:7.1
   <<: *need_composer
   stage: php-cs
@@ -28,14 +28,6 @@ php-coding-styles:7.1:
     - mv /usr/local/etc/php/conf.d/docker-php-ext-xdebug.{ini,disabled}
     - scripts/run_phpcs.sh
     - bin/console > /dev/null
-  tags:
-    - docker
-
-php-tests:7.1:
-  image: docker.klink.asia/main/docker-php:7.1
-  <<: *need_composer
-  stage: test
-  script:
     - scripts/run_phpunit.sh
   tags:
     - docker
@@ -51,6 +43,7 @@ branch_release:
     - dind
   except:
     - tags
+  when: manual
 
 ## Tagged releases
 tagged_release:
