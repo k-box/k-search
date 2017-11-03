@@ -45,14 +45,12 @@ class Uploader
      * The URL of the application that triggered the data upload.
      * This data is coming from the Application data in the K-Link Registry.
      *
+     * This data is for internal use only, not exposed by default.
+     *
      * @var string
      * @JMS\Type("string")
      * @JMS\ReadOnly()
      * @JMS\Groups({"details"})
-     * @SWG\Property(
-     *     property="app_url",
-     *     example="https://wwww.johndoe-inc.org/uploader-app",
-     * )
      */
     public $appUrl;
 
@@ -60,13 +58,12 @@ class Uploader
      * Contact email to of an administrator, who can be contacted in case of any issues related to uploaded documents.
      * This data is coming from the Application data in the K-Link Registry.
      *
+     * This data is for internal use only, not exposed by default.
+     *
      * @var string
      * @JMS\Type("string")
      * @JMS\Groups({"details"})
      * @JMS\ReadOnly()
-     * @SWG\Property(
-     *     example="admin@johndoe-inc.org",
-     * )
      */
     public $email;
 }
