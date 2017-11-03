@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\SolrEntityData;
 use App\Exception\BadRequestException;
+use App\Exception\SolrEntityNotFoundException;
 use App\Model\Data\Data;
 use App\Model\Data\SearchParams;
 use App\Model\Data\SearchResults;
@@ -72,16 +73,33 @@ class DataService
     /**
      * Retrieves the Data from the index, given its UUID.
      *
-     * @todo: filter retrievable data, to return only "STATUS = OK" Data from the index
+     * @param string      $uuid   The data UUID
+     * @param string|null $status Filter the data to retrieve by the following status
      *
-     * @param string $uuid the data UUID
+     * @throws SolrEntityNotFoundException
      *
      * @return Data
      */
-    public function getData(string $uuid): Data
+    public function getData(string $uuid, ?string $status = null): Data
     {
-        /** @var SolrEntityData $solrEntityData */
-        $solrEntityData = $this->solrService->get(SolrEntityData::getEntityType(), $uuid, SolrEntityData::class);
+        $entityType = SolrEntityData::getEntityType();
+
+        $filterQueries = [
+            $this->solrService->buildFilterQuery(SolrEntityData::FIELD_ENTITY_ID, $uuid, 'id'),
+        ];
+
+        if ($status) {
+            $filterQueries[] = $this->solrService->buildFilterQuery(SolrEntityData::FIELD_STATUS, $status, 'status');
+        }
+
+        $resultSet = $this->solrService->getByFilter($entityType, SolrEntityData::class, $filterQueries, 1, 0);
+
+        if (!$resultSet || 1 !== $resultSet->getNumFound()) {
+            throw new SolrEntityNotFoundException(sprintf('Resource %s::%s not found!', $entityType, $uuid));
+        }
+
+        // Building the required SolrEntity object from the result document
+        $solrEntityData = new SolrEntityData($uuid, $resultSet->getIterator()[0]);
 
         return $solrEntityData->buildModel();
     }
