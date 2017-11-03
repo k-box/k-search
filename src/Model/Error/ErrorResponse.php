@@ -30,7 +30,7 @@ class ErrorResponse extends RPCResponse
         $this->error = $error;
     }
 
-    public static function withErrorMessage(int $errorCode, string $errorMessage, string $responseId = null): ErrorResponse
+    public static function withErrorMessage(int $errorCode, string $errorMessage, string $responseId = null): self
     {
         return new self(new Error($errorCode, $errorMessage), $responseId);
     }
