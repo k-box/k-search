@@ -11,7 +11,6 @@ use App\Queue\Message\UUIDMessage;
 use App\Service\DataDownloaderService;
 use App\Service\DataService;
 use App\Service\QueueService;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -194,8 +193,7 @@ class DataProcessWorkerCommandTest extends KernelTestCase
         $command = new DataIndexWorkerCommand(
             $this->queueService,
             $this->dataService,
-            $this->dataDownloaderService,
-            $this->createMock(LoggerInterface::class)
+            $this->dataDownloaderService
         );
         $this->application->add($command);
 

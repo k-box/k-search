@@ -11,7 +11,6 @@ use App\Queue\Message\UUIDMessage;
 use App\Service\DataDownloaderService;
 use App\Service\DataService;
 use App\Service\QueueService;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -28,20 +27,15 @@ class DataIndexWorkerCommand extends Command
     /** @var DataService */
     private $dataService;
 
-    /** @var LoggerInterface */
-    private $logger;
-
     public function __construct(
         QueueService $queueService,
         DataService $dataService,
-        DataDownloaderService $dataDownloaderService,
-        LoggerInterface $logger
+        DataDownloaderService $dataDownloaderService
     ) {
         parent::__construct();
         $this->queueService = $queueService;
         $this->dataService = $dataService;
         $this->dataDownloaderService = $dataDownloaderService;
-        $this->logger = $logger;
     }
 
     protected function configure()
@@ -82,9 +76,7 @@ class DataIndexWorkerCommand extends Command
                     );
                 }
             } catch (SolrEntityNotFoundException $e) {
-                $this->logger->error('Looks like the data does not exist, got exception "{message}"', [
-                    $e->getMessage(),
-                ]);
+                $output->writeln('Looks like the data does not exist!');
                 $output->writeln('<error>'.$e->getMessage().'</error>');
             } catch (\Exception $e) {
                 $output->writeln('<error>'.$e->getMessage().'</error>');
