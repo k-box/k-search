@@ -37,7 +37,11 @@ class DataServiceTest extends TestCase
         $this->solrService = $this->createMock(SolrService::class);
         $this->queueService = $this->createMock(QueueService::class);
         $this->downloaderService = $this->createMock(DataDownloaderService::class);
-        $types = ['application/pdf', 'image/jpg'];
+        $types = [
+            'application/pdf',
+            'image/jpg',
+            'text/html',
+        ];
 
         $this->dataService = new DataService(
             $this->queueService,
@@ -48,18 +52,36 @@ class DataServiceTest extends TestCase
         );
     }
 
-    public function testHasIndexableContentType()
+    public function provideIndexableContentTypes(): array
+    {
+        return [
+            ['image/jpg'],
+            ['text/html; charset=iso-8859-15'],
+        ];
+    }
+
+    /**
+     * @dataProvider provideIndexableContentTypes
+     *
+     * @param string $contentType
+     */
+    public function testHasIndexableContentType(string $contentType)
     {
         $data = new Data();
         $data->url = 'http://someurls.com/data.ext';
 
         $this->downloaderService->expects($this->once())
             ->method('getDataUrlHeaders')
+            ->with($this->callback(function (Data $data) {
+                $this->assertSame($data->url, 'http://someurls.com/data.ext');
+
+                return true;
+            }))
             ->willReturn([
-                'Content-Type' => ['image/jpg'],
+                'Content-Type' => [$contentType],
             ]);
 
-        $this->assertNull($this->dataService->ensureDataIsIndexable($data));
+        $this->dataService->ensureDataIsIndexable($data);
     }
 
     public function testHasNotIndexableContentType()

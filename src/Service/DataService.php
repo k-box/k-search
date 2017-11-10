@@ -267,7 +267,8 @@ class DataService
             ]);
         }
 
-        $contentType = reset($headers['Content-Type']);
+        // Get the MimeType from the Content-Type header as defined here: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
+        [$contentType] = explode(';', current($headers['Content-Type']), 2);
 
         if (!in_array($contentType, $this->indexableContentTypes, true)) {
             throw new BadRequestException([
