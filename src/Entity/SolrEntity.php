@@ -6,6 +6,9 @@ use Solarium\QueryType\Update\Query\Document\Document;
 
 interface SolrEntity
 {
+    const MAPPING_FILTERS = 'filters';
+    const MAPPING_AGGREGATIONS = 'aggregations';
+
     /**
      * Returns the entity type for this Solr document.
      *
@@ -67,15 +70,23 @@ interface SolrEntity
 
     /**
      * Return a mapping from model properties (json) to the Solr field.
+     * The type can distinguish between different contexts (as filtering or aggregations)
+     * to be able to use different fields/properties.
+     *
+     * @param string $mappingType One of the Mapping types (SolrEntity::MAPPING_FILTERS, SolrEntity::MAPPING_AGGREGATIONS)
      *
      * @return string[]
      */
-    public static function getModelPropertyToFieldMappings(): array;
+    public static function getModelPropertyToFieldMappings(string $mappingType): array;
 
     /**
      * Return a mapping from Solr fields to their model property (json).
+     * The type can distinguish between different contexts (as filtering or aggregations)
+     * to be able to use different fields/properties.
+     *
+     * @param string $mappingType One of the Mapping types (SolrEntity::MAPPING_FILTERS, SolrEntity::MAPPING_AGGREGATIONS)
      *
      * @return string[]
      */
-    public static function getFieldToModelPropertyMappings(): array;
+    public static function getFieldToModelPropertyMappings(string $mappingType): array;
 }
