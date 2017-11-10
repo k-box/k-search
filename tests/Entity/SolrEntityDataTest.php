@@ -74,7 +74,7 @@ class SolrEntityDataTest extends TestCase
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_PROPERTIES_COLLECTIONS), $data->properties->collections);
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_PROPERTIES_TAGS), $data->properties->tags);
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_PROPERTIES_MIME_TYPE), $data->properties->mimeType);
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_AUTHOR_STORED), json_encode($data->author));
+        $this->assertEquals($entity->getField(SolrEntityData::FIELD_AUTHORS_STORED), json_encode($data->authors));
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_UPLOADER_STORED), json_encode($data->uploader));
     }
 
@@ -123,7 +123,7 @@ class SolrEntityDataTest extends TestCase
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_PROPERTIES_COLLECTIONS), $data->properties->collections);
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_PROPERTIES_TAGS), $data->properties->tags);
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_PROPERTIES_MIME_TYPE), $data->properties->mimeType);
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_AUTHOR_STORED), json_encode($data->author));
+        $this->assertEquals($entity->getField(SolrEntityData::FIELD_AUTHORS_STORED), json_encode($data->authors));
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_UPLOADER_STORED), json_encode($data->uploader));
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_PROPERTIES_CREATED_AT), $data->properties->createdAt->format(SolrHelper::DATE_FORMAT));
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_PROPERTIES_UPDATED_AT), $data->properties->updatedAt->format(SolrHelper::DATE_FORMAT));

@@ -5,7 +5,7 @@
             "url": "https://localhost/data.url",
             "hash": "d6f644b19812e97b5d871658d6d3400ecd4787faeb9b8990c1e7608288664be77257104a58d033bcf1a0e0945ff06468ebe53e2dff36e248424c7273117dac09",
             "type": "document",
-            "author": [
+            "authors": [
                 {
                     "name": "author.name"
                 }

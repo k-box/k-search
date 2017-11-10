@@ -17,12 +17,12 @@
 | `properties[abstract]`       | String |   | A short abstract about the data or document. |
 | `properties[thumbnail]`      | String |   | The URI where the a thumbnail of this data is stored. |
 | `properties[tags][]`         | List   |   | User-defined tags associated to the data (multiple). |
-| `properties[collections][]`   | List   |   | Search data and browse within the hierarchy (multiple). Example: List [ "COLLECTION_ID_1", "COLLECTION_ID_2" ].  |
-| `author[]`                   | List   | ✔ | List of authors (multiple). |
-| `author[][]`                 | Object | ✔ | An object containing author's information. |
-| `author[][name]`             | String | ✔ | Name of the author. |
-| `author[][email]`            | String |   | Contact email of author. |
-| `author[][contact]`          | String |   | General contact information (e.g. URL to website or postal address). |
+| `properties[collections][]`  | List   |   | Search data and browse within the hierarchy (multiple). Example: List [ "COLLECTION_ID_1", "COLLECTION_ID_2" ].  |
+| `authors[]`                  | List   | ✔ | List of authors (multiple). |
+| `authors[][]`                | Object | ✔ | An object containing author's information. |
+| `authors[][name]`            | String | ✔ | Name of the author. |
+| `authors[][email]`           | String |   | Contact email of author. |
+| `authors[][contact]`         | String |   | General contact information (e.g. URL to website or postal address). |
 | `copyright[]`                | Object | ✔ | An object containing information on the copyright. |
 | `copyright[owner][]`         | Object | ✔ | The copyright owner and information on how to contact for any inquiries. |
 | `copyright[owner][name]`     | String |   | Name of the copyright owner. |
