@@ -26,7 +26,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     public const FIELD_URL = 'str_sis_data_url';
     public const FIELD_COPYRIGHT_STORED = 'str_ss_data_copyright';
     public const FIELD_PROPERTIES_STORED = 'str_ss_data_properties';
-    public const FIELD_AUTHOR_STORED = 'str_ss_data_author';
+    public const FIELD_AUTHORS_STORED = 'str_ss_data_author';
     public const FIELD_UPLOADER_STORED = 'str_ss_data_uploader';
 
     public const FIELD_CONTENTS = 'text_data_contents';
@@ -71,7 +71,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         // Specific sub-entity handling
         $doc->addCopyright($data->copyright);
         $doc->addProperties($data->properties);
-        $doc->addAuthor($data->author);
+        $doc->addAuthors($data->authors);
         $doc->addUploader($data->uploader);
 
         return $doc;
@@ -88,7 +88,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
 
         $data->copyright = $this->buildCopyrightModel();
         $data->properties = $this->buildPropertiesModel();
-        $data->author = $this->buildAuthorModel();
+        $data->authors = $this->buildAuthorsModel();
         $data->uploader = $this->buildUploaderModel();
 
         return $data;
@@ -171,9 +171,9 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     /**
      * @param Author[] $author
      */
-    private function addAuthor(array $author)
+    private function addAuthors(array $author)
     {
-        $this->addField(self::FIELD_AUTHOR_STORED, json_encode($author));
+        $this->addField(self::FIELD_AUTHORS_STORED, json_encode($author));
     }
 
     /**
@@ -265,9 +265,9 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     /**
      * @return Author[]
      */
-    private function buildAuthorModel(): array
+    private function buildAuthorsModel(): array
     {
-        $json = $this->getField(self::FIELD_AUTHOR_STORED);
+        $json = $this->getField(self::FIELD_AUTHORS_STORED);
         $data = json_decode($json, true) ?? [];
         $authors = [];
         foreach ($data as $authorData) {

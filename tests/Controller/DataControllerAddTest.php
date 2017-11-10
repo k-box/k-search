@@ -61,7 +61,7 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
                 'params.data.hash' => 'This value should not be blank.',
                 'params.data.type' => 'This value should not be blank.',
                 'params.data.properties' => 'This value should not be blank.',
-                'params.data.author' => 'This value should not be blank.',
+                'params.data.authors' => 'This value should not be blank.',
                 'params.data.copyright' => 'This value should not be blank.',
                 'params.data.uploader' => 'This value should not be blank.',
             ]],
@@ -75,7 +75,7 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
                 'params.data.properties.mime_type' => 'This value should not be blank.',
                 'params.data.properties.language' => 'This value should not be blank.',
                 'params.data.properties.created_at' => 'This value should not be blank.',
-                'params.data.author' => 'This value should not be blank.',
+                'params.data.authors' => 'This value should not be blank.',
                 'params.data.copyright.owner' => 'This value should not be blank.',
                 'params.data.copyright.usage' => 'This value should not be blank.',
                 'params.data.uploader.name' => 'This value should not be blank.',
@@ -90,7 +90,7 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
                 'params.data.properties.mime_type' => 'This value should not be blank.',
                 'params.data.properties.language' => 'This value should not be blank.',
                 'params.data.properties.created_at' => 'This value should not be blank.',
-                'params.data.author[0].name' => 'This value should not be blank.',
+                'params.data.authors[0].name' => 'This value should not be blank.',
                 'params.data.copyright.owner' => 'This value should not be blank.',
                 'params.data.copyright.usage' => 'This value should not be blank.',
                 'params.data.uploader.name' => 'This value should not be blank.',
@@ -200,7 +200,7 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
         $data->type = 'document';
         $author = new Author();
         $author->name = 'author.name';
-        $data->author[] = $author;
+        $data->authors[] = $author;
         $data->copyright = new Copyright();
         $data->copyright->owner = new CopyrightOwner();
         $data->copyright->owner->contact = 'copyright.owner.contact';

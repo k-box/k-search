@@ -97,7 +97,7 @@ class Data
      * @JMS\Type("array<App\Model\Data\Author>")
      * @SWG\Property()
      */
-    public $author;
+    public $authors;
 
     /**
      * Information on the copyright.
