@@ -59,7 +59,7 @@ class ModelHelper
         $author->contact = '221B Baker Street';
         $data->authors[] = $author;
 
-        $data->status = '';
+        $data->status = 'ok';
 
         return $data;
     }

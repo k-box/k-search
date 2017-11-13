@@ -14,19 +14,35 @@ use Swagger\Annotations as SWG;
 class DataStatus
 {
     /**
-     * The status.
+     * The status code.
      *
      * @var string
      * @JMS\Type("string")
      * @JMS\ReadOnly()
      * @SWG\Property(
-     *     example="Queued",
+     *     readOnly=true,
+     *     enum={"ok", "queued", "error"},
+     *     example="queued",
      * )
      */
     public $status;
 
-    public function __construct(string $status)
+    /**
+     * A message associated with the status with additional details, if relevant.
+     *
+     * @var string
+     * @JMS\Type("string")
+     * @JMS\ReadOnly()
+     * @SWG\Property(
+     *     readOnly=true,
+     *     example={"Status message."}
+     * )
+     */
+    public $message;
+
+    public function __construct(string $status, string $message = '')
     {
         $this->status = $status;
+        $this->message = $message;
     }
 }

@@ -46,7 +46,8 @@ class DataControllerStatusTest extends AbstractJsonRpcControllerTest
         $this->setUserRoles(DataVoter::ALL_ROLES);
 
         $data = ModelHelper::createDataModel(self::DATA_UUID);
-        $data->status = 'Ok';
+        $data->status = Data::STATUS_OK;
+        $data->errorStatus = '';
 
         $dataService = $this->setMockedDataService();
         $dataService->expects($this->once())
@@ -60,7 +61,31 @@ class DataControllerStatusTest extends AbstractJsonRpcControllerTest
         $response = $this->client->getResponse();
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $result = ['status' => 'Ok'];
+        $result = ['status' => 'ok', 'message' => ''];
+        $this->assertJsonRpcResultResponse($response->getContent(), $result, self::REQUEST_ID);
+    }
+
+    public function testDataStatusWithStatusError()
+    {
+        $this->setUserRoles(DataVoter::ALL_ROLES);
+
+        $data = ModelHelper::createDataModel(self::DATA_UUID);
+        $data->status = Data::STATUS_ERROR;
+        $data->errorStatus = 'The Error Status';
+
+        $dataService = $this->setMockedDataService();
+        $dataService->expects($this->once())
+            ->method('getData')
+            ->with(self::DATA_UUID)
+            ->willReturn($data);
+
+        $statusRequest = $this->getStatusRequestData();
+        $this->sendAuthenticatedRequest(self::RPC_METHOD, self::DATA_STATUS_ENDPOINT, $statusRequest);
+
+        $response = $this->client->getResponse();
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $result = ['status' => 'error', 'message' => 'The Error Status'];
         $this->assertJsonRpcResultResponse($response->getContent(), $result, self::REQUEST_ID);
     }
 

@@ -25,7 +25,7 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
         $data->uploader->appUrl = self::APP_URL;
         $data->uploader->email = self::APP_EMAIL;
         $data->properties->updatedAt = new \DateTime();
-        $data->status = Data::DATA_STATUS_QUEUED;
+        $data->status = Data::STATUS_QUEUED;
 
         $dataService = $this->setMockedDataService();
         $dataService->expects($this->once())

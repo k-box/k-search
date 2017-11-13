@@ -8,6 +8,7 @@ use App\Entity\SolrEntityExtractText;
 use App\Exception\BadRequestException;
 use App\Exception\InternalSearchException;
 use App\Exception\SolrEntityNotFoundException;
+use App\Exception\SolrExtractionException;
 use App\Helper\SolrHelper;
 use App\Model\Data\Aggregation;
 use App\Model\Data\AggregationResult;
@@ -152,9 +153,10 @@ class SolrService
             return true;
         } catch (ExceptionInterface $e) {
             if (false !== strpos($e->getMessage(), '.PDFParser')) {
-                throw new \Exception('PDF Parsing Exception', 500, $e);
+                throw new SolrExtractionException('PDF Parsing Exception', 500, $e);
             }
-            throw $e;
+
+            throw new InternalSearchException('Error extracting textual contents from document', 500, $e);
         }
     }
 

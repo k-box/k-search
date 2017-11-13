@@ -123,7 +123,7 @@ class DataServiceTest extends TestCase
             ->method('add')
             ->with(
                 $this->callback(function (SolrEntityData $data) {
-                    $this->assertEquals(Data::DATA_STATUS_OK, $data->getField(SolrEntityData::FIELD_STATUS));
+                    $this->assertEquals(Data::STATUS_OK, $data->getField(SolrEntityData::FIELD_STATUS));
 
                     return true;
                 }))
@@ -169,7 +169,7 @@ class DataServiceTest extends TestCase
             ->method('add')
             ->with(
             $this->callback(function (SolrEntityData $data) {
-                $this->assertEquals(Data::DATA_STATUS_QUEUED, $data->getField(SolrEntityData::FIELD_STATUS));
+                $this->assertEquals(Data::STATUS_QUEUED, $data->getField(SolrEntityData::FIELD_STATUS));
 
                 return true;
             }))
@@ -203,7 +203,7 @@ class DataServiceTest extends TestCase
             ->method('addWithTextExtraction')
             ->with(
                 $this->callback(function (SolrEntityData $data) {
-                    $this->assertEquals(Data::DATA_STATUS_OK, $data->getField(SolrEntityData::FIELD_STATUS));
+                    $this->assertEquals(Data::STATUS_OK, $data->getField(SolrEntityData::FIELD_STATUS));
 
                     return true;
                 }),

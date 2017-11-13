@@ -21,6 +21,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
 {
     public const FIELD_HASH = 'str_sis_data_hash';
     public const FIELD_STATUS = 'str_sis_data_status';
+    public const FIELD_ERROR_STATUS = 'str_ss_data_error_status';
     public const FIELD_UUID = 'str_sis_data_uuid';
     public const FIELD_TYPE = 'str_sis_data_type';
     public const FIELD_URL = 'str_sis_data_url';
@@ -67,6 +68,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         $doc->addField(self::FIELD_TYPE, $data->type);
         $doc->addField(self::FIELD_URL, $data->url);
         $doc->addField(self::FIELD_STATUS, $data->status);
+        $doc->addField(self::FIELD_ERROR_STATUS, $data->errorStatus);
 
         // Specific sub-entity handling
         $doc->addCopyright($data->copyright);
@@ -85,6 +87,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         $data->type = (string) $this->getField(self::FIELD_TYPE);
         $data->url = (string) $this->getField(self::FIELD_URL);
         $data->status = (string) $this->getField(self::FIELD_STATUS);
+        $data->errorStatus = (string) $this->getField(self::FIELD_ERROR_STATUS);
 
         $data->copyright = $this->buildCopyrightModel();
         $data->properties = $this->buildPropertiesModel();

@@ -149,7 +149,7 @@ class DataController extends AbstractRpcController
         /** @var GetRequest $get */
         $getRequest = $this->buildRpcRequestModelFromJson($request, GetRequest::class);
 
-        $data = $this->dataService->getData($getRequest->params->uuid, Data::DATA_STATUS_OK);
+        $data = $this->dataService->getData($getRequest->params->uuid, Data::STATUS_OK);
 
         $getResponse = new GetResponse($data, $getRequest->id);
 
@@ -204,7 +204,7 @@ class DataController extends AbstractRpcController
 
         $data = $this->dataService->getData($dataStatusRequest->params->uuid);
 
-        $status = new DataStatus($data->status);
+        $status = new DataStatus($data->status, $data->errorStatus);
         $statusResponse = new DataStatusResponse($status, $dataStatusRequest->id);
 
         return $this->buildRpcJsonResponse($statusResponse);
