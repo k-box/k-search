@@ -22,9 +22,21 @@ services:
     App\Service\DataService:
         $indexableContentTypes: "%indexable_content_types%"
 
-    # Autowire KLinkRegistry client
-    OneOffTech\KLinkRegistryClient\Client:
-        $url: '%env(KLINK_REGISTRY_API_URL)%'
+    local_cache:
+      class: 'Symfony\Component\Cache\Adapter\ApcuAdapter'
+
+    # Autowiring the Registry client configurator
+    OneOffTech\KLinkRegistryClient\HttpClientConfigurator:
+      arguments:
+        - "@httplug.client.kregistry"
+      calls:
+        -
+          method: setEndpoint
+          arguments:
+            - '%env(KLINK_REGISTRY_API_URL)%'
+
+    OneOffTech\KLinkRegistryClient\ApiClient:
+        factory: ['OneOffTech\KLinkRegistryClient\ApiClient', fromConfigurator]
 
     # Autowire ApiSecretAuthenticator user provider
     App\Security\Authenticator\ApiSecretAuthenticator:
