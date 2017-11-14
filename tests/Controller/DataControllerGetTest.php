@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DataControllerGetTest extends AbstractJsonRpcControllerTest
 {
-    public const DATA_GET_ENDPOINT = '/api/0.0/data.get';
+    public const DATA_GET_ENDPOINT = '/api/3.0/data.get';
 
     public function testDataGetFailsWithWrongDataUuid()
     {

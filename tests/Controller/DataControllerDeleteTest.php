@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DataControllerDeleteTest extends AbstractJsonRpcControllerTest
 {
-    public const DATA_DELETE_ENDPOINT = '/api/0.0/data.delete';
+    public const DATA_DELETE_ENDPOINT = '/api/3.0/data.delete';
 
     public function testDataDeleteFailsWithWrongDataUuid()
     {

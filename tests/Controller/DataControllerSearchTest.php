@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DataControllerSearchTest extends AbstractJsonRpcControllerTest
 {
-    public const DATA_SEARCH_ENDPOINT = '/api/0.0/data.search';
+    public const DATA_SEARCH_ENDPOINT = '/api/3.0/data.search';
 
     public function provideFailingRoles(): array
     {

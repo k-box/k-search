@@ -15,7 +15,7 @@ use function GuzzleHttp\Psr7\try_fopen;
 
 class DataControllerAddTest extends AbstractJsonRpcControllerTest
 {
-    public const DATA_ADD_ENDPOINT = '/api/0.0/data.add';
+    public const DATA_ADD_ENDPOINT = '/api/3.0/data.add';
 
     public function testDataAddWithMinimalDataSucceeded()
     {
