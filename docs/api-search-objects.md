@@ -40,6 +40,7 @@ The supported aggregations are:
 - `properties.size`
 - `copyright.owner.name`
 - `copyright.usage.short`
+- `uploader.name`
 
 The table below defines the aggregation configuration properties
 
@@ -63,6 +64,7 @@ Currently supported filters are:
 - `properties.size`
 - `copyright.owner.name`
 - `copyright.usage.short`
+- `uploader.name`
 
 ### Example
 

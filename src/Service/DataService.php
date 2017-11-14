@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\SolrEntity;
 use App\Entity\SolrEntityData;
 use App\Exception\BadRequestException;
 use App\Exception\SolrEntityNotFoundException;
@@ -205,13 +206,13 @@ class DataService
         // Adding aggregations (aka Solr Facets)
         $facets = [];
         foreach ($searchParams->aggregations as $property => $aggregation) {
-            if (!array_key_exists($property, SolrEntityData::getModelPropertyToFieldMappings())) {
+            if (!array_key_exists($property, SolrEntityData::getModelPropertyToFieldMappings(SolrEntity::MAPPING_AGGREGATIONS))) {
                 throw new BadRequestException([
                     'aggregations' => sprintf('Aggregation on property "%s" is not available', $property),
                 ]);
             }
 
-            $fieldName = SolrEntityData::getModelPropertyToFieldMappings()[$property];
+            $fieldName = SolrEntityData::getModelPropertyToFieldMappings(SolrEntity::MAPPING_AGGREGATIONS)[$property];
             $facet = $this->solrService->buildFacet($fieldName, $aggregation->limit, $property);
 
             if (!$aggregation->countsFiltered) {
@@ -228,7 +229,7 @@ class DataService
         if ($searchParams->filters) {
             $filterQuery = $this->solrService->buildFilterFromString(
                 $searchParams->filters,
-                SolrEntityData::getModelPropertyToFieldMappings(),
+                SolrEntityData::getModelPropertyToFieldMappings(SolrEntity::MAPPING_FILTERS),
                 self::SEARCH_USER_FILTER_KEY
             );
             $filterQuery->addTag(self::SEARCH_USER_FILTER_TAG);

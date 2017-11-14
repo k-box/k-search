@@ -52,8 +52,20 @@ abstract class AbstractSolrEntity implements SolrEntity
         return $this->document->__get($fieldName);
     }
 
-    final public static function getFieldToModelPropertyMappings(): array
+    final public static function getFieldToModelPropertyMappings(string $mappingType): array
     {
-        return array_flip(static::getModelPropertyToFieldMappings());
+        return array_flip(static::getModelPropertyToFieldMappings($mappingType));
+    }
+
+    public static function getModelPropertyToFieldMappings(string $mappingType): array
+    {
+        switch ($mappingType) {
+            case static::MAPPING_AGGREGATIONS:
+                return static::getAggregationFields();
+            case static::MAPPING_FILTERS:
+                return static::getFilterFields();
+        }
+
+        return [];
     }
 }

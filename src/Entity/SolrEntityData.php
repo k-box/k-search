@@ -29,6 +29,8 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     public const FIELD_PROPERTIES_STORED = 'str_ss_data_properties';
     public const FIELD_AUTHORS_STORED = 'str_ss_data_author';
     public const FIELD_UPLOADER_STORED = 'str_ss_data_uploader';
+    public const FIELD_UPLOADER_NAME = 'str_sis_data_uploader_name';
+    public const FIELD_UPLOADER_NAME_SEARCH = 'text_data_uploader_name';
 
     public const FIELD_CONTENTS = 'text_data_contents';
     public const FIELD_COPYRIGHT_OWNER_NAME = 'str_si_data_copyright_owner_name';
@@ -97,25 +99,6 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         return $data;
     }
 
-    public static function getModelPropertyToFieldMappings(): array
-    {
-        return [
-            'uuid' => self::FIELD_ENTITY_ID,
-            'type' => self::FIELD_TYPE,
-            'properties.language' => self::FIELD_PROPERTIES_LANGUAGE,
-            'properties.created_at' => self::FIELD_PROPERTIES_CREATED_AT,
-            'properties.updated_at' => self::FIELD_PROPERTIES_UPDATED_AT,
-            'properties.size' => self::FIELD_PROPERTIES_SIZE,
-            'properties.abstract' => self::FIELD_PROPERTIES_ABSTRACT,
-            'properties.title' => self::FIELD_PROPERTIES_TITLE,
-            'properties.collections' => self::FIELD_PROPERTIES_COLLECTIONS,
-            'properties.tags' => self::FIELD_PROPERTIES_TAGS,
-            'properties.mime_type' => self::FIELD_PROPERTIES_MIME_TYPE,
-            'copyright.owner.name' => self::FIELD_COPYRIGHT_OWNER_NAME,
-            'copyright.usage.short' => self::FIELD_COPYRIGHT_USAGE_SHORT,
-        ];
-    }
-
     public static function getTextSearchFields(): array
     {
         return [
@@ -128,23 +111,29 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     public static function getFilterFields(): array
     {
         return [
-            self::FIELD_ENTITY_ID,
-            self::FIELD_TYPE,
-            self::FIELD_PROPERTIES_LANGUAGE,
-            self::FIELD_PROPERTIES_CREATED_AT,
-            self::FIELD_PROPERTIES_UPDATED_AT,
-            self::FIELD_PROPERTIES_SIZE,
-            self::FIELD_PROPERTIES_COLLECTIONS,
-            self::FIELD_PROPERTIES_TAGS,
-            self::FIELD_PROPERTIES_MIME_TYPE,
-            self::FIELD_COPYRIGHT_OWNER_NAME,
-            self::FIELD_COPYRIGHT_USAGE_SHORT,
+            'uuid' => self::FIELD_ENTITY_ID,
+            'type' => self::FIELD_TYPE,
+            'copyright.owner.name' => self::FIELD_COPYRIGHT_OWNER_NAME,
+            'copyright.usage.short' => self::FIELD_COPYRIGHT_USAGE_SHORT,
+            'properties.abstract' => self::FIELD_PROPERTIES_ABSTRACT,
+            'properties.collections' => self::FIELD_PROPERTIES_COLLECTIONS,
+            'properties.created_at' => self::FIELD_PROPERTIES_CREATED_AT,
+            'properties.language' => self::FIELD_PROPERTIES_LANGUAGE,
+            'properties.mime_type' => self::FIELD_PROPERTIES_MIME_TYPE,
+            'properties.size' => self::FIELD_PROPERTIES_SIZE,
+            'properties.tags' => self::FIELD_PROPERTIES_TAGS,
+            'properties.title' => self::FIELD_PROPERTIES_TITLE,
+            'properties.updated_at' => self::FIELD_PROPERTIES_UPDATED_AT,
+            'uploader.name' => self::FIELD_UPLOADER_NAME_SEARCH,
         ];
     }
 
     public static function getAggregationFields(): array
     {
-        return self::getFilterFields();
+        return array_merge(self::getFilterFields(), [
+            // Override the uploader name to aggregate on the not-analyzed field
+            'uploader.name' => self::FIELD_UPLOADER_NAME,
+        ]);
     }
 
     /**
@@ -184,6 +173,8 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
      */
     private function addUploader(Uploader $uploader)
     {
+        $this->addField(self::FIELD_UPLOADER_NAME, $uploader->name);
+        $this->addField(self::FIELD_UPLOADER_NAME_SEARCH, $uploader->name);
         $this->addField(self::FIELD_UPLOADER_STORED, json_encode($uploader));
     }
 
