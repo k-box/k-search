@@ -55,27 +55,6 @@ class SolrEntityDataTest extends TestCase
         $entity = SolrEntityData::buildFromModel($data);
 
         $this->assertSavedFields($entity, $data);
-
-        $this->assertEquals($entity->getField(AbstractSolrEntity::FIELD_ENTITY_ID), self::SAMPLE_UUID);
-        $this->assertEquals($entity->getField(AbstractSolrEntity::FIELD_ENTITY_TYPE), SolrEntityData::getEntityType());
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_UUID), self::SAMPLE_UUID);
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_HASH), $data->hash);
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_TYPE), $data->type);
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_URL), $data->url);
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_STATUS), $data->status);
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_COPYRIGHT_STORED), json_encode($data->copyright));
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_COPYRIGHT_OWNER_CONTACT), $data->copyright->owner->contact);
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_COPYRIGHT_OWNER_EMAIL), $data->copyright->owner->email);
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_COPYRIGHT_OWNER_NAME), $data->copyright->owner->name);
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_COPYRIGHT_USAGE_NAME), $data->copyright->usage->name);
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_COPYRIGHT_USAGE_SHORT), $data->copyright->usage->short);
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_COPYRIGHT_USAGE_REFERENCE), $data->copyright->usage->reference);
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_PROPERTIES_STORED), json_encode($data->properties));
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_PROPERTIES_COLLECTIONS), $data->properties->collections);
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_PROPERTIES_TAGS), $data->properties->tags);
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_PROPERTIES_MIME_TYPE), $data->properties->mimeType);
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_AUTHORS_STORED), json_encode($data->authors));
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_UPLOADER_STORED), json_encode($data->uploader));
     }
 
     public function testItBuildsAVideoModel()
