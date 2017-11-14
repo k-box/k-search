@@ -1,0 +1,15 @@
+services:
+    # Overriding services visibility for mocking
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: true
+
+
+    # Define here the services that will be overridden to be public
+    App\Service\DataService: ~
+    App\Security\Provider\KLinkRegistryUserProvider: ~
+
+    # Autowire ApiSecretAuthenticator user provider
+    App\Security\Authenticator\ApiSecretAuthenticator:
+        $enabled: true

@@ -9,18 +9,27 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @SWG\Definition(
  *     definition="Data\Data",
- *     required={"uuid", "hash", "type", "url"}
+ *     required={"uuid", "hash", "type", "url", "author", "copyright", "uploader", "properties"}
  * )
  */
 class Data
 {
+    public const DATA_TYPE_DOCUMENT = 'document';
+    public const DATA_TYPE_VIDEO = 'video';
+    const STATUS_QUEUED = 'queued';
+    const STATUS_OK = 'ok';
+    const STATUS_ERROR = 'error';
+
     /**
      * The Universally unique identifier of this data.
      *
      * @var string
      * @Assert\NotBlank()
      * @Assert\Uuid()
-     * @SWG\Property()
+     * @JMS\Type("string")
+     * @SWG\Property(
+     *     example="cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd",
+     * )
      */
     public $uuid;
 
@@ -29,7 +38,11 @@ class Data
      *
      * @var string
      * @Assert\NotBlank()
-     * @SWG\Property()
+     * @Assert\Url()
+     * @JMS\Type("string")
+     * @SWG\Property(
+     *     example="http://publicliterature.org/pdf/advsh12.pdf",
+     * )
      */
     public $url;
 
@@ -38,9 +51,11 @@ class Data
      *
      * @var string
      * @Assert\NotBlank()
-     * @Assert\Length(128)
+     * @Assert\Length(min="128", max="128")
      * @JMS\Type("string")
-     * @SWG\Property()
+     * @SWG\Property(
+     *     example="d6f644b19812e97b5d871658d6d3400ecd4787faeb9b8990c1e7608288664be77257104a58d033bcf1a0e0945ff06468ebe53e2dff36e248424c7273117dac09",
+     * )
      */
     public $hash;
 
@@ -48,15 +63,77 @@ class Data
      * The general type of the provided data.
      *
      * @var string
-     * @Assert\NotNull()
+     * @Assert\NotBlank()
      * @JMS\Type("string")
      * @Assert\Choice(
      *     strict=true,
      *     choices={"document", "video"}
      * )
      * @SWG\Property(
-     *     enum={"document", "video"}
+     *     enum={"document", "video"},
+     *     example="video"
      * )
      */
     public $type;
+
+    /**
+     * The properties of the data.
+     *
+     * @var Properties
+     * @Assert\NotBlank()
+     * @Assert\Valid()
+     * @JMS\Type("App\Model\Data\Properties")
+     * @SWG\Property()
+     */
+    public $properties;
+
+    /**
+     * List of authors (multiple).
+     *
+     * @var Author[]
+     * @Assert\Type("array")
+     * @Assert\NotBlank()
+     * @Assert\Valid()
+     * @JMS\Type("array<App\Model\Data\Author>")
+     * @SWG\Property()
+     */
+    public $authors;
+
+    /**
+     * Information on the copyright.
+     *
+     * @var Copyright
+     * @Assert\NotBlank()
+     * @Assert\Valid()
+     * @JMS\Type("App\Model\Data\Copyright")
+     * @SWG\Property()
+     */
+    public $copyright;
+
+    /**
+     * The originating source where the data has been uploaded or created.
+     *
+     * @var Uploader
+     * @Assert\NotBlank()
+     * @Assert\Valid()
+     * @JMS\Type("App\Model\Data\Uploader")
+     * @SWG\Property()
+     */
+    public $uploader;
+
+    /**
+     * The status of the data, internal use only, not exposed.
+     *
+     * @var string
+     * @JMS\Groups({"details"})
+     */
+    public $status;
+
+    /**
+     * The error status of the data, internal use only, not exposed.
+     *
+     * @var string
+     * @JMS\Groups({"details"})
+     */
+    public $errorStatus;
 }

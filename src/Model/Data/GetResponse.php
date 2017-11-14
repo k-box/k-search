@@ -21,15 +21,13 @@ class GetResponse extends RPCResponse
      *
      * @JMS\Type("App\Model\Data\Data")
      * @JMS\ReadOnly()
-     * @SWG\Property(
-     *     ref="#/definitions/Data\Data")
-     * )
+     * @SWG\Property()
      */
     public $result;
 
     public function __construct(Data $data, string $responseId = null)
     {
+        parent::__construct($responseId);
         $this->result = $data;
-        $this->id = $responseId;
     }
 }

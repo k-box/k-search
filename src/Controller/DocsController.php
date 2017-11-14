@@ -9,18 +9,34 @@ use Symfony\Component\Routing\Annotation\Route;
 class DocsController extends Controller
 {
     /**
-     * @SWG\Info(
-     *     title="K-Search API",
-     *     version="0.0",
-     *     description="The K-Search API definition",
-     *     contact="api@klink.asia",
-     *     termsOfService="https://klink.asia/terms/",
-     *     contact="api@klink.asia"
+     * @SWG\Swagger(
+     *     security={
+     *         {"apiSecret":{}, "apiOrigin": {}}
+     *     },
+     *     @SWG\Info(
+     *         title="K-Search API",
+     *         version="3.0",
+     *         description="The K-Search API definition",
+     *         contact="api@klink.asia",
+     *         termsOfService="https://klink.asia/terms/",
+     *     ),
+     *     @SWG\SecurityScheme(
+     *       securityDefinition="apiSecret",
+     *       type="apiKey",
+     *       in="header",
+     *       name="Authorization"
+     *     ),
+     *     @SWG\SecurityScheme(
+     *       securityDefinition="apiOrigin",
+     *       type="apiKey",
+     *       in="header",
+     *       name="Origin"
+     *     )
      * )
      *
      * @Route("/docs")
      */
-    public function getDoc()
+    public function getDocs()
     {
         return $this->render('swagger.html.twig');
     }

@@ -15,12 +15,17 @@ class RPCResponse
      *
      * @see RPCRequest::$id
      *
-     * @var string
+     * @var string|null
      * @JMS\Type("string")
      * @JMS\ReadOnly()
      * @SWG\Property(
-     *     example="request-3d254173"
+     *     example="request3d254173"
      * )
      */
     public $id;
+
+    public function __construct(string $id = null)
+    {
+        $this->id = $id;
+    }
 }

@@ -1,0 +1,11 @@
+parameters:
+    solrcore_host: '%env(SOLRCORE_HOST)%'
+    solrcore_name: '%env(SOLRCORE_NAME)%'
+
+# Solarium Configuration
+nelmio_solarium:
+    endpoints:
+        ksearch:
+            host: "%solrcore_host%"
+            core: "%solrcore_name%"
+            timeout: 120

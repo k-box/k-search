@@ -1,0 +1,31 @@
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    App\:
+        resource: '../../src/{Command,Security,EventListener,Service,Queue}'
+
+    App\Controller\:
+        resource: '../../src/Controller'
+        public: true
+        tags: ['controller.service_arguments']
+
+    # Autowiring the httpclient
+    App\Service\DataDownloaderService:
+        $httpClient: "@httplug.client.downloader"
+        $tempFolder: '%kernel.project_dir%/var/temp'
+
+    # Autowiring DataService parameters
+    App\Service\DataService:
+        $indexableContentTypes: "%indexable_content_types%"
+
+    # Autowire KLinkRegistry client
+    OneOffTech\KLinkRegistryClient\Client:
+        $url: '%env(KLINK_REGISTRY_API_URL)%'
+
+    # Autowire ApiSecretAuthenticator user provider
+    App\Security\Authenticator\ApiSecretAuthenticator:
+        $enabled: '%env(KLINK_REGISTRY_ENABLED)%'

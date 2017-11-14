@@ -1,0 +1,10 @@
+controllers:
+    resource: ../src/Controller/
+    type: annotation
+
+root:
+    path: /
+    defaults:
+        _controller: FrameworkBundle:Redirect:urlRedirect
+        path: /docs
+        permanent: false

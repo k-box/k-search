@@ -3,7 +3,9 @@
 namespace App\Model\Data;
 
 use App\Model\RPCRequest;
+use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @SWG\Definition(
@@ -14,13 +16,11 @@ use Swagger\Annotations as SWG;
 class AddRequest extends RPCRequest
 {
     /**
-     * @var Data
+     * @var AddParams
      * @Assert\Valid()
      * @Assert\NotNull()
-     * @JMS\Type("App\Model\Data\Data")
-     * @SWG\Property(
-     *     ref="#/definitions/Data\Data")
-     * )
+     * @JMS\Type("App\Model\Data\AddParams")
+     * @SWG\Property()
      */
     public $params;
 }

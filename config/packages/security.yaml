@@ -1,0 +1,32 @@
+security:
+    providers:
+        klink_registry:
+            id: App\Security\Provider\KLinkRegistryUserProvider
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        docs:
+            pattern: ^/api/docs
+            security: false
+        api3.0:
+            pattern: "^/api/3.0/"
+            security: true
+            stateless: true
+            provider: klink_registry
+            guard:
+                authenticators:
+                    - App\Security\Authenticator\ApiSecretAuthenticator
+
+    role_hierarchy:
+        ROLE_ADMIN: [ROLE_API_USER]
+        ROLE_API_USER: ~
+        # Roles mapped to the K-Registry permissions
+        ROLE_DATA_ADD: ~
+        ROLE_DATA_EDIT: ~
+        ROLE_DATA_REMOVE_OWN: ~
+        ROLE_DATA_REMOVE_ALL: ~
+        ROLE_DATA_SEARCH: ~
+        ROLE_DATA_VIEW: ~

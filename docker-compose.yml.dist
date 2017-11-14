@@ -1,0 +1,31 @@
+version: '2'
+
+networks:
+  internal:
+
+services:
+  ksearch:
+    build: .
+    ports:
+      - 80:80
+    environment:
+      - APP_ENV=dev
+      - APP_DEBUG=1
+      - SOLRCORE_HOST=solrglobalsearch # this is the external address of solr
+      - SOLRCORE_NAME=k-search # this is the external address of solr
+    depends_on:
+      - solrglobalsearch
+    networks:
+      - internal
+
+  solrglobalsearch:
+    image: "docker.klink.asia/images/k-search-engine:0.2.0"
+    volumes:
+      - "/opt/solr/k-search/k-search/data"    # dynamic volume
+    expose:
+      - "8983"
+    environment:
+      KLINK_SOLR_MYHOST: solrglobalsearch # this is the external address of solr
+    networks:
+      - internal
+

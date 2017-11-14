@@ -15,8 +15,6 @@ use Swagger\Annotations as SWG;
 class ErrorResponse extends RPCResponse
 {
     /**
-     * The error data.
-     *
      * @var Error
      *
      * @JMS\Type("App\Model\Error\Error")
@@ -28,11 +26,11 @@ class ErrorResponse extends RPCResponse
 
     public function __construct(Error $error, string $responseId = null)
     {
+        parent::__construct($responseId);
         $this->error = $error;
-        $this->id = $responseId;
     }
 
-    public static function withErrorMessage(int $errorCode, string $errorMessage, string $responseId = null): ErrorResponse
+    public static function withErrorMessage(int $errorCode, string $errorMessage, string $responseId = null): self
     {
         return new self(new Error($errorCode, $errorMessage), $responseId);
     }

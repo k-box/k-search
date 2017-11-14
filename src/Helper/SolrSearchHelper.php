@@ -55,9 +55,9 @@ class SolrSearchHelper
      */
     public static function buildFilterQueryForMultipleValues($filterField, $filterValue)
     {
-        if (strpos($filterValue, self::FILTER_SEPARATOR_OR) !== false) {
+        if (false !== strpos($filterValue, self::FILTER_SEPARATOR_OR)) {
             $filterValue = self::buildFilterValueForSeparator($filterValue, self::FILTER_SEPARATOR_OR);
-        } elseif (strpos($filterValue, self::FILTER_SEPARATOR_AND) !== false) {
+        } elseif (false !== strpos($filterValue, self::FILTER_SEPARATOR_AND)) {
             $filterValue = self::buildFilterValueForSeparator($filterValue, self::FILTER_SEPARATOR_AND);
         } else {
             $filterValue = self::escapeSolrFieldValue($filterValue);
@@ -84,7 +84,7 @@ class SolrSearchHelper
     protected static function escapeSolrFieldValue($s)
     {
         $escaped = self::escapeSolrString($s, self::SOLR_ESCAPE_VALUE_CHARS);
-        if (strpos($s, ' ') !== false) {
+        if (false !== strpos($s, ' ')) {
             $escaped = '"'.$escaped.'"';
         }
 
@@ -132,7 +132,7 @@ class SolrSearchHelper
             }
 
             $filterValue = '('.implode(' '.$connector.' ', $values).')';
-        } elseif (count($filterValue) === 1) {
+        } elseif (1 === count($filterValue)) {
             $filterValue = self::escapeSolrFieldValue(trim(reset($filterValue)));
         }
 

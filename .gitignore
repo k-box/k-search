@@ -1,10 +1,14 @@
 /.vagrant/
-/web/swagger.json
+/public/swagger.json
 
 ###> symfony/framework-bundle ###
 .env
 /var/
 /vendor/
-/web/bundles/
+/public/bundles/
 
 ###< symfony/framework-bundle ###
+
+###> symfony/phpunit-bridge ###
+/phpunit.xml
+###< symfony/phpunit-bridge ###

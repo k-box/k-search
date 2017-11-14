@@ -15,13 +15,10 @@ use Swagger\Annotations as SWG;
 class StatusResponse extends RPCResponse
 {
     /**
-     * The status data.
-     *
      * @var Status
      *
      * @JMS\Type("App\Model\Status\Status")
      * @SWG\Property(
-     *     readOnly=true,
      *     ref="#/definitions/Status\Status")
      * )
      */
@@ -29,11 +26,11 @@ class StatusResponse extends RPCResponse
 
     public function __construct(Status $status, string $responseId = null)
     {
+        parent::__construct($responseId);
         $this->result = $status;
-        $this->id = $responseId;
     }
 
-    public static function withStatusMessage(int $statusCode, string $message, string $responseId = null): StatusResponse
+    public static function withStatusMessage(int $statusCode, string $message, string $responseId = null): self
     {
         return new self(new Status($statusCode, $message), $responseId);
     }

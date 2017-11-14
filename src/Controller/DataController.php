@@ -2,50 +2,41 @@
 
 namespace App\Controller;
 
+use App\Entity\ApiUser;
 use App\Exception\BadRequestException;
 use App\Model\Data\AddRequest;
 use App\Model\Data\AddResponse;
 use App\Model\Data\Data;
+use App\Model\Data\DataStatus;
+use App\Model\Data\DataStatusRequest;
+use App\Model\Data\DataStatusResponse;
 use App\Model\Data\DeleteRequest;
 use App\Model\Data\GetRequest;
 use App\Model\Data\GetResponse;
 use App\Model\Data\SearchRequest;
 use App\Model\Data\SearchResponse;
-use App\Model\Error\ErrorResponse;
-use App\Model\RPCRequest;
 use App\Model\Status\StatusResponse;
-use App\Service\SearchService;
+use App\Security\Authorization\Voter\DataVoter;
+use App\Service\DataService;
 use JMS\Serializer\SerializerInterface;
 use Swagger\Annotations as SWG;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class DataController extends Controller
+class DataController extends AbstractRpcController
 {
     /**
-     * @var ValidatorInterface
+     * @var DataService
      */
-    protected $validator;
+    private $dataService;
 
-    /**
-     * @var SerializerInterface
-     */
-    protected $serializer;
-    /**
-     * @var SearchService
-     */
-    private $searchService;
-
-    public function __construct(SearchService $searchService, ValidatorInterface $validator, SerializerInterface $serializer)
+    public function __construct(DataService $searchService, ValidatorInterface $validator, SerializerInterface $serializer)
     {
-        $this->searchService = $searchService;
-        $this->validator = $validator;
-        $this->serializer = $serializer;
+        parent::__construct($validator, $serializer);
+        $this->dataService = $searchService;
     }
 
     /**
@@ -55,13 +46,13 @@ class DataController extends Controller
      *     path="api/{version}/data.delete",
      *     methods={"POST"},
      *     requirements={
-     *        "version":"0.0"
+     *        "version":"3.0"
      *     }
      * )
      *
      * @SWG\Post(
-     *     path="/api/0.0/data.delete",
-     *     description="Delete piece of data from the search index.",
+     *     path="/api/3.0/data.delete",
+     *     description="Delete piece of data from the search index. This API requires the `data-remove-own` or `data-remove-all` permission.",
      *     tags={"Data"},
      *     @SWG\Parameter(
      *         name="body",
@@ -88,18 +79,26 @@ class DataController extends Controller
      */
     public function postDataDelete(Request $request, string $version)
     {
-        /** @var DeleteRequest $deleteRequest */
-        $deleteRequest = $this->getRequestModelFromJson($request, DeleteRequest::class);
+        // First we check if the user has at least the needed credentials
+        $this->denyAccessUnlessGranted(DataVoter::REMOVE);
 
-        $success = $this->searchService->deleteData($deleteRequest->params->uuid);
+        /** @var DeleteRequest $deleteRequest */
+        $deleteRequest = $this->buildRpcRequestModelFromJson($request, DeleteRequest::class);
+
+        $data = $this->dataService->getData($deleteRequest->params->uuid);
+
+        // And here we check if it can remove the data given data
+        $this->denyAccessUnlessGranted(DataVoter::REMOVE, $data);
+
+        $success = $this->dataService->deleteData($deleteRequest->params->uuid);
 
         if ($success) {
             $statusResponse = StatusResponse::withStatusMessage(200, 'Ok', $deleteRequest->id);
         } else {
-            $statusResponse = StatusResponse::withStatusMessage(400, 'Error', $deleteRequest->id);
+            $statusResponse = StatusResponse::withStatusMessage(500, 'Error', $deleteRequest->id);
         }
 
-        return new JsonResponse($statusResponse);
+        return $this->buildRpcJsonResponse($statusResponse);
     }
 
     /**
@@ -109,13 +108,13 @@ class DataController extends Controller
      *     path="api/{version}/data.get",
      *     methods={"POST"},
      *     requirements={
-     *        "version":"0.0"
+     *        "version":"3.0"
      *     }
      * )
      *
      * @SWG\Post(
-     *     path="/api/0.0/data.get",
-     *     description="Get detailed information of piece of data in the search index",
+     *     path="/api/3.0/data.get",
+     *     description="Get detailed information of piece of data in the search index. This API requires the `data-view` permission.",
      *     tags={"Data"},
      *     @SWG\Parameter(
      *         name="body",
@@ -145,22 +144,70 @@ class DataController extends Controller
      */
     public function postDataGet(Request $request, string $version)
     {
-        /** @var GetRequest $getRequest */
-        $getRequest = $this->serializer->deserialize($request->getContent(), GetRequest::class, 'json');
+        $this->denyAccessUnlessGranted(DataVoter::VIEW);
 
-        $errors = $this->validator->validate($getRequest);
-        if (count($errors) > 0) {
-            $errorResponse = ErrorResponse::withErrorMessage(400, 'Wrong data!'.(string) $errors, $getRequest->id);
+        /** @var GetRequest $get */
+        $getRequest = $this->buildRpcRequestModelFromJson($request, GetRequest::class);
 
-            return new JsonResponse($errorResponse);
-        }
-
-        // @todo Implement the logic here
-        $data = new Data();
+        $data = $this->dataService->getData($getRequest->params->uuid, Data::STATUS_OK);
 
         $getResponse = new GetResponse($data, $getRequest->id);
 
-        return new JsonResponse($getResponse);
+        return $this->buildRpcJsonResponse($getResponse);
+    }
+
+    /**
+     * Get the status information of a Data piece in the search index.
+     *
+     * @Route(
+     *     path="api/{version}/data.status",
+     *     methods={"POST"},
+     *     requirements={
+     *        "version":"3.0"
+     *     }
+     * )
+     *
+     * @SWG\Post(
+     *     path="/api/3.0/data.status",
+     *     description="Get the status information of a Data piece in the search index. This API requires the `data-view` permission.",
+     *     tags={"Data"},
+     *     @SWG\Parameter(
+     *         name="body",
+     *         in="body",
+     *         required=true,
+     *         @SWG\Schema(ref="#/definitions/Data\DataStatusRequest")
+     *     ),
+     *     @SWG\Response(
+     *         response="200",
+     *         description="Returned when successful",
+     *         @SWG\Schema(ref="#/definitions/Data\DataStatusResponse")
+     *     ),
+     *     @SWG\Response(
+     *         response="400",
+     *         description="Returned when the data is not correct",
+     *         @SWG\Schema(ref="#/definitions/Error\ErrorResponse"),
+     *         examples={}
+     *     ),
+     * )
+     *
+     * @param Request $request
+     * @param string  $version
+     *
+     * @return JsonResponse
+     */
+    public function postDataStatus(Request $request, string $version)
+    {
+        $this->denyAccessUnlessGranted(DataVoter::VIEW);
+
+        /** @var DataStatusRequest $dataStatusRequest */
+        $dataStatusRequest = $this->buildRpcRequestModelFromJson($request, DataStatusRequest::class);
+
+        $data = $this->dataService->getData($dataStatusRequest->params->uuid);
+
+        $status = new DataStatus($data->status, $data->errorStatus);
+        $statusResponse = new DataStatusResponse($status, $dataStatusRequest->id);
+
+        return $this->buildRpcJsonResponse($statusResponse);
     }
 
     /**
@@ -170,13 +217,13 @@ class DataController extends Controller
      *     path="api/{version}/data.add",
      *     methods={"POST"},
      *     requirements={
-     *        "version":"0.0"
+     *        "version":"3.0"
      *     }
      * )
      *
      * @SWG\Post(
-     *     path="/api/0.0/data.add",
-     *     description="Add piece of data to the search index",
+     *     path="/api/3.0/data.add",
+     *     description="Add piece of data to the search index. This API requires the `data-add` permission.",
      *     tags={"Data"},
      *     @SWG\Parameter(
      *         name="body",
@@ -202,26 +249,31 @@ class DataController extends Controller
      * @param Request $request
      * @param string  $version
      *
+     * @throws BadRequestException
+     *
      * @return JsonResponse
      */
     public function postDataAdd(Request $request, string $version)
     {
+        $this->denyAccessUnlessGranted(DataVoter::ADD);
+
         /** @var AddRequest $addRequest */
-        $addRequest = $this->serializer->deserialize($request->getContent(), AddRequest::class, 'json');
+        $addRequest = $this->buildRpcRequestModelFromJson($request, AddRequest::class);
 
-        $errors = $this->validator->validate($addRequest);
-        if (count($errors) > 0) {
-            $errorResponse = ErrorResponse::withErrorMessage(400, 'Wrong data!'.(string) $errors, $addRequest->id);
+        $data = $addRequest->params->data;
 
-            return new JsonResponse($errorResponse);
-        }
+        // Updating Data with the current API user
+        /** @var ApiUser $apiUser */
+        $apiUser = $this->getUser();
+        $data->uploader->appUrl = $apiUser->getUsername();
+        $data->uploader->email = $apiUser->getEmail();
 
-        // @todo Implement the logic here
-        $data = new Data();
+        $res = $this->dataService->addData($data, $addRequest->params->dataTextualContents);
 
+        $data = $this->dataService->getData($addRequest->params->data->uuid);
         $addResponse = new AddResponse($data, $addRequest->id);
 
-        return new JsonResponse($addResponse);
+        return $this->buildRpcJsonResponse($addResponse);
     }
 
     /**
@@ -231,12 +283,12 @@ class DataController extends Controller
      *     path="api/{version}/data.search",
      *     methods={"POST"},
      *     requirements={
-     *        "version":"0.0"
+     *        "version":"3.0"
      *     }
      * )
      * @SWG\Post(
-     *     path="/api/0.0/data.search",
-     *     description="Allows to query the index and returns search results.",
+     *     path="/api/3.0/data.search",
+     *     description="Allows to query the index and returns search results. This API requires the `data-search` permission.",
      *     tags={"Data"},
      *     @SWG\Parameter(
      *         name="body",
@@ -263,52 +315,15 @@ class DataController extends Controller
      */
     public function postDataSearch(Request $request, string $version)
     {
-        /** @var SearchRequest $addRequest */
-        $addRequest = $this->serializer->deserialize($request->getContent(), SearchRequest::class, 'json');
+        $this->denyAccessUnlessGranted(DataVoter::SEARCH);
 
-        $errors = $this->validator->validate($addRequest);
-        if (count($errors) > 0) {
-            $errorResponse = ErrorResponse::withErrorMessage(400, 'Wrong data!'.(string) $errors, $addRequest->id);
+        /** @var SearchRequest $searchRequest */
+        $searchRequest = $this->buildRpcRequestModelFromJson($request, SearchRequest::class);
 
-            return new JsonResponse($errorResponse);
-        }
+        $searchResult = $this->dataService->searchData($searchRequest->params);
 
-        // @todo Implement the logic here
-        $statusResponse = new SearchResponse(null, $addRequest->id);
+        $searchResponse = new SearchResponse($searchResult, $searchRequest->id);
 
-        return new JsonResponse($statusResponse);
-    }
-
-    /**
-     * Returns the given RequestModel from the request.
-     *
-     * @param Request $request
-     * @param string  $class
-     *
-     * @throws BadRequestException
-     *
-     * @return mixed
-     */
-    private function getRequestModelFromJson(Request $request, string $class)
-    {
-        $requestModel = $this->serializer->deserialize($request->getContent(), $class, 'json');
-
-        // We handle the request-id as a HTTP header, it will be used in the KSearchExceptionListener
-        // to correctly set the "response->id" if available.
-        if ($requestModel instanceof  RPCRequest && $requestModel->id) {
-            $request->headers->set(RPCRequest::REQUEST_ID_HEADER, $requestModel->id);
-        }
-
-        $validationErrors = $this->validator->validate($requestModel);
-        if (count($validationErrors) > 0) {
-            $errors = [];
-            /** @var ConstraintViolationInterface $error */
-            foreach ($validationErrors as $error) {
-                $errors[$error->getPropertyPath()] = $error->getMessage();
-            }
-            throw new BadRequestException($errors);
-        }
-
-        return $requestModel;
+        return $this->buildRpcJsonResponse($searchResponse);
     }
 }

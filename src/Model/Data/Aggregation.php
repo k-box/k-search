@@ -22,13 +22,13 @@ class Aggregation
      * @Assert\Type("integer")
      * @Assert\Range(
      *     min=1,
-     *     max=100,
+     *     max=100
      * )
      * @SWG\Property(
      *     type="integer",
      *     maximum=100,
      *     minimum=1,
-     *     default=10,
+     *     default=10
      * )
      */
     public $limit = 10;
@@ -38,9 +38,10 @@ class Aggregation
      *
      * @var bool
      * @JMS\Type("boolean")
+     * @Assert\Type("boolean")
      * @SWG\Property(
      *     type="boolean",
-     *     default=false,
+     *     default=false
      * )
      */
     public $countsFiltered = false;

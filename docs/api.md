@@ -2,7 +2,7 @@
 
 The K-Search API allows you to build applications that can search data, or manage the search index (push or remove data).
 
-The K-Search API communicates over the [Hypertext Transfer Protocol](https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol) implementing simple [Remote Procedure Calls](https://en.wikipedia.org/wiki/Remote_procedure_call). All methods must be called using [encrypted connections](https://en.wikipedia.org/wiki/HTTPS).
+The K-Search API communicates over the [Hypertext Transfer Protocol](https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol) implementing simple [Remote Procedure Calls](https://en.wikipedia.org/wiki/Remote_procedure_call).
 
 Arguments are passes with the `POST` parameters. The response contains a [JSON](https://en.wikipedia.org/wiki/JSON) object.
 
@@ -33,35 +33,18 @@ On any application where pieces of data (documents) are handled first, they rece
 
 ### Authentication
 
-The K-Search API requires authentication of applications to use the services and distinguish between the different
-permissions:
+The K-Search APIs are protected by authentication and each API consumer must provide an API token in the request.
 
-* `data-search` - allows an application to access the search endpoint.
-* `data-add` - allows an application to add a piece of data (such as a document).
-* `data-delete-own` - allows an application to delete a data piece which was previously added by the same application.
-* `data-delete-all` - allows an application to delete any data piece within the search-index (e.g. some K-Link admin app)
+The authentication is performed by providing the Authorization header in the HTTP request, as an example:
+```
+curl -H "Authorization: Bearer ZTI0NTg1MzFhODliZTZlMzM4ZWUxMGJjZTQxYzIzYjQ=" https://K-SEARCH-URL/api/...
+```
 
-The configuration flag `data-auth=no` (default `=yes`) on the K-Search can disable the authentication.
+The K-Search API uses a centralized registry to verify the provided credentials: both the Bearer token and the origin of the request are used to authenticate and validate all API requests.
+Refer to the K-Registry documentation for details about the credentials and the registration process, the registry also provides details for the permission system.
 
-The K-Search API offers **two simple ways** of authenticating an application to the use of the API:
-
-##### 1. Basic authentication
-
-The K-Search-API uses [HTTP Basic Authentication](https://en.wikipedia.org/wiki/Basic_access_authentication), where
-the username is the cleaned `app_url` of the application and the password is a provided by the user throught the
-settings of the adapter using the `app_secret`. These are base64-encoded and used for basic authentication:
-
-`curl -H "Authorization: Basic QWxhZGRpbjpPcGVuU2VzYW1l" https://K-LINK-URL/k-search/`
-
-
-##### 2. Token authentication
-
-The K-Search-API provides a very simple token authentication. Using the `app_secret` as the token:
-
-`curl -H "Authorization: token ZTI0NTg1MzFhODliZTZlMzM4ZWUxMGJjZTQxYzIzYjQ=" https://K-LINK-URL/k-search/`
-
-The `app_url` is taken from the HTTP header entry `Origin` and the `app_secret` is provided through the token.
-
+The environent variable `KLINK_REGISTRY_ENABLED` controls, if a KLink Registry should be used for authenticating clients (default is `false`).
+The location of the KLink Registry can be controlled with the `KLINK_REGISTRY_API_URL` variable.
 
 ### Common deployments:
 
@@ -73,9 +56,9 @@ The `app_url` is taken from the HTTP header entry `Origin` and the `app_secret` 
 * **K-Box:**
 
   * Authentication is disabled.
-  * Only one application, the K-DMS, accesses the K-Search-API through a local channel.
+  * Only one application, the K-Box, accesses the K-Search-API through a local channel.
 
-## Basic API calls
+## API calls
 
 ### Requests
 
@@ -117,7 +100,7 @@ Allows to query the K-Search index and returns search results.
 | Property | Type    | Required   | Description |
 | -------- | ------- | ---------- | ----------- |
 | `id` | String | ✔ | An identifier established by the client that MUST contain a String, Number, or NULL value if included. The value SHOULD normally not be Null and Numbers SHOULD NOT contain fractional parts. |
-| `params` | Object | ✔ | [`SearchQuery object`](https://git.klink.asia/main/k-search/blob/master/docs/api-objects.md#searchquery-object) |
+| `params` | Object | ✔ | [`SearchQuery object`](https://git.klink.asia/main/k-search/blob/develop/docs/api-search-objects.md#searchquery-object) |
 
 **Successful response**
 
@@ -126,7 +109,7 @@ Allows to query the K-Search index and returns search results.
 | Property | Type    | Required   | Description |
 | -------- | ------- | ---------- | ----------- |
 | `id` | String | ✔ | The identifier established by the client in the request. |
-| `result` | Object | ✔ | [`SearchResult object`](https://git.klink.asia/main/k-search/blob/master/docs/api-objects.md#searchresults-object) |
+| `result` | Object | ✔ | [`SearchResult object`](https://git.klink.asia/main/k-search/blob/develop/docs/api-search-objects.md#searchresults-object) |
 
 
 ### data.get
@@ -164,7 +147,9 @@ Add piece of data to the search index.
 | Property | Type    | Required   | Description |
 | -------- | ------- | ---------- | ----------- |
 | `id` | String | ✔ | An identifier established by the client that MUST contain a String, Number, or NULL value if included. The value SHOULD normally not be Null and Numbers SHOULD NOT contain fractional parts. |
-| `params` | Object | ✔ | [`Data object`](https://git.klink.asia/main/k-search/blob/master/docs/api-objects.md#data-object) of the data to be added. |
+| `params` | Object | ✔ | A simple JSON object |
+| `params[data]` | Object | ✔ | [`Data object`](https://git.klink.asia/main/k-search/blob/master/docs/api-objects.md#data-object) of the data to be added. |
+| `params[data_textual_contents]` | String |  | A string of the textual representation of the document content as indexable information, which should only be provided for files which are either only partially indexable (such as compressed or geo files) or non-indexable files (such as video files) |
 
 **Successful response**
 
