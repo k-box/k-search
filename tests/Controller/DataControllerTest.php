@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class DataControllerTest extends KernelTestCase
 {
-    private const API_VERSION = '0.0';
+    private const API_VERSION = '3.0';
     private const DATA_UUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
     private const REQUEST_ID = 'request-98765';
 

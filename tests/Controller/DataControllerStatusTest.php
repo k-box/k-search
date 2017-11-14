@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DataControllerStatusTest extends AbstractJsonRpcControllerTest
 {
-    public const DATA_STATUS_ENDPOINT = '/api/0.0/data.status';
+    public const DATA_STATUS_ENDPOINT = '/api/3.0/data.status';
 
     public function testDataStatusFailsWithWrongDataUuid()
     {
