@@ -1,6 +1,6 @@
 framework:
     secret: '%env(APP_SECRET)%'
-    #default_locale: en
+    default_locale: '%locale%'
     #csrf_protection: null
     #http_method_override: true
     #trusted_hosts: null
@@ -13,3 +13,8 @@ framework:
     php_errors:
         log: true
     assets: ~
+
+    translator:
+        enabled: false
+    router:
+        strict_requirements: null

@@ -56,7 +56,7 @@ class SolrService
         $resultSet = null;
         try {
             return $this->executeSelectQuery($select);
-        } catch (ExceptionInterface|\Throwable $exception) {
+        } catch (ExceptionInterface | \Throwable $exception) {
             $this->handleSolariumExceptions(
                 $exception,
                 sprintf('Error while loading/filtering from Index, type=%s', $entityType)

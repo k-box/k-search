@@ -13,3 +13,6 @@ services:
     # Autowire ApiSecretAuthenticator user provider
     App\Security\Authenticator\ApiSecretAuthenticator:
         $enabled: true
+
+    Bernard\QueueFactory:
+        class: Bernard\QueueFactory\InMemoryFactory

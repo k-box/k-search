@@ -1,0 +1,73 @@
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    locale: 'en'
+
+    # Configuring default environment parameters
+    env(SOLRCORE_HOST): '127.0.0.1'
+    env(SOLRCORE_NAME): 'k-search'
+    env(KLINK_REGISTRY_ENABLED): 0
+    env(KLINK_REGISTRY_API_URL): ''
+
+    indexable_content_types:
+        - 'text/html'
+        - 'application/msword'
+        - 'application/vnd.ms-excel'
+        - 'application/vnd.ms-powerpoint'
+        - 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        - 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+        - 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        - 'application/pdf'
+        - 'image/jpg'
+        - 'image/jpeg'
+        - 'image/gif'
+        - 'image/png'
+        - 'image/tiff'
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    App\:
+        resource: '../src/{Command,Security,EventListener,Service,Queue}'
+
+    App\Controller\:
+        resource: '../src/Controller'
+        public: true
+        tags: ['controller.service_arguments']
+
+    # Autowiring the httpclient
+    App\Service\DataDownloaderService:
+        $httpClient: "@httplug.client.downloader"
+        $tempFolder: '%kernel.project_dir%/var/temp'
+
+    # Autowiring DataService parameters
+    App\Service\DataService:
+        $indexableContentTypes: "%indexable_content_types%"
+
+    # Autowire KLinkRegistry client
+    OneOffTech\KLinkRegistryClient\Client:
+        $url: '%env(KLINK_REGISTRY_API_URL)%'
+
+    # Autowire ApiSecretAuthenticator user provider
+    App\Security\Authenticator\ApiSecretAuthenticator:
+        $enabled: '%env(KLINK_REGISTRY_ENABLED)%'
+
+
+    # Queues
+    Bernard\QueueFactory:
+        class: Bernard\QueueFactory\PersistentFactory
+        arguments:
+            $connection: '@App\Queue\Driver\FlatFileDriver'
+            $serializer: '@App\Queue\DataSerializer'
+
+    App\Service\QueueService: ~
+
+    App\Queue\Message\UUIDMessage:
+        alias: 'Bernard\Message'
+
+    App\Queue\Driver\FlatFileDriver:
+        $rootDir: '%kernel.root_dir%'
