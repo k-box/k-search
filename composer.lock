@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "bernard/bernard",
-            "version": "0.12.3",
+            "version": "v0.12.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/bernardphp/bernard.git",
-                "reference": "9442bf4b0e739e360f9b07b101d1dec8c87f1028"
+                "reference": "c452caa6de208b0274449cde1c48eb32fb9f59f9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bernardphp/bernard/zipball/9442bf4b0e739e360f9b07b101d1dec8c87f1028",
-                "reference": "9442bf4b0e739e360f9b07b101d1dec8c87f1028",
+                "url": "https://api.github.com/repos/bernardphp/bernard/zipball/c452caa6de208b0274449cde1c48eb32fb9f59f9",
+                "reference": "c452caa6de208b0274449cde1c48eb32fb9f59f9",
                 "shasum": ""
             },
             "require": {
@@ -57,7 +57,7 @@
                 "MIT"
             ],
             "description": "Message queue implemented in PHP with Redis as a backend.",
-            "time": "2016-01-04T10:19:54+00:00"
+            "time": "2017-11-05T18:32:45+00:00"
         },
         {
             "name": "clue/stream-filter",
