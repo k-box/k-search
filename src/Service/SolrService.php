@@ -152,8 +152,8 @@ class SolrService
 
             return true;
         } catch (ExceptionInterface $e) {
-            if (false !== strpos($e->getMessage(), '.PDFParser')) {
-                throw new SolrExtractionException('PDF Parsing Exception', 500, $e);
+            if (false !== strpos($e->getMessage(), 'org.apache.tika.exception.TikaException')) {
+                throw new SolrExtractionException('Document text extraction Exception', 500, $e);
             }
 
             throw new InternalSearchException('Error extracting textual contents from document', 500, $e);
