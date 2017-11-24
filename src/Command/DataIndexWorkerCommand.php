@@ -11,9 +11,11 @@ use App\Queue\Message\UUIDMessage;
 use App\Service\DataDownloaderService;
 use App\Service\DataService;
 use App\Service\QueueService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class DataIndexWorkerCommand extends Command
@@ -27,15 +29,20 @@ class DataIndexWorkerCommand extends Command
     /** @var DataService */
     private $dataService;
 
+    /** @var LoggerInterface */
+    private $logger;
+
     public function __construct(
         QueueService $queueService,
         DataService $dataService,
-        DataDownloaderService $dataDownloaderService
+        DataDownloaderService $dataDownloaderService,
+        LoggerInterface $logger
     ) {
         parent::__construct();
         $this->queueService = $queueService;
         $this->dataService = $dataService;
         $this->dataDownloaderService = $dataDownloaderService;
+        $this->logger = $logger;
     }
 
     protected function configure()
@@ -62,26 +69,45 @@ class DataIndexWorkerCommand extends Command
         do {
             $message = $this->queueService->dequeMessage(QueueService::DATA_PROCESS_QUEUE);
 
-            try {
-                ++$consumedMessages;
+            if (!$message instanceof UUIDMessage) {
+                $this->logger->error('Error handling queue message, wrong message type {type} received', [
+                    'type' => get_class($message),
+                ]);
 
-                if ($message instanceof UUIDMessage) {
-                    $output->writeln(sprintf('Processing uuid=<info>%s</info>', $message->getUUID()));
-                    $data = $this->dataService->getData($message->getUUID());
-
-                    $this->handleDataIndexing($data, $output);
-                } else {
-                    $output->writeln(
-                        sprintf('Error handling queue message, wrong message type %s received', get_class($message))
-                    );
-                }
-            } catch (SolrEntityNotFoundException $e) {
-                $output->writeln('Looks like the data does not exist!');
-                $output->writeln('<error>'.$e->getMessage().'</error>');
-            } catch (\Exception $e) {
-                $output->writeln('<error>'.$e->getMessage().'</error>');
+                continue;
             }
-            $output->write('.');
+
+            ++$consumedMessages;
+            $this->logger->debug('Started processing message from queue {queue} for data-uuid={uuid}', [
+                'queue' => $message->getQueue(),
+                'uuid' => $message->getUUID(),
+            ]);
+
+            $output->writeln(sprintf('Processing uuid=<info>%s</info>', $message->getUUID()), Output::VERBOSITY_VERBOSE);
+
+            try {
+                $data = $this->dataService->getData($message->getUUID());
+                $this->handleDataIndexing($data, $output);
+            } catch (SolrEntityNotFoundException $e) {
+                $this->logger->warning('Error handling message, Data document uuid={uuid} is not existing', [
+                    'uuid' => $message ? $message->getUUID() : 'N/A',
+                    'error' => $e->getMessage(),
+                ]);
+                $output->writeln([
+                    sprintf('<error>Error loading data uuid=%s!</error>', $message->getUUID()),
+                    $e->getMessage(),
+                ]);
+            } catch (\Exception $e) {
+                $this->logger->error('Error handling message, Data document uuid={uuid}: {error}', [
+                    'uuid' => $message ? $message->getUUID() : 'N/A',
+                    'error' => $e->getMessage(),
+                    'exception' => $e,
+                ]);
+                $output->writeln([
+                    sprintf('<error>Error while handling data message %s</error>', $message ? get_class($message) : 'null'),
+                    $e->getMessage(),
+                ]);
+            }
         } while (0 === $limit || $consumedMessages < $limit);
 
         $output->writeln(sprintf('Exiting. Consumed messages: %d', $consumedMessages));
@@ -90,24 +116,41 @@ class DataIndexWorkerCommand extends Command
     private function handleDataIndexing(Data $data, OutputInterface $output)
     {
         try {
-            $output->writeln(' - Downloading contents');
+            $output->writeln(' - Downloading contents', Output::VERBOSITY_VERY_VERBOSE);
             $dataFile = $this->dataDownloaderService->downloadDataContents($data);
 
             // Index the data with text extraction from the file
-            $output->writeln(' - Indexing item');
+            $output->writeln(' - Indexing item', Output::VERBOSITY_VERY_VERBOSE);
             $this->dataService->addDataWithFileExtraction($data, $dataFile);
-        } catch (InternalSearchException|SolrExtractionException $exception) {
-            $output->writeln('An error occurred while extracting text from the Data');
-            $output->writeln($exception->getMessage());
-            $this->updateDataWithError($data, 'An error occurred while extracting text from the Data');
         } catch (DataDownloadErrorException $exception) {
-            $output->writeln('An error occurred while Downloading the data');
-            $output->writeln($exception->getMessage());
+            $this->logger->error('Error downloading data for {uuid}: {message}', [
+                'uuid' => $data->uuid,
+                'error' => $exception->getMessage(),
+                'exception' => $exception,
+            ]);
+
+            $output->writeln([
+                sprintf('<error>An error occurred while Downloading the Data %s</error>', $data->uuid),
+                $exception->getMessage(),
+            ]);
             $this->updateDataWithError($data, $exception->getMessage());
+        } catch (InternalSearchException|SolrExtractionException $exception) {
+            $this->logger->error('Internal search exception while handling message for {uuid}: {message}', [
+                'uuid' => $data->uuid,
+                'error' => $exception->getMessage(),
+                'exception' => $exception,
+            ]);
+
+            $output->writeln([
+                sprintf('An error occurred while extracting text from the Data %s', $data->uuid),
+                $exception->getMessage(),
+            ]);
+
+            $this->updateDataWithError($data, 'An error occurred while extracting text from the Data');
         }
 
         // Remove the downloaded data
-        $output->writeln(' - Removing downloaded contents');
+        $output->writeln(' - Removing downloaded contents', Output::VERBOSITY_VERBOSE);
         $this->dataDownloaderService->removeDataContents($data);
     }
 
@@ -115,6 +158,10 @@ class DataIndexWorkerCommand extends Command
     {
         $data->status = Data::STATUS_ERROR;
         $data->errorStatus = $errorStatus;
+        $this->logger->alert('Updating data uuid={uuid} with "error" status, reason: {error}', [
+            'uuid' => $data->uuid,
+            'error' => $errorStatus,
+        ]);
         $this->dataService->addData($data, '**KSEARCH-ERROR**');
     }
 }
