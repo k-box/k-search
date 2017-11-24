@@ -41,7 +41,7 @@ services:
 
     # Autowiring the httpclient
     App\Service\DataDownloaderService:
-        $httpClient: "@httplug.client.downloader"
+        $httpClient: '@httplug.client.downloader'
         $tempFolder: '%kernel.project_dir%/var/temp'
 
     # Autowiring DataService parameters
@@ -56,10 +56,9 @@ services:
     App\Security\Authenticator\ApiSecretAuthenticator:
         $enabled: '%env(KLINK_REGISTRY_ENABLED)%'
 
-
-    # Queues
+    # Bernard Queues auto-wiring
     Bernard\QueueFactory:
-        class: Bernard\QueueFactory\PersistentFactory
+        class: 'Bernard\QueueFactory\PersistentFactory'
         arguments:
             $connection: '@App\Queue\Driver\FlatFileDriver'
             $serializer: '@App\Queue\DataSerializer'
