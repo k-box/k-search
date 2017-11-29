@@ -6,7 +6,6 @@ use App\Model\Data\AddRequest;
 use App\Model\Data\Data;
 use App\Service\DataService;
 use JMS\Serializer\SerializerInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -25,20 +24,15 @@ class DataAddFromJsonCommand extends ContainerAwareCommand
     /** @var ValidatorInterface */
     private $validator;
 
-    /** @var LoggerInterface */
-    private $logger;
-
     public function __construct(
         DataService $dataService,
         ValidatorInterface $validator,
-        SerializerInterface $serializer,
-        LoggerInterface $logger
+        SerializerInterface $serializer
     ) {
         parent::__construct();
         $this->dataService = $dataService;
         $this->validator = $validator;
         $this->serializer = $serializer;
-        $this->logger = $logger;
     }
 
     protected function configure()
