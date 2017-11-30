@@ -48,6 +48,9 @@ RUN { \
         echo "\t\t\tRewriteCond %{REQUEST_METHOD} OPTIONS"; \
         echo "\t\t\tRewriteRule ^(.*)$ \" \" [R=200,QSA,L]"; \
         echo "\t\t\tRewriteCond %{REQUEST_FILENAME} !-f"; \
+        echo "\t\t\tRewriteCond %{HTTP:Authorization} ^(.+)$"; \
+        echo "\t\t\tRewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]"; \
+        echo "\t\t\tRewriteCond %{REQUEST_FILENAME} !-f"; \
         echo "\t\t\tRewriteRule ^(.*)$ index.php [QSA,L]"; \
         echo "\t\t</IfModule>"; \
         echo "\t</Directory>"; \
