@@ -4,7 +4,7 @@ namespace App\Security\Provider;
 
 use App\Entity\ApiUser;
 use App\Exception\KRegistryException;
-use OneOffTech\KLinkRegistryClient\Client;
+use OneOffTech\KLinkRegistryClient\ApiClient;
 use OneOffTech\KLinkRegistryClient\Exception\ApplicationVerificationException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
@@ -15,7 +15,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class KLinkRegistryUserProvider implements UserProviderInterface
 {
     /**
-     * @var Client
+     * @var ApiClient
      */
     private $registryClient;
 
@@ -24,7 +24,7 @@ class KLinkRegistryUserProvider implements UserProviderInterface
      */
     private $logger;
 
-    public function __construct(Client $registryClient, LoggerInterface $logger)
+    public function __construct(ApiClient $registryClient, LoggerInterface $logger)
     {
         $this->registryClient = $registryClient;
         $this->logger = $logger;
@@ -38,7 +38,7 @@ class KLinkRegistryUserProvider implements UserProviderInterface
         ]);
 
         try {
-            $application = $this->registryClient->access()->getApplication($appSecret, $appUrl);
+            $application = $this->registryClient->application()->getApplication($appSecret, $appUrl);
 
             $this->logger->info(
                 'Application found: id={id}, name="{name}"',
