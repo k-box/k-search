@@ -53,7 +53,7 @@ class SolrSearchHelper
      *
      * @return string
      */
-    public static function buildFilterQueryForMultipleValues($filterField, $filterValue)
+    public static function buildFilterQueryForMultipleValues(string $filterField, string $filterValue)
     {
         if (false !== strpos($filterValue, self::FILTER_SEPARATOR_OR)) {
             $filterValue = self::buildFilterValueForSeparator($filterValue, self::FILTER_SEPARATOR_OR);
@@ -67,24 +67,28 @@ class SolrSearchHelper
     }
 
     /**
-     * @param $s
+     * Escape the field name.
+     *
+     * @param string $fieldName
      *
      * @return string
      */
-    protected static function escapeSolrFieldName($s)
+    protected static function escapeSolrFieldName(string $fieldName)
     {
-        return self::escapeSolrString($s, self::SOLR_ESCAPE_FIELD_CHARS);
+        return self::escapeSolrString($fieldName, self::SOLR_ESCAPE_FIELD_CHARS);
     }
 
     /**
-     * @param $s
+     * Escape the field value.
+     *
+     * @param string $value
      *
      * @return string
      */
-    protected static function escapeSolrFieldValue($s)
+    protected static function escapeSolrFieldValue(string $value)
     {
-        $escaped = self::escapeSolrString($s, self::SOLR_ESCAPE_VALUE_CHARS);
-        if (false !== strpos($s, ' ')) {
+        $escaped = self::escapeSolrString($value, self::SOLR_ESCAPE_VALUE_CHARS);
+        if (false !== strpos($value, ' ')) {
             $escaped = '"'.$escaped.'"';
         }
 

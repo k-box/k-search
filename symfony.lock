@@ -98,9 +98,6 @@
     "symfony/config": {
         "version": "v3.3.13"
     },
-    "symfony/class-loader": {
-        "version": "v3.3.13"
-    },
     "psr/simple-cache": {
         "version": "1.0.0"
     },
@@ -482,13 +479,7 @@
             "ref": "0a66a0097def4db1cd03bcb3d4a268440ae4cb47"
         }
     },
-    "symfony/polyfill-apcu": {
-        "version": "v1.6.0"
-    },
-    "symfony/polyfill-util": {
-        "version": "v1.6.0"
-    },
-    "symfony/polyfill-php56": {
-        "version": "v1.6.0"
+    "phpstan/phpdoc-parser": {
+        "version": "0.1"
     }
 }

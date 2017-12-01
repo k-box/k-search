@@ -71,7 +71,7 @@ class DataIndexWorkerCommand extends Command
 
             if (!$message instanceof UUIDMessage) {
                 $this->logger->error('Error handling queue message, wrong message type {type} received', [
-                    'type' => get_class($message),
+                    'type' => $message ? get_class($message) : 'null',
                 ]);
 
                 continue;
@@ -134,7 +134,7 @@ class DataIndexWorkerCommand extends Command
                 $exception->getMessage(),
             ]);
             $this->updateDataWithError($data, $exception->getMessage());
-        } catch (InternalSearchException|SolrExtractionException $exception) {
+        } catch (InternalSearchException | SolrExtractionException $exception) {
             $this->logger->error('Internal search exception while handling message for {uuid}: {message}', [
                 'uuid' => $data->uuid,
                 'error' => $exception->getMessage(),
