@@ -47,7 +47,7 @@ class ExceptionListener implements EventSubscriberInterface
         ]);
 
         // Get the request-id, if any.
-        $requestId = $event->getRequest()->headers->get(RPCRequest::REQUEST_ID_HEADER, null);
+        $requestId = (string) $event->getRequest()->headers->get(RPCRequest::REQUEST_ID_HEADER, null);
 
         switch (get_class($exception)) {
             case JMSRuntimeException::class:

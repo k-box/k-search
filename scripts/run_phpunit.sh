@@ -3,4 +3,4 @@
 set -e
 
 echo "** Running phpunit"
-vendor/bin/phpunit
+vendor/bin/phpunit ${1}

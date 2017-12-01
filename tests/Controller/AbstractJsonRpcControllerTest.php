@@ -82,12 +82,12 @@ abstract class AbstractJsonRpcControllerTest extends WebTestCase
         return $mocked;
     }
 
-    protected function sendRequest(string $method, string $url, array $headers = [], $contents = null)
+    protected function sendRequest(string $method, string $url, array $headers = [], string $contents = null)
     {
         $this->client->request($method, $url, [], [], $headers, $contents);
     }
 
-    protected function sendAuthenticatedRequest(string $method, string $url, $contents)
+    protected function sendAuthenticatedRequest(string $method, string $url, string $contents)
     {
         $this->setMockedKLinkRegistryUserProvider();
         $headers = [

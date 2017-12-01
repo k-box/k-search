@@ -1,7 +1,3 @@
-controllers:
-    resource: ../src/Controller/
-    type: annotation
-
 root:
     path: /
     defaults:

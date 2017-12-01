@@ -63,6 +63,8 @@ class DataDownloaderService
      *
      * @param Data $data The Data model
      *
+     * @throws DataDownloadErrorException
+     *
      * @return \SplFileInfo
      */
     public function downloadDataContents(Data $data): \SplFileInfo
@@ -83,6 +85,15 @@ class DataDownloaderService
         return new \SplFileInfo($tempFile);
     }
 
+    /**
+     * Returns the headers fetched from the Data url.
+     *
+     * @param Data $data
+     *
+     * @throws DataDownloadErrorException
+     *
+     * @return string[][]
+     */
     public function getDataUrlHeaders(Data $data): array
     {
         $this->logger->debug('Downloading HEADERS for: {uuid}, url={url}', [
@@ -108,7 +119,7 @@ class DataDownloaderService
     {
         try {
             $response = $this->httpClient->sendRequest($request);
-        } catch (Exception $exception) {
+        } catch (\Exception | Exception $exception) {
             $this->logger->warning('Exception while executing {method} request for {uuid}.', [
                 'method' => $request->getMethod(),
                 'uuid' => $data->uuid,

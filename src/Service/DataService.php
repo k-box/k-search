@@ -5,7 +5,9 @@ namespace App\Service;
 use App\Entity\SolrEntity;
 use App\Entity\SolrEntityData;
 use App\Exception\BadRequestException;
+use App\Exception\InternalSearchException;
 use App\Exception\SolrEntityNotFoundException;
+use App\Exception\SolrExtractionException;
 use App\Model\Data\Data;
 use App\Model\Data\SearchParams;
 use App\Model\Data\SearchResults;
@@ -159,6 +161,9 @@ class DataService
      *
      * @param Data         $data     The Data object
      * @param \SplFileInfo $fileInfo The file to extract the textual contents from
+     *
+     * @throws SolrExtractionException
+     * @throws InternalSearchException
      *
      * @return bool
      */

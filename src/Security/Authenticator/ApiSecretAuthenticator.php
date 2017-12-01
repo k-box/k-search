@@ -45,22 +45,26 @@ class ApiSecretAuthenticator extends AbstractGuardAuthenticator
             ];
         }
 
-        $appSecret = $this->getAppSecretFromHeaders($request->headers);
-        if (null === $appSecret) {
-            // Missing Authorization header or wrong format: return null and no other methods will be called
+        if (!$this->supports($request)) {
             return null;
         }
 
+        $appSecret = $this->getAppSecretFromHeaders($request->headers);
         $appUrl = $request->headers->get('Origin');
-        if (!$appUrl) {
-            // Missing app-url: return null and no other methods will be called
-            return null;
-        }
 
         return [
             'app_url' => $appUrl,
             'app_secret' => $appSecret,
         ];
+    }
+
+    public function supports(Request $request)
+    {
+        if (!$this->enabled) {
+            return true;
+        }
+
+        return $this->getAppSecretFromHeaders($request->headers) && $request->headers->get('Origin');
     }
 
     public function getUser($credentials, UserProviderInterface $userProvider): ?UserInterface
@@ -136,6 +140,10 @@ class ApiSecretAuthenticator extends AbstractGuardAuthenticator
      */
     private function getAppSecretFromHeaders(HeaderBag $headers): ?string
     {
+        if (!$headers->has('Authorization')) {
+            return null;
+        }
+
         $authorizationHeader = $headers->get('Authorization');
 
         if (!is_string($authorizationHeader)) {
