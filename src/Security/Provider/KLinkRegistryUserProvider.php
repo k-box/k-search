@@ -4,6 +4,7 @@ namespace App\Security\Provider;
 
 use App\Entity\ApiUser;
 use App\Exception\KRegistryException;
+use App\Security\Authorization\Voter\DataVoter;
 use OneOffTech\KLinkRegistryClient\ApiClient;
 use OneOffTech\KLinkRegistryClient\Exception\ApplicationVerificationException;
 use Psr\Log\LoggerInterface;
@@ -30,7 +31,18 @@ class KLinkRegistryUserProvider implements UserProviderInterface
         $this->logger = $logger;
     }
 
-    public function loadUserFromApplicationUrlAndSecret(string $appUrl, string $appSecret)
+    /**
+     * Load an ApiUser from the KRegistry, matching the given appUrl and appSecret.
+     *
+     * @param string $appUrl
+     * @param string $appSecret
+     *
+     * @throws BadCredentialsException
+     * @throws KRegistryException
+     *
+     * @return ApiUser
+     */
+    public function loadUserFromApplicationUrlAndSecret(string $appUrl, string $appSecret): ApiUser
     {
         $this->logger->info('Querying for application', [
             'app-url' => $appUrl,
@@ -50,15 +62,17 @@ class KLinkRegistryUserProvider implements UserProviderInterface
                 ]
             );
 
+            $roles = $this->mapPermissionsToRoles($application->getPermissions());
+
             return new ApiUser(
                 $application->getName(),
                 $application->getEmail(),
                 $application->getAppUrl(),
                 $appSecret,
-                $application->getPermissions()
+                $roles
             );
         } catch (ApplicationVerificationException $e) {
-            throw new BadCredentialsException();
+            throw new BadCredentialsException('Invalid credentials.', 0, $e);
         } catch (\Exception $e) {
             throw new KRegistryException('Error communicating with the K-Link Registry.', $e->getCode(), $e);
         }
@@ -81,5 +95,24 @@ class KLinkRegistryUserProvider implements UserProviderInterface
     public function supportsClass($class)
     {
         return ApiUser::class === $class;
+    }
+
+    /**
+     * Maps the list of permission from the KRegistry to the corresponding role.
+     *
+     * @param string[] $permissions
+     *
+     * @return string[]
+     */
+    private function mapPermissionsToRoles(array $permissions): array
+    {
+        $roles = [];
+        foreach ($permissions as $permission) {
+            if (array_key_exists($permission, DataVoter::MAP_PERMISSION_TO_ROLE)) {
+                $roles[] = DataVoter::MAP_PERMISSION_TO_ROLE[$permission];
+            }
+        }
+
+        return $roles;
     }
 }
