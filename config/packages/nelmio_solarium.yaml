@@ -1,8 +1,8 @@
 nelmio_solarium:
     endpoints:
         ksearch:
-            host: "%env(SOLRCORE_HOST)%"
-            core: "%env(SOLRCORE_NAME)%"
+            host: "%env(SOLR_HOST)%"
+            core: "%env(SOLR_CORE)%"
             # The following are the default parameters for Solarium client:
             # scheme: http
             # port: 8983

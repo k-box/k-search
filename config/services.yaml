@@ -2,11 +2,6 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: 'en'
-
-    # Configuring default environment parameters
-    env(SOLRCORE_HOST): '127.0.0.1'
-    env(SOLRCORE_NAME): 'k-search'
-    env(KLINK_REGISTRY_ENABLED): 0
     env(KLINK_REGISTRY_API_URL): ''
 
     indexable_content_types:
