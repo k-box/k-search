@@ -25,6 +25,8 @@ services:
         autowire: true
         autoconfigure: true
         public: false
+        bind:
+            $appDebug: '%env(APP_DEBUG)%'
 
     App\:
         resource: '../src/{Command,Security,EventListener,Service,Queue}'
