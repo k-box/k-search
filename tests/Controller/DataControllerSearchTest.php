@@ -15,8 +15,8 @@ class DataControllerSearchTest extends AbstractJsonRpcControllerTest
         return [
             'ROLE_DATA_ADD' => [[DataVoter::ROLE_DATA_ADD]],
             'ROLE_DATA_EDIT' => [[DataVoter::ROLE_DATA_EDIT]],
-            'ROLE_DATA_REMOVE_OWN' => [[DataVoter::REMOVE_OWN]],
-            'ROLE_DATA_REMOVE_ALL' => [[DataVoter::REMOVE_ALL]],
+            'ROLE_DATA_REMOVE_OWN' => [[DataVoter::ROLE_DATA_REMOVE_OWN]],
+            'ROLE_DATA_REMOVE_ALL' => [[DataVoter::ROLE_DATA_REMOVE_ALL]],
             'ROLE_DATA_VIEW' => [[DataVoter::ROLE_DATA_VIEW]],
         ];
     }

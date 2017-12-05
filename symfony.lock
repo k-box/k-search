@@ -481,5 +481,8 @@
     },
     "phpstan/phpdoc-parser": {
         "version": "0.1"
+    },
+    "php-http/mock-client": {
+        "version": "v1.0.1"
     }
 }

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\ApiUser;
 use App\Exception\BadRequestException;
+use App\Exception\SolrEntityNotFoundException;
 use App\Model\Data\AddRequest;
 use App\Model\Data\AddResponse;
 use App\Model\Data\Data;
@@ -75,12 +76,15 @@ class DataController extends AbstractRpcController
      * @param Request $request
      * @param string  $version
      *
+     * @throws BadRequestException
+     * @throws SolrEntityNotFoundException
+     *
      * @return Response
      */
     public function postDataDelete(Request $request, string $version)
     {
         // First we check if the user has at least the needed credentials
-        $this->denyAccessUnlessGranted(DataVoter::REMOVE);
+        $this->denyAccessUnlessGranted(DataVoter::PERMISSION_REMOVE);
 
         /** @var DeleteRequest $deleteRequest */
         $deleteRequest = $this->buildRpcRequestModelFromJson($request, DeleteRequest::class);
@@ -88,7 +92,7 @@ class DataController extends AbstractRpcController
         $data = $this->dataService->getData($deleteRequest->params->uuid);
 
         // And here we check if it can remove the data given data
-        $this->denyAccessUnlessGranted(DataVoter::REMOVE, $data);
+        $this->denyAccessUnlessGranted(DataVoter::PERMISSION_REMOVE, $data);
 
         $success = $this->dataService->deleteData($deleteRequest->params->uuid);
 
@@ -140,11 +144,14 @@ class DataController extends AbstractRpcController
      * @param Request $request
      * @param string  $version
      *
+     * @throws BadRequestException
+     * @throws SolrEntityNotFoundException
+     *
      * @return JsonResponse
      */
     public function postDataGet(Request $request, string $version)
     {
-        $this->denyAccessUnlessGranted(DataVoter::VIEW);
+        $this->denyAccessUnlessGranted(DataVoter::PERMISSION_VIEW);
 
         /** @var GetRequest $get */
         $getRequest = $this->buildRpcRequestModelFromJson($request, GetRequest::class);
@@ -193,11 +200,14 @@ class DataController extends AbstractRpcController
      * @param Request $request
      * @param string  $version
      *
+     * @throws BadRequestException
+     * @throws SolrEntityNotFoundException
+     *
      * @return JsonResponse
      */
     public function postDataStatus(Request $request, string $version)
     {
-        $this->denyAccessUnlessGranted(DataVoter::VIEW);
+        $this->denyAccessUnlessGranted(DataVoter::PERMISSION_VIEW);
 
         /** @var DataStatusRequest $dataStatusRequest */
         $dataStatusRequest = $this->buildRpcRequestModelFromJson($request, DataStatusRequest::class);
@@ -250,12 +260,13 @@ class DataController extends AbstractRpcController
      * @param string  $version
      *
      * @throws BadRequestException
+     * @throws SolrEntityNotFoundException
      *
      * @return JsonResponse
      */
     public function postDataAdd(Request $request, string $version)
     {
-        $this->denyAccessUnlessGranted(DataVoter::ADD);
+        $this->denyAccessUnlessGranted(DataVoter::PERMISSION_ADD);
 
         /** @var AddRequest $addRequest */
         $addRequest = $this->buildRpcRequestModelFromJson($request, AddRequest::class);
@@ -311,11 +322,13 @@ class DataController extends AbstractRpcController
      * @param Request $request
      * @param string  $version
      *
+     * @throws BadRequestException
+     *
      * @return JsonResponse
      */
     public function postDataSearch(Request $request, string $version)
     {
-        $this->denyAccessUnlessGranted(DataVoter::SEARCH);
+        $this->denyAccessUnlessGranted(DataVoter::PERMISSION_SEARCH);
 
         /** @var SearchRequest $searchRequest */
         $searchRequest = $this->buildRpcRequestModelFromJson($request, SearchRequest::class);

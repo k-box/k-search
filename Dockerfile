@@ -20,6 +20,7 @@ RUN \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* &&\
     # install the missing 'intl' extension
     docker-php-ext-install -j$(nproc) intl &&\
+    pecl install apcu && docker-php-ext-enable apcu && rm -rf /tmp/pear && \
     # composer is still missing, we install it the way it says on the
     # website.
     curl -sS https://getcomposer.org/installer  \
