@@ -12,7 +12,7 @@ security:
             pattern: ^/api/docs
             security: false
         api3.0:
-            pattern: "^/api/3.0/"
+            pattern: '^/api/3\.\d/'
             security: true
             stateless: true
             provider: klink_registry

@@ -1078,12 +1078,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/nelmio/NelmioSolariumBundle.git",
-                "reference": "cc139642a275827f8eb07c4751445f68fa5ae5e9"
+                "reference": "a06e5c1fa3f4287b0520ffa62afb81fd44578fe2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nelmio/NelmioSolariumBundle/zipball/cc139642a275827f8eb07c4751445f68fa5ae5e9",
-                "reference": "cc139642a275827f8eb07c4751445f68fa5ae5e9",
+                "url": "https://api.github.com/repos/nelmio/NelmioSolariumBundle/zipball/a06e5c1fa3f4287b0520ffa62afb81fd44578fe2",
+                "reference": "a06e5c1fa3f4287b0520ffa62afb81fd44578fe2",
                 "shasum": ""
             },
             "require": {
@@ -1125,7 +1125,7 @@
                 "solarium",
                 "solr"
             ],
-            "time": "2017-12-01T08:05:10+00:00"
+            "time": "2017-12-15T12:03:38+00:00"
         },
         {
             "name": "oneofftech/k-link-registry-client",

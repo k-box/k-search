@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Model\Data;
+namespace App\Model\Data\Search;
 
+use App\Model\Data\Data;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @SWG\Definition(
- *     definition="Data\SearchResults",
+ *     definition="Data\Search\SearchResults",
  *     required={"query","query_time","total_matches"}
  * )
  */
@@ -18,7 +19,7 @@ class SearchResults
      * The complete SearchQuery object from the request.
      *
      * @var SearchParams
-     * @JMS\Type("App\Model\Data\SearchParams")
+     * @JMS\Type("App\Model\Data\Search\SearchParams")
      * @JMS\ReadOnly()
      * @SWG\Property()
      */
@@ -55,11 +56,11 @@ class SearchResults
      *
      * @var array
      * @Assert\Valid()
-     * @JMS\Type("array<string,array<App\Model\Data\AggregationResult>>")
+     * @JMS\Type("array<string,array<App\Model\Data\Search\AggregationResult>>")
      * @SWG\Property(
      *     @SWG\Items(
      *        type="array",
-     *        @SWG\Items(ref="#/definitions/Data\AggregationResult")
+     *        @SWG\Items(ref="#/definitions/Data\Search\AggregationResult")
      *     ),
      * )
      */

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\Data;
+namespace App\Model\Data\Search;
 
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
@@ -8,7 +8,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @SWG\Definition(
- *     definition="Data\Aggregation",
+ *     definition="Data\Search\Aggregation",
  *     required={""}
  * )
  */

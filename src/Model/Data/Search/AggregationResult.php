@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Model\Data;
+namespace App\Model\Data\Search;
 
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 
 /**
  * @SWG\Definition(
- *     definition="Data\AggregationResult",
+ *     definition="Data\Search\AggregationResult",
  *     required={"value", "count"}
  * )
  */
