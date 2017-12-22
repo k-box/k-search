@@ -8,8 +8,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DataControllerSearchTest extends AbstractJsonRpcControllerTest
 {
-    public const DATA_SEARCH_ENDPOINT = '/api/3.0/data.search';
-
     public function provideFailingRoles(): array
     {
         return [
@@ -35,7 +33,7 @@ class DataControllerSearchTest extends AbstractJsonRpcControllerTest
             ->method('searchData');
 
         $searchRequest = $this->getSearchRequestData();
-        $this->sendAuthenticatedRequest(self::RPC_METHOD, self::DATA_SEARCH_ENDPOINT, $searchRequest);
+        $this->sendAuthenticatedRequest(self::RPC_METHOD, '/api/3.0/data.search', $searchRequest);
 
         $response = $this->client->getResponse();
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());

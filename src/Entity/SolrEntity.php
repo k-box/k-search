@@ -8,6 +8,7 @@ interface SolrEntity
 {
     const MAPPING_FILTERS = 'filters';
     const MAPPING_AGGREGATIONS = 'aggregations';
+    const MAPPING_SORTING = 'sorting';
 
     /**
      * Returns the entity type for this Solr document.
@@ -55,18 +56,34 @@ interface SolrEntity
     public static function getTextSearchFields(): array;
 
     /**
-     * Return the fields used to perform aggregations.
+     * Return the field used to perform aggregations.
+     * This is an hashmap of solr-field keyed by the model field name.
+     * Example:
+     *  - 'properties.language' => 'str_data_property_language'.
      *
      * @return string[]
      */
     public static function getAggregationFields(): array;
 
     /**
-     * Return the fields used to filters.
+     * Return the field used to filters.
+     * This is an hashmap of solr-field keyed by the model field name.
+     * Example:
+     *  - 'properties.language' => 'str_data_property_language'.
      *
      * @return string[]
      */
     public static function getFilterFields(): array;
+
+    /**
+     * Return the field that can be used for Sorting.
+     * This is an hashmap of solr-field keyed by the model field name.
+     * Example:
+     *  - 'properties.language' => 'str_data_property_language'.
+     *
+     * @return string[]
+     */
+    public static function getSortingFields(): array;
 
     /**
      * Return a mapping from model properties (json) to the Solr field.

@@ -19,37 +19,40 @@ use App\Model\Data\Uploader;
  */
 class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
 {
-    public const FIELD_HASH = 'str_sis_data_hash';
-    public const FIELD_STATUS = 'str_sis_data_status';
-    public const FIELD_ERROR_STATUS = 'str_ss_data_error_status';
-    public const FIELD_UUID = 'str_sis_data_uuid';
-    public const FIELD_TYPE = 'str_sis_data_type';
-    public const FIELD_URL = 'str_sis_data_url';
-    public const FIELD_COPYRIGHT_STORED = 'str_ss_data_copyright';
-    public const FIELD_PROPERTIES_STORED = 'str_ss_data_properties';
     public const FIELD_AUTHORS_STORED = 'str_ss_data_author';
-    public const FIELD_UPLOADER_STORED = 'str_ss_data_uploader';
-    public const FIELD_UPLOADER_NAME = 'str_sis_data_uploader_name';
-    public const FIELD_UPLOADER_NAME_SEARCH = 'text_data_uploader_name';
-
     public const FIELD_CONTENTS = 'text_data_contents';
-    public const FIELD_COPYRIGHT_OWNER_NAME = 'str_si_data_copyright_owner_name';
-
     public const FIELD_COPYRIGHT_OWNER_CONTACT = 'str_sis_data_copyright_owner_contact';
     public const FIELD_COPYRIGHT_OWNER_EMAIL = 'str_si_data_copyright_owner_email';
+    public const FIELD_COPYRIGHT_OWNER_EMAIL_SORTING = 'str_ssl_data_copyright_owner_email';
+    public const FIELD_COPYRIGHT_OWNER_NAME = 'str_si_data_copyright_owner_name';
+    public const FIELD_COPYRIGHT_OWNER_NAME_SORTING = 'str_ssl_data_copyright_owner_name';
+    public const FIELD_COPYRIGHT_STORED = 'str_ss_data_copyright';
     public const FIELD_COPYRIGHT_USAGE_NAME = 'str_si_data_copyright_usage_name';
-
-    public const FIELD_COPYRIGHT_USAGE_SHORT = 'str_si_data_copyright_usage_short';
     public const FIELD_COPYRIGHT_USAGE_REFERENCE = 'str_si_data_copyright_usage_reference';
+    public const FIELD_COPYRIGHT_USAGE_SHORT = 'str_si_data_copyright_usage_short';
+    public const FIELD_COPYRIGHT_USAGE_SHORT_SORTING = 'str_ssl_data_copyright_usage_short';
+    public const FIELD_ERROR_STATUS = 'str_ss_data_error_status';
+    public const FIELD_HASH = 'str_sis_data_hash';
     public const FIELD_PROPERTIES_ABSTRACT = 'text_data_abstract';
-    public const FIELD_PROPERTIES_TITLE = 'text_data_title';
-    public const FIELD_PROPERTIES_LANGUAGE = 'str_si_data_language';
-    public const FIELD_PROPERTIES_CREATED_AT = 'date_data_created_at';
-    public const FIELD_PROPERTIES_UPDATED_AT = 'date_data_updated_at';
-    public const FIELD_PROPERTIES_SIZE = 'int_ii_data_size';
     public const FIELD_PROPERTIES_COLLECTIONS = 'str_sim_data_collections';
-    public const FIELD_PROPERTIES_TAGS = 'str_sim_data_tags';
+    public const FIELD_PROPERTIES_CREATED_AT = 'date_data_created_at';
+    public const FIELD_PROPERTIES_LANGUAGE = 'str_si_data_language';
     public const FIELD_PROPERTIES_MIME_TYPE = 'str_si_data_mime_type';
+    public const FIELD_PROPERTIES_SIZE = 'int_iss_data_size';
+    public const FIELD_PROPERTIES_STORED = 'str_ss_data_properties';
+    public const FIELD_PROPERTIES_TAGS = 'str_sim_data_tags';
+    public const FIELD_PROPERTIES_TITLE = 'text_data_title';
+    public const FIELD_PROPERTIES_TITLE_SORTING = 'str_ssl_data_title';
+    public const FIELD_PROPERTIES_UPDATED_AT = 'date_data_updated_at';
+    public const FIELD_STATUS = 'str_sis_data_status';
+    public const FIELD_TYPE = 'str_sis_data_type';
+    public const FIELD_UPLOADER_APP_URL_SORTING = 'str_ssl_data_uploader_app_url';
+    public const FIELD_UPLOADER_NAME = 'str_sis_data_uploader_name';
+    public const FIELD_UPLOADER_NAME_SEARCH = 'text_data_uploader_name';
+    public const FIELD_UPLOADER_NAME_SORTING = 'str_ssl_data_uploader_name';
+    public const FIELD_UPLOADER_STORED = 'str_ss_data_uploader';
+    public const FIELD_URL = 'str_sis_data_url';
+    public const FIELD_UUID = 'str_sis_data_uuid';
 
     public static function getEntityType(): string
     {
@@ -108,6 +111,29 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         ];
     }
 
+    public static function getSortingFields(): array
+    {
+        return [
+            // Adding pseudo-field "_score"
+            '_score' => 'score',
+
+            // Add regular fields
+            'uuid' => self::FIELD_ENTITY_ID,
+            'type' => self::FIELD_TYPE,
+            'copyright.owner.name' => self::FIELD_COPYRIGHT_OWNER_NAME_SORTING,
+            'copyright.owner.email' => self::FIELD_COPYRIGHT_OWNER_EMAIL_SORTING,
+            'copyright.usage.short' => self::FIELD_COPYRIGHT_USAGE_SHORT_SORTING,
+            'properties.created_at' => self::FIELD_PROPERTIES_CREATED_AT,
+            'properties.language' => self::FIELD_PROPERTIES_LANGUAGE,
+            'properties.mime_type' => self::FIELD_PROPERTIES_MIME_TYPE,
+            'properties.size' => self::FIELD_PROPERTIES_SIZE,
+            'properties.title' => self::FIELD_PROPERTIES_TITLE_SORTING,
+            'properties.updated_at' => self::FIELD_PROPERTIES_UPDATED_AT,
+            'uploader.name' => self::FIELD_UPLOADER_NAME_SORTING,
+            'uploader.app_url' => self::FIELD_UPLOADER_APP_URL_SORTING,
+        ];
+    }
+
     public static function getFilterFields(): array
     {
         return [
@@ -151,9 +177,12 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     {
         $this->addField(self::FIELD_COPYRIGHT_OWNER_CONTACT, $copyright->owner->contact);
         $this->addField(self::FIELD_COPYRIGHT_OWNER_EMAIL, $copyright->owner->email);
+        $this->addField(self::FIELD_COPYRIGHT_OWNER_EMAIL_SORTING, $copyright->owner->email);
         $this->addField(self::FIELD_COPYRIGHT_OWNER_NAME, $copyright->owner->name);
+        $this->addField(self::FIELD_COPYRIGHT_OWNER_NAME_SORTING, $copyright->owner->name);
         $this->addField(self::FIELD_COPYRIGHT_USAGE_NAME, $copyright->usage->name);
         $this->addField(self::FIELD_COPYRIGHT_USAGE_SHORT, $copyright->usage->short);
+        $this->addField(self::FIELD_COPYRIGHT_USAGE_SHORT_SORTING, $copyright->usage->short);
         $this->addField(self::FIELD_COPYRIGHT_USAGE_REFERENCE, $copyright->usage->reference);
 
         // Adding the whole object as JSON
@@ -173,6 +202,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
      */
     private function addUploader(Uploader $uploader)
     {
+        $this->addField(self::FIELD_UPLOADER_APP_URL_SORTING, $uploader->appUrl);
         $this->addField(self::FIELD_UPLOADER_NAME, $uploader->name);
         $this->addField(self::FIELD_UPLOADER_NAME_SEARCH, $uploader->name);
         $this->addField(self::FIELD_UPLOADER_STORED, json_encode($uploader));
@@ -212,6 +242,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     {
         $this->addField(self::FIELD_PROPERTIES_ABSTRACT, $properties->abstract);
         $this->addField(self::FIELD_PROPERTIES_TITLE, $properties->title);
+        $this->addField(self::FIELD_PROPERTIES_TITLE_SORTING, $properties->title);
         $this->addField(self::FIELD_PROPERTIES_LANGUAGE, $properties->language);
         $this->addField(self::FIELD_PROPERTIES_CREATED_AT, $properties->createdAt->format(SolrHelper::DATE_FORMAT));
         $this->addField(self::FIELD_PROPERTIES_UPDATED_AT, $properties->updatedAt->format(SolrHelper::DATE_FORMAT));
