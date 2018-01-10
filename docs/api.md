@@ -43,8 +43,8 @@ curl -H "Authorization: Bearer ZTI0NTg1MzFhODliZTZlMzM4ZWUxMGJjZTQxYzIzYjQ=" htt
 The K-Search API uses a centralized registry to verify the provided credentials: both the Bearer token and the origin of the request are used to authenticate and validate all API requests.
 Refer to the K-Registry documentation for details about the credentials and the registration process, the registry also provides details for the permission system.
 
-The environent variable `KLINK_REGISTRY_ENABLED` controls, if a KLink Registry should be used for authenticating clients (default is `false`).
-The location of the KLink Registry can be controlled with the `KLINK_REGISTRY_API_URL` variable.
+The environent variable `KLINK_REGISTRY_ENABLED` controls, if a K-Link Registry should be used for authenticating clients (default is `false`).
+The location of the K-Link Registry can be controlled with the `KLINK_REGISTRY_API_URL` variable.
 
 ### Common deployments:
 

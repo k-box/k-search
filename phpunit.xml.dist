@@ -20,8 +20,8 @@
         <!-- ###- symfony/framework-bundle ### -->
 
         <!-- ###+ nelmio/solarium-bundle ### -->
-        <env name="SOLRCORE_HOST" value="localhost"/>
-        <env name="SOLRCORE_NAME" value="ksearch"/>
+        <env name="SOLR_HOST" value="localhost"/>
+        <env name="SOLR_CORE" value="ksearch"/>
         <!-- ###- nelmio/solarium-bundle ### -->
     </php>
 

@@ -1,5 +1,6 @@
 /.vagrant/
 /public/swagger.json
+docker-compose.yml
 
 ###> symfony/framework-bundle ###
 .env

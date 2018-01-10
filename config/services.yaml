@@ -2,12 +2,13 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: 'en'
-
-    # Configuring default environment parameters
-    env(SOLRCORE_HOST): '127.0.0.1'
-    env(SOLRCORE_NAME): 'k-search'
-    env(KLINK_REGISTRY_ENABLED): 0
     env(KLINK_REGISTRY_API_URL): ''
+    
+    # default values for backward compatibility of previous configuration options for the SOLR instance
+    env(SOLR_HOST): '%env(SOLRCORE_HOST)%'
+    env(SOLR_CORE): '%env(SOLRCORE_NAME)%'
+    env(SOLRCORE_NAME): 'k-search'
+    env(SOLRCORE_HOST): '127.0.0.1'
 
     indexable_content_types:
         - 'text/html'
@@ -30,6 +31,8 @@ services:
         autowire: true
         autoconfigure: true
         public: false
+        bind:
+            $appDebug: '%env(APP_DEBUG)%'
 
     App\:
         resource: '../src/{Command,Security,EventListener,Service,Queue}'
