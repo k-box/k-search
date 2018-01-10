@@ -36,12 +36,10 @@ RUN { \
         echo "\t\tAllowOverride None"; \
         echo "\t\tOrder Allow,Deny"; \
         echo "\t\tAllow from All"; \
-
         echo "\t\tHeader always set Access-Control-Allow-Origin \"*\""; \
         echo "\t\tHeader always set Access-Control-Allow-Methods \"GET, POST, OPTIONS\""; \
         echo "\t\tHeader always set Access-Control-Max-Age \"1\""; \
         echo "\t\tHeader always set Access-Control-Allow-Headers \"x-requested-with, Content-Type, origin, authorization, accept\""; \
-
         echo "\t\t<IfModule mod_rewrite.c>"; \
         echo "\t\t\tOptions -MultiViews"; \
         echo "\t\t\tRewriteEngine On"; \
@@ -55,11 +53,9 @@ RUN { \
         echo "\t\t\tRewriteRule ^(.*)$ index.php [QSA,L]"; \
         echo "\t\t</IfModule>"; \
         echo "\t</Directory>"; \
-
         echo "\t<Directory /var/www/k-search>"; \
         echo "\t\tOptions FollowSymlinks"; \
         echo "\t</Directory>"; \
-
         echo "\t<Directory /var/www/k-search/public/bundles>"; \
         echo "\t\t<IfModule mod_rewrite.c>"; \
         echo "\t\t\tRewriteEngine Off"; \

@@ -3,6 +3,12 @@
 parameters:
     locale: 'en'
     env(KLINK_REGISTRY_API_URL): ''
+    
+    # default values for backward compatibility of previous configuration options for the SOLR instance
+    env(SOLR_HOST): '%env(SOLRCORE_HOST)%'
+    env(SOLR_CORE): '%env(SOLRCORE_NAME)%'
+    env(SOLRCORE_NAME): 'k-search'
+    env(SOLRCORE_HOST): '127.0.0.1'
 
     indexable_content_types:
         - 'text/html'
