@@ -25,7 +25,9 @@ class SortParam
      * @Assert\NotBlank()
      * @Assert\Choice(callback="getSortableFields")
      * @JMS\Type("string")
-     * @SWG\Property()
+     * @SWG\Property(
+     *     example="_score",
+     * )
      */
     public $field;
 
