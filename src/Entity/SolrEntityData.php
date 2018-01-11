@@ -21,7 +21,8 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
 {
     public const FIELD_AUTHORS_STORED = 'str_ss_data_author';
     public const FIELD_CONTENTS = 'text_data_contents';
-    public const FIELD_COPYRIGHT_OWNER_CONTACT = 'str_sis_data_copyright_owner_contact';
+    public const FIELD_COPYRIGHT_OWNER_WEBSITE = 'str_si_data_copyright_owner_website';
+    public const FIELD_COPYRIGHT_OWNER_ADDRESS = 'str_si_data_copyright_owner_address';
     public const FIELD_COPYRIGHT_OWNER_EMAIL = 'str_si_data_copyright_owner_email';
     public const FIELD_COPYRIGHT_OWNER_EMAIL_SORTING = 'str_ssl_data_copyright_owner_email';
     public const FIELD_COPYRIGHT_OWNER_NAME = 'str_si_data_copyright_owner_name';
@@ -175,7 +176,8 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
 
     private function addCopyright(Copyright $copyright)
     {
-        $this->addField(self::FIELD_COPYRIGHT_OWNER_CONTACT, $copyright->owner->contact);
+        $this->addField(self::FIELD_COPYRIGHT_OWNER_WEBSITE, $copyright->owner->website);
+        $this->addField(self::FIELD_COPYRIGHT_OWNER_ADDRESS, $copyright->owner->address);
         $this->addField(self::FIELD_COPYRIGHT_OWNER_EMAIL, $copyright->owner->email);
         $this->addField(self::FIELD_COPYRIGHT_OWNER_EMAIL_SORTING, $copyright->owner->email);
         $this->addField(self::FIELD_COPYRIGHT_OWNER_NAME, $copyright->owner->name);
@@ -223,7 +225,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     private function buildCopyrightOwnerModel(array $data): CopyrightOwner
     {
         $model = new CopyrightOwner();
-        $fields = ['name', 'contact', 'email'];
+        $fields = ['name', 'email', 'website', 'address'];
         $this->inflateModelWithData($model, $fields, $data);
 
         return $model;

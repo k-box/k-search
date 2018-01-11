@@ -103,7 +103,8 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
                 'params.data.hash' => 'This value should not be blank.',
                 'params.data.type' => 'This value should not be blank.',
                 'params.data.properties.language' => 'This value should have exactly 2 characters.',
-                'params.data.copyright.owner.contact' => 'This value should not be blank.',
+                'params.data.copyright.owner.name' => 'This value should not be blank.',
+                'params.data.copyright.owner.website' => 'This value should not be blank.',
                 'params.data.copyright.usage.short' => 'This value should not be blank.',
                 'params.data.copyright.usage.name' => 'This value should not be blank.',
             ]],
@@ -112,7 +113,8 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
                 'params.data.url' => 'This value should not be blank.',
                 'params.data.hash' => 'This value should not be blank.',
                 'params.data.type' => 'This value should not be blank.',
-                'params.data.copyright.owner.contact' => 'This value should not be blank.',
+                'params.data.copyright.owner.name' => 'This value should not be blank.',
+                'params.data.copyright.owner.website' => 'This value should not be blank.',
                 'params.data.copyright.usage.short' => 'This value should not be blank.',
                 'params.data.copyright.usage.name' => 'This value should not be blank.',
             ]],
@@ -121,6 +123,8 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
                 'params.data.url' => 'This value should not be blank.',
                 'params.data.hash' => 'This value should not be blank.',
                 'params.data.type' => 'This value should not be blank.',
+                'params.data.copyright.owner.name' => 'This value should not be blank.',
+                'params.data.copyright.owner.website' => 'This value should not be blank.',
             ]],
         ];
     }
@@ -202,7 +206,8 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
         $data->authors[] = $author;
         $data->copyright = new Copyright();
         $data->copyright->owner = new CopyrightOwner();
-        $data->copyright->owner->contact = 'copyright.owner.contact';
+        $data->copyright->owner->name = 'copyright.owner.name';
+        $data->copyright->owner->website = 'copyright.owner.website';
         $data->copyright->usage = new CopyrightUsage();
         $data->copyright->usage->name = 'copyright.usage.name';
         $data->copyright->usage->short = 'copyright.usage.short';

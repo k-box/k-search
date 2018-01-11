@@ -9,8 +9,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @SWG\Definition(
  *     definition="Data\CopyrightOwner",
- *     description="The copyright owner and information on how to contact for any inquiries",
- *     required={"contact"}
+ *     description="The owner of the copyright for the data",
+ *     required={"name", "website"}
  * )
  */
 class CopyrightOwner
@@ -19,9 +19,11 @@ class CopyrightOwner
      * Name of the copyright owner.
      *
      * @var string
+     * @Assert\NotBlank()
+     * @Assert\Type("string")
      * @JMS\Type("string")
      * @SWG\Property(
-     *     example="KLink Organization",
+     *     example="OneOffTech",
      * )
      */
     public $name;
@@ -33,20 +35,32 @@ class CopyrightOwner
      * @JMS\Type("string")
      * @Assert\Email()
      * @SWG\Property(
-     *     example="info@klink.asia",
+     *     example="info@oneofftech.xyz",
      * )
      */
     public $email;
 
     /**
-     * General contact information (e.g. URL to the owner website or postal address).
+     * Website of the copyright owner.
      *
      * @var string
      * @Assert\NotBlank()
+     * @Assert\Url()
      * @JMS\Type("string")
      * @SWG\Property(
-     *     example="KLink Website: http://www.klink.asia",
+     *     example="https://oneofftech.xyz/",
      * )
      */
-    public $contact;
+    public $website;
+
+    /**
+     * Address of the copyright owner, if available.
+     *
+     * @var string
+     * @JMS\Type("string")
+     * @SWG\Property(
+     *     example="Warschauer Str. 71 - 10243 Berlin, Germany",
+     * )
+     */
+    public $address;
 }
