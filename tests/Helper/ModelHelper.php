@@ -29,7 +29,8 @@ class ModelHelper
         $data->copyright->owner = new CopyrightOwner();
         $data->copyright->owner->name = 'KLink Organization';
         $data->copyright->owner->email = 'info@klink.asia';
-        $data->copyright->owner->contact = 'KLink Website: http://www.klink.asia';
+        $data->copyright->owner->website = 'http://www.klink.asia';
+        $data->copyright->owner->address = 'Berlin';
 
         $data->copyright->usage = new CopyrightUsage();
         $data->copyright->usage->short = 'MPL-2.0';
@@ -75,7 +76,8 @@ class ModelHelper
                 'owner' => [
                     'name' => 'KLink Organization',
                     'email' => 'info@klink.asia',
-                    'contact' => 'KLink Website: http://www.klink.asia',
+                    'website' => 'http://www.klink.asia',
+                    'address' => 'Berlin',
                 ],
                 'usage' => [
                     'short' => 'MPL-2.0',

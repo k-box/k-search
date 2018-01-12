@@ -92,7 +92,8 @@ class SolrEntityDataTest extends TestCase
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_URL), $data->url);
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_STATUS), $data->status);
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_COPYRIGHT_STORED), json_encode($data->copyright));
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_COPYRIGHT_OWNER_CONTACT), $data->copyright->owner->contact);
+        $this->assertEquals($entity->getField(SolrEntityData::FIELD_COPYRIGHT_OWNER_WEBSITE), $data->copyright->owner->website);
+        $this->assertEquals($entity->getField(SolrEntityData::FIELD_COPYRIGHT_OWNER_ADDRESS), $data->copyright->owner->address);
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_COPYRIGHT_OWNER_EMAIL), $data->copyright->owner->email);
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_COPYRIGHT_OWNER_NAME), $data->copyright->owner->name);
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_COPYRIGHT_USAGE_NAME), $data->copyright->usage->name);

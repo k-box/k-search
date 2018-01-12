@@ -24,10 +24,11 @@
 | `authors[][email]`           | String |   | Contact email of author. |
 | `authors[][contact]`         | String |   | General contact information (e.g. URL to website or postal address). |
 | `copyright[]`                | Object | ✔ | An object containing information on the copyright. |
-| `copyright[owner][]`         | Object | ✔ | The copyright owner and information on how to contact for any inquiries. |
-| `copyright[owner][name]`     | String |   | Name of the copyright owner. |
-| `copyright[owner][email]`    | String |   | Email of the copyright owner. |
-| `copyright[owner][contact]`  | String | ✔ | General contact information (e.g. URL to website or postal address). |
+| `copyright[owner][]`         | Object | ✔ | The owner of the copyright for the data. |
+| `copyright[owner][name]`     | String | ✔ | Name of the copyright owner. |
+| `copyright[owner][email]`    | String |   | Email of the copyright owner, for inquiries. |
+| `copyright[owner][website]`  | String | ✔  | URL of the copyright owner website for inquiries. |
+| `copyright[owner][address]`  | String |  | Address of the copyright owner, if available. |
 | `copyright[usage][]`         | Object | ✔ | The conditions of use of the copyrighted data. |
 | `copyright[usage][short]`    | String | ✔ | The associated usage permissions, as SPDX identifier (https://spdx.org/licenses/) and C for full copyright and PD for public domain. |
 | `copyright[usage][name]`     | String | ✔ | The associated usage permissions to the piece of data. "All right reserved", "GNU General Public License", …, “Public Domain”. |

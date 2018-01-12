@@ -12,7 +12,8 @@
             ],
             "copyright": {
                 "owner": {
-                    "contact": "copyright.owner.contact"
+                    "name": "copyright.owner.name",
+                    "website": "https://localhost/copyright.owner.website"
                 },
                 "usage": {
                     "name": "copyright.usage.name",
