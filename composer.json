@@ -14,7 +14,7 @@
         "bernard/bernard": "^0.12.3",
         "jms/serializer-bundle": "^2.0",
         "oneofftech/k-link-registry-client": "^0.1",
-        "nelmio/solarium-bundle": "^3.0@dev",
+        "nelmio/solarium-bundle": "^3.0.0-beta",
         "php-http/cache-plugin": "^1.4",
         "php-http/guzzle6-adapter": "^1.1",
         "php-http/httplug-bundle": "^1.8",

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "a88a160e5f8fcd16981e0708fdda95ad",
+    "content-hash": "560577713dfa448076e3e4c508027b95",
     "packages": [
         {
             "name": "bernard/bernard",
@@ -1074,16 +1074,16 @@
         },
         {
             "name": "nelmio/solarium-bundle",
-            "version": "dev-master",
+            "version": "v3.0.0-beta",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nelmio/NelmioSolariumBundle.git",
-                "reference": "a06e5c1fa3f4287b0520ffa62afb81fd44578fe2"
+                "reference": "9c81304ae05db2755f68e5d2f7de3ffef9578ef9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nelmio/NelmioSolariumBundle/zipball/a06e5c1fa3f4287b0520ffa62afb81fd44578fe2",
-                "reference": "a06e5c1fa3f4287b0520ffa62afb81fd44578fe2",
+                "url": "https://api.github.com/repos/nelmio/NelmioSolariumBundle/zipball/9c81304ae05db2755f68e5d2f7de3ffef9578ef9",
+                "reference": "9c81304ae05db2755f68e5d2f7de3ffef9578ef9",
                 "shasum": ""
             },
             "require": {
@@ -1125,7 +1125,7 @@
                 "solarium",
                 "solr"
             ],
-            "time": "2017-12-15T12:03:38+00:00"
+            "time": "2018-01-12T11:49:04+00:00"
         },
         {
             "name": "oneofftech/k-link-registry-client",
@@ -7443,7 +7443,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "nelmio/solarium-bundle": 20
+        "nelmio/solarium-bundle": 10
     },
     "prefer-stable": false,
     "prefer-lowest": false,
