@@ -26,12 +26,11 @@ the configuration for the specific aggregation. The code block below shows an ex
         "properties.language" : {
             "limit" : 10,
             "counts_filtered" : false,
-            "min_count": "1"
+            "min_count": "2"
         },
         "type": {
             "limit" : 5,
-            "counts_filtered" : false,
-            "min_count": "2"
+            "counts_filtered" : false
         }
     }
 }
@@ -53,7 +52,7 @@ The table below defines the aggregation configuration properties
 | -------- | ------ | -------- | ----------- |
 | `limit`  | Integer | ✔ | Only retrieve a certain amount of the most common aggregations. Minimum 0|
 | `counts_filtered` | Boolean | ✔ | Calculate aggregations count after applying filters (True) or before (False)|
-| `min-count`| Integer | Return only aggregations having at least min-count items (from API `v3.2`, default=1) |
+| `min-count`| Integer | Return only aggregations having at least min-count items (from API `v3.2`, default value 1. Default value on API previous v3.2 is 0) |
 
 #### Sort
 

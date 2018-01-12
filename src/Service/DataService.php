@@ -185,14 +185,17 @@ class DataService
     /**
      * Executes a search for a set of Data entities with the specified params.
      *
-     * @param SearchParams $searchParams
+     * @param SearchParams $searchParams The Search parameters
+     * @param string       $version      The API version, useful for migration and BC data handling
      *
      * @throws BadRequestException
      *
      * @return SearchResults
      */
-    public function searchData(SearchParams $searchParams): SearchResults
+    public function searchData(SearchParams $searchParams, ?string $version = null): SearchResults
     {
+        $this->handleSearchParamVersion($searchParams, $version);
+
         // Building the search query
         $query = $this->solrService->buildSelectQueryByEntityType(SolrEntityData::class, self::SEARCH_ENTITY_TYPE_KEY);
 
@@ -312,7 +315,8 @@ class DataService
             }
 
             $fieldName = $availableAggregations[$property];
-            $facet = $this->solrService->buildFacet($fieldName, $aggregation->limit, $property);
+            $this->logger->error('Handling aggregation', ['agg' => $aggregation]);
+            $facet = $this->solrService->buildFacet($fieldName, $aggregation->limit, $aggregation->minCount, $property);
 
             if (!$aggregation->countsFiltered) {
                 $facet->setExcludes([self::SEARCH_USER_FILTER_TAG]);
@@ -339,5 +343,21 @@ class DataService
         }
 
         return $sorts;
+    }
+
+    /**
+     * Handle default version changes for SearchParams.
+     *
+     * @param SearchParams $searchParams
+     * @param string|null  $version
+     */
+    private function handleSearchParamVersion(SearchParams $searchParams, ?string $version): void
+    {
+        // Handle AggregationMinCount for version < 3.2
+        if (version_compare('3.2', $version, '<')) {
+            foreach ($searchParams->aggregations as $aggregation) {
+                $aggregation->minCount = 0;
+            }
+        }
     }
 }

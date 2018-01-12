@@ -67,7 +67,7 @@ class SearchParams
      * @JMS\Since("3.1")
      * @JMS\Type("array<App\Model\Data\Search\SortParam>")
      * @SWG\Property(
-     *     x={"since-version":"3.1"}
+     *     x={"since-version":"3.1"},
      * )
      */
     public $sort = [];

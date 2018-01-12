@@ -206,17 +206,19 @@ class SolrService
     /**
      * Build a Solr facet.
      *
-     * @param string      $field The field name
-     * @param int|null    $limit The number of facet items to return
-     * @param string|null $key   The facet key
+     * @param string      $field    The field name
+     * @param int         $limit    The number of facet items to return
+     * @param int         $minCount The min-count of the facet to return
+     * @param string|null $key      The facet key
      *
      * @return Field
      */
-    public function buildFacet(string $field, ?int $limit = null, ?string $key = null): Field
+    public function buildFacet(string $field, int $limit, int $minCount, ?string $key = null): Field
     {
         $facet = new Field();
         $facet->setLimit($limit);
         $facet->setField($field);
+        $facet->setMinCount($minCount);
         $facet->setKey($key ?? SolrHelper::buildSolrKey($field));
 
         return $facet;
