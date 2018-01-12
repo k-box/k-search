@@ -19,7 +19,7 @@
 
     ## Install Composer in the box
     - { role: composer }
-    - { role: solr, solr_version: "5.5.4", solr_port: "8983", solr_core_name: "k-search", solr_core_conf: "/vagrant/solr/conf" }
+    - { role: solr, solr_version: "5.5.5", solr_port: "8983", solr_core_name: "k-search", solr_core_conf: "/vagrant/solr/solr-conf/conf" }
 
     - { role: php-fpm, nginx_site_template: "symfony4-site.j2" }
 
