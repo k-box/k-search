@@ -27,7 +27,7 @@
 | `copyright[owner][]`         | Object | ✔ | The owner of the copyright for the data. |
 | `copyright[owner][name]`     | String | ✔ | Name of the copyright owner. |
 | `copyright[owner][email]`    | String |   | Email of the copyright owner, for inquiries. |
-| `copyright[owner][website]`  | String | ✔  | URL of the copyright owner website for inquiries. |
+| `copyright[owner][website]`  | String |   | URL of the copyright owner website for inquiries. |
 | `copyright[owner][address]`  | String |  | Address of the copyright owner, if available. |
 | `copyright[usage][]`         | Object | ✔ | The conditions of use of the copyrighted data. |
 | `copyright[usage][short]`    | String | ✔ | The associated usage permissions, as SPDX identifier (https://spdx.org/licenses/) and C for full copyright and PD for public domain. |
