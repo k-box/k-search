@@ -104,7 +104,6 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
                 'params.data.type' => 'This value should not be blank.',
                 'params.data.properties.language' => 'This value should have exactly 2 characters.',
                 'params.data.copyright.owner.name' => 'This value should not be blank.',
-                'params.data.copyright.owner.website' => 'This value should not be blank.',
                 'params.data.copyright.usage.short' => 'This value should not be blank.',
                 'params.data.copyright.usage.name' => 'This value should not be blank.',
             ]],
@@ -114,7 +113,6 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
                 'params.data.hash' => 'This value should not be blank.',
                 'params.data.type' => 'This value should not be blank.',
                 'params.data.copyright.owner.name' => 'This value should not be blank.',
-                'params.data.copyright.owner.website' => 'This value should not be blank.',
                 'params.data.copyright.usage.short' => 'This value should not be blank.',
                 'params.data.copyright.usage.name' => 'This value should not be blank.',
             ]],
@@ -124,7 +122,6 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
                 'params.data.hash' => 'This value should not be blank.',
                 'params.data.type' => 'This value should not be blank.',
                 'params.data.copyright.owner.name' => 'This value should not be blank.',
-                'params.data.copyright.owner.website' => 'This value should not be blank.',
             ]],
         ];
     }

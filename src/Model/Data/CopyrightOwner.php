@@ -44,7 +44,6 @@ class CopyrightOwner
      * Website of the copyright owner.
      *
      * @var string
-     * @Assert\NotBlank()
      * @Assert\Url()
      * @JMS\Type("string")
      * @SWG\Property(
