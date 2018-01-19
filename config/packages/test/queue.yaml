@@ -1,3 +1,0 @@
-services:
-  queue_factory:
-    class: Bernard\QueueFactory\InMemoryFactory

@@ -20,6 +20,7 @@ RUN \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* &&\
     # install the missing 'intl' extension
     docker-php-ext-install -j$(nproc) intl &&\
+    pecl install apcu && docker-php-ext-enable apcu && rm -rf /tmp/pear && \
     # composer is still missing, we install it the way it says on the
     # website.
     curl -sS https://getcomposer.org/installer  \
@@ -35,12 +36,10 @@ RUN { \
         echo "\t\tAllowOverride None"; \
         echo "\t\tOrder Allow,Deny"; \
         echo "\t\tAllow from All"; \
-
         echo "\t\tHeader always set Access-Control-Allow-Origin \"*\""; \
         echo "\t\tHeader always set Access-Control-Allow-Methods \"GET, POST, OPTIONS\""; \
         echo "\t\tHeader always set Access-Control-Max-Age \"1\""; \
         echo "\t\tHeader always set Access-Control-Allow-Headers \"x-requested-with, Content-Type, origin, authorization, accept\""; \
-
         echo "\t\t<IfModule mod_rewrite.c>"; \
         echo "\t\t\tOptions -MultiViews"; \
         echo "\t\t\tRewriteEngine On"; \
@@ -48,14 +47,15 @@ RUN { \
         echo "\t\t\tRewriteCond %{REQUEST_METHOD} OPTIONS"; \
         echo "\t\t\tRewriteRule ^(.*)$ \" \" [R=200,QSA,L]"; \
         echo "\t\t\tRewriteCond %{REQUEST_FILENAME} !-f"; \
+        echo "\t\t\tRewriteCond %{HTTP:Authorization} ^(.+)$"; \
+        echo "\t\t\tRewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]"; \
+        echo "\t\t\tRewriteCond %{REQUEST_FILENAME} !-f"; \
         echo "\t\t\tRewriteRule ^(.*)$ index.php [QSA,L]"; \
         echo "\t\t</IfModule>"; \
         echo "\t</Directory>"; \
-
         echo "\t<Directory /var/www/k-search>"; \
         echo "\t\tOptions FollowSymlinks"; \
         echo "\t</Directory>"; \
-
         echo "\t<Directory /var/www/k-search/public/bundles>"; \
         echo "\t\t<IfModule mod_rewrite.c>"; \
         echo "\t\t\tRewriteEngine Off"; \

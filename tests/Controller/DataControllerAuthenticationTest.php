@@ -107,7 +107,7 @@ class DataControllerAuthenticationTest extends AbstractJsonRpcControllerTest
         $this->sendRequest($method, $url, $headers);
 
         $response = $this->client->getResponse();
-        $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         $this->assertJsonRpcErrorResponse(
             $response->getContent(),

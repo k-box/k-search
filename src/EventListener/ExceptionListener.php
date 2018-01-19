@@ -13,6 +13,7 @@ use App\Model\Error\ErrorResponse;
 use App\Model\RPCRequest;
 use JMS\Serializer\Exception\RuntimeException as JMSRuntimeException;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
@@ -24,8 +25,12 @@ class ExceptionListener implements EventSubscriberInterface
     /** @var LoggerInterface */
     private $logger;
 
-    public function __construct(LoggerInterface $logger)
+    /** @var bool */
+    private $debug;
+
+    public function __construct(bool $appDebug, LoggerInterface $logger)
     {
+        $this->debug = $appDebug;
         $this->logger = $logger;
     }
 
@@ -35,7 +40,8 @@ class ExceptionListener implements EventSubscriberInterface
 
         if (!($exception instanceof JMSRuntimeException ||
             $exception instanceof KSearchException ||
-            $exception instanceof AccessDeniedException
+            $exception instanceof AccessDeniedException ||
+            $exception instanceof InvalidArgumentException
         )) {
             return;
         }
@@ -47,7 +53,7 @@ class ExceptionListener implements EventSubscriberInterface
         ]);
 
         // Get the request-id, if any.
-        $requestId = $event->getRequest()->headers->get(RPCRequest::REQUEST_ID_HEADER, null);
+        $requestId = (string) $event->getRequest()->headers->get(RPCRequest::REQUEST_ID_HEADER, null);
 
         switch (get_class($exception)) {
             case JMSRuntimeException::class:
@@ -76,10 +82,14 @@ class ExceptionListener implements EventSubscriberInterface
                 $error = new Error(500, $exception->getMessage(), $exception->getPrevious()->getMessage());
                 break;
             default:
-                $error = new Error(500, 'Unknown error!', [
-                    'type' => get_class($exception),
-                    'message' => $exception->getMessage(),
-                ]);
+                $data = [];
+                if ($this->debug) {
+                    $data = [
+                        'type' => get_class($exception),
+                        'message' => $exception->getMessage(),
+                    ];
+                }
+                $error = new Error(500, 'Internal Server Error. Please contact the system administrator.', $data);
         }
 
         if (500 >= $error->code) {
@@ -87,6 +97,7 @@ class ExceptionListener implements EventSubscriberInterface
                 'url' => $event->getRequest()->getUri(),
                 'exception' => $exception,
                 'message' => $exception->getMessage(),
+                'event' => $event,
             ]);
         }
 

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Exception\BadRequestException;
 use App\Model\RPCRequest;
 use App\Model\RPCResponse;
+use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -35,15 +36,22 @@ abstract class AbstractRpcController extends Controller
      * Returns the given RequestModel from the request.
      *
      * @param Request $request
-     * @param string  $class
+     * @param string  $modelClass
+     * @param string  $version
      *
      * @throws BadRequestException
      *
      * @return mixed
      */
-    protected function buildRpcRequestModelFromJson(Request $request, string $class)
+    protected function buildRpcRequestModelFromJson(Request $request, string $modelClass, string $version)
     {
-        $requestModel = $this->serializer->deserialize((string) $request->getContent(), $class, 'json');
+        $deserializationContext = DeserializationContext::create()->setVersion($version);
+        $requestModel = $this->serializer->deserialize(
+            (string) $request->getContent(),
+            $modelClass,
+            'json',
+            $deserializationContext
+        );
 
         // We handle the request-id as a HTTP header, it will be used in the KSearchExceptionListener
         // to correctly set the "response->id" if available.
@@ -67,15 +75,18 @@ abstract class AbstractRpcController extends Controller
     /**
      * Builds the RPC Json response from the given model.
      *
-     * @param RPCResponse $model  The RpcResponse object to render
-     * @param array       $groups the JSM serialization groups to use, by default the no-groups (aka 'Default') will be rendered
+     * @param RPCResponse $model   The RpcResponse object to render
+     * @param string      $version
+     * @param array       $groups  the JSM serialization groups to use, by default the no-groups (aka 'Default') will be rendered
      *
      * @return JsonResponse
      */
-    protected function buildRpcJsonResponse(RPCResponse $model, array $groups = ['Default']): JsonResponse
+    protected function buildRpcJsonResponse(RPCResponse $model, string $version, array $groups = null): JsonResponse
     {
+        $groups = $groups ?? ['Default'];
         $context = SerializationContext::create();
-        $context->setGroups($groups);
+        $context->setGroups($groups)
+            ->setVersion($version);
 
         return new JsonResponse($this->serializer->serialize($model, 'json', $context), 200, [], true);
     }

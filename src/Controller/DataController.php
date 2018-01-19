@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\ApiUser;
 use App\Exception\BadRequestException;
+use App\Exception\SolrEntityNotFoundException;
 use App\Model\Data\AddRequest;
 use App\Model\Data\AddResponse;
 use App\Model\Data\Data;
@@ -13,8 +14,8 @@ use App\Model\Data\DataStatusResponse;
 use App\Model\Data\DeleteRequest;
 use App\Model\Data\GetRequest;
 use App\Model\Data\GetResponse;
-use App\Model\Data\SearchRequest;
-use App\Model\Data\SearchResponse;
+use App\Model\Data\Search\SearchRequest;
+use App\Model\Data\Search\SearchResponse;
 use App\Model\Status\StatusResponse;
 use App\Security\Authorization\Voter\DataVoter;
 use App\Service\DataService;
@@ -43,10 +44,11 @@ class DataController extends AbstractRpcController
      * Delete piece of data from the search index.
      *
      * @Route(
+     *     name="api.v3.data.delete",
      *     path="api/{version}/data.delete",
      *     methods={"POST"},
      *     requirements={
-     *        "version":"3.0"
+     *        "version":"3.\d++"
      *     }
      * )
      *
@@ -75,20 +77,23 @@ class DataController extends AbstractRpcController
      * @param Request $request
      * @param string  $version
      *
+     * @throws BadRequestException
+     * @throws SolrEntityNotFoundException
+     *
      * @return Response
      */
-    public function postDataDelete(Request $request, string $version)
+    public function postDataDeleteV3(Request $request, string $version)
     {
         // First we check if the user has at least the needed credentials
-        $this->denyAccessUnlessGranted(DataVoter::REMOVE);
+        $this->denyAccessUnlessGranted(DataVoter::PERMISSION_REMOVE);
 
         /** @var DeleteRequest $deleteRequest */
-        $deleteRequest = $this->buildRpcRequestModelFromJson($request, DeleteRequest::class);
+        $deleteRequest = $this->buildRpcRequestModelFromJson($request, DeleteRequest::class, $version);
 
         $data = $this->dataService->getData($deleteRequest->params->uuid);
 
         // And here we check if it can remove the data given data
-        $this->denyAccessUnlessGranted(DataVoter::REMOVE, $data);
+        $this->denyAccessUnlessGranted(DataVoter::PERMISSION_REMOVE, $data);
 
         $success = $this->dataService->deleteData($deleteRequest->params->uuid);
 
@@ -98,17 +103,18 @@ class DataController extends AbstractRpcController
             $statusResponse = StatusResponse::withStatusMessage(500, 'Error', $deleteRequest->id);
         }
 
-        return $this->buildRpcJsonResponse($statusResponse);
+        return $this->buildRpcJsonResponse($statusResponse, $version);
     }
 
     /**
      * Get detailed information of piece of data in the search index.
      *
      * @Route(
+     *     name="api.v3.data.get",
      *     path="api/{version}/data.get",
      *     methods={"POST"},
      *     requirements={
-     *        "version":"3.0"
+     *        "version":"3.\d++"
      *     }
      * )
      *
@@ -140,30 +146,34 @@ class DataController extends AbstractRpcController
      * @param Request $request
      * @param string  $version
      *
+     * @throws BadRequestException
+     * @throws SolrEntityNotFoundException
+     *
      * @return JsonResponse
      */
-    public function postDataGet(Request $request, string $version)
+    public function postDataGetV3(Request $request, string $version)
     {
-        $this->denyAccessUnlessGranted(DataVoter::VIEW);
+        $this->denyAccessUnlessGranted(DataVoter::PERMISSION_VIEW);
 
         /** @var GetRequest $get */
-        $getRequest = $this->buildRpcRequestModelFromJson($request, GetRequest::class);
+        $getRequest = $this->buildRpcRequestModelFromJson($request, GetRequest::class, $version);
 
         $data = $this->dataService->getData($getRequest->params->uuid, Data::STATUS_OK);
 
         $getResponse = new GetResponse($data, $getRequest->id);
 
-        return $this->buildRpcJsonResponse($getResponse);
+        return $this->buildRpcJsonResponse($getResponse, $version);
     }
 
     /**
      * Get the status information of a Data piece in the search index.
      *
      * @Route(
+     *     name="api.v3.data.status",
      *     path="api/{version}/data.status",
      *     methods={"POST"},
      *     requirements={
-     *        "version":"3.0"
+     *        "version":"3.\d++"
      *     }
      * )
      *
@@ -193,31 +203,35 @@ class DataController extends AbstractRpcController
      * @param Request $request
      * @param string  $version
      *
+     * @throws BadRequestException
+     * @throws SolrEntityNotFoundException
+     *
      * @return JsonResponse
      */
-    public function postDataStatus(Request $request, string $version)
+    public function postDataStatusV3(Request $request, string $version)
     {
-        $this->denyAccessUnlessGranted(DataVoter::VIEW);
+        $this->denyAccessUnlessGranted(DataVoter::PERMISSION_VIEW);
 
         /** @var DataStatusRequest $dataStatusRequest */
-        $dataStatusRequest = $this->buildRpcRequestModelFromJson($request, DataStatusRequest::class);
+        $dataStatusRequest = $this->buildRpcRequestModelFromJson($request, DataStatusRequest::class, $version);
 
         $data = $this->dataService->getData($dataStatusRequest->params->uuid);
 
         $status = new DataStatus($data->status, $data->errorStatus);
         $statusResponse = new DataStatusResponse($status, $dataStatusRequest->id);
 
-        return $this->buildRpcJsonResponse($statusResponse);
+        return $this->buildRpcJsonResponse($statusResponse, $version);
     }
 
     /**
      * Add piece of data to the search index.
      *
      * @Route(
+     *     name="api.v3.data.add",
      *     path="api/{version}/data.add",
      *     methods={"POST"},
      *     requirements={
-     *        "version":"3.0"
+     *        "version":"3.\d++"
      *     }
      * )
      *
@@ -250,15 +264,16 @@ class DataController extends AbstractRpcController
      * @param string  $version
      *
      * @throws BadRequestException
+     * @throws SolrEntityNotFoundException
      *
      * @return JsonResponse
      */
-    public function postDataAdd(Request $request, string $version)
+    public function postDataAddV3(Request $request, string $version)
     {
-        $this->denyAccessUnlessGranted(DataVoter::ADD);
+        $this->denyAccessUnlessGranted(DataVoter::PERMISSION_ADD);
 
         /** @var AddRequest $addRequest */
-        $addRequest = $this->buildRpcRequestModelFromJson($request, AddRequest::class);
+        $addRequest = $this->buildRpcRequestModelFromJson($request, AddRequest::class, $version);
 
         $data = $addRequest->params->data;
 
@@ -273,33 +288,34 @@ class DataController extends AbstractRpcController
         $data = $this->dataService->getData($addRequest->params->data->uuid);
         $addResponse = new AddResponse($data, $addRequest->id);
 
-        return $this->buildRpcJsonResponse($addResponse);
+        return $this->buildRpcJsonResponse($addResponse, $version);
     }
 
     /**
      * Allows to query the index and returns search results.
      *
      * @Route(
+     *     name="api.v3.data.search",
      *     path="api/{version}/data.search",
      *     methods={"POST"},
      *     requirements={
-     *        "version":"3.0"
+     *        "version":"3.\d++"
      *     }
      * )
      * @SWG\Post(
-     *     path="/api/3.0/data.search",
+     *     path="/api/3.1/data.search",
      *     description="Allows to query the index and returns search results. This API requires the `data-search` permission.",
      *     tags={"Data"},
      *     @SWG\Parameter(
      *         name="body",
      *         in="body",
      *         required=true,
-     *         @SWG\Schema(ref="#/definitions/Data\SearchRequest")
+     *         @SWG\Schema(ref="#/definitions/Data\Search\SearchRequest")
      *     ),
      *     @SWG\Response(
      *         response="200",
      *         description="Returned when successful",
-     *         @SWG\Schema(ref="#/definitions/Data\SearchResponse")
+     *         @SWG\Schema(ref="#/definitions/Data\Search\SearchResponse")
      *     ),
      *     @SWG\Response(
      *         response="400",
@@ -311,19 +327,21 @@ class DataController extends AbstractRpcController
      * @param Request $request
      * @param string  $version
      *
+     * @throws BadRequestException
+     *
      * @return JsonResponse
      */
-    public function postDataSearch(Request $request, string $version)
+    public function postDataSearchV3(Request $request, string $version)
     {
-        $this->denyAccessUnlessGranted(DataVoter::SEARCH);
+        $this->denyAccessUnlessGranted(DataVoter::PERMISSION_SEARCH);
 
         /** @var SearchRequest $searchRequest */
-        $searchRequest = $this->buildRpcRequestModelFromJson($request, SearchRequest::class);
+        $searchRequest = $this->buildRpcRequestModelFromJson($request, SearchRequest::class, $version);
 
         $searchResult = $this->dataService->searchData($searchRequest->params);
 
         $searchResponse = new SearchResponse($searchResult, $searchRequest->id);
 
-        return $this->buildRpcJsonResponse($searchResponse);
+        return $this->buildRpcJsonResponse($searchResponse, $version);
     }
 }

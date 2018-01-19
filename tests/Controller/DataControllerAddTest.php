@@ -11,7 +11,6 @@ use App\Model\Data\Properties;
 use App\Model\Data\Uploader;
 use App\Security\Authorization\Voter\DataVoter;
 use Symfony\Component\HttpFoundation\Response;
-use function GuzzleHttp\Psr7\try_fopen;
 
 class DataControllerAddTest extends AbstractJsonRpcControllerTest
 {
@@ -42,7 +41,7 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
             ->with($data->uuid)
             ->willReturn($data);
 
-        $addData = try_fopen(__DIR__.'/../fixtures/data-add.document-minimal.json', 'r');
+        $addData = file_get_contents(__DIR__.'/../fixtures/data-add.document-minimal.json');
         $this->sendAuthenticatedRequest(self::RPC_METHOD, self::DATA_ADD_ENDPOINT, $addData);
 
         $response = $this->client->getResponse();
@@ -104,7 +103,7 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
                 'params.data.hash' => 'This value should not be blank.',
                 'params.data.type' => 'This value should not be blank.',
                 'params.data.properties.language' => 'This value should have exactly 2 characters.',
-                'params.data.copyright.owner.contact' => 'This value should not be blank.',
+                'params.data.copyright.owner.name' => 'This value should not be blank.',
                 'params.data.copyright.usage.short' => 'This value should not be blank.',
                 'params.data.copyright.usage.name' => 'This value should not be blank.',
             ]],
@@ -113,7 +112,7 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
                 'params.data.url' => 'This value should not be blank.',
                 'params.data.hash' => 'This value should not be blank.',
                 'params.data.type' => 'This value should not be blank.',
-                'params.data.copyright.owner.contact' => 'This value should not be blank.',
+                'params.data.copyright.owner.name' => 'This value should not be blank.',
                 'params.data.copyright.usage.short' => 'This value should not be blank.',
                 'params.data.copyright.usage.name' => 'This value should not be blank.',
             ]],
@@ -122,6 +121,7 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
                 'params.data.url' => 'This value should not be blank.',
                 'params.data.hash' => 'This value should not be blank.',
                 'params.data.type' => 'This value should not be blank.',
+                'params.data.copyright.owner.name' => 'This value should not be blank.',
             ]],
         ];
     }
@@ -139,7 +139,7 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
         $dataService->expects($this->never())
             ->method('getData');
 
-        $addData = try_fopen($file, 'r');
+        $addData = file_get_contents($file);
         $this->sendAuthenticatedRequest(self::RPC_METHOD, self::DATA_ADD_ENDPOINT, $addData);
 
         $response = $this->client->getResponse();
@@ -151,8 +151,8 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
     {
         return [
             'ROLE_DATA_EDIT' => [[DataVoter::ROLE_DATA_EDIT]],
-            'ROLE_DATA_REMOVE_OWN' => [[DataVoter::REMOVE_OWN]],
-            'ROLE_DATA_REMOVE_ALL' => [[DataVoter::REMOVE_ALL]],
+            'ROLE_DATA_REMOVE_OWN' => [[DataVoter::ROLE_DATA_REMOVE_OWN]],
+            'ROLE_DATA_REMOVE_ALL' => [[DataVoter::ROLE_DATA_REMOVE_ALL]],
             'ROLE_DATA_SEARCH' => [[DataVoter::ROLE_DATA_SEARCH]],
             'ROLE_DATA_VIEW' => [[DataVoter::ROLE_DATA_VIEW]],
         ];
@@ -203,7 +203,8 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
         $data->authors[] = $author;
         $data->copyright = new Copyright();
         $data->copyright->owner = new CopyrightOwner();
-        $data->copyright->owner->contact = 'copyright.owner.contact';
+        $data->copyright->owner->name = 'copyright.owner.name';
+        $data->copyright->owner->website = 'copyright.owner.website';
         $data->copyright->usage = new CopyrightUsage();
         $data->copyright->usage->name = 'copyright.usage.name';
         $data->copyright->usage->short = 'copyright.usage.short';

@@ -1,5 +1,6 @@
 /.vagrant/
 /public/swagger.json
+docker-compose.yml
 
 ###> symfony/framework-bundle ###
 .env
@@ -12,3 +13,8 @@
 ###> symfony/phpunit-bridge ###
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
+
+###> friendsofphp/php-cs-fixer ###
+.php_cs
+.php_cs.cache
+###< friendsofphp/php-cs-fixer ###

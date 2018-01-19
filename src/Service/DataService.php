@@ -5,13 +5,18 @@ namespace App\Service;
 use App\Entity\SolrEntity;
 use App\Entity\SolrEntityData;
 use App\Exception\BadRequestException;
+use App\Exception\DataDownloadErrorException;
+use App\Exception\InternalSearchException;
 use App\Exception\SolrEntityNotFoundException;
+use App\Exception\SolrExtractionException;
 use App\Model\Data\Data;
-use App\Model\Data\SearchParams;
-use App\Model\Data\SearchResults;
+use App\Model\Data\Search\Aggregation;
+use App\Model\Data\Search\SearchParams;
+use App\Model\Data\Search\SearchResults;
 use App\Queue\Message\UUIDMessage;
 use DateTimeZone;
 use Psr\Log\LoggerInterface;
+use Solarium\QueryType\Select\Query\Component\Facet\Field;
 
 class DataService
 {
@@ -64,6 +69,8 @@ class DataService
      *
      * @param string $uuid The Data UUID
      *
+     * @throws InternalSearchException
+     *
      * @return bool
      */
     public function deleteData(string $uuid)
@@ -112,7 +119,8 @@ class DataService
      * @param Data        $data            The Data object
      * @param null|string $textualContents The textual contents to be indexed
      *
-     * @throws BadRequestException if the data provided can not be indexed
+     * @throws BadRequestException        if the data provided can not be indexed
+     * @throws DataDownloadErrorException
      *
      * @return bool
      */
@@ -160,6 +168,9 @@ class DataService
      * @param Data         $data     The Data object
      * @param \SplFileInfo $fileInfo The file to extract the textual contents from
      *
+     * @throws SolrExtractionException
+     * @throws InternalSearchException
+     *
      * @return bool
      */
     public function addDataWithFileExtraction(Data $data, \SplFileInfo $fileInfo): bool
@@ -204,32 +215,20 @@ class DataService
         $edisMax->setQueryFields(implode(' ', SolrEntityData::getTextSearchFields()));
 
         // Adding aggregations (aka Solr Facets)
-        $facets = [];
-        foreach ($searchParams->aggregations as $property => $aggregation) {
-            if (!array_key_exists($property, SolrEntityData::getModelPropertyToFieldMappings(SolrEntity::MAPPING_AGGREGATIONS))) {
-                throw new BadRequestException([
-                    'aggregations' => sprintf('Aggregation on property "%s" is not available', $property),
-                ]);
-            }
-
-            $fieldName = SolrEntityData::getModelPropertyToFieldMappings(SolrEntity::MAPPING_AGGREGATIONS)[$property];
-            $facet = $this->solrService->buildFacet($fieldName, $aggregation->limit, $property);
-
-            if (!$aggregation->countsFiltered) {
-                $facet->setExcludes([self::SEARCH_USER_FILTER_TAG]);
-            }
-            $facets[] = $facet;
+        if ($facets = $this->buildSearchFacets($searchParams)) {
+            $query->getFacetSet()->addFacets($facets);
         }
 
-        if ($facets) {
-            $query->getFacetSet()->addFacets($facets);
+        // Adding sorting
+        if ($sorts = $this->buildSearchSorts($searchParams)) {
+            $query->setSorts($sorts);
         }
 
         // Adding search filters
         if ($searchParams->filters) {
             $filterQuery = $this->solrService->buildFilterFromString(
                 $searchParams->filters,
-                SolrEntityData::getModelPropertyToFieldMappings(SolrEntity::MAPPING_FILTERS),
+                SolrEntityData::getFilterFields(),
                 self::SEARCH_USER_FILTER_KEY
             );
             $filterQuery->addTag(self::SEARCH_USER_FILTER_TAG);
@@ -257,6 +256,7 @@ class DataService
      * @param Data $data
      *
      * @throws BadRequestException
+     * @throws DataDownloadErrorException
      */
     public function ensureDataIsIndexable(Data $data)
     {
@@ -268,7 +268,8 @@ class DataService
             ]);
         }
 
-        $contentType = reset($headers['Content-Type']);
+        // Get the MimeType from the Content-Type header as defined here: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
+        [$contentType] = explode(';', current($headers['Content-Type']), 2);
 
         if (!in_array($contentType, $this->indexableContentTypes, true)) {
             throw new BadRequestException([
@@ -287,5 +288,56 @@ class DataService
         if (!$data->properties->updatedAt) {
             $data->properties->updatedAt = new \DateTime('now', new DateTimeZone('UTC'));
         }
+    }
+
+    /**
+     * Returns the list of Facets enabled in the given the SearchParams.
+     *
+     * @param SearchParams $searchParams
+     *
+     * @throws BadRequestException if any of the facet is not valid
+     *
+     * @return Field[]
+     */
+    private function buildSearchFacets(SearchParams $searchParams): array
+    {
+        $facets = [];
+        $availableAggregations = SolrEntityData::getAggregationFields();
+
+        foreach ($searchParams->aggregations as $property => $aggregation) {
+            if (!array_key_exists($property, $availableAggregations)) {
+                throw new BadRequestException([
+                    'aggregations' => sprintf('Aggregation on property "%s" is not available', $property),
+                ]);
+            }
+
+            $fieldName = $availableAggregations[$property];
+            $facet = $this->solrService->buildFacet($fieldName, $aggregation->limit, $property);
+
+            if (!$aggregation->countsFiltered) {
+                $facet->setExcludes([self::SEARCH_USER_FILTER_TAG]);
+            }
+            $facets[] = $facet;
+        }
+
+        return $facets;
+    }
+
+    /**
+     * Returns the search sorting configuration.
+     *
+     * @param SearchParams $searchParams
+     *
+     * @return string[] The sorting fields (as field => order hashmap)
+     */
+    private function buildSearchSorts(SearchParams $searchParams): array
+    {
+        $sorts = [];
+        $sortingFields = SolrEntityData::getSortingFields();
+        foreach ($searchParams->sort as $sortParam) {
+            $sorts[$sortingFields[$sortParam->field]] = $sortParam->order;
+        }
+
+        return $sorts;
     }
 }

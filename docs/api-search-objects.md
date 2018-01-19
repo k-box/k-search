@@ -7,6 +7,7 @@ Describe the Search request.
 | `search`  | String | ✔       | URI encoded string of the search query. If no query is specified, an empty result set will be returned |
 | `filters` | String |         | Search [filters](#supported-filters) in the [Lucene query parser syntax](https://lucene.apache.org/core/2_9_4/queryparsersyntax.html) |
 | `aggregations` | [Aggregation](#aggregation) |    | An object containing the aggregations to be retrieved |
+| `sort` (since v3.1)| [Sort](#sort) |    | A list of sort parameters |
 | `limit` | Integer | | Specify the number of results to retrieve. If no value is given the default value of 10 is used. |
 | `offset` | Integer | | Specify the first result to return from the complete set of retrieved documents, the value is 0-based; If no value is given the default value of 0 is used. |
 
@@ -49,6 +50,35 @@ The table below defines the aggregation configuration properties
 | `limit` | Integer | ✔ | Only retrieve a certain amount of the most common aggregations. Minimum 0|
 | `counts_filtered` | Boolean | ✔ | Calculate aggregations count after applying filters (True) or before (False)|
 
+
+#### Sort
+
+Sort allows to specify the ordering of the retrieved data.
+Multiple sorting can be defined, where the sequence defines the priority of each sorting.
+
+```json
+"sort" : [
+  { "field": "properties.created_at", "order": "desc"},
+  { "field": "properties.title", "order": "asc"},
+],
+```
+
+The following Data fields can be used:
+
+- `_score` (a virtual field, containing the relevance of the returned data for a given search)
+- `uuid`
+- `type`
+- `copyright.owner.name`
+- `copyright.owner.email`
+- `copyright.usage.short`
+- `properties.created_at`
+- `properties.language`
+- `properties.mime_type`
+- `properties.size`
+- `properties.title`
+- `properties.updated_at`
+- `uploader.name`
+- `uploader.app_url`
 
 ### Supported filters
 

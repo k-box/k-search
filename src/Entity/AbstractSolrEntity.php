@@ -64,6 +64,8 @@ abstract class AbstractSolrEntity implements SolrEntity
                 return static::getAggregationFields();
             case static::MAPPING_FILTERS:
                 return static::getFilterFields();
+            case static::MAPPING_SORTING:
+                return static::getSortingFields();
         }
 
         return [];

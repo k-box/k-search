@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\Data;
+namespace App\Model\Data\Search;
 
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
@@ -8,7 +8,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @SWG\Definition(
- *     definition="Data\SearchParams",
+ *     definition="Data\Search\SearchParams",
  *     required={"search", "filters"}
  * )
  */
@@ -42,7 +42,7 @@ class SearchParams
      *
      * @var Aggregation[]
      * @Assert\Valid()
-     * @JMS\Type("array<string,App\Model\Data\Aggregation>")
+     * @JMS\Type("array<string,App\Model\Data\Search\Aggregation>")
      * @SWG\Property(
      *      example={
      *          "properties.language": {
@@ -57,6 +57,20 @@ class SearchParams
      * )
      */
     public $aggregations = [];
+
+    /**
+     * List of Sort parameters, used to sort the retrieved results.
+     * Multiple sorts are possible, the order of sorts define the sorting priority (since v3.1).
+     *
+     * @var SortParam[]
+     * @Assert\Valid()
+     * @JMS\Since("3.1")
+     * @JMS\Type("array<App\Model\Data\Search\SortParam>")
+     * @SWG\Property(
+     *     x={"since-version":"3.1"}
+     * )
+     */
+    public $sort = [];
 
     /**
      * Specify the number of results to retrieve. If no value is given the default value of 10 is used.

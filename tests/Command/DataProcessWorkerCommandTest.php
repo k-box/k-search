@@ -11,6 +11,7 @@ use App\Queue\Message\UUIDMessage;
 use App\Service\DataDownloaderService;
 use App\Service\DataService;
 use App\Service\QueueService;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -54,13 +55,16 @@ class DataProcessWorkerCommandTest extends KernelTestCase
             ->with(self::DATA_UUID)
             ->willReturn($data);
 
+        $fileInfo = $this->createMock(\SplFileInfo::class);
         $this->dataDownloaderService->expects($this->once())
             ->method('downloadDataContents')
             ->with($data)
-            ->willThrowException(new InternalSearchException('Error extracting!'));
+            ->willReturn($fileInfo);
 
-        $this->dataService->expects($this->never())
-            ->method('addDataWithFileExtraction');
+        $this->dataService->expects($this->once())
+            ->method('addDataWithFileExtraction')
+            ->with($data, $fileInfo)
+            ->willThrowException(new InternalSearchException('Error extracting!'));
 
         $this->dataDownloaderService->expects($this->once())
             ->method('removeDataContents')
@@ -92,13 +96,16 @@ class DataProcessWorkerCommandTest extends KernelTestCase
             ->with(self::DATA_UUID)
             ->willReturn($data);
 
+        $fileInfo = $this->createMock(\SplFileInfo::class);
         $this->dataDownloaderService->expects($this->once())
             ->method('downloadDataContents')
             ->with($data)
-            ->willThrowException(new SolrExtractionException('Error extracting!'));
+            ->willReturn($fileInfo);
 
-        $this->dataService->expects($this->never())
-            ->method('addDataWithFileExtraction');
+        $this->dataService->expects($this->once())
+            ->method('addDataWithFileExtraction')
+            ->with($data, $fileInfo)
+            ->willThrowException(new SolrExtractionException('Error extracting!'));
 
         $this->dataDownloaderService->expects($this->once())
             ->method('removeDataContents')
@@ -193,7 +200,8 @@ class DataProcessWorkerCommandTest extends KernelTestCase
         $command = new DataIndexWorkerCommand(
             $this->queueService,
             $this->dataService,
-            $this->dataDownloaderService
+            $this->dataDownloaderService,
+            $this->createMock(LoggerInterface::class)
         );
         $this->application->add($command);
 

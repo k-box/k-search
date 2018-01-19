@@ -10,23 +10,23 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class DataVoter extends Voter
 {
-    public const ADD = 'data-add';
-    public const EDIT = 'data-edit';
-    public const SEARCH = 'data-search';
-    public const VIEW = 'data-view';
+    public const PERMISSION_ADD = 'data-add';
+    public const PERMISSION_EDIT = 'data-edit';
+    public const PERMISSION_SEARCH = 'data-search';
+    public const PERMISSION_VIEW = 'data-view';
     // Pseudo permission
-    public const REMOVE = 'data-remove';
-    public const REMOVE_OWN = 'data-remove-own';
-    public const REMOVE_ALL = 'data-remove-all';
+    public const PERMISSION_REMOVE = 'data-remove';
+    public const PERMISSION_REMOVE_OWN = 'data-remove-own';
+    public const PERMISSION_REMOVE_ALL = 'data-remove-all';
 
     public const ALL_PERMISSIONS = [
-        self::ADD,
-        self::EDIT,
-        self::REMOVE,
-        self::REMOVE_OWN,
-        self::REMOVE_ALL,
-        self::SEARCH,
-        self::VIEW,
+        self::PERMISSION_ADD,
+        self::PERMISSION_EDIT,
+        self::PERMISSION_REMOVE,
+        self::PERMISSION_REMOVE_OWN,
+        self::PERMISSION_REMOVE_ALL,
+        self::PERMISSION_SEARCH,
+        self::PERMISSION_VIEW,
     ];
 
     public const ROLE_DATA_ADD = 'ROLE_DATA_ADD';
@@ -43,6 +43,15 @@ class DataVoter extends Voter
         self::ROLE_DATA_VIEW,
         self::ROLE_DATA_REMOVE_ALL,
         self::ROLE_DATA_REMOVE_OWN,
+    ];
+
+    public const MAP_PERMISSION_TO_ROLE = [
+        self::PERMISSION_ADD => self::ROLE_DATA_ADD,
+        self::PERMISSION_EDIT => self::ROLE_DATA_EDIT,
+        self::PERMISSION_REMOVE_OWN => self::ROLE_DATA_REMOVE_OWN,
+        self::PERMISSION_REMOVE_ALL => self::ROLE_DATA_REMOVE_ALL,
+        self::PERMISSION_SEARCH => self::ROLE_DATA_SEARCH,
+        self::PERMISSION_VIEW => self::ROLE_DATA_VIEW,
     ];
 
     /**
@@ -73,19 +82,19 @@ class DataVoter extends Voter
         }
 
         switch ($attribute) {
-            case self::ADD:
+            case self::PERMISSION_ADD:
                 return $this->decisionManager->decide($token, [self::ROLE_DATA_ADD]);
-            case self::EDIT:
+            case self::PERMISSION_EDIT:
                 return $this->decisionManager->decide($token, [self::ROLE_DATA_EDIT]);
-            case self::SEARCH:
+            case self::PERMISSION_SEARCH:
                 return $this->decisionManager->decide($token, [self::ROLE_DATA_SEARCH]);
-            case self::VIEW:
+            case self::PERMISSION_VIEW:
                 return $this->decisionManager->decide($token, [self::ROLE_DATA_VIEW]);
-            case self::REMOVE_ALL:
+            case self::PERMISSION_REMOVE_ALL:
                 return $this->decisionManager->decide($token, [self::ROLE_DATA_REMOVE_ALL]);
             // Handle the remove as remove_own
-            case self::REMOVE:
-            case self::REMOVE_OWN:
+            case self::PERMISSION_REMOVE:
+            case self::PERMISSION_REMOVE_OWN:
                 if ($this->decisionManager->decide($token, [self::ROLE_DATA_REMOVE_ALL])) {
                     return true;
                 }

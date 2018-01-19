@@ -10,8 +10,8 @@ use App\Exception\InternalSearchException;
 use App\Exception\SolrEntityNotFoundException;
 use App\Exception\SolrExtractionException;
 use App\Helper\SolrHelper;
-use App\Model\Data\Aggregation;
-use App\Model\Data\AggregationResult;
+use App\Model\Data\Search\Aggregation;
+use App\Model\Data\Search\AggregationResult;
 use Solarium\Client;
 use Solarium\Exception\ExceptionInterface;
 use Solarium\QueryType\Select\Query\Component\Facet\Field;
@@ -56,7 +56,7 @@ class SolrService
         $resultSet = null;
         try {
             return $this->executeSelectQuery($select);
-        } catch (ExceptionInterface|\Throwable $exception) {
+        } catch (ExceptionInterface | \Throwable $exception) {
             $this->handleSolariumExceptions(
                 $exception,
                 sprintf('Error while loading/filtering from Index, type=%s', $entityType)
@@ -123,8 +123,8 @@ class SolrService
      * @param AbstractSolrEntity $entity   The entity to add to the index
      * @param \SplFileInfo       $fileInfo The file to be used to extract the contents from
      *
-     * @throws \Exception
-     * @throws \Throwable
+     * @throws InternalSearchException
+     * @throws SolrExtractionException
      *
      * @return bool
      */
@@ -152,8 +152,8 @@ class SolrService
 
             return true;
         } catch (ExceptionInterface $e) {
-            if (false !== strpos($e->getMessage(), '.PDFParser')) {
-                throw new SolrExtractionException('PDF Parsing Exception', 500, $e);
+            if (false !== strpos($e->getMessage(), 'org.apache.tika.exception.TikaException')) {
+                throw new SolrExtractionException('Document text extraction Exception', 500, $e);
             }
 
             throw new InternalSearchException('Error extracting textual contents from document', 500, $e);
@@ -276,7 +276,9 @@ class SolrService
     }
 
     /**
-     * @param $result
+     * Build the aggregations output from a Result.
+     *
+     * @param Result $result
      *
      * @return Aggregation[]
      */
@@ -298,7 +300,15 @@ class SolrService
         return $aggregations;
     }
 
-    private function handleSolariumExceptions(ExceptionInterface $exception, string $additionalMessage)
+    /**
+     * Handle an Exception thrown by Solr.
+     *
+     * @param \Throwable $exception
+     * @param string     $additionalMessage
+     *
+     * @throws InternalSearchException
+     */
+    private function handleSolariumExceptions(\Throwable $exception, string $additionalMessage)
     {
         throw new InternalSearchException(
             $additionalMessage,

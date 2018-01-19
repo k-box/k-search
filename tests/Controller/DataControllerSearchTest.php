@@ -8,15 +8,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DataControllerSearchTest extends AbstractJsonRpcControllerTest
 {
-    public const DATA_SEARCH_ENDPOINT = '/api/3.0/data.search';
-
     public function provideFailingRoles(): array
     {
         return [
             'ROLE_DATA_ADD' => [[DataVoter::ROLE_DATA_ADD]],
             'ROLE_DATA_EDIT' => [[DataVoter::ROLE_DATA_EDIT]],
-            'ROLE_DATA_REMOVE_OWN' => [[DataVoter::REMOVE_OWN]],
-            'ROLE_DATA_REMOVE_ALL' => [[DataVoter::REMOVE_ALL]],
+            'ROLE_DATA_REMOVE_OWN' => [[DataVoter::ROLE_DATA_REMOVE_OWN]],
+            'ROLE_DATA_REMOVE_ALL' => [[DataVoter::ROLE_DATA_REMOVE_ALL]],
             'ROLE_DATA_VIEW' => [[DataVoter::ROLE_DATA_VIEW]],
         ];
     }
@@ -35,7 +33,7 @@ class DataControllerSearchTest extends AbstractJsonRpcControllerTest
             ->method('searchData');
 
         $searchRequest = $this->getSearchRequestData();
-        $this->sendAuthenticatedRequest(self::RPC_METHOD, self::DATA_SEARCH_ENDPOINT, $searchRequest);
+        $this->sendAuthenticatedRequest(self::RPC_METHOD, '/api/3.0/data.search', $searchRequest);
 
         $response = $this->client->getResponse();
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());

@@ -1,5 +1,13 @@
 httplug:
+    profiling:
+        captured_body_length: 1000
     plugins:
+        cache:
+            cache_pool: 'local_cache'
+            config:
+                cache_lifetime: 360 # 10 minutes
+                respect_response_cache_directives: ['max-age']
+                methods: ['POST']
         logger: ~
     clients:
         downloader:
@@ -7,3 +15,7 @@ httplug:
             plugins:
                 - 'httplug.plugin.redirect'
                 - 'httplug.plugin.retry'
+        kregistry:
+            factory: 'httplug.factory.guzzle6'
+            plugins:
+                - 'httplug.plugin.cache'

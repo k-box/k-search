@@ -1,4 +1,4 @@
 parameters:
 	ignoreErrors:
-		- '#Call to an undefined method Solarium\\Exception\\ExceptionInterface::getMessage()#'
-		- '#Call to an undefined method Solarium\\Exception\\ExceptionInterface::getCode()#'
+
+	excludes_analyse:
