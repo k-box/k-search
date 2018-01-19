@@ -19,5 +19,6 @@ The `{package version}` is a number that will start from `1` and increment with 
 - Add sorting of Data search results
 
 ### Changed
-
+- Update Solr submodule to v5.5.5
+- Update Drifter to latest release (added support for Symfony4)
 - Updated `CopyrightOwner`: set `name` as required, renamed `contact` to `address` (**breaking change**).

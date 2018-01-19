@@ -2,6 +2,7 @@
   apt: pkg={{ item }} state=latest
   become: yes
   with_items:
-    - "php-mcrypt"
-    - "php-apcu"
-    - "php-mbstring"
+    - "php7.1-mcrypt"
+    - "php7.1-apcu"
+    - "php7.1-mbstring"
+    - "php7.1-xml"
