@@ -12,7 +12,7 @@ The `{package version}` is a number that will start from `1` and increment with 
 `{package version}` will always return to `1` when a new `{Major}.{Minor}.{Patch}` change is performed, e.g. `3.0.1-1`, `3.0.1-2`, `3.0.2-1`, `3.1.0-1`. 
 
 
-## [Unreleased]
+## 3.1.1
 
 ### Added
 
