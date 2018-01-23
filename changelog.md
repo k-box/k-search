@@ -20,6 +20,8 @@ documentation, and:
 ## [Unreleased]
 
 ### Added
+- Add min-count parameter to search aggregations (API v3.2)
+
 ### Changed
 - Update Solr submodule (use github repository)
 - Update Drifter submodule (use newest release with native SF4 support)
