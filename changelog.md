@@ -17,7 +17,6 @@ documentation, and:
  - The `{package version}` number is set to `1` when a new `{Major}.{Minor}.{Patch}` change is
    released (e.g. `3.0.1-1`, `3.0.1-2`, `3.0.2-1`, `3.1.0-1`).
 
-
 ## [Unreleased]
 
 ### Added
