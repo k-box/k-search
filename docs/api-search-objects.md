@@ -52,7 +52,7 @@ The table below defines the aggregation configuration properties
 | -------- | ------ | -------- | ----------- |
 | `limit`  | Integer | ✔ | Only retrieve a certain amount of the most common aggregations. Minimum 0|
 | `counts_filtered` | Boolean | ✔ | Calculate aggregations count after applying filters (True) or before (False)|
-| `min-count`| Integer | Return only aggregations having at least min-count items (from API `v3.2`, default value 1. Default value on API previous v3.2 is 0) |
+| `min-count`| Integer | Return only aggregations having at least min-count items (available from API `v3.2`, default value `1`. Note: in previous API versions this property can not be specified, and behaves as if min-value is set to zero).|
 
 #### Sort
 
