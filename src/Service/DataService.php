@@ -192,7 +192,7 @@ class DataService
      *
      * @return SearchResults
      */
-    public function searchData(SearchParams $searchParams, ?string $version = null): SearchResults
+    public function searchData(SearchParams $searchParams, string $version): SearchResults
     {
         $this->handleSearchParamVersion($searchParams, $version);
 
@@ -348,12 +348,12 @@ class DataService
      * Handle default version changes for SearchParams.
      *
      * @param SearchParams $searchParams
-     * @param string|null  $version
+     * @param string       $version
      */
-    private function handleSearchParamVersion(SearchParams $searchParams, ?string $version): void
+    private function handleSearchParamVersion(SearchParams $searchParams, string $version): void
     {
         // Handle AggregationMinCount for version < 3.2
-        if (version_compare('3.2', $version, '<')) {
+        if (version_compare($version, '3.2', '<')) {
             foreach ($searchParams->aggregations as $aggregation) {
                 $aggregation->minCount = 0;
             }

@@ -11,6 +11,7 @@ use App\Queue\Message\UUIDMessage;
 use App\Service\DataDownloaderService;
 use App\Service\DataService;
 use App\Service\QueueService;
+use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -20,13 +21,19 @@ class DataProcessWorkerCommandTest extends KernelTestCase
 {
     private const DATA_UUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
 
-    /** @var DataService|\PHPUnit_Framework_MockObject_MockObject */
+    /**
+     * @var DataService|MockObject
+     */
     private $dataService;
 
-    /** @var QueueService|\PHPUnit_Framework_MockObject_MockObject */
+    /**
+     * @var QueueService|MockObject
+     */
     private $queueService;
 
-    /** @var DataDownloaderService|\PHPUnit_Framework_MockObject_MockObject */
+    /**
+     * @var DataDownloaderService|MockObject
+     */
     private $dataDownloaderService;
 
     /** @var Application */
