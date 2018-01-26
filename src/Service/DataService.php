@@ -315,7 +315,6 @@ class DataService
             }
 
             $fieldName = $availableAggregations[$property];
-            $this->logger->error('Handling aggregation', ['agg' => $aggregation]);
             $facet = $this->solrService->buildFacet($fieldName, $aggregation->limit, $aggregation->minCount, $property);
 
             if (!$aggregation->countsFiltered) {
