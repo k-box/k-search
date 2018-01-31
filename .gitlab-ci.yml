@@ -37,8 +37,8 @@ branch_release:
   stage: release
   script:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker build -t $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_NAME/v/} .
-    - docker push $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_NAME/v/}
+    - docker build -t $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_NAME#v} .
+    - docker push $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_NAME#v}
   tags:
     - dind
   except:
@@ -50,9 +50,9 @@ tagged_release:
   stage: release
   script:
     - docker login -u $REGISTRY_RELEASE_USERNAME -p $REGISTRY_RELEASE_PASSWORD $CI_REGISTRY
-    - docker build -t $CONTAINER_RELEASE_IMAGE_BASE:${CI_COMMIT_REF_NAME/v/} .
-    - docker tag  $CONTAINER_RELEASE_IMAGE_BASE:${CI_COMMIT_REF_NAME/v/} "$CONTAINER_RELEASE_IMAGE_BASE:latest"
-    - docker push $CONTAINER_RELEASE_IMAGE_BASE:${CI_COMMIT_REF_NAME/v/}
+    - docker build -t $CONTAINER_RELEASE_IMAGE_BASE:${CI_COMMIT_REF_NAME#v} .
+    - docker tag  $CONTAINER_RELEASE_IMAGE_BASE:${CI_COMMIT_REF_NAME#v} "$CONTAINER_RELEASE_IMAGE_BASE:latest"
+    - docker push $CONTAINER_RELEASE_IMAGE_BASE:${CI_COMMIT_REF_NAME#v}
     - docker push "$CONTAINER_RELEASE_IMAGE_BASE:latest"
   tags:
     - dind
@@ -71,8 +71,8 @@ test_slmtj_net_deploy:
     - branch_release
   script:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker pull $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_NAME/v/}
+    - docker pull $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_NAME#v}
     - cd ${INTEGRATION_DOCKER_FOLDER}
-    - docker tag $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_NAME/v/} $INTEGRATION_DOCKER_IMAGE
+    - docker tag $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_NAME#v} $INTEGRATION_DOCKER_IMAGE
     - docker-compose down && docker-compose up -d
 
