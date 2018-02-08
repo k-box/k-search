@@ -43,6 +43,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     public const FIELD_PROPERTIES_STORED = 'str_ss_data_properties';
     public const FIELD_PROPERTIES_TAGS = 'str_sim_data_tags';
     public const FIELD_PROPERTIES_TITLE = 'text_data_title';
+    public const FIELD_PROPERTIES_FILENAME = 'filename_data_filename';
     public const FIELD_PROPERTIES_TITLE_SORTING = 'str_ssl_data_title';
     public const FIELD_PROPERTIES_UPDATED_AT = 'date_data_updated_at';
     public const FIELD_STATUS = 'str_sis_data_status';
@@ -107,6 +108,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     {
         return [
             self::FIELD_CONTENTS,
+            self::FIELD_PROPERTIES_FILENAME,
             self::FIELD_PROPERTIES_TITLE,
             self::FIELD_PROPERTIES_ABSTRACT,
         ];
@@ -243,6 +245,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     private function addProperties(Properties $properties)
     {
         $this->addField(self::FIELD_PROPERTIES_ABSTRACT, $properties->abstract);
+        $this->addField(self::FIELD_PROPERTIES_FILENAME, $properties->filename);
         $this->addField(self::FIELD_PROPERTIES_TITLE, $properties->title);
         $this->addField(self::FIELD_PROPERTIES_TITLE_SORTING, $properties->title);
         $this->addField(self::FIELD_PROPERTIES_LANGUAGE, $properties->language);
