@@ -32,6 +32,7 @@
     </testsuites>
 
     <listeners>
-        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
+        <!-- Temporary removed, see: https://github.com/symfony/symfony/pull/26024 -->
+        <!-- <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" /> -->
     </listeners>
 </phpunit>
