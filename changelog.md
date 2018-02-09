@@ -20,10 +20,11 @@ documentation, and:
 ## [Unreleased]
 
 ### Added
+- Add `filename` to the full-text search matching
 - Add min-count parameter to search aggregations (API v3.2)
 
 ### Changed
-- Update Solr submodule (use github repository)
+- Update Solr submodule (use github repository, v0.4.0)
 - Update Drifter submodule (use newest release with native SF4 support)
 
 ### Deprecated
