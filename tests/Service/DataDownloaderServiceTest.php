@@ -146,7 +146,7 @@ class DataDownloaderServiceTest extends TestCase
         $this->assertSame($expectedMimetype, $this->downloaderService->getDataFileMimetype($data));
     }
 
-    public function testGetDataFileWithNoExistingFile()
+    public function testGetDataFileWithNoDownloadedFile()
     {
         $data = $this->buildData();
 
@@ -167,21 +167,21 @@ class DataDownloaderServiceTest extends TestCase
             ->method('getStatusCode')
             ->willReturn(200);
 
-        file_put_contents('php://temp', 'file-contenst');
         $resource = fopen('php://temp', 'w+');
+        fwrite($resource, 'file contents');
         $response->expects($this->once())
            ->method('getBody')
            ->willReturn(new Stream($resource));
 
         $this->filesystem->expects($this->once())
             ->method('dumpFile')
-            ->with($this->anything(), $resource);
+            ->with($this->anything(), 'file contents');
 
         $file = $this->downloaderService->getDataFile($data);
         $this->assertInstanceOf(\SplFileInfo::class, $file);
     }
 
-    public function testGetDataFileWithExistingFile()
+    public function testGetDataFileWithDownloadedFile()
     {
         $data = $this->buildData();
 

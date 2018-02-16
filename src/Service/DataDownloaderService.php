@@ -12,7 +12,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesser;
 use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface;
 
 class DataDownloaderService
@@ -43,7 +42,7 @@ class DataDownloaderService
     private $logger;
 
     /**
-     * @var MimeTypeGuesser
+     * @var MimeTypeGuesserInterface
      */
     private $mimeTypeGuesser;
 
@@ -64,17 +63,36 @@ class DataDownloaderService
     }
 
     /**
-     * Removes the downloaded contents for the given data, if any.
+     * Removes the downloaded contents for the given data UUID, if any.
      *
-     * @param Data $data
+     * @param string $uuid
      *
-     * @throws IOException When removal fails
+     * @return bool
      */
-    public function removeDownloadedDataFile(Data $data)
+    public function removeDownloadedDataFile(string $uuid): bool
     {
-        if ($this->isDataFileDownloaded($data)) {
-            $filename = $this->buildDownloadDataFilename($data);
+        if (!$this->isDataFileDownloaded($uuid)) {
+            return false;
+        }
+
+        $filename = $this->buildDownloadDataFilename($uuid);
+        try {
+            $this->logger->debug('Removed downloaded file for Data {uuid}, file={filename}', [
+                'uuid' => $uuid,
+                'filename' => $filename,
+            ]);
             $this->filesystem->remove($filename);
+
+            return true;
+        } catch (IOException $exception) {
+            $this->logger->error('Exception while deleting downloaded file for Data {uuid}: {message}', [
+                'uuid' => $uuid,
+                'filename' => $filename,
+                'exception' => $exception,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return false;
         }
     }
 
@@ -89,14 +107,15 @@ class DataDownloaderService
      */
     public function getDataFile(Data $data): \SplFileInfo
     {
-        $downloadDataFilename = $this->buildDownloadDataFilename($data);
+        $downloadDataFilename = $this->buildDownloadDataFilename($data->uuid);
 
         // If the file is not there yet, let's proceed and download it
-        if ($this->isDataFileDownloaded($data)) {
+        if ($this->isDataFileDownloaded($data->uuid)) {
             $this->logger->debug('File already downloaded, skipping URL request {uuid}', [
                 'uuid' => $data->uuid,
                 'downloaded' => $downloadDataFilename,
             ]);
+
             return new \SplFileInfo($downloadDataFilename);
         }
 
@@ -109,7 +128,7 @@ class DataDownloaderService
         $response = $this->handleRequest($data, $request);
 
         try {
-            $this->filesystem->dumpFile($downloadDataFilename, $response->getBody()->detach());
+            $this->filesystem->dumpFile($downloadDataFilename, $response->getBody()->__toString());
         } catch (IOException $exception) {
             // Something went wrong while storing the file, wrap the exception
             throw new DataDownloadErrorException(
@@ -133,7 +152,7 @@ class DataDownloaderService
      */
     public function getDataFileMimetype(Data $data): ?string
     {
-        if (!$this->isDataFileDownloaded($data)) {
+        if (!$this->isDataFileDownloaded($data->uuid)) {
             $headers = $this->getDataUrlHeaders($data);
             if (!$headers || !isset($headers['Content-Type'])) {
                 return null;
@@ -144,7 +163,7 @@ class DataDownloaderService
         }
 
         try {
-            return $this->mimeTypeGuesser->guess($this->buildDownloadDataFilename($data));
+            return $this->mimeTypeGuesser->guess($this->buildDownloadDataFilename($data->uuid));
         } catch (\Exception $exception) {
             $this->logger->error('Error guessing downloaded file mime-type for {uuid} at {url}: {message}', [
                 'uuid' => $data->uuid,
@@ -222,31 +241,31 @@ class DataDownloaderService
     }
 
     /**
-     * Builds the temporary filename for the data contents.
+     * Builds the temporary filename for the data contents, from the.
      *
-     * @param Data $data The Data model
+     * @param string $uuid
      *
      * @return string
      */
-    private function buildDownloadDataFilename(Data $data): string
+    private function buildDownloadDataFilename(string $uuid)
     {
-        $subFolder = substr($data->uuid, 0, 2);
+        $subFolder = substr($uuid, 0, 2);
 
         return $this->downloadPath.
             DIRECTORY_SEPARATOR.$subFolder.
-            DIRECTORY_SEPARATOR.$data->uuid;
+            DIRECTORY_SEPARATOR.$uuid;
     }
 
     /**
      * Check if the file for the given data has been downloaded.
      *
-     * @param Data $data
+     * @param string $uuid
      *
      * @return bool
      */
-    private function isDataFileDownloaded(Data $data): bool
+    private function isDataFileDownloaded(string $uuid): bool
     {
-        $filename = $this->buildDownloadDataFilename($data);
+        $filename = $this->buildDownloadDataFilename($uuid);
 
         return $this->filesystem->exists($filename);
     }

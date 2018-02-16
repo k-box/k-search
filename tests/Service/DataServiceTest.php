@@ -140,31 +140,50 @@ class DataServiceTest extends TestCase
         $this->dataService->ensureDataIsIndexable($data);
     }
 
-    public function dataProviderForDeleteData()
+    public function testDeleteDataSucceeds()
     {
-        return [
-            'existing' => [true, true],
-            'not-existing' => [false, false],
-        ];
-    }
-
-    /**
-     * @dataProvider dataProviderForDeleteData
-     *
-     * @param bool $expected
-     * @param bool $existing
-     */
-    public function testItDeletesData(bool $expected, bool $existing)
-    {
-        $this->solrService->expects($this->exactly(1))
+        $this->solrService->expects($this->once())
             ->method('delete')
             ->with(SolrEntityData::getEntityType(), self::DATA_UUID)
-            ->willReturn($existing);
+            ->willReturn(true);
 
-        $this->assertEquals($expected, $this->dataService->deleteData(self::DATA_UUID));
+        $this->downloaderService->expects($this->once())
+            ->method('removeDownloadedDataFile')
+            ->with(self::DATA_UUID)
+            ->willReturn(true);
+
+        $this->assertTrue($this->dataService->deleteData(self::DATA_UUID));
     }
 
-    public function testItAddDataWithTextualContent()
+    public function testDeleteDataWithFileDeletionFailureSucceeds()
+    {
+        $this->solrService->expects($this->once())
+            ->method('delete')
+            ->with(SolrEntityData::getEntityType(), self::DATA_UUID)
+            ->willReturn(true);
+
+        $this->downloaderService->expects($this->once())
+            ->method('removeDownloadedDataFile')
+            ->with(self::DATA_UUID)
+            ->willReturn(false);
+
+        $this->assertTrue($this->dataService->deleteData(self::DATA_UUID));
+    }
+
+    public function testDeleteDataWithNotExistingDataFails()
+    {
+        $this->solrService->expects($this->once())
+            ->method('delete')
+            ->with(SolrEntityData::getEntityType(), self::DATA_UUID)
+            ->willReturn(false);
+
+        $this->downloaderService->expects($this->never())
+            ->method('removeDownloadedDataFile');
+
+        $this->assertFalse($this->dataService->deleteData(self::DATA_UUID));
+    }
+
+    public function testAddDataWithTextualContentSucceeds()
     {
         $sampleTextualContent = 'example indeaxable content';
         $data = ModelHelper::createDataModel(self::DATA_UUID);

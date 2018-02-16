@@ -71,11 +71,18 @@ class DataService
      *
      * @throws InternalSearchException
      *
-     * @return bool
+     * @return bool True when the data has been deleted, false otherwise
      */
-    public function deleteData(string $uuid)
+    public function deleteData(string $uuid): bool
     {
-        return $this->solrService->delete(SolrEntityData::getEntityType(), $uuid);
+        $indexDeleted = $this->solrService->delete(SolrEntityData::getEntityType(), $uuid);
+
+        if ($indexDeleted) {
+            // The following will not throw any exception in case of failure
+            $this->dataDownloaderService->removeDownloadedDataFile($uuid);
+        }
+
+        return $indexDeleted;
     }
 
     /**
