@@ -77,11 +77,11 @@ class DataDownloaderService
 
         $filename = $this->buildDownloadDataFilename($uuid);
         try {
+            $this->filesystem->remove($filename);
             $this->logger->debug('Removed downloaded file for Data {uuid}, file={filename}', [
                 'uuid' => $uuid,
                 'filename' => $filename,
             ]);
-            $this->filesystem->remove($filename);
 
             return true;
         } catch (IOException $exception) {
