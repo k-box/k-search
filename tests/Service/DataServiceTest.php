@@ -88,7 +88,7 @@ class DataServiceTest extends TestCase
     {
         return [
             ['image/jpg'],
-            ['text/html; charset=iso-8859-15'],
+            ['text/html'],
         ];
     }
 
@@ -103,15 +103,13 @@ class DataServiceTest extends TestCase
         $data->url = 'http://someurls.com/data.ext';
 
         $this->downloaderService->expects($this->once())
-            ->method('getDataUrlHeaders')
+            ->method('getDataFileMimetype')
             ->with($this->callback(function (Data $data) {
                 $this->assertSame($data->url, 'http://someurls.com/data.ext');
 
                 return true;
             }))
-            ->willReturn([
-                'Content-Type' => [$contentType],
-            ]);
+            ->willReturn($contentType);
 
         $this->dataService->ensureDataIsIndexable($data);
     }
@@ -122,10 +120,8 @@ class DataServiceTest extends TestCase
         $data->url = 'http://someurls.com/data.ext';
 
         $this->downloaderService->expects($this->once())
-            ->method('getDataUrlHeaders')
-            ->willReturn([
-                'Content-Type' => ['image/jpeg2000'],
-            ]);
+            ->method('getDataFileMimetype')
+            ->willReturn('image/jpeg2000');
 
         $this->expectException(BadRequestException::class);
         $this->dataService->ensureDataIsIndexable($data);
@@ -137,8 +133,8 @@ class DataServiceTest extends TestCase
         $data->url = 'http://someurls.com/data.ext';
 
         $this->downloaderService->expects($this->once())
-            ->method('getDataUrlHeaders')
-            ->willReturn([]);
+            ->method('getDataFileMimetype')
+            ->willReturn(null);
         $this->expectException(BadRequestException::class);
 
         $this->dataService->ensureDataIsIndexable($data);
@@ -239,10 +235,8 @@ class DataServiceTest extends TestCase
         ;
 
         $this->downloaderService->expects($this->once())
-            ->method('getDataUrlHeaders')
-            ->willReturn([
-                'Content-Type' => ['image/jpg'],
-            ]);
+            ->method('getDataFileMimetype')
+            ->willReturn('image/jpg');
 
         $this->assertTrue($this->dataService->addData($data));
     }
