@@ -25,7 +25,7 @@ services:
       - internal
 
   solrglobalsearch:
-    image: "docker.klink.asia/images/k-search-engine:0.4.0"
+    image: "docker.klink.asia/images/k-search-engine:0.4.1"
     volumes:
       - "/opt/solr/k-search/k-search/data"    # dynamic volume
     expose:
