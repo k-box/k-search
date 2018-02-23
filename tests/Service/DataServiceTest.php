@@ -88,7 +88,7 @@ class DataServiceTest extends TestCase
     {
         return [
             ['image/jpg'],
-            ['text/html; charset=iso-8859-15'],
+            ['text/html'],
         ];
     }
 
@@ -103,15 +103,13 @@ class DataServiceTest extends TestCase
         $data->url = 'http://someurls.com/data.ext';
 
         $this->downloaderService->expects($this->once())
-            ->method('getDataUrlHeaders')
+            ->method('getDataFileMimetype')
             ->with($this->callback(function (Data $data) {
                 $this->assertSame($data->url, 'http://someurls.com/data.ext');
 
                 return true;
             }))
-            ->willReturn([
-                'Content-Type' => [$contentType],
-            ]);
+            ->willReturn($contentType);
 
         $this->dataService->ensureDataIsIndexable($data);
     }
@@ -122,10 +120,8 @@ class DataServiceTest extends TestCase
         $data->url = 'http://someurls.com/data.ext';
 
         $this->downloaderService->expects($this->once())
-            ->method('getDataUrlHeaders')
-            ->willReturn([
-                'Content-Type' => ['image/jpeg2000'],
-            ]);
+            ->method('getDataFileMimetype')
+            ->willReturn('image/jpeg2000');
 
         $this->expectException(BadRequestException::class);
         $this->dataService->ensureDataIsIndexable($data);
@@ -137,38 +133,57 @@ class DataServiceTest extends TestCase
         $data->url = 'http://someurls.com/data.ext';
 
         $this->downloaderService->expects($this->once())
-            ->method('getDataUrlHeaders')
-            ->willReturn([]);
+            ->method('getDataFileMimetype')
+            ->willReturn(null);
         $this->expectException(BadRequestException::class);
 
         $this->dataService->ensureDataIsIndexable($data);
     }
 
-    public function dataProviderForDeleteData()
+    public function testDeleteDataSucceeds()
     {
-        return [
-            'existing' => [true, true],
-            'not-existing' => [false, false],
-        ];
-    }
-
-    /**
-     * @dataProvider dataProviderForDeleteData
-     *
-     * @param bool $expected
-     * @param bool $existing
-     */
-    public function testItDeletesData(bool $expected, bool $existing)
-    {
-        $this->solrService->expects($this->exactly(1))
+        $this->solrService->expects($this->once())
             ->method('delete')
             ->with(SolrEntityData::getEntityType(), self::DATA_UUID)
-            ->willReturn($existing);
+            ->willReturn(true);
 
-        $this->assertEquals($expected, $this->dataService->deleteData(self::DATA_UUID));
+        $this->downloaderService->expects($this->once())
+            ->method('removeDownloadedDataFile')
+            ->with(self::DATA_UUID)
+            ->willReturn(true);
+
+        $this->assertTrue($this->dataService->deleteData(self::DATA_UUID));
     }
 
-    public function testItAddDataWithTextualContent()
+    public function testDeleteDataWithFileDeletionFailureSucceeds()
+    {
+        $this->solrService->expects($this->once())
+            ->method('delete')
+            ->with(SolrEntityData::getEntityType(), self::DATA_UUID)
+            ->willReturn(true);
+
+        $this->downloaderService->expects($this->once())
+            ->method('removeDownloadedDataFile')
+            ->with(self::DATA_UUID)
+            ->willReturn(false);
+
+        $this->assertTrue($this->dataService->deleteData(self::DATA_UUID));
+    }
+
+    public function testDeleteDataWithNotExistingDataFails()
+    {
+        $this->solrService->expects($this->once())
+            ->method('delete')
+            ->with(SolrEntityData::getEntityType(), self::DATA_UUID)
+            ->willReturn(false);
+
+        $this->downloaderService->expects($this->never())
+            ->method('removeDownloadedDataFile');
+
+        $this->assertFalse($this->dataService->deleteData(self::DATA_UUID));
+    }
+
+    public function testAddDataWithTextualContentSucceeds()
     {
         $sampleTextualContent = 'example indeaxable content';
         $data = ModelHelper::createDataModel(self::DATA_UUID);
@@ -239,10 +254,8 @@ class DataServiceTest extends TestCase
         ;
 
         $this->downloaderService->expects($this->once())
-            ->method('getDataUrlHeaders')
-            ->willReturn([
-                'Content-Type' => ['image/jpg'],
-            ]);
+            ->method('getDataFileMimetype')
+            ->willReturn('image/jpg');
 
         $this->assertTrue($this->dataService->addData($data));
     }

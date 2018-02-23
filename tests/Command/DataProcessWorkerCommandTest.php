@@ -64,7 +64,7 @@ class DataProcessWorkerCommandTest extends KernelTestCase
 
         $fileInfo = $this->createMock(\SplFileInfo::class);
         $this->dataDownloaderService->expects($this->once())
-            ->method('downloadDataContents')
+            ->method('getDataFile')
             ->with($data)
             ->willReturn($fileInfo);
 
@@ -72,10 +72,6 @@ class DataProcessWorkerCommandTest extends KernelTestCase
             ->method('addDataWithFileExtraction')
             ->with($data, $fileInfo)
             ->willThrowException(new InternalSearchException('Error extracting!'));
-
-        $this->dataDownloaderService->expects($this->once())
-            ->method('removeDataContents')
-            ->with($data);
 
         $this->dataService->expects($this->once())
             ->method('addData')
@@ -105,7 +101,7 @@ class DataProcessWorkerCommandTest extends KernelTestCase
 
         $fileInfo = $this->createMock(\SplFileInfo::class);
         $this->dataDownloaderService->expects($this->once())
-            ->method('downloadDataContents')
+            ->method('getDataFile')
             ->with($data)
             ->willReturn($fileInfo);
 
@@ -113,10 +109,6 @@ class DataProcessWorkerCommandTest extends KernelTestCase
             ->method('addDataWithFileExtraction')
             ->with($data, $fileInfo)
             ->willThrowException(new SolrExtractionException('Error extracting!'));
-
-        $this->dataDownloaderService->expects($this->once())
-            ->method('removeDataContents')
-            ->with($data);
 
         $this->dataService->expects($this->once())
             ->method('addData')
@@ -145,16 +137,12 @@ class DataProcessWorkerCommandTest extends KernelTestCase
             ->willReturn($data);
 
         $this->dataDownloaderService->expects($this->once())
-            ->method('downloadDataContents')
+            ->method('getDataFile')
             ->with($data)
             ->willThrowException(new DataDownloadErrorException('Error downloading!'));
 
         $this->dataService->expects($this->never())
             ->method('addDataWithFileExtraction');
-
-        $this->dataDownloaderService->expects($this->once())
-            ->method('removeDataContents')
-            ->with($data);
 
         $this->dataService->expects($this->once())
             ->method('addData')
@@ -184,17 +172,13 @@ class DataProcessWorkerCommandTest extends KernelTestCase
 
         $file = $this->createMock(\SplFileInfo::class);
         $this->dataDownloaderService->expects($this->once())
-            ->method('downloadDataContents')
+            ->method('getDataFile')
             ->with($data)
             ->willReturn($file);
 
         $this->dataService->expects($this->once())
             ->method('addDataWithFileExtraction')
             ->with($data, $file);
-
-        $this->dataDownloaderService->expects($this->once())
-            ->method('removeDataContents')
-            ->with($data);
         $commandTester = $this->getDefaultCommandTester();
 
         $commandTester->execute([

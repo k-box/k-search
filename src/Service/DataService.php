@@ -71,11 +71,18 @@ class DataService
      *
      * @throws InternalSearchException
      *
-     * @return bool
+     * @return bool True when the data has been deleted, false otherwise
      */
-    public function deleteData(string $uuid)
+    public function deleteData(string $uuid): bool
     {
-        return $this->solrService->delete(SolrEntityData::getEntityType(), $uuid);
+        $indexDeleted = $this->solrService->delete(SolrEntityData::getEntityType(), $uuid);
+
+        if ($indexDeleted) {
+            // The following will not throw any exception in case of failure
+            $this->dataDownloaderService->removeDownloadedDataFile($uuid);
+        }
+
+        return $indexDeleted;
     }
 
     /**
@@ -263,20 +270,17 @@ class DataService
      */
     public function ensureDataIsIndexable(Data $data)
     {
-        $headers = $this->dataDownloaderService->getDataUrlHeaders($data);
+        $mimeType = $this->dataDownloaderService->getDataFileMimetype($data);
 
-        if (!$headers || !isset($headers['Content-Type'])) {
+        if (!$mimeType) {
             throw new BadRequestException([
-                sprintf('The given Data could not be indexed. No Content-Type returned while downloading from %s', $data->url),
+                sprintf('The given Data could not be indexed. Unable to guess the mimetype for %s', $data->url),
             ]);
         }
 
-        // Get the MimeType from the Content-Type header as defined here: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
-        [$contentType] = explode(';', current($headers['Content-Type']), 2);
-
-        if (!in_array($contentType, $this->indexableContentTypes, true)) {
+        if (!in_array($mimeType, $this->indexableContentTypes, true)) {
             throw new BadRequestException([
-                sprintf('The given Data could not be indexed: the Content-Type %s is not supported.', $contentType),
+                sprintf('The given Data could not be indexed: the mime-type %s is not supported.', $mimeType),
             ]);
         }
     }

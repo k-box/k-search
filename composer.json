@@ -22,7 +22,7 @@
         "sensio/framework-extra-bundle": "^5.0",
         "swagger-api/swagger-ui": "^3.2",
         "symfony/asset": "^4.0",
-        "symfony/event-dispatcher": "4.0.3 as 3.4.3",
+        "symfony/event-dispatcher": "4.0.4 as 3.4.4",
         "symfony/console": "^4.0",
         "symfony/cache": "^4.0",
         "symfony/flex": "^1.0",

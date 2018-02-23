@@ -20,6 +20,9 @@ documentation, and:
 ## [Unreleased]
 
 ### Added
+- Allow Data files to be pre-downloaded in `var/data-downloads/xx/UUID` (where `xx` are the first two chars of the
+  Data UUID property). The file is checked for an indexable mime-type and kept after indexing.
+  The file is deleted after the deletion of the related Data from the index.
 - Add `filename` to the full-text search matching
 - Add min-count parameter to search aggregations (API v3.2)
 
