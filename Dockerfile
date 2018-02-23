@@ -1,5 +1,5 @@
 # use a debian-based container that has apache and php already installed
-FROM php:7-apache
+FROM php:7.1-apache
 
 # default of parent image: start apache2 and PHP on port 80.
 EXPOSE 80
