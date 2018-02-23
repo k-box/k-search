@@ -17,6 +17,7 @@ use App\Queue\Message\UUIDMessage;
 use DateTimeZone;
 use Psr\Log\LoggerInterface;
 use Solarium\QueryType\Select\Query\Component\Facet\Field;
+use Solarium\QueryType\Select\Query\Query;
 
 class DataService
 {
@@ -220,9 +221,8 @@ class DataService
         // Setting the search terms
         $query->setQuery($searchParams->search);
 
-        // Enabling Full-Text search
-        $edisMax = $query->getEDisMax();
-        $edisMax->setQueryFields(implode(' ', SolrEntityData::getTextSearchFields()));
+        // Add full-text matching configuration
+        $this->addFullTextMatching($query);
 
         // Adding aggregations (aka Solr Facets)
         if ($facets = $this->buildSearchFacets($searchParams)) {
@@ -362,5 +362,16 @@ class DataService
                 $aggregation->minCount = 0;
             }
         }
+    }
+
+    private function addFullTextMatching(Query $query)
+    {
+        $edisMax = $query->getEDisMax();
+        $edisMax->setQueryFields(implode(' ', SolrEntityData::getTextSearchFields()));
+        $edisMax->setUserFields('-*');
+
+        // Handle phrase matching
+        $edisMax->setPhraseFields(implode(' ', SolrEntityData::getTextPhraseSearchFields()));
+        $edisMax->setPhraseSlop('2');
     }
 }
