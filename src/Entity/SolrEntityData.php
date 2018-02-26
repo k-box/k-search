@@ -107,11 +107,16 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     public static function getTextSearchFields(): array
     {
         return [
-            self::FIELD_CONTENTS,
-            self::FIELD_PROPERTIES_FILENAME,
-            self::FIELD_PROPERTIES_TITLE,
-            self::FIELD_PROPERTIES_ABSTRACT,
+            self::FIELD_PROPERTIES_TITLE.'^3.0',
+            self::FIELD_PROPERTIES_FILENAME.'^3.0',
+            self::FIELD_PROPERTIES_ABSTRACT.'^1.5',
+            self::FIELD_CONTENTS.'^1.0',
         ];
+    }
+
+    public static function getTextPhraseSearchFields(): array
+    {
+        return self::getTextSearchFields();
     }
 
     public static function getSortingFields(): array

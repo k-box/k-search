@@ -56,6 +56,13 @@ interface SolrEntity
     public static function getTextSearchFields(): array;
 
     /**
+     * Return the fields used to perform a text search with phrase matching, may include boosting.
+     *
+     * @return string[]
+     */
+    public static function getTextPhraseSearchFields(): array;
+
+    /**
      * Return the field used to perform aggregations.
      * This is an hashmap of solr-field keyed by the model field name.
      * Example:
