@@ -11,30 +11,62 @@ use App\Service\DataService;
 use App\Service\QueueService;
 use App\Service\SolrService;
 use App\Tests\Helper\ModelHelper;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Solarium\QueryType\Select\Query\Component\EdisMax;
+use Solarium\QueryType\Select\Query\Component\Facet\Field;
+use Solarium\QueryType\Select\Query\Component\FacetSet;
+use Solarium\QueryType\Select\Query\Query;
 use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DataServiceTest extends TestCase
 {
     private const DATA_UUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
 
-    /** @var SolrService|\PHPUnit_Framework_MockObject_MockObject */
+    /**
+     * @var SolrService|MockObject
+     */
     private $solrService;
 
-    /** @var QueueService|\PHPUnit_Framework_MockObject_MockObject */
+    /**
+     * @var Query|MockObject
+     */
+    private $query;
+
+    /**
+     * @var EdisMax|MockObject
+     */
+    private $edisMax;
+
+    /**
+     * @var FacetSet|MockObject
+     */
+    private $facetSet;
+
+    /**
+     * @var QueueService|MockObject
+     */
     private $queueService;
 
-    /** @var DataService */
+    /**
+     * @var DataService
+     */
     private $dataService;
 
-    /** @var DataDownloaderService|\PHPUnit_Framework_MockObject_MockObject */
+    /**
+     * @var DataDownloaderService|MockObject
+     */
     private $downloaderService;
 
     protected function setUp()
     {
         parent::setUp();
         $this->solrService = $this->createMock(SolrService::class);
+        $this->query = $this->createMock(Query::class);
+        $this->edisMax = $this->createMock(EdisMax::class);
+        $this->facetSet = $this->createMock(FacetSet::class);
         $this->queueService = $this->createMock(QueueService::class);
         $this->downloaderService = $this->createMock(DataDownloaderService::class);
         $types = [
@@ -56,7 +88,7 @@ class DataServiceTest extends TestCase
     {
         return [
             ['image/jpg'],
-            ['text/html; charset=iso-8859-15'],
+            ['text/html'],
         ];
     }
 
@@ -71,15 +103,13 @@ class DataServiceTest extends TestCase
         $data->url = 'http://someurls.com/data.ext';
 
         $this->downloaderService->expects($this->once())
-            ->method('getDataUrlHeaders')
+            ->method('getDataFileMimetype')
             ->with($this->callback(function (Data $data) {
                 $this->assertSame($data->url, 'http://someurls.com/data.ext');
 
                 return true;
             }))
-            ->willReturn([
-                'Content-Type' => [$contentType],
-            ]);
+            ->willReturn($contentType);
 
         $this->dataService->ensureDataIsIndexable($data);
     }
@@ -90,10 +120,8 @@ class DataServiceTest extends TestCase
         $data->url = 'http://someurls.com/data.ext';
 
         $this->downloaderService->expects($this->once())
-            ->method('getDataUrlHeaders')
-            ->willReturn([
-                'Content-Type' => ['image/jpeg2000'],
-            ]);
+            ->method('getDataFileMimetype')
+            ->willReturn('image/jpeg2000');
 
         $this->expectException(BadRequestException::class);
         $this->dataService->ensureDataIsIndexable($data);
@@ -105,38 +133,57 @@ class DataServiceTest extends TestCase
         $data->url = 'http://someurls.com/data.ext';
 
         $this->downloaderService->expects($this->once())
-            ->method('getDataUrlHeaders')
-            ->willReturn([]);
+            ->method('getDataFileMimetype')
+            ->willReturn(null);
         $this->expectException(BadRequestException::class);
 
         $this->dataService->ensureDataIsIndexable($data);
     }
 
-    public function dataProviderForDeleteData()
+    public function testDeleteDataSucceeds()
     {
-        return [
-            'existing' => [true, true],
-            'not-existing' => [false, false],
-        ];
-    }
-
-    /**
-     * @dataProvider dataProviderForDeleteData
-     *
-     * @param bool $expected
-     * @param bool $existing
-     */
-    public function testItDeletesData(bool $expected, bool $existing)
-    {
-        $this->solrService->expects($this->exactly(1))
+        $this->solrService->expects($this->once())
             ->method('delete')
             ->with(SolrEntityData::getEntityType(), self::DATA_UUID)
-            ->willReturn($existing);
+            ->willReturn(true);
 
-        $this->assertEquals($expected, $this->dataService->deleteData(self::DATA_UUID));
+        $this->downloaderService->expects($this->once())
+            ->method('removeDownloadedDataFile')
+            ->with(self::DATA_UUID)
+            ->willReturn(true);
+
+        $this->assertTrue($this->dataService->deleteData(self::DATA_UUID));
     }
 
-    public function testItAddDataWithTextualContent()
+    public function testDeleteDataWithFileDeletionFailureSucceeds()
+    {
+        $this->solrService->expects($this->once())
+            ->method('delete')
+            ->with(SolrEntityData::getEntityType(), self::DATA_UUID)
+            ->willReturn(true);
+
+        $this->downloaderService->expects($this->once())
+            ->method('removeDownloadedDataFile')
+            ->with(self::DATA_UUID)
+            ->willReturn(false);
+
+        $this->assertTrue($this->dataService->deleteData(self::DATA_UUID));
+    }
+
+    public function testDeleteDataWithNotExistingDataFails()
+    {
+        $this->solrService->expects($this->once())
+            ->method('delete')
+            ->with(SolrEntityData::getEntityType(), self::DATA_UUID)
+            ->willReturn(false);
+
+        $this->downloaderService->expects($this->never())
+            ->method('removeDownloadedDataFile');
+
+        $this->assertFalse($this->dataService->deleteData(self::DATA_UUID));
+    }
+
+    public function testAddDataWithTextualContentSucceeds()
     {
         $sampleTextualContent = 'example indeaxable content';
         $data = ModelHelper::createDataModel(self::DATA_UUID);
@@ -207,10 +254,8 @@ class DataServiceTest extends TestCase
         ;
 
         $this->downloaderService->expects($this->once())
-            ->method('getDataUrlHeaders')
-            ->willReturn([
-                'Content-Type' => ['image/jpg'],
-            ]);
+            ->method('getDataFileMimetype')
+            ->willReturn('image/jpg');
 
         $this->assertTrue($this->dataService->addData($data));
     }
@@ -218,7 +263,9 @@ class DataServiceTest extends TestCase
     public function testAddDataWithFileExtraction()
     {
         $data = ModelHelper::createDataModel(self::DATA_UUID);
-        /** @var SplFileInfo|\PHPUnit_Framework_MockObject_MockObject $file */
+        /**
+         * @var SplFileInfo|MockObject
+         */
         $file = $this->createMock(SplFileInfo::class);
 
         $this->solrService->expects($this->once())
@@ -239,5 +286,126 @@ class DataServiceTest extends TestCase
         ;
 
         $this->assertTrue($this->dataService->addDataWithFileExtraction($data, $file));
+    }
+
+    public function providerSearchDataWithAggregationsWithFilteredCounts(): array
+    {
+        return [
+            // The default: facets are computed before filtering (thus: filters are excluded)
+            'default' => [false, true],
+
+            // Filtered: facets are computed after filtering, this normal "solr" behavior
+            'filtered' => [true, false],
+        ];
+    }
+
+    /**
+     * @dataProvider providerSearchDataWithAggregationsWithFilteredCounts
+     */
+    public function testSearchDataWithAggregationsWithFilteredCounts(bool $expectedExcludeFilter, bool $filteredValue)
+    {
+        $facetField = $this->createMock(Field::class);
+        $searchParam = ModelHelper::createDataSearchParamsModel();
+        $agg = ModelHelper::createDataSearchParamAggregationModel();
+        $agg->countsFiltered = $filteredValue;
+
+        $aggregationField = 'uploader.name';
+        $aggregationSolrField = SolrEntityData::getAggregationFields()[$aggregationField];
+        $searchParam->aggregations[$aggregationField] = $agg;
+        $searchParam->search = 'search-terms';
+
+        $this->setupSolrServiceForSearch(['search' => 'search-terms']);
+
+        $this->query->expects($this->never())
+            ->method('addSorts');
+
+        $this->facetSet->expects($this->once())
+            ->method('addFacets');
+
+        $this->solrService->expects($this->once())
+            ->method('buildFacet')
+            ->with($aggregationSolrField, 10, 1, $aggregationField)
+            ->willReturn($facetField);
+
+        $facetField->expects($this->exactly($expectedExcludeFilter ? 1 : 0))
+            ->method('setExcludes');
+
+        $this->dataService->searchData($searchParam, '3.2');
+    }
+
+    public function providerSearchDataWithAggregationsWithVersion(): array
+    {
+        return [
+            'version3-2' => ['3.2', 1],
+            'version3-1' => ['3.1', 0],
+        ];
+    }
+
+    /**
+     * @dataProvider providerSearchDataWithAggregationsWithVersion
+     */
+    public function testSearchDataWithAggregationsWithVersion(string $version, int $minCount)
+    {
+        $facetField = $this->createMock(Field::class);
+        $searchParam = ModelHelper::createDataSearchParamsModel();
+        $agg = ModelHelper::createDataSearchParamAggregationModel();
+
+        $aggregationField = 'uploader.name';
+        $aggregationSolrField = SolrEntityData::getAggregationFields()[$aggregationField];
+        $searchParam->aggregations[$aggregationField] = $agg;
+        $searchParam->search = 'search-terms';
+
+        $this->setupSolrServiceForSearch(['search' => 'search-terms']);
+
+        $this->query->expects($this->never())
+            ->method('addSorts');
+
+        $this->facetSet->expects($this->once())
+            ->method('addFacets');
+
+        $this->solrService->expects($this->once())
+            ->method('buildFacet')
+            ->with($aggregationSolrField, 10, $minCount, $aggregationField)
+            ->willReturn($facetField);
+
+        $this->dataService->searchData($searchParam, $version);
+    }
+
+    private function setupSolrServiceForSearch(array $data)
+    {
+        $resolver = (new OptionsResolver())
+            ->setRequired([
+                'search',
+            ])
+            ->setDefaults([
+                'start' => 0,
+                'limit' => 10,
+            ]);
+        $options = $resolver->resolve($data);
+
+        $this->solrService->expects($this->once())
+            ->method('buildSelectQueryByEntityType')
+            ->with(SolrEntityData::class, 'entity-type')
+            ->willReturn($this->query);
+
+        $this->query->expects($this->once())
+            ->method('getEDisMax')
+            ->willReturn($this->edisMax);
+
+        $this->query->expects($this->once())
+            ->method('getFacetSet')
+            ->willReturn($this->facetSet);
+
+        $this->query->expects($this->once())
+            ->method('setRows')
+            ->with($options['limit']);
+
+        $this->query->expects($this->once())
+            ->method('setStart')
+            ->with($options['start']);
+
+        $this->query->expects($this->once())
+            ->method('setQuery')
+            ->with($options['search']);
     }
 }

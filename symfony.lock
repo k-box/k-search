@@ -53,9 +53,6 @@
             "ref": "9d60c231a92e69c68b89897813ec4931d0697b1f"
         }
     },
-    "gecko-packages/gecko-php-unit": {
-        "version": "v2.2"
-    },
     "guzzlehttp/guzzle": {
         "version": "6.3.0"
     },

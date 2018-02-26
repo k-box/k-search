@@ -8,6 +8,8 @@ use App\Model\Data\CopyrightOwner;
 use App\Model\Data\CopyrightUsage;
 use App\Model\Data\Data;
 use App\Model\Data\Properties;
+use App\Model\Data\Search\Aggregation;
+use App\Model\Data\Search\SearchParams;
 use App\Model\Data\Uploader;
 
 class ModelHelper
@@ -109,5 +111,17 @@ class ModelHelper
                 'name' => 'Uploader name',
             ],
         ];
+    }
+
+    public static function createDataSearchParamAggregationModel(array $data = []): Aggregation
+    {
+        return new Aggregation();
+    }
+
+    public static function createDataSearchParamsModel(array $data = []): SearchParams
+    {
+        $searchParamModel = new SearchParams();
+
+        return $searchParamModel;
     }
 }

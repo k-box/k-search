@@ -6,6 +6,7 @@ use App\Entity\AbstractSolrEntity;
 use App\Entity\SolrEntityData;
 use App\Exception\BadRequestException;
 use App\Service\SolrService;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Solarium\Client;
 use Solarium\QueryType\Select\Query\FilterQuery;
@@ -13,10 +14,14 @@ use Solarium\QueryType\Select\Query\Query;
 
 class SolrServiceTest extends TestCase
 {
-    /** @var SolrService */
+    /**
+     * @var SolrService
+     */
     private $solrService;
 
-    /** @var Client|\PHPUnit_Framework_MockObject_MockObject */
+    /**
+     * @var Client|MockObject
+     */
     private $client;
 
     public function setUp()
@@ -61,7 +66,7 @@ class SolrServiceTest extends TestCase
 
         $this->assertCount(1, $query->getFilterQueries());
 
-        /** @var FilterQuery $typeFilter */
+        /* @var FilterQuery $typeFilter */
         $typeFilter = current($query->getFilterQueries());
 
         $this->assertSame(SolrEntityData::FIELD_ENTITY_TYPE.':'.SolrEntityData::getEntityType(), $typeFilter->getQuery());
@@ -79,9 +84,9 @@ class SolrServiceTest extends TestCase
     {
         $this->expectException(\RuntimeException::class);
 
-        /** @var \SplFileInfo $file|\PHPUnit_Framework_MockObject_MockObject */
+        /* @var \SplFileInfo $file|MockObject */
         $file = $this->createMock(\SplFileInfo::class);
-        /** @var AbstractSolrEntity $entity|\PHPUnit_Framework_MockObject_MockObject */
+        /* @var AbstractSolrEntity $entity|MockObject */
         $entity = $this->createMock(AbstractSolrEntity::class);
 
         $this->solrService->addWithTextExtraction($entity, $file);

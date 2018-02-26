@@ -21,16 +21,19 @@ The aggregation object properties define the aggregation to be calculated. Each 
 the configuration for the specific aggregation. The code block below shows an example of the object.
 
 ```json
-"aggregations" : {
-    "properties.language" : {
-        "limit" : 10,
-        "counts_filtered" : false
-    },
-    "type": {
-        "limit" : 5,
-        "counts_filtered" : false
+{
+    "aggregations" : {
+        "properties.language" : {
+            "limit" : 10,
+            "counts_filtered" : false,
+            "min_count": "2"
+        },
+        "type": {
+            "limit" : 5,
+            "counts_filtered" : false
+        }
     }
-},
+}
 ```
 The supported aggregations are:
 
@@ -47,20 +50,23 @@ The table below defines the aggregation configuration properties
 
 | Property | Type   | Required | Description |
 | -------- | ------ | -------- | ----------- |
-| `limit` | Integer | ✔ | Only retrieve a certain amount of the most common aggregations. Minimum 0|
+| `limit`  | Integer | ✔ | Only retrieve a certain amount of the most common aggregations. Minimum 0|
 | `counts_filtered` | Boolean | ✔ | Calculate aggregations count after applying filters (True) or before (False)|
-
+| `min-count`| Integer | Return only aggregations having at least min-count items (available from API `v3.2`, default value `1`. Note: in previous API versions this property can not be specified, and behaves as if min-value is set to zero).|
 
 #### Sort
 
 Sort allows to specify the ordering of the retrieved data.
 Multiple sorting can be defined, where the sequence defines the priority of each sorting.
+Note: this feature is available only from API `v3.1`.
 
 ```json
-"sort" : [
-  { "field": "properties.created_at", "order": "desc"},
-  { "field": "properties.title", "order": "asc"},
-],
+{
+    "sort": [
+        { "field": "properties.created_at", "order": "desc"},
+        { "field": "properties.title", "order": "asc"}
+    ]
+}
 ```
 
 The following Data fields can be used:

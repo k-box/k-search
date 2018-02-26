@@ -116,14 +116,14 @@ class DataIndexWorkerCommand extends Command
     private function handleDataIndexing(Data $data, OutputInterface $output)
     {
         try {
-            $output->writeln(' - Downloading contents', Output::VERBOSITY_VERY_VERBOSE);
-            $dataFile = $this->dataDownloaderService->downloadDataContents($data);
+            $output->writeln(' - Getting Data file', Output::VERBOSITY_VERY_VERBOSE);
+            $dataFilename = $this->dataDownloaderService->getDataFile($data);
 
             // Index the data with text extraction from the file
             $output->writeln(' - Indexing item', Output::VERBOSITY_VERY_VERBOSE);
-            $this->dataService->addDataWithFileExtraction($data, $dataFile);
+            $this->dataService->addDataWithFileExtraction($data, $dataFilename);
         } catch (DataDownloadErrorException $exception) {
-            $this->logger->error('Error downloading data for {uuid}: {message}', [
+            $this->logger->error('Error getting data for {uuid}: {message}', [
                 'uuid' => $data->uuid,
                 'error' => $exception->getMessage(),
                 'exception' => $exception,
@@ -148,10 +148,6 @@ class DataIndexWorkerCommand extends Command
 
             $this->updateDataWithError($data, 'An error occurred while extracting text from the Data');
         }
-
-        // Remove the downloaded data
-        $output->writeln(' - Removing downloaded contents', Output::VERBOSITY_VERBOSE);
-        $this->dataDownloaderService->removeDataContents($data);
     }
 
     private function updateDataWithError(Data $data, string $errorStatus)

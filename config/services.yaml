@@ -45,7 +45,7 @@ services:
     # Autowiring the httpclient
     App\Service\DataDownloaderService:
         $httpClient: '@httplug.client.downloader'
-        $tempFolder: '%kernel.project_dir%/var/temp'
+        $downloadPath: '%kernel.project_dir%/var/data-downloads'
 
     # Autowiring DataService parameters
     App\Service\DataService:
@@ -60,12 +60,12 @@ services:
         - "@httplug.client.kregistry"
       calls:
         -
-          method: setEndpoint
+          method: 'setEndpoint'
           arguments:
             - '%env(KLINK_REGISTRY_API_URL)%'
 
     OneOffTech\KLinkRegistryClient\ApiClient:
-        factory: ['OneOffTech\KLinkRegistryClient\ApiClient', fromConfigurator]
+        factory: ['OneOffTech\KLinkRegistryClient\ApiClient', 'fromConfigurator']
 
     # Autowire ApiSecretAuthenticator user provider
     App\Security\Authenticator\ApiSecretAuthenticator:
@@ -85,3 +85,6 @@ services:
 
     App\Queue\Driver\FlatFileDriver:
         $rootDir: '%kernel.root_dir%'
+
+    Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface:
+        factory: ['Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesser', 'getInstance']

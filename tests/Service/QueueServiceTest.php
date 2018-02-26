@@ -6,14 +6,19 @@ use App\Queue\Message\UUIDMessage;
 use App\Service\QueueService;
 use Bernard\Queue;
 use Bernard\QueueFactory;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class QueueServiceTest extends TestCase
 {
-    /** @var QueueFactory|\PHPUnit_Framework_MockObject_MockObject */
+    /**
+     * @var QueueFactory|MockObject
+     */
     private $queueFactory;
 
-    /** @var Queue|\PHPUnit_Framework_MockObject_MockObject */
+    /**
+     * @var Queue|MockObject
+     */
     private $queue;
 
     protected function setUp()

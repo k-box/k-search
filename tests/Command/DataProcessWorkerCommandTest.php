@@ -11,6 +11,7 @@ use App\Queue\Message\UUIDMessage;
 use App\Service\DataDownloaderService;
 use App\Service\DataService;
 use App\Service\QueueService;
+use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -20,13 +21,19 @@ class DataProcessWorkerCommandTest extends KernelTestCase
 {
     private const DATA_UUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
 
-    /** @var DataService|\PHPUnit_Framework_MockObject_MockObject */
+    /**
+     * @var DataService|MockObject
+     */
     private $dataService;
 
-    /** @var QueueService|\PHPUnit_Framework_MockObject_MockObject */
+    /**
+     * @var QueueService|MockObject
+     */
     private $queueService;
 
-    /** @var DataDownloaderService|\PHPUnit_Framework_MockObject_MockObject */
+    /**
+     * @var DataDownloaderService|MockObject
+     */
     private $dataDownloaderService;
 
     /** @var Application */
@@ -57,7 +64,7 @@ class DataProcessWorkerCommandTest extends KernelTestCase
 
         $fileInfo = $this->createMock(\SplFileInfo::class);
         $this->dataDownloaderService->expects($this->once())
-            ->method('downloadDataContents')
+            ->method('getDataFile')
             ->with($data)
             ->willReturn($fileInfo);
 
@@ -65,10 +72,6 @@ class DataProcessWorkerCommandTest extends KernelTestCase
             ->method('addDataWithFileExtraction')
             ->with($data, $fileInfo)
             ->willThrowException(new InternalSearchException('Error extracting!'));
-
-        $this->dataDownloaderService->expects($this->once())
-            ->method('removeDataContents')
-            ->with($data);
 
         $this->dataService->expects($this->once())
             ->method('addData')
@@ -98,7 +101,7 @@ class DataProcessWorkerCommandTest extends KernelTestCase
 
         $fileInfo = $this->createMock(\SplFileInfo::class);
         $this->dataDownloaderService->expects($this->once())
-            ->method('downloadDataContents')
+            ->method('getDataFile')
             ->with($data)
             ->willReturn($fileInfo);
 
@@ -106,10 +109,6 @@ class DataProcessWorkerCommandTest extends KernelTestCase
             ->method('addDataWithFileExtraction')
             ->with($data, $fileInfo)
             ->willThrowException(new SolrExtractionException('Error extracting!'));
-
-        $this->dataDownloaderService->expects($this->once())
-            ->method('removeDataContents')
-            ->with($data);
 
         $this->dataService->expects($this->once())
             ->method('addData')
@@ -138,16 +137,12 @@ class DataProcessWorkerCommandTest extends KernelTestCase
             ->willReturn($data);
 
         $this->dataDownloaderService->expects($this->once())
-            ->method('downloadDataContents')
+            ->method('getDataFile')
             ->with($data)
             ->willThrowException(new DataDownloadErrorException('Error downloading!'));
 
         $this->dataService->expects($this->never())
             ->method('addDataWithFileExtraction');
-
-        $this->dataDownloaderService->expects($this->once())
-            ->method('removeDataContents')
-            ->with($data);
 
         $this->dataService->expects($this->once())
             ->method('addData')
@@ -177,17 +172,13 @@ class DataProcessWorkerCommandTest extends KernelTestCase
 
         $file = $this->createMock(\SplFileInfo::class);
         $this->dataDownloaderService->expects($this->once())
-            ->method('downloadDataContents')
+            ->method('getDataFile')
             ->with($data)
             ->willReturn($file);
 
         $this->dataService->expects($this->once())
             ->method('addDataWithFileExtraction')
             ->with($data, $file);
-
-        $this->dataDownloaderService->expects($this->once())
-            ->method('removeDataContents')
-            ->with($data);
         $commandTester = $this->getDefaultCommandTester();
 
         $commandTester->execute([

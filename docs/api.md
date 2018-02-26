@@ -88,30 +88,6 @@ The response contains a JSON [response object](https://git.klink.asia/main/k-sea
 
 The `{METHOD}` executes to one of the offered functions provided by the K-Search API:
 
-
-### search.query
-
-Allows to query the K-Search index and returns search results.
-
-* URL: `/api/{VERSION}/search.query`
-
-**Request**:
-
-| Property | Type    | Required   | Description |
-| -------- | ------- | ---------- | ----------- |
-| `id` | String | ✔ | An identifier established by the client that MUST contain a String, Number, or NULL value if included. The value SHOULD normally not be Null and Numbers SHOULD NOT contain fractional parts. |
-| `params` | Object | ✔ | [`SearchQuery object`](https://git.klink.asia/main/k-search/blob/develop/docs/api-search-objects.md#searchquery-object) |
-
-**Successful response**
-
-* `status`: `200` (OK)
-
-| Property | Type    | Required   | Description |
-| -------- | ------- | ---------- | ----------- |
-| `id` | String | ✔ | The identifier established by the client in the request. |
-| `result` | Object | ✔ | [`SearchResult object`](https://git.klink.asia/main/k-search/blob/develop/docs/api-search-objects.md#searchresults-object) |
-
-
 ### data.get
 
 Get detailed information of piece of data in the search index.
@@ -183,3 +159,39 @@ Delete piece of data from the search index.
 | -------- | ------- | ---------- | ----------- |
 | `id` | String | ✔ | The identifier established by the client in the request. |
 | `result` | Object | ✔ | [`Status object`](https://git.klink.asia/main/k-search/blob/master/docs/api-objects.md#status-object) |
+
+### data.search
+
+Allows to query the K-Search index and returns search results.
+A full-text search is performed on a subset of the Data object properties.
+
+The following properties are handled for full-text search, in addition to the contents of the linked document of the data:
+
+- `data.title`
+- `data.abstract`
+- `data.properties.filename`
+
+The full-text search is performed by executing a keyword search on the above fields, and returning the matching Data.
+The fields are handled in a lower-case conversion, with terms/word splitting on whitespaces and punctuations.
+An additional handling of composed words is in place for the filename property, where case changes are handled
+as word separation too, while keeping the original word in place.
+This allows to match data with `ExpenceReport.pdf` to be found when using the search keywords `expence report pdf` (or
+just one of the given search keywords).
+
+* URL: `/api/{VERSION}/data.search`
+
+**Request**:
+
+| Property | Type    | Required   | Description |
+| -------- | ------- | ---------- | ----------- |
+| `id` | String | ✔ | An identifier established by the client that MUST contain a String, Number, or NULL value if included. The value SHOULD normally not be Null and Numbers SHOULD NOT contain fractional parts. |
+| `params` | Object | ✔ | [`SearchQuery object`](https://git.klink.asia/main/k-search/blob/develop/docs/api-search-objects.md#searchquery-object) |
+
+**Successful response**
+
+* `status`: `200` (OK)
+
+| Property | Type    | Required   | Description |
+| -------- | ------- | ---------- | ----------- |
+| `id` | String | ✔ | The identifier established by the client in the request. |
+| `result` | Object | ✔ | [`SearchResult object`](https://git.klink.asia/main/k-search/blob/develop/docs/api-search-objects.md#searchresults-object) |

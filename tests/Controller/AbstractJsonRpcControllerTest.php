@@ -5,6 +5,7 @@ namespace App\Tests\Controller;
 use App\Entity\ApiUser;
 use App\Security\Provider\KLinkRegistryUserProvider;
 use App\Service\DataService;
+use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -49,7 +50,7 @@ abstract class AbstractJsonRpcControllerTest extends WebTestCase
     }
 
     /**
-     * @return KLinkRegistryUserProvider|\PHPUnit_Framework_MockObject_MockObject
+     * @return KLinkRegistryUserProvider|MockObject
      */
     protected function setMockedKLinkRegistryUserProvider()
     {
@@ -72,7 +73,7 @@ abstract class AbstractJsonRpcControllerTest extends WebTestCase
     }
 
     /**
-     * @return DataService|\PHPUnit_Framework_MockObject_MockObject
+     * @return DataService|MockObject
      */
     protected function setMockedDataService()
     {
