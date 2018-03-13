@@ -19,6 +19,7 @@ documentation, and:
 ## [Unreleased]
 ### Added
 ### Changed
+- Update Docker composer file, added docs and configurations
 - Update Docker integration (ignore folders, use optimized autoloader during `composer install`)
 - Enable `postbigrequest` plugin for SolariumPHP (use POST method for big requests against Solr APIs)
 
