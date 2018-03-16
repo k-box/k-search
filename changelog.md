@@ -24,6 +24,7 @@ documentation, and:
 ### Deprecated
 ### Removed
 ### Fixed
+- Fix extraction of Java examples form PDF (updated solr-engine to v0.4.1)
 ### Security
 
 ## [3.2.0-1] - 2018-02-16
