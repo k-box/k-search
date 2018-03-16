@@ -77,7 +77,7 @@ RUN \
     cp .env.dist .env &&\
     # install php dependencies with composer and fix file ownership (since
     # composer is being run as root user here)
-    composer install --prefer-dist &&\
+    composer install --prefer-dist --optimize-autoloader &&\
     chown www-data:www-data . --recursive
 
 # run swagger to create documentation automatically
