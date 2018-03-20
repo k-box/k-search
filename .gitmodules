@@ -3,4 +3,4 @@
 	url = https://github.com/liip/drifter.git
 [submodule "solr"]
 	path = solr
-	url = git@github.com:k-box/k-search-engine.git
+	url = https://github.com/k-box/k-search-engine.git

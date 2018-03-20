@@ -7,31 +7,32 @@ services:
   ksearch:
     build: .
     ports:
-      - 80:80
+      - 8080:80
     environment:
       ## Further datails about ENV configurations are available in `.env.dist`
       # Application settings
-      - APP_ENV="dev" # Use the development environment
+      - APP_ENV=dev # Use the development environment
       - APP_DEBUG=1 # Enable the debug feature
       # Solr search configuration
-      - SOLR_HOST="solrglobalsearch" # this is the external address of Solr
-      - SOLR_CORE="k-search" # this is the Solr index name
+      - SOLR_HOST=engine # this is the external address of Solr
+      - SOLR_CORE=k-search # this is the Solr index name
       # Registry configuration (disabled)
       - KLINK_REGISTRY_ENABLED=0
-      - KLINK_REGISTRY_API_URL=""
+      # A valid URL needs to be specified for the registry, even if the integration is disabled
+      - KLINK_REGISTRY_API_URL=https://klink.registry/
     depends_on:
-      - solrglobalsearch
+      - engine
     networks:
       - internal
 
-  solrglobalsearch:
-    image: "docker.klink.asia/images/k-search-engine:0.4.0"
+  engine:
+    image: "docker.klink.asia/images/k-search-engine:0.4.1"
     volumes:
       - "/opt/solr/k-search/k-search/data"    # dynamic volume
     expose:
       - "8983"
     environment:
-      KLINK_SOLR_MYHOST: solrglobalsearch # this is the external address of solr
+      KLINK_SOLR_MYHOST: engine # this is the external address of solr
     networks:
       - internal
 
