@@ -19,15 +19,18 @@ documentation, and:
 ## [Unreleased]
 ### Added
 ### Changed
-- Update Docker composer file, added docs and configurations
-- Update Docker integration (ignore folders, use optimized autoloader during `composer install`)
-- Enable `postbigrequest` plugin for SolariumPHP (use POST method for big requests against Solr APIs)
-
 ### Deprecated
 ### Removed
 ### Fixed
-- Fix extraction of Java examples form PDF (updated solr-engine to v0.4.1)
 ### Security
+
+## [3.2.1-1] - 2018-03-20
+### Changed
+- Update Docker composer file, added docs and configurations
+- Update Docker integration (ignore folders, use optimized autoloader during `composer install`)
+- Enable `postbigrequest` plugin for SolariumPHP (use POST method for big requests against Solr APIs)
+### Fixed
+- Fix extraction of Java examples form PDF (updated solr-engine to v0.4.1)
 
 ## [3.2.0-1] - 2018-02-16
 ### Added
