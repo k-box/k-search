@@ -28,13 +28,14 @@
 | `copyright[owner][name]`     | String | ✔ | Name of the copyright owner. |
 | `copyright[owner][email]`    | String |   | Email of the copyright owner, for inquiries. |
 | `copyright[owner][website]`  | String |   | URL of the copyright owner website for inquiries. |
-| `copyright[owner][address]`  | String |  | Address of the copyright owner, if available. |
+| `copyright[owner][address]`  | String |   | Address of the copyright owner, if available. |
 | `copyright[usage][]`         | Object | ✔ | The conditions of use of the copyrighted data. |
 | `copyright[usage][short]`    | String | ✔ | The associated usage permissions, as SPDX identifier (https://spdx.org/licenses/) and C for full copyright and PD for public domain. |
 | `copyright[usage][name]`     | String | ✔ | The associated usage permissions to the piece of data. "All right reserved", "GNU General Public License", …, “Public Domain”. |
 | `copyright[usage][reference]`| String |   | URL of the full license text (if applicable).. |
 | `uploader[]`                 | Object | ✔ | Information about the origin of the publication of data. |
-| `uploader[name]`             | String | ✔ | Freely definable name. Can be a single user, an organization, a project or a group. |
+| `uploader[name]`             | String | ✔ | Freely definable name. Can be a single user, a project or a group. |
+| `uploader[organization]`     | String |   | Freely definable organization (from API v3.3).|
 | `uploader[url]`              | String |   | URL to an human readable website with information about the source entity. |
 | `uploader[app_url]`          | String |   | The URL of the application that triggered the data upload. [internalOnly=true] |
 | `uploader[email]`            | String |   | Contact email to of an administrator, who can be contacted in case of any issues related to uploaded documents. This data is coming from the Application data in the K-Link Registry. [internalOnly=true] |

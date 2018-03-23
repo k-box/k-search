@@ -107,7 +107,7 @@ class DataController extends AbstractRpcController
     }
 
     /**
-     * Get detailed information of piece of data in the search index.
+     * Get detailed information of piece of data in the index.
      *
      * @Route(
      *     name="api.v3.data.get",
@@ -120,7 +120,7 @@ class DataController extends AbstractRpcController
      *
      * @SWG\Post(
      *     path="/api/3.0/data.get",
-     *     description="Get detailed information of piece of data in the search index. This API requires the `data-view` permission.",
+     *     description="Get detailed information of piece of data in the index. This API requires the `data-view` permission.",
      *     tags={"Data"},
      *     @SWG\Parameter(
      *         name="body",
@@ -166,7 +166,7 @@ class DataController extends AbstractRpcController
     }
 
     /**
-     * Get the status information of a Data piece in the search index.
+     * Get the status information of a Data piece in the index.
      *
      * @Route(
      *     name="api.v3.data.status",
@@ -179,7 +179,7 @@ class DataController extends AbstractRpcController
      *
      * @SWG\Post(
      *     path="/api/3.0/data.status",
-     *     description="Get the status information of a Data piece in the search index. This API requires the `data-view` permission.",
+     *     description="Get the status information of a Data piece in the index. This API requires the `data-view` permission.",
      *     tags={"Data"},
      *     @SWG\Parameter(
      *         name="body",
@@ -224,7 +224,7 @@ class DataController extends AbstractRpcController
     }
 
     /**
-     * Add piece of data to the search index.
+     * Add piece of data to the index.
      *
      * @Route(
      *     name="api.v3.data.add",
@@ -237,7 +237,7 @@ class DataController extends AbstractRpcController
      *
      * @SWG\Post(
      *     path="/api/3.0/data.add",
-     *     description="Add piece of data to the search index. This API requires the `data-add` permission.",
+     *     description="Add piece of data to the index. This API requires the `data-add` permission.",
      *     tags={"Data"},
      *     @SWG\Parameter(
      *         name="body",
@@ -303,7 +303,7 @@ class DataController extends AbstractRpcController
      *     }
      * )
      * @SWG\Post(
-     *     path="/api/3.2/data.search",
+     *     path="/api/3.3/data.search",
      *     description="Allows to query the index and returns search results. This API requires the `data-search` permission.",
      *     tags={"Data"},
      *     @SWG\Parameter(

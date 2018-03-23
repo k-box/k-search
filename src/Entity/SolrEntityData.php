@@ -52,6 +52,9 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     public const FIELD_UPLOADER_NAME = 'str_sis_data_uploader_name';
     public const FIELD_UPLOADER_NAME_SEARCH = 'text_data_uploader_name';
     public const FIELD_UPLOADER_NAME_SORTING = 'str_ssl_data_uploader_name';
+    public const FIELD_UPLOADER_ORGANIZATION = 'str_sis_data_uploader_organization';
+    public const FIELD_UPLOADER_ORGANIZATION_SEARCH = 'text_data_uploader_organization';
+    public const FIELD_UPLOADER_ORGANIZATION_SORTING = 'str_ssl_data_uploader_organization';
     public const FIELD_UPLOADER_STORED = 'str_ss_data_uploader';
     public const FIELD_URL = 'str_sis_data_url';
     public const FIELD_UUID = 'str_sis_data_uuid';
@@ -138,6 +141,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
             'properties.title' => self::FIELD_PROPERTIES_TITLE_SORTING,
             'properties.updated_at' => self::FIELD_PROPERTIES_UPDATED_AT,
             'uploader.name' => self::FIELD_UPLOADER_NAME_SORTING,
+            'uploader.organization' => self::FIELD_UPLOADER_ORGANIZATION_SORTING,
             'uploader.app_url' => self::FIELD_UPLOADER_APP_URL_SORTING,
         ];
     }
@@ -159,6 +163,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
             'properties.title' => self::FIELD_PROPERTIES_TITLE,
             'properties.updated_at' => self::FIELD_PROPERTIES_UPDATED_AT,
             'uploader.name' => self::FIELD_UPLOADER_NAME_SEARCH,
+            'uploader.organization' => self::FIELD_UPLOADER_ORGANIZATION_SEARCH,
         ];
     }
 
@@ -167,6 +172,8 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         return array_merge(self::getFilterFields(), [
             // Override the uploader name to aggregate on the not-analyzed field
             'uploader.name' => self::FIELD_UPLOADER_NAME,
+            // Override the uploader organization to aggregate on the not-analyzed field
+            'uploader.organization' => self::FIELD_UPLOADER_ORGANIZATION,
         ]);
     }
 
@@ -214,6 +221,10 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         $this->addField(self::FIELD_UPLOADER_APP_URL_SORTING, $uploader->appUrl);
         $this->addField(self::FIELD_UPLOADER_NAME, $uploader->name);
         $this->addField(self::FIELD_UPLOADER_NAME_SEARCH, $uploader->name);
+        $this->addField(self::FIELD_UPLOADER_NAME_SORTING, $uploader->name);
+        $this->addField(self::FIELD_UPLOADER_ORGANIZATION, $uploader->organization);
+        $this->addField(self::FIELD_UPLOADER_ORGANIZATION_SEARCH, $uploader->organization);
+        $this->addField(self::FIELD_UPLOADER_ORGANIZATION_SORTING, $uploader->organization);
         $this->addField(self::FIELD_UPLOADER_STORED, json_encode($uploader));
     }
 
@@ -321,7 +332,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         $json = $this->getField(self::FIELD_UPLOADER_STORED);
         $data = json_decode($json, true);
 
-        $fields = ['name', 'url', 'appUrl', 'email'];
+        $fields = ['name', 'organization', 'url', 'appUrl', 'email'];
 
         $this->inflateModelWithData($uploader, $fields, $data ?? []);
 

@@ -107,6 +107,8 @@ class SolrEntityDataTest extends TestCase
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_UPLOADER_STORED), json_encode($data->uploader));
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_UPLOADER_NAME), $data->uploader->name);
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_UPLOADER_NAME_SEARCH), $data->uploader->name);
+        $this->assertEquals($entity->getField(SolrEntityData::FIELD_UPLOADER_ORGANIZATION), $data->uploader->organization);
+        $this->assertEquals($entity->getField(SolrEntityData::FIELD_UPLOADER_ORGANIZATION_SEARCH), $data->uploader->organization);
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_PROPERTIES_CREATED_AT), $data->properties->createdAt->format(SolrHelper::DATE_FORMAT));
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_PROPERTIES_UPDATED_AT), $data->properties->updatedAt->format(SolrHelper::DATE_FORMAT));
     }
