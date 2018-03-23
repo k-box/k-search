@@ -18,6 +18,7 @@ documentation, and:
 
 ## [Unreleased]
 ### Added
+ - Add configuration for downloaded file retention policy (env variable: KLINK_RETAIN_DOWNLOADED_FILES=[1|0])
 ### Changed
 ### Deprecated
 ### Removed

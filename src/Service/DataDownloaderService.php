@@ -22,6 +22,11 @@ class DataDownloaderService
     private $httpClient;
 
     /**
+     * @var MimeTypeGuesserInterface
+     */
+    private $mimeTypeGuesser;
+
+    /**
      * @var Filesystem
      */
     private $filesystem;
@@ -40,11 +45,6 @@ class DataDownloaderService
      * @var LoggerInterface
      */
     private $logger;
-
-    /**
-     * @var MimeTypeGuesserInterface
-     */
-    private $mimeTypeGuesser;
 
     public function __construct(
         HTTPClient $httpClient,
