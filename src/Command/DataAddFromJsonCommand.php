@@ -15,6 +15,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class DataAddFromJsonCommand extends ContainerAwareCommand
 {
+    protected static $defaultName = 'ksearch:data:add-from-json';
+
     /** @var DataService */
     private $dataService;
 
@@ -37,7 +39,7 @@ class DataAddFromJsonCommand extends ContainerAwareCommand
 
     protected function configure()
     {
-        $this->setName('ksearch:data:add-from-json')
+        $this
             ->setDescription('')
             ->addArgument(
                 'json-data',
