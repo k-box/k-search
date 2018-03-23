@@ -29,6 +29,9 @@ class SolrService
     public function __construct(Client $solrClient)
     {
         $this->solrClient = $solrClient;
+
+        // Enable using POST http method for big requests
+        $this->solrClient->getPlugin('postbigrequest');
     }
 
     public function add(AbstractSolrEntity $solrEntity)

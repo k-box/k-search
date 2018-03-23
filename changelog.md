@@ -1,5 +1,4 @@
 # Changelog
-
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
@@ -17,8 +16,20 @@ documentation, and:
  - The `{package version}` number is set to `1` when a new `{Major}.{Minor}.{Patch}` change is
    released (e.g. `3.0.1-1`, `3.0.1-2`, `3.0.2-1`, `3.1.0-1`).
 
-## 3.2.0-1
+## [Unreleased]
+### Added
+### Changed
+- Update Docker composer file, added docs and configurations
+- Update Docker integration (ignore folders, use optimized autoloader during `composer install`)
+- Enable `postbigrequest` plugin for SolariumPHP (use POST method for big requests against Solr APIs)
 
+### Deprecated
+### Removed
+### Fixed
+- Fix extraction of Java examples form PDF (updated solr-engine to v0.4.1)
+### Security
+
+## [3.2.0-1] - 2018-02-16
 ### Added
 - Allow Data files to be pre-downloaded in `var/data-downloads/xx/UUID` (where `xx` are the first two chars of the
   Data UUID property). The file is checked for an indexable mime-type and kept after indexing.
@@ -30,13 +41,7 @@ documentation, and:
 - Update Solr submodule (use github repository, v0.4.0)
 - Update Drifter submodule (use newest release with native SF4 support)
 
-### Deprecated
-### Removed
-### Fixed
-### Security
-
-## v3.1.1-1
-
+## [3.1.1-1] - 2018-01-19
 ### Added
 - Add sorting of Data search results (API v3.1)
 
