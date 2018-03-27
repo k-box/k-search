@@ -25,6 +25,12 @@ class DataServiceTest extends TestCase
 {
     private const DATA_UUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
 
+    private const TYPES = [
+            'application/pdf',
+            'image/jpg',
+            'text/html',
+        ];
+
     /**
      * @var SolrService|MockObject
      */
@@ -51,11 +57,6 @@ class DataServiceTest extends TestCase
     private $queueService;
 
     /**
-     * @var DataService
-     */
-    private $dataService;
-
-    /**
      * @var DataDownloaderService|MockObject
      */
     private $downloaderService;
@@ -69,19 +70,6 @@ class DataServiceTest extends TestCase
         $this->facetSet = $this->createMock(FacetSet::class);
         $this->queueService = $this->createMock(QueueService::class);
         $this->downloaderService = $this->createMock(DataDownloaderService::class);
-        $types = [
-            'application/pdf',
-            'image/jpg',
-            'text/html',
-        ];
-
-        $this->dataService = new DataService(
-            $this->queueService,
-            $this->solrService,
-            $this->downloaderService,
-            $this->createMock(LoggerInterface::class),
-            $types
-        );
     }
 
     public function provideIndexableContentTypes(): array
@@ -111,7 +99,8 @@ class DataServiceTest extends TestCase
             }))
             ->willReturn($contentType);
 
-        $this->dataService->ensureDataIsIndexable($data);
+        $dataService = $this->buildDataService();
+        $dataService->ensureDataIsIndexable($data);
     }
 
     public function testHasNotIndexableContentType()
@@ -124,7 +113,8 @@ class DataServiceTest extends TestCase
             ->willReturn('image/jpeg2000');
 
         $this->expectException(BadRequestException::class);
-        $this->dataService->ensureDataIsIndexable($data);
+        $dataService = $this->buildDataService();
+        $dataService->ensureDataIsIndexable($data);
     }
 
     public function testHasNoContentTypeHeaders()
@@ -137,7 +127,8 @@ class DataServiceTest extends TestCase
             ->willReturn(null);
         $this->expectException(BadRequestException::class);
 
-        $this->dataService->ensureDataIsIndexable($data);
+        $dataService = $this->buildDataService();
+        $dataService->ensureDataIsIndexable($data);
     }
 
     public function testDeleteDataSucceeds()
@@ -152,7 +143,8 @@ class DataServiceTest extends TestCase
             ->with(self::DATA_UUID)
             ->willReturn(true);
 
-        $this->assertTrue($this->dataService->deleteData(self::DATA_UUID));
+        $dataService = $this->buildDataService();
+        $this->assertTrue($dataService->deleteData(self::DATA_UUID));
     }
 
     public function testDeleteDataWithFileDeletionFailureSucceeds()
@@ -167,7 +159,8 @@ class DataServiceTest extends TestCase
             ->with(self::DATA_UUID)
             ->willReturn(false);
 
-        $this->assertTrue($this->dataService->deleteData(self::DATA_UUID));
+        $dataService = $this->buildDataService();
+        $this->assertTrue($dataService->deleteData(self::DATA_UUID));
     }
 
     public function testDeleteDataWithNotExistingDataFails()
@@ -180,7 +173,8 @@ class DataServiceTest extends TestCase
         $this->downloaderService->expects($this->never())
             ->method('removeDownloadedDataFile');
 
-        $this->assertFalse($this->dataService->deleteData(self::DATA_UUID));
+        $dataService = $this->buildDataService();
+        $this->assertFalse($dataService->deleteData(self::DATA_UUID));
     }
 
     public function testAddDataWithTextualContentSucceeds()
@@ -201,7 +195,8 @@ class DataServiceTest extends TestCase
         $this->queueService->expects($this->never())
             ->method('enqueueMessage');
 
-        $this->assertTrue($this->dataService->addData($data, $sampleTextualContent));
+        $dataService = $this->buildDataService();
+        $this->assertTrue($dataService->addData($data, $sampleTextualContent));
     }
 
     public function dataProviderForNotIndexableContentAndType()
@@ -227,7 +222,8 @@ class DataServiceTest extends TestCase
             ->method('enqueueMessage');
 
         $this->expectException(BadRequestException::class);
-        $this->dataService->addData($data, $textContents);
+        $dataService = $this->buildDataService();
+        $dataService->addData($data, $textContents);
     }
 
     public function testItQueuesIndexableData()
@@ -257,10 +253,11 @@ class DataServiceTest extends TestCase
             ->method('getDataFileMimetype')
             ->willReturn('image/jpg');
 
-        $this->assertTrue($this->dataService->addData($data));
+        $dataService = $this->buildDataService();
+        $this->assertTrue($dataService->addData($data));
     }
 
-    public function testAddDataWithFileExtraction()
+    public function testAddDataWithFileExtractionAndDataRetention()
     {
         $data = ModelHelper::createDataModel(self::DATA_UUID);
         /**
@@ -285,7 +282,45 @@ class DataServiceTest extends TestCase
             ->method('enqueueMessage')
         ;
 
-        $this->assertTrue($this->dataService->addDataWithFileExtraction($data, $file));
+        $this->downloaderService->expects($this->never())
+            ->method('removeDownloadedDataFile')
+            ->with(self::DATA_UUID);
+
+        $dataService = $this->buildDataService(self::TYPES);
+        $this->assertTrue($dataService->addDataWithFileExtraction($data, $file));
+    }
+
+    public function testAddDataWithFileExtractionAndNoDataRetention()
+    {
+        $data = ModelHelper::createDataModel(self::DATA_UUID);
+        /**
+         * @var SplFileInfo|MockObject
+         */
+        $file = $this->createMock(SplFileInfo::class);
+
+        $this->solrService->expects($this->once())
+            ->method('addWithTextExtraction')
+            ->with(
+                $this->callback(function (SolrEntityData $data) {
+                    $this->assertEquals(Data::STATUS_OK, $data->getField(SolrEntityData::FIELD_STATUS));
+
+                    return true;
+                }),
+                $this->callback(function (\SplFileInfo $file) {
+                    return true;
+                }))
+            ->willReturn(true);
+
+        $this->queueService->expects($this->never())
+            ->method('enqueueMessage')
+        ;
+
+        $this->downloaderService->expects($this->once())
+            ->method('removeDownloadedDataFile')
+            ->with(self::DATA_UUID);
+
+        $dataService = $this->buildDataService(self::TYPES, false);
+        $this->assertTrue($dataService->addDataWithFileExtraction($data, $file));
     }
 
     public function providerSearchDataWithAggregationsWithFilteredCounts(): array
@@ -330,7 +365,8 @@ class DataServiceTest extends TestCase
         $facetField->expects($this->exactly($expectedExcludeFilter ? 1 : 0))
             ->method('setExcludes');
 
-        $this->dataService->searchData($searchParam, '3.2');
+        $dataService = $this->buildDataService();
+        $dataService->searchData($searchParam, '3.2');
     }
 
     public function providerSearchDataWithAggregationsWithVersion(): array
@@ -368,7 +404,20 @@ class DataServiceTest extends TestCase
             ->with($aggregationSolrField, 10, $minCount, $aggregationField)
             ->willReturn($facetField);
 
-        $this->dataService->searchData($searchParam, $version);
+        $dataService = $this->buildDataService();
+        $dataService->searchData($searchParam, $version);
+    }
+
+    private function buildDataService(array $types = self::TYPES, bool $retainDownloads = true): DataService
+    {
+        return new DataService(
+            $this->queueService,
+            $this->solrService,
+            $this->downloaderService,
+            $types,
+            $retainDownloads,
+            $this->createMock(LoggerInterface::class)
+        );
     }
 
     private function setupSolrServiceForSearch(array $data)

@@ -37,11 +37,6 @@ class DataService
     private $queueService;
 
     /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
      * @var DataDownloaderService
      */
     private $dataDownloaderService;
@@ -51,18 +46,30 @@ class DataService
      */
     private $indexableContentTypes = [];
 
+    /**
+     * @var bool
+     */
+    private $retainDownloadedFiles;
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(
         QueueService $queueService,
         SolrService $solrService,
         DataDownloaderService $downloaderService,
-        LoggerInterface $logger,
-        array $indexableContentTypes = [])
-    {
+        array $indexableContentTypes,
+        bool $retainDownloadedFiles,
+        LoggerInterface $logger
+    ) {
         $this->solrService = $solrService;
         $this->queueService = $queueService;
-        $this->logger = $logger;
         $this->dataDownloaderService = $downloaderService;
         $this->indexableContentTypes = $indexableContentTypes;
+        $this->retainDownloadedFiles = $retainDownloadedFiles;
+        $this->logger = $logger;
     }
 
     /**
@@ -76,14 +83,14 @@ class DataService
      */
     public function deleteData(string $uuid): bool
     {
-        $indexDeleted = $this->solrService->delete(SolrEntityData::getEntityType(), $uuid);
+        $deleted = $this->solrService->delete(SolrEntityData::getEntityType(), $uuid);
 
-        if ($indexDeleted) {
+        if ($deleted) {
             // The following will not throw any exception in case of failure
             $this->dataDownloaderService->removeDownloadedDataFile($uuid);
         }
 
-        return $indexDeleted;
+        return $deleted;
     }
 
     /**
@@ -187,7 +194,14 @@ class DataService
         $data->status = Data::STATUS_OK;
         $dataEntity = SolrEntityData::buildFromModel($data);
 
-        return $this->solrService->addWithTextExtraction($dataEntity, $fileInfo);
+        $result = $this->solrService->addWithTextExtraction($dataEntity, $fileInfo);
+
+        if (!$this->retainDownloadedFiles) {
+            // Downloaded files must be removed after indexing is successful
+            $this->dataDownloaderService->removeDownloadedDataFile($data->uuid);
+        }
+
+        return $result;
     }
 
     /**
