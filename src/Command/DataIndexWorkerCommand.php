@@ -20,6 +20,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class DataIndexWorkerCommand extends Command
 {
+    protected static $defaultName = 'ksearch:data:index-worker';
+
     /** @var QueueService */
     private $queueService;
 
@@ -47,7 +49,7 @@ class DataIndexWorkerCommand extends Command
 
     protected function configure()
     {
-        $this->setName('ksearch:data:index-worker')
+        $this
             ->setDescription(
                 'It goes through the Data for processing queue downloading the documents and trying to get the textual content'
             )

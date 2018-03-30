@@ -9,9 +9,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class DataDeleteCommand extends ContainerAwareCommand
+class DataStatusCommand extends ContainerAwareCommand
 {
-    protected static $defaultName = 'ksearch:data:delete';
+    protected static $defaultName = 'ksearch:data:status';
 
     /** @var DataService */
     private $dataService;
@@ -25,8 +25,8 @@ class DataDeleteCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setDescription('Deletes a given data from the index')
-            ->addArgument('uuid', InputArgument::REQUIRED, 'Use UUID to remove from the indexed.')
+            ->setDescription('Returns the status of a given data from the index')
+            ->addArgument('uuid', InputArgument::REQUIRED, 'Use UUID to fetch the status for.')
         ;
     }
 
@@ -34,15 +34,8 @@ class DataDeleteCommand extends ContainerAwareCommand
     {
         $uuid = $input->getArgument('uuid');
 
-        $output->write(sprintf('Deleting Data from index. UUID: <comment>%s</comment>', $uuid));
-        if ($this->dataService->deleteData($uuid)) {
-            $output->writeln(' ... Ok');
-
-            return 0;
-        }
-
-        $output->writeln(' ... <error>Failure</error>');
-
-        return 1;
+        $output->writeln(sprintf('Getting Data status from index. UUID: <comment>%s</comment>', $uuid));
+        $data = $this->dataService->getData($uuid);
+        $output->writeln('Status = <info>'.$data->status.'</info>');
     }
 }

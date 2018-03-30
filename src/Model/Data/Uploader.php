@@ -17,17 +17,31 @@ class Uploader
 {
     /**
      * Freely definable name.
-     * Can be a single user, an organization, a project or a group.
+     * Can be a single user, a project or a group.
      *
      * @var string
      * @Assert\Type("string")
      * @Assert\NotBlank()
      * @JMS\Type("string")
      * @SWG\Property(
-     *     example="John Doe Inc."
+     *     example="John Doe"
      * )
      */
     public $name;
+
+    /**
+     * Freely definable organization (since v3.3).
+     *
+     * @var string
+     * @Assert\Type("string")
+     * @JMS\Type("string")
+     * @JMS\Since("3.3")
+     * @SWG\Property(
+     *     example="K-Link Inc",
+     *     x={"since-version":"3.3"},
+     * )
+     */
+    public $organization;
 
     /**
      * URL to an human readable website with information about the source entity.
