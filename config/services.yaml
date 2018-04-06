@@ -43,12 +43,12 @@ services:
         public: true
         tags: ['controller.service_arguments']
 
-    # Autowiring the httpclient
-    App\Service\DataDownloaderService:
+    App\Service\DataDownloader:
         $httpClient: '@httplug.client.downloader'
+
+    App\Service\DataFileNameGenerator:
         $downloadPath: '%kernel.project_dir%/var/data-downloads'
 
-    # Autowiring DataService parameters
     App\Service\DataService:
         $indexableContentTypes: "%indexable_content_types%"
         $retainDownloadedFiles: '%env(KLINK_RETAIN_DOWNLOADED_FILES)%'

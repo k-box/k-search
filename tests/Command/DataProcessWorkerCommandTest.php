@@ -8,7 +8,7 @@ use App\Exception\InternalSearchException;
 use App\Exception\SolrExtractionException;
 use App\Model\Data\Data;
 use App\Queue\Message\UUIDMessage;
-use App\Service\DataDownloaderService;
+use App\Service\DataDownloader;
 use App\Service\DataService;
 use App\Service\QueueService;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -32,11 +32,13 @@ class DataProcessWorkerCommandTest extends KernelTestCase
     private $queueService;
 
     /**
-     * @var DataDownloaderService|MockObject
+     * @var DataDownloader|MockObject
      */
-    private $dataDownloaderService;
+    private $dataDownloader;
 
-    /** @var Application */
+    /**
+     * @var Application
+     */
     private $application;
 
     public function setUp()
@@ -48,7 +50,7 @@ class DataProcessWorkerCommandTest extends KernelTestCase
 
         $this->queueService = $this->createMock(QueueService::class);
         $this->dataService = $this->createMock(DataService::class);
-        $this->dataDownloaderService = $this->createMock(DataDownloaderService::class);
+        $this->dataDownloader = $this->createMock(DataDownloader::class);
     }
 
     public function testItHandlesSolrInternalError()
@@ -63,7 +65,7 @@ class DataProcessWorkerCommandTest extends KernelTestCase
             ->willReturn($data);
 
         $fileInfo = $this->createMock(\SplFileInfo::class);
-        $this->dataDownloaderService->expects($this->once())
+        $this->dataDownloader->expects($this->once())
             ->method('getDataFile')
             ->with($data)
             ->willReturn($fileInfo);
@@ -100,7 +102,7 @@ class DataProcessWorkerCommandTest extends KernelTestCase
             ->willReturn($data);
 
         $fileInfo = $this->createMock(\SplFileInfo::class);
-        $this->dataDownloaderService->expects($this->once())
+        $this->dataDownloader->expects($this->once())
             ->method('getDataFile')
             ->with($data)
             ->willReturn($fileInfo);
@@ -136,7 +138,7 @@ class DataProcessWorkerCommandTest extends KernelTestCase
             ->with(self::DATA_UUID)
             ->willReturn($data);
 
-        $this->dataDownloaderService->expects($this->once())
+        $this->dataDownloader->expects($this->once())
             ->method('getDataFile')
             ->with($data)
             ->willThrowException(new DataDownloadErrorException('Error downloading!'));
@@ -171,7 +173,7 @@ class DataProcessWorkerCommandTest extends KernelTestCase
             ->willReturn($data);
 
         $file = $this->createMock(\SplFileInfo::class);
-        $this->dataDownloaderService->expects($this->once())
+        $this->dataDownloader->expects($this->once())
             ->method('getDataFile')
             ->with($data)
             ->willReturn($file);
@@ -191,7 +193,7 @@ class DataProcessWorkerCommandTest extends KernelTestCase
         $command = new DataIndexWorkerCommand(
             $this->queueService,
             $this->dataService,
-            $this->dataDownloaderService,
+            $this->dataDownloader,
             $this->createMock(LoggerInterface::class)
         );
         $this->application->add($command);

@@ -3,7 +3,8 @@
 namespace App\Tests\Service;
 
 use App\Model\Data\Data;
-use App\Service\DataDownloaderService;
+use App\Service\DataDownloader;
+use App\Service\DataFileNameGenerator;
 use GuzzleHttp\Psr7\Stream;
 use Http\Message\MessageFactory;
 use Http\Mock\Client;
@@ -15,10 +16,12 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface;
 
-class DataDownloaderServiceTest extends TestCase
+class DataDownloaderTest extends TestCase
 {
     private const DATA_UUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
     private const DATA_URL = 'http://example.com/my-file.txt';
+    private const DATA_TEMP_FILENAME = './var/cache/test/data-temp-uuid';
+    private const DATA_FILE_CONTENTS = 'file contents';
 
     /**
      * @var Client
@@ -26,7 +29,7 @@ class DataDownloaderServiceTest extends TestCase
     private $httpClient;
 
     /**
-     * @var DataDownloaderService
+     * @var DataDownloader
      */
     private $downloaderService;
 
@@ -45,6 +48,11 @@ class DataDownloaderServiceTest extends TestCase
      */
     private $filesystem;
 
+    /**
+     * @var DataFileNameGenerator|MockObject
+     */
+    private $nameGenerator;
+
     protected function setUp()
     {
         $this->httpClient = new Client();
@@ -52,15 +60,21 @@ class DataDownloaderServiceTest extends TestCase
         $this->messageFactory = $this->createMock(MessageFactory::class);
         $this->mimeTypeGuesser = $this->createMock(MimeTypeGuesserInterface::class);
         $this->filesystem = $this->createMock(Filesystem::class);
+        $this->nameGenerator = $this->createMock(DataFileNameGenerator::class);
 
-        $this->downloaderService = new DataDownloaderService(
+        $this->downloaderService = new DataDownloader(
             $this->httpClient,
             $this->messageFactory,
             $this->mimeTypeGuesser,
             $this->filesystem,
-            './path',
+            $this->nameGenerator,
             $this->createMock(LoggerInterface::class)
         );
+    }
+
+    protected function tearDown()
+    {
+        @unlink(self::DATA_TEMP_FILENAME);
     }
 
     public function dataGetDataFileMimetypeFromHeadRequest(): array
@@ -82,9 +96,16 @@ class DataDownloaderServiceTest extends TestCase
     {
         $data = $this->buildData();
 
+        $this->nameGenerator->expects($this->once())
+            ->method('buildDownloadDataFilename')
+            ->with($data->uuid)
+            ->willReturn(self::DATA_TEMP_FILENAME);
+
         $this->filesystem->expects($this->once())
             ->method('exists')
+            ->with(self::DATA_TEMP_FILENAME)
             ->willReturn(false);
+
         $this->mimeTypeGuesser->expects($this->never())
             ->method('guess');
 
@@ -126,9 +147,16 @@ class DataDownloaderServiceTest extends TestCase
     public function testGetDataFileMimetypeFromFile(string $expectedMimetype)
     {
         $data = $this->buildData();
+        $data->hash = $this->prepareTempDataFile();
+
+        $this->nameGenerator->expects($this->once())
+            ->method('buildDownloadDataFilename')
+            ->with($data->uuid)
+            ->willReturn(self::DATA_TEMP_FILENAME);
 
         $this->filesystem->expects($this->once())
             ->method('exists')
+            ->with(self::DATA_TEMP_FILENAME)
             ->willReturn(true);
 
         $this->messageFactory->expects($this->never())
@@ -136,57 +164,49 @@ class DataDownloaderServiceTest extends TestCase
 
         $this->mimeTypeGuesser->expects($this->once())
             ->method('guess')
-            ->with($this->callback(function (string $path) {
-                $this->assertStringEndsWith(DIRECTORY_SEPARATOR.self::DATA_UUID, $path);
-
-                return true;
-            }))
+            ->with(self::DATA_TEMP_FILENAME)
             ->willReturn($expectedMimetype);
 
         $this->assertSame($expectedMimetype, $this->downloaderService->getDataFileMimetype($data));
     }
 
-    public function testGetDataFileWithNoDownloadedFile()
+    public function testGetDataFileWithNoExistingDownloadedFile()
     {
         $data = $this->buildData();
 
+        $this->nameGenerator->expects($this->exactly(2))
+            ->method('buildDownloadDataFilename')
+            ->with($data->uuid)
+            ->willReturn(self::DATA_TEMP_FILENAME);
+
         $this->filesystem->expects($this->once())
             ->method('exists')
+            ->with(self::DATA_TEMP_FILENAME)
             ->willReturn(false);
 
-        $request = $this->createMock(RequestInterface::class);
-        $this->messageFactory->expects($this->once())
-            ->method('createRequest')
-            ->with('GET', self::DATA_URL)
-            ->willReturn($request);
-
-        $response = $this->createMock(ResponseInterface::class);
-        $this->httpClient->addResponse($response);
-
-        $response->expects($this->once())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $resource = fopen('php://temp', 'w+');
-        fwrite($resource, 'file contents');
-        $response->expects($this->once())
-           ->method('getBody')
-           ->willReturn(new Stream($resource));
+        $this->configureExpectedGetRequest(self::DATA_URL, self::DATA_FILE_CONTENTS);
 
         $this->filesystem->expects($this->once())
             ->method('dumpFile')
-            ->with($this->anything(), 'file contents');
+            ->with(self::DATA_TEMP_FILENAME, self::DATA_FILE_CONTENTS);
 
         $file = $this->downloaderService->getDataFile($data);
         $this->assertInstanceOf(\SplFileInfo::class, $file);
     }
 
-    public function testGetDataFileWithDownloadedFile()
+    public function testGetDataFileWithDownloadedFileSameHash()
     {
         $data = $this->buildData();
+        $data->hash = $this->prepareTempDataFile();
+
+        $this->nameGenerator->expects($this->once())
+            ->method('buildDownloadDataFilename')
+            ->with($data->uuid)
+            ->willReturn(self::DATA_TEMP_FILENAME);
 
         $this->filesystem->expects($this->once())
             ->method('exists')
+            ->with(self::DATA_TEMP_FILENAME)
             ->willReturn(true);
 
         $this->filesystem->expects($this->never())
@@ -194,6 +214,32 @@ class DataDownloaderServiceTest extends TestCase
 
         $this->messageFactory->expects($this->never())
             ->method('createRequest');
+
+        $file = $this->downloaderService->getDataFile($data);
+        $this->assertInstanceOf(\SplFileInfo::class, $file);
+    }
+
+    public function testGetDataFileWithDownloadedFileDifferentHash()
+    {
+        $data = $this->buildData();
+        $this->prepareTempDataFile();
+        $data->hash = hash('sha512', self::DATA_TEMP_FILENAME);
+
+        $this->nameGenerator->expects($this->exactly(2))
+            ->method('buildDownloadDataFilename')
+            ->with($data->uuid)
+            ->willReturn(self::DATA_TEMP_FILENAME);
+
+        $this->filesystem->expects($this->once())
+            ->method('exists')
+            ->with(self::DATA_TEMP_FILENAME)
+            ->willReturn(true);
+
+        $this->configureExpectedGetRequest(self::DATA_URL, self::DATA_FILE_CONTENTS);
+
+        $this->filesystem->expects($this->once())
+            ->method('dumpFile')
+            ->with(self::DATA_TEMP_FILENAME, self::DATA_FILE_CONTENTS);
 
         $file = $this->downloaderService->getDataFile($data);
         $this->assertInstanceOf(\SplFileInfo::class, $file);
@@ -209,5 +255,35 @@ class DataDownloaderServiceTest extends TestCase
         $data->url = self::DATA_URL;
 
         return $data;
+    }
+
+    private function prepareTempDataFile()
+    {
+        $contents = 'data-temp-file-uuid';
+        file_put_contents(self::DATA_TEMP_FILENAME, $contents);
+
+        return hash('sha512', $contents);
+    }
+
+    private function configureExpectedGetRequest(string $dataUrl, string $fileContents): void
+    {
+        $request = $this->createMock(RequestInterface::class);
+        $this->messageFactory->expects($this->once())
+            ->method('createRequest')
+            ->with('GET', $dataUrl)
+            ->willReturn($request);
+
+        $response = $this->createMock(ResponseInterface::class);
+        $this->httpClient->addResponse($response);
+
+        $response->expects($this->once())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $resource = fopen('php://temp', 'w+');
+        fwrite($resource, $fileContents);
+        $response->expects($this->once())
+            ->method('getBody')
+            ->willReturn(new Stream($resource));
     }
 }

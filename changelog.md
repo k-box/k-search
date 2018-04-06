@@ -25,6 +25,8 @@ documentation, and:
 ### Deprecated
 ### Removed
 ### Fixed
+- Fix cache invalidation for downloaded files. The data.hash is now additionally check against the existing file
+
 ### Security
 
 ## [3.2.1-1] - 2018-03-20
