@@ -202,12 +202,7 @@ class DataDownloader
     }
 
     /**
-     * @param Data             $data
-     * @param RequestInterface $request
-     *
      * @throws DataDownloadErrorException
-     *
-     * @return ResponseInterface
      */
     private function handleRequest(Data $data, RequestInterface $request): ResponseInterface
     {
@@ -253,10 +248,6 @@ class DataDownloader
 
     /**
      * Get the current filename of the downloaded data, null if the file does not exists.
-     *
-     * @param string $uuid
-     *
-     * @return null|string
      */
     private function getDataTempFilename(string $uuid): ?string
     {
@@ -267,9 +258,6 @@ class DataDownloader
 
     /**
      * Returns the filename of the downloaded data, null if the file does not exists or the hash does not match.
-     *
-     * @param Data $data
-     * @return null|string
      */
     private function dataFileExistsAndIsCurrent(Data $data): ?string
     {
