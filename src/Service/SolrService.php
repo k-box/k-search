@@ -5,15 +5,18 @@ namespace App\Service;
 use App\Entity\AbstractSolrEntity;
 use App\Entity\SolrEntity;
 use App\Entity\SolrEntityExtractText;
-use App\Exception\BadRequestException;
+use App\Exception\FilterQuery\FilterQueryException;
+use App\Exception\FilterQuery\InvalidQueryException;
 use App\Exception\InternalSearchException;
 use App\Exception\SolrEntityNotFoundException;
 use App\Exception\SolrExtractionException;
 use App\Helper\SolrHelper;
 use App\Model\Data\Search\Aggregation;
 use App\Model\Data\Search\AggregationResult;
+use Psr\Log\LoggerInterface;
 use Solarium\Client;
 use Solarium\Exception\ExceptionInterface;
+use Solarium\Exception\HttpException;
 use Solarium\QueryType\Select\Query\Component\Facet\Field;
 use Solarium\QueryType\Select\Query\FilterQuery;
 use Solarium\QueryType\Select\Query\Query;
@@ -26,12 +29,24 @@ class SolrService
      */
     private $solrClient;
 
-    public function __construct(Client $solrClient)
+    /**
+     * @var QueryService
+     */
+    private $queryService;
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct(Client $solrClient, QueryService $queryService, LoggerInterface $logger)
     {
         $this->solrClient = $solrClient;
+        $this->queryService = $queryService;
 
         // Enable using POST http method for big requests
         $this->solrClient->getPlugin('postbigrequest');
+        $this->logger = $logger;
     }
 
     public function add(AbstractSolrEntity $solrEntity)
@@ -234,7 +249,7 @@ class SolrService
      * @param array  $propertyToFieldMapping the ['property-name' => 'solr_field_name'] mapping
      * @param string $key                    The filter key
      *
-     * @throws BadRequestException
+     * @throws FilterQueryException
      *
      * @return FilterQuery
      */
@@ -243,24 +258,30 @@ class SolrService
         $filter = new FilterQuery();
         $filter->setKey($key);
 
-        $properties = SolrHelper::getModelPropertiesInFilterQuery($filterString);
-
-        $flippedProperties = array_flip($properties);
-        $invalidProperties = array_diff_key($flippedProperties, $propertyToFieldMapping);
-        if (count($invalidProperties)) {
-            throw new BadRequestException([
-                sprintf('Invalid filter properties: %s', implode(',', $invalidProperties)),
-            ]);
-        }
-
-        $filter->setQuery(SolrHelper::replacePropertyToFieldNames($filterString, array_intersect_key($propertyToFieldMapping, $flippedProperties)));
+        $filterQueryString = $this->queryService->getFilterQuery($filterString, $propertyToFieldMapping);
+        $filter->setQuery($filterQueryString);
 
         return $filter;
     }
 
     public function executeSelectQuery(Query $query): Result
     {
-        return $this->solrClient->select($query);
+        try {
+            return $this->solrClient->select($query);
+        } catch (ExceptionInterface $exception) {
+            if ($exception instanceof HttpException && $body = $exception->getBody()) {
+                $data = json_decode($body, true);
+
+                if (400 === $data['error']['code'] ?? null && null !== $data['error']['msg'] ?? null) {
+                    throw InvalidQueryException::fromError($data['error']['msg']);
+                }
+            }
+
+            $this->handleSolariumExceptions(
+                $exception,
+                'Error while searching data'
+            );
+        }
     }
 
     public function buildSolrModelsFromResult(Result $result, string $solrEntityClass): array
@@ -315,6 +336,10 @@ class SolrService
      */
     private function handleSolariumExceptions(\Throwable $exception, string $additionalMessage)
     {
+        $this->logger->critical('Got exception from Solr: {message}', [
+            'message' => $exception->getMessage(),
+            'exception' => $exception,
+        ]);
         throw new InternalSearchException(
             $additionalMessage,
             $exception->getCode(),

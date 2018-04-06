@@ -2,15 +2,14 @@
 
 namespace App\Service;
 
-use App\Entity\SolrEntity;
 use App\Entity\SolrEntityData;
 use App\Exception\BadRequestException;
 use App\Exception\DataDownloadErrorException;
+use App\Exception\FilterQuery\FilterQueryException;
 use App\Exception\InternalSearchException;
 use App\Exception\SolrEntityNotFoundException;
 use App\Exception\SolrExtractionException;
 use App\Model\Data\Data;
-use App\Model\Data\Search\Aggregation;
 use App\Model\Data\Search\SearchParams;
 use App\Model\Data\Search\SearchResults;
 use App\Queue\Message\UUIDMessage;
@@ -211,6 +210,7 @@ class DataService
      * @param string       $version      The API version, useful for migration and BC data handling
      *
      * @throws BadRequestException
+     * @throws FilterQueryException
      *
      * @return SearchResults
      */
