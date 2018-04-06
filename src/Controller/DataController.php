@@ -284,7 +284,7 @@ class DataController extends AbstractRpcController
         $data->uploader->appUrl = $apiUser->getUsername();
         $data->uploader->email = $apiUser->getEmail();
 
-        $res = $this->dataService->addData($data, $addRequest->params->dataTextualContents);
+        $this->dataService->addData($data, $addRequest->params->dataTextualContents);
 
         $data = $this->dataService->getData($addRequest->params->data->uuid);
         $addResponse = new AddResponse($data, $addRequest->id);

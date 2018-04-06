@@ -82,6 +82,10 @@ class DataService
      */
     public function deleteData(string $uuid): bool
     {
+        $this->logger->info('Deleting data from index, uuid={uuid}', [
+            'uuid' => $uuid,
+        ]);
+
         $deleted = $this->solrService->delete(SolrEntityData::getEntityType(), $uuid);
 
         if ($deleted) {
@@ -193,6 +197,12 @@ class DataService
         $data->status = Data::STATUS_OK;
         $dataEntity = SolrEntityData::buildFromModel($data);
 
+        $this->logger->info('Adding Data object to the index with text extraction, id={uuid}, file={filename}, file-size={filesize}', [
+            'uuid' => $data->uuid,
+            'file' => $fileInfo->getFilename(),
+            'filesize' => $fileInfo->getSize(),
+        ]);
+
         $result = $this->solrService->addWithTextExtraction($dataEntity, $fileInfo);
 
         if (!$this->retainDownloadedFiles) {
@@ -216,6 +226,11 @@ class DataService
      */
     public function searchData(SearchParams $searchParams, string $version): SearchResults
     {
+        $this->logger->info('Executing Data search, version={version}', [
+            'params' => $searchParams,
+            'version' => $version,
+        ]);
+
         $this->handleSearchParamVersion($searchParams, $version);
 
         // Building the search query
