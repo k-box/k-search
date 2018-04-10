@@ -98,6 +98,9 @@
             "ref": "dd8a4574b91d26fb70f10efe395c6d4e655bdf71"
         }
     },
+    "netgen/query-translator": {
+        "version": "1.0.2"
+    },
     "nette/bootstrap": {
         "version": "v2.4.5"
     },

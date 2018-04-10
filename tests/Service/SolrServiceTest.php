@@ -4,10 +4,11 @@ namespace App\Tests\Service;
 
 use App\Entity\AbstractSolrEntity;
 use App\Entity\SolrEntityData;
-use App\Exception\BadRequestException;
+use App\Service\QueryService;
 use App\Service\SolrService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Solarium\Client;
 use Solarium\QueryType\Select\Query\FilterQuery;
 use Solarium\QueryType\Select\Query\Query;
@@ -24,23 +25,20 @@ class SolrServiceTest extends TestCase
      */
     private $client;
 
+    /**
+     * @var QueryService|MockObject
+     */
+    private $queryService;
+
     public function setUp()
     {
         $this->client = $this->createMock(Client::class);
-        $this->solrService = new SolrService($this->client);
-    }
-
-    public function testBuildFilterQueryFromStringThrowsException()
-    {
-        $mapping = [
-            'property.name.one' => 'FIELD_ONE',
-            'property.name.two' => 'FIELD_TWO',
-        ];
-        $filterString = 'property.not-xisting:myvalue';
-        $key = 'my-key';
-
-        $this->expectException(BadRequestException::class);
-        $this->solrService->buildFilterFromString($filterString, $mapping, $key);
+        $this->queryService = $this->createMock(QueryService::class);
+        $this->solrService = new SolrService(
+            $this->client,
+            $this->queryService,
+            $this->createMock(LoggerInterface::class)
+        );
     }
 
     public function testBuildFilterQueryFromString()
@@ -52,7 +50,14 @@ class SolrServiceTest extends TestCase
         $filterString = 'property.name.one:myvalue';
         $key = 'my-key';
 
+        $this->queryService->expects($this->once())
+            ->method('getFilterQuery')
+            ->with($filterString, $mapping)
+            ->willReturn('FIELD_ONE:myvalue');
+
         $query = $this->solrService->buildFilterFromString($filterString, $mapping, $key);
+        $this->assertInstanceOf(FilterQuery::class, $query);
+
         $this->assertSame($key, $query->getKey());
         $this->assertSame('FIELD_ONE:myvalue', $query->getQuery());
     }

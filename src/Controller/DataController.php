@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\ApiUser;
 use App\Exception\BadRequestException;
+use App\Exception\FilterQuery\FilterQueryException;
 use App\Exception\SolrEntityNotFoundException;
 use App\Model\Data\AddRequest;
 use App\Model\Data\AddResponse;
@@ -283,7 +284,7 @@ class DataController extends AbstractRpcController
         $data->uploader->appUrl = $apiUser->getUsername();
         $data->uploader->email = $apiUser->getEmail();
 
-        $res = $this->dataService->addData($data, $addRequest->params->dataTextualContents);
+        $this->dataService->addData($data, $addRequest->params->dataTextualContents);
 
         $data = $this->dataService->getData($addRequest->params->data->uuid);
         $addResponse = new AddResponse($data, $addRequest->id);
@@ -338,7 +339,13 @@ class DataController extends AbstractRpcController
         /** @var SearchRequest $searchRequest */
         $searchRequest = $this->buildRpcRequestModelFromJson($request, SearchRequest::class, $version);
 
-        $searchResult = $this->dataService->searchData($searchRequest->params, $version);
+        try {
+            $searchResult = $this->dataService->searchData($searchRequest->params, $version);
+        } catch (FilterQueryException $exception) {
+            throw new BadRequestException([
+                'params.filters' => $exception->getMessage(),
+            ]);
+        }
 
         $searchResponse = new SearchResponse($searchResult, $searchRequest->id);
 

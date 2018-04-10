@@ -2,15 +2,14 @@
 
 namespace App\Service;
 
-use App\Entity\SolrEntity;
 use App\Entity\SolrEntityData;
 use App\Exception\BadRequestException;
 use App\Exception\DataDownloadErrorException;
+use App\Exception\FilterQuery\FilterQueryException;
 use App\Exception\InternalSearchException;
 use App\Exception\SolrEntityNotFoundException;
 use App\Exception\SolrExtractionException;
 use App\Model\Data\Data;
-use App\Model\Data\Search\Aggregation;
 use App\Model\Data\Search\SearchParams;
 use App\Model\Data\Search\SearchResults;
 use App\Queue\Message\UUIDMessage;
@@ -83,6 +82,10 @@ class DataService
      */
     public function deleteData(string $uuid): bool
     {
+        $this->logger->info('Deleting data from index, uuid={uuid}', [
+            'uuid' => $uuid,
+        ]);
+
         $deleted = $this->solrService->delete(SolrEntityData::getEntityType(), $uuid);
 
         if ($deleted) {
@@ -194,6 +197,12 @@ class DataService
         $data->status = Data::STATUS_OK;
         $dataEntity = SolrEntityData::buildFromModel($data);
 
+        $this->logger->info('Adding Data object to the index with text extraction, id={uuid}, file={filename}, file-size={filesize}', [
+            'uuid' => $data->uuid,
+            'file' => $fileInfo->getFilename(),
+            'filesize' => $fileInfo->getSize(),
+        ]);
+
         $result = $this->solrService->addWithTextExtraction($dataEntity, $fileInfo);
 
         if (!$this->retainDownloadedFiles) {
@@ -211,11 +220,17 @@ class DataService
      * @param string       $version      The API version, useful for migration and BC data handling
      *
      * @throws BadRequestException
+     * @throws FilterQueryException
      *
      * @return SearchResults
      */
     public function searchData(SearchParams $searchParams, string $version): SearchResults
     {
+        $this->logger->info('Executing Data search, version={version}', [
+            'params' => $searchParams,
+            'version' => $version,
+        ]);
+
         $this->handleSearchParamVersion($searchParams, $version);
 
         // Building the search query

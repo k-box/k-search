@@ -25,6 +25,8 @@ documentation, and:
 ### Deprecated
 ### Removed
 ### Fixed
+- Fix parsing of query sent in `data.search` "filters" params, handle validation and Solr errors
+
 ### Security
 
 ## [3.2.1-1] - 2018-03-20

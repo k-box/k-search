@@ -36,7 +36,7 @@ services:
             $appDebug: '%env(APP_DEBUG)%'
 
     App\:
-        resource: '../src/{Command,Security,EventListener,Service,Queue}'
+        resource: '../src/{Command,Security,EventListener,Service,Queue,Validator}'
 
     App\Controller\:
         resource: '../src/Controller'
