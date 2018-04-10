@@ -6,7 +6,7 @@ use App\Entity\SolrEntityData;
 use App\Exception\BadRequestException;
 use App\Model\Data\Data;
 use App\Queue\Message\UUIDMessage;
-use App\Service\DataDownloaderService;
+use App\Service\DataDownloader;
 use App\Service\DataService;
 use App\Service\QueueService;
 use App\Service\SolrService;
@@ -57,7 +57,7 @@ class DataServiceTest extends TestCase
     private $queueService;
 
     /**
-     * @var DataDownloaderService|MockObject
+     * @var DataDownloader|MockObject
      */
     private $downloaderService;
 
@@ -69,7 +69,7 @@ class DataServiceTest extends TestCase
         $this->edisMax = $this->createMock(EdisMax::class);
         $this->facetSet = $this->createMock(FacetSet::class);
         $this->queueService = $this->createMock(QueueService::class);
-        $this->downloaderService = $this->createMock(DataDownloaderService::class);
+        $this->downloaderService = $this->createMock(DataDownloader::class);
     }
 
     public function provideIndexableContentTypes(): array

@@ -36,7 +36,7 @@ class DataService
     private $queueService;
 
     /**
-     * @var DataDownloaderService
+     * @var DataDownloader
      */
     private $dataDownloaderService;
 
@@ -58,7 +58,7 @@ class DataService
     public function __construct(
         QueueService $queueService,
         SolrService $solrService,
-        DataDownloaderService $downloaderService,
+        DataDownloader $downloaderService,
         array $indexableContentTypes,
         bool $retainDownloadedFiles,
         LoggerInterface $logger

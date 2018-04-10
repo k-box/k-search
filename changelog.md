@@ -26,6 +26,7 @@ documentation, and:
 ### Removed
 ### Fixed
 - Fix parsing of query sent in `data.search` "filters" params, handle validation and Solr errors
+- Fix cache invalidation for downloaded files. The data.hash is now additionally check against the existing file
 
 ### Security
 

@@ -8,7 +8,7 @@ use App\Exception\SolrEntityNotFoundException;
 use App\Exception\SolrExtractionException;
 use App\Model\Data\Data;
 use App\Queue\Message\UUIDMessage;
-use App\Service\DataDownloaderService;
+use App\Service\DataDownloader;
 use App\Service\DataService;
 use App\Service\QueueService;
 use Psr\Log\LoggerInterface;
@@ -25,7 +25,7 @@ class DataIndexWorkerCommand extends Command
     /** @var QueueService */
     private $queueService;
 
-    /** @var DataDownloaderService */
+    /** @var DataDownloader */
     private $dataDownloaderService;
 
     /** @var DataService */
@@ -37,7 +37,7 @@ class DataIndexWorkerCommand extends Command
     public function __construct(
         QueueService $queueService,
         DataService $dataService,
-        DataDownloaderService $dataDownloaderService,
+        DataDownloader $dataDownloaderService,
         LoggerInterface $logger
     ) {
         parent::__construct();
