@@ -24,6 +24,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class DataServiceTest extends TestCase
 {
     private const DATA_UUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
+    private const LATEST_VERSION = '3.3';
 
     private const TYPES = [
             'application/pdf',
@@ -82,8 +83,6 @@ class DataServiceTest extends TestCase
 
     /**
      * @dataProvider provideIndexableContentTypes
-     *
-     * @param string $contentType
      */
     public function testHasIndexableContentType(string $contentType)
     {
@@ -209,11 +208,8 @@ class DataServiceTest extends TestCase
 
     /**
      * @dataProvider dataProviderForNotIndexableContentAndType
-     *
-     * @param        $textContents
-     * @param string $type
      */
-    public function testThrowsExceptionIfDataIsNotIndexable($textContents, string $type)
+    public function testThrowsExceptionIfDataIsNotIndexable(?string $textContents, string $type)
     {
         $data = ModelHelper::createDataModel(self::DATA_UUID);
         $data->type = $type;
@@ -293,9 +289,6 @@ class DataServiceTest extends TestCase
     public function testAddDataWithFileExtractionAndNoDataRetention()
     {
         $data = ModelHelper::createDataModel(self::DATA_UUID);
-        /**
-         * @var SplFileInfo|MockObject
-         */
         $file = $this->createMock(SplFileInfo::class);
 
         $this->solrService->expects($this->once())
@@ -349,10 +342,10 @@ class DataServiceTest extends TestCase
         $searchParam->aggregations[$aggregationField] = $agg;
         $searchParam->search = 'search-terms';
 
-        $this->setupSolrServiceForSearch(['search' => 'search-terms']);
-
-        $this->query->expects($this->never())
-            ->method('addSorts');
+        $this->setupSolrServiceForSearch([
+            'search' => 'search-terms',
+            'facets' => true,
+        ]);
 
         $this->facetSet->expects($this->once())
             ->method('addFacets');
@@ -374,6 +367,7 @@ class DataServiceTest extends TestCase
         return [
             'version3-2' => ['3.2', 1],
             'version3-1' => ['3.1', 0],
+            'latest' => [self::LATEST_VERSION, 1],
         ];
     }
 
@@ -391,13 +385,10 @@ class DataServiceTest extends TestCase
         $searchParam->aggregations[$aggregationField] = $agg;
         $searchParam->search = 'search-terms';
 
-        $this->setupSolrServiceForSearch(['search' => 'search-terms']);
-
-        $this->query->expects($this->never())
-            ->method('addSorts');
-
-        $this->facetSet->expects($this->once())
-            ->method('addFacets');
+        $this->setupSolrServiceForSearch([
+            'search' => 'search-terms',
+            'facets' => true,
+        ]);
 
         $this->solrService->expects($this->once())
             ->method('buildFacet')
@@ -406,6 +397,20 @@ class DataServiceTest extends TestCase
 
         $dataService = $this->buildDataService();
         $dataService->searchData($searchParam, $version);
+    }
+
+    public function testSearchNoFilterOnStatus()
+    {
+        $searchParam = ModelHelper::createDataSearchParamsModel();
+        $searchParam->search = 'search-terms';
+        $this->setupSolrServiceForSearch(['search' => 'search-terms']);
+
+        $this->query->expects($this->never())
+            ->method('addFilterQuery')
+            ->with(SolrEntityData::FIELD_STATUS, Data::STATUS_OK, $this->anything());
+
+        $dataService = $this->buildDataService();
+        $dataService->searchData($searchParam, self::LATEST_VERSION);
     }
 
     private function buildDataService(array $types = self::TYPES, bool $retainDownloads = true): DataService
@@ -427,6 +432,8 @@ class DataServiceTest extends TestCase
                 'search',
             ])
             ->setDefaults([
+                'facets' => false,
+                'sorts' => false,
                 'start' => 0,
                 'limit' => 10,
             ]);
@@ -441,9 +448,15 @@ class DataServiceTest extends TestCase
             ->method('getEDisMax')
             ->willReturn($this->edisMax);
 
-        $this->query->expects($this->once())
+        $this->query->expects($this->exactly(true === $options['sorts'] ? 1 : 0))
+            ->method('addSorts');
+
+        // Handling facets
+        $this->query->expects($this->exactly(true === $options['facets'] ? 1 : 0))
             ->method('getFacetSet')
             ->willReturn($this->facetSet);
+        $this->facetSet->expects($this->exactly(true === $options['facets'] ? 1 : 0))
+            ->method('addFacets');
 
         $this->query->expects($this->once())
             ->method('setRows')
