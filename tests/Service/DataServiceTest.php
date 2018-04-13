@@ -4,6 +4,7 @@ namespace App\Tests\Service;
 
 use App\Entity\SolrEntityData;
 use App\Exception\BadRequestException;
+use App\Exception\SolrEntityNotFoundException;
 use App\Model\Data\Data;
 use App\Queue\Message\UUIDMessage;
 use App\Service\DataDownloader;
@@ -18,6 +19,7 @@ use Solarium\QueryType\Select\Query\Component\EdisMax;
 use Solarium\QueryType\Select\Query\Component\Facet\Field;
 use Solarium\QueryType\Select\Query\Component\FacetSet;
 use Solarium\QueryType\Select\Query\Query;
+use Solarium\QueryType\Select\Result\Result;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -372,6 +374,53 @@ class DataServiceTest extends TestCase
         $dataService->searchData($searchParam, '3.2');
     }
 
+    public function testGetDataNoResults()
+    {
+        $this->solrService->expects($this->once())
+            ->method('buildFilterQuery')
+            ->with(SolrEntityData::FIELD_ENTITY_ID, self::DATA_UUID, 'id');
+
+        $resultSet = $this->createMock(Result::class);
+        $this->solrService->expects($this->once())
+            ->method('getByFilter')
+            ->willReturn($resultSet);
+        $resultSet->expects($this->once())
+            ->method('getNumFound')
+            ->willReturn(0);
+
+        $dataService = $this->buildDataService();
+
+        $this->expectException(SolrEntityNotFoundException::class);
+        $dataService->getData(self::DATA_UUID);
+    }
+
+    public function testSearchDataWithSorts()
+    {
+        $searchParam = ModelHelper::createDataSearchParamsModel();
+        $searchParam->sort = [ModelHelper::createDataSearchParamSort([
+            'field' => 'properties.title',
+            'order' => 'desc',
+        ])];
+        $searchParam->search = 'search-terms';
+
+        $this->setupSolrServiceForSearch([
+            'search' => 'search-terms',
+        ]);
+
+        $this->query->expects($this->once())
+            ->method('setSorts')
+            ->with($this->callback(function (array $sorts) {
+                $this->assertCount(1, $sorts);
+                $this->assertArrayHasKey(SolrEntityData::FIELD_PROPERTIES_TITLE_SORTING, $sorts);
+                $this->assertSame('desc', current($sorts));
+
+                return true;
+            }));
+
+        $dataService = $this->buildDataService();
+        $dataService->searchData($searchParam, '3.2');
+    }
+
     public function providerSearchDataWithAggregationsWithVersion(): array
     {
         return [
@@ -443,7 +492,6 @@ class DataServiceTest extends TestCase
             ])
             ->setDefaults([
                 'facets' => false,
-                'sorts' => false,
                 'start' => 0,
                 'limit' => 10,
             ]);
@@ -457,9 +505,6 @@ class DataServiceTest extends TestCase
         $this->query->expects($this->once())
             ->method('getEDisMax')
             ->willReturn($this->edisMax);
-
-        $this->query->expects($this->exactly(true === $options['sorts'] ? 1 : 0))
-            ->method('addSorts');
 
         // Handling facets
         $this->query->expects($this->exactly(true === $options['facets'] ? 1 : 0))

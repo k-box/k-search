@@ -100,24 +100,19 @@ class DataService
     /**
      * Retrieves the Data from the index, given its UUID.
      *
-     * @param string      $uuid   The data UUID
-     * @param string|null $status Filter the data to retrieve by the following status
+     * @param string $uuid The data UUID
      *
      * @throws SolrEntityNotFoundException
      *
      * @return Data
      */
-    public function getData(string $uuid, ?string $status = null): Data
+    public function getData(string $uuid): Data
     {
         $entityType = SolrEntityData::getEntityType();
 
         $filterQueries = [
             $this->solrService->buildFilterQuery(SolrEntityData::FIELD_ENTITY_ID, $uuid, 'id'),
         ];
-
-        if ($status) {
-            $filterQueries[] = $this->solrService->buildFilterQuery(SolrEntityData::FIELD_STATUS, $status, 'status');
-        }
 
         $resultSet = $this->solrService->getByFilter($entityType, SolrEntityData::class, $filterQueries, 1, 0);
 

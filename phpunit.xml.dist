@@ -31,6 +31,12 @@
         </testsuite>
     </testsuites>
 
+    <filter>
+        <whitelist>
+            <directory>./src</directory>
+        </whitelist>
+    </filter>
+
     <listeners>
         <!-- Temporary removed, see: https://github.com/symfony/symfony/pull/26024 -->
         <!-- <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" /> -->
