@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @SWG\Definition(
  *     definition="Data\Properties",
- *     description="The metadata of the data.",
+ *     description="The properties of the data.",
  *     required={"title", "filename",}
  * )
  */

@@ -22,6 +22,8 @@ documentation, and:
 - Add "uploader.organization" property (filterable, sortable, facetable)
 
 ### Changed
+- Allow all data to be searched and get, ignoring the data.status value
+
 ### Deprecated
 ### Removed
 ### Fixed

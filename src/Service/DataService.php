@@ -236,13 +236,6 @@ class DataService
         // Building the search query
         $query = $this->solrService->buildSelectQueryByEntityType(SolrEntityData::class, self::SEARCH_ENTITY_TYPE_KEY);
 
-        // Find only Data that is correctly indexed
-        $query->addFilterQuery($this->solrService->buildFilterQuery(
-            SolrEntityData::FIELD_STATUS,
-            Data::STATUS_OK,
-            self::SEARCH_DATA_STATUS_KEY
-        ));
-
         // Setting limit and offset
         $query->setRows($searchParams->limit);
         $query->setStart($searchParams->offset);
