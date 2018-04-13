@@ -16,6 +16,8 @@ use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface;
 
 class DataDownloader
 {
+    private const TEXT_CONTENTS_EXTENSION = 'contents';
+
     /**
      * @var HttpClient
      */
@@ -78,7 +80,7 @@ class DataDownloader
 
         try {
             $this->filesystem->remove($filename);
-            $this->logger->debug('Removed downloaded file for Data {uuid}, file={filename}', [
+            $this->logger->debug('Removed downloaded file for Data {uuid}', [
                 'uuid' => $uuid,
                 'filename' => $filename,
             ]);
@@ -180,6 +182,44 @@ class DataDownloader
     }
 
     /**
+     * Removes the textual contents of the data, if previously stored.
+     */
+    public function removeStoredTextualContents(string $uuid): bool
+    {
+        $filename = $this->getDataTempFilename($uuid, self::TEXT_CONTENTS_EXTENSION);
+        if (!$filename) {
+            return false;
+        }
+        try {
+            $this->filesystem->remove($filename);
+            $this->logger->debug('Removed textual-contents file for Data {uuid}', [
+                'uuid' => $uuid,
+                'filename' => $filename,
+            ]);
+
+            return true;
+        } catch (IOException $exception) {
+            $this->logger->error('Exception while deleting textual-contents file for Data {uuid}: {message}', [
+                'uuid' => $uuid,
+                'filename' => $filename,
+                'exception' => $exception,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return false;
+        }
+    }
+
+    /**
+     * Stores the textual contents of the data.
+     */
+    public function storeDataTextualContents(string $uuid, string $textualContents)
+    {
+        $filename = $this->nameGenerator->buildDownloadDataFilename($uuid, self::TEXT_CONTENTS_EXTENSION);
+        $this->filesystem->dumpFile($filename, $textualContents);
+    }
+
+    /**
      * Returns the headers fetched from the Data url.
      *
      * @param Data $data
@@ -249,9 +289,9 @@ class DataDownloader
     /**
      * Get the current filename of the downloaded data, null if the file does not exists.
      */
-    private function getDataTempFilename(string $uuid): ?string
+    private function getDataTempFilename(string $uuid, ?string $ext = null): ?string
     {
-        $filename = $this->nameGenerator->buildDownloadDataFilename($uuid);
+        $filename = $this->nameGenerator->buildDownloadDataFilename($uuid, $ext);
 
         return $this->filesystem->exists($filename) ? $filename : null;
     }

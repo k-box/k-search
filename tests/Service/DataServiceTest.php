@@ -141,6 +141,10 @@ class DataServiceTest extends TestCase
             ->method('removeDownloadedDataFile')
             ->with(self::DATA_UUID)
             ->willReturn(true);
+        $this->downloaderService->expects($this->once())
+            ->method('removeStoredTextualContents')
+            ->with(self::DATA_UUID)
+            ->willReturn(true);
 
         $dataService = $this->buildDataService();
         $this->assertTrue($dataService->deleteData(self::DATA_UUID));
@@ -157,6 +161,10 @@ class DataServiceTest extends TestCase
             ->method('removeDownloadedDataFile')
             ->with(self::DATA_UUID)
             ->willReturn(false);
+        $this->downloaderService->expects($this->once())
+            ->method('removeStoredTextualContents')
+            ->with(self::DATA_UUID)
+            ->willReturn(false);
 
         $dataService = $this->buildDataService();
         $this->assertTrue($dataService->deleteData(self::DATA_UUID));
@@ -171,6 +179,8 @@ class DataServiceTest extends TestCase
 
         $this->downloaderService->expects($this->never())
             ->method('removeDownloadedDataFile');
+        $this->downloaderService->expects($this->never())
+            ->method('removeStoredTextualContents');
 
         $dataService = $this->buildDataService();
         $this->assertFalse($dataService->deleteData(self::DATA_UUID));

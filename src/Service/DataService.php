@@ -38,7 +38,7 @@ class DataService
     /**
      * @var DataDownloader
      */
-    private $dataDownloaderService;
+    private $dataDownloader;
 
     /**
      * @var string[]
@@ -48,7 +48,7 @@ class DataService
     /**
      * @var bool
      */
-    private $retainDownloadedFiles;
+    private $retainDataContents;
 
     /**
      * @var LoggerInterface
@@ -60,14 +60,14 @@ class DataService
         SolrService $solrService,
         DataDownloader $downloaderService,
         array $indexableContentTypes,
-        bool $retainDownloadedFiles,
+        bool $retainDataContents,
         LoggerInterface $logger
     ) {
         $this->solrService = $solrService;
         $this->queueService = $queueService;
-        $this->dataDownloaderService = $downloaderService;
+        $this->dataDownloader = $downloaderService;
         $this->indexableContentTypes = $indexableContentTypes;
-        $this->retainDownloadedFiles = $retainDownloadedFiles;
+        $this->retainDataContents = $retainDataContents;
         $this->logger = $logger;
     }
 
@@ -90,7 +90,8 @@ class DataService
 
         if ($deleted) {
             // The following will not throw any exception in case of failure
-            $this->dataDownloaderService->removeDownloadedDataFile($uuid);
+            $this->dataDownloader->removeDownloadedDataFile($uuid);
+            $this->dataDownloader->removeStoredTextualContents($uuid);
         }
 
         return $deleted;
@@ -146,10 +147,15 @@ class DataService
     {
         $this->dataCleanup($data);
 
+        if (null !== $textualContents) {
+            $textualContents = trim($textualContents);
+            $textualContents = $textualContents ?? null;
+        }
+
         $dataEntity = null;
         $enqueue = true;
 
-        if (!empty($textualContents)) {
+        if ($textualContents) {
             // If the textual contents are provided, we straight index them
             $data->status = $data->status ?? Data::STATUS_OK;
             $dataEntity = SolrEntityData::buildFromModel($data);
@@ -168,6 +174,11 @@ class DataService
         ]);
 
         $this->solrService->add($dataEntity);
+
+        // Store the textualContents
+        if ($textualContents && $this->retainDataContents) {
+            $this->dataDownloader->storeDataTextualContents($data->uuid, $textualContents);
+        }
 
         if ($enqueue) {
             // We enqueue the data to be processed later, only if we were able to add it to the Index!
@@ -205,9 +216,9 @@ class DataService
 
         $result = $this->solrService->addWithTextExtraction($dataEntity, $fileInfo);
 
-        if (!$this->retainDownloadedFiles) {
+        if (!$this->retainDataContents) {
             // Downloaded files must be removed after indexing is successful
-            $this->dataDownloaderService->removeDownloadedDataFile($data->uuid);
+            $this->dataDownloader->removeDownloadedDataFile($data->uuid);
         }
 
         return $result;
@@ -292,7 +303,7 @@ class DataService
      */
     public function ensureDataIsIndexable(Data $data)
     {
-        $mimeType = $this->dataDownloaderService->getDataFileMimetype($data);
+        $mimeType = $this->dataDownloader->getDataFileMimetype($data);
 
         if (!$mimeType) {
             throw new BadRequestException([
