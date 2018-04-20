@@ -50,7 +50,7 @@ abstract class AbstractSolrVisitor extends Visitor
         }
 
         if (!$token->domain) {
-            throw ParsingException::fromToken($token);
+            throw ParsingException::fromToken($token, 'Missing property name');
         }
 
         if (!array_key_exists($token->domain, $this->domainFieldMap)) {

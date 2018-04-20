@@ -2,6 +2,7 @@
 
 namespace App\Helper\QueryParser;
 
+use App\Exception\FilterQuery\ParsingException;
 use LogicException;
 use QueryTranslator\Languages\Galach\Generators\Common\Visitor;
 use QueryTranslator\Languages\Galach\Values\Node\Group as GroupNode;
@@ -40,9 +41,12 @@ final class GroupVisitor extends AbstractSolrVisitor
             $clauses[] = $subVisitor->visit($subNode, $subVisitor, $options);
         }
 
-        $fieldPrefix = $this->getSolrFieldPrefix($node->tokenLeft);
+        if ($node->tokenLeft->domain) {
+            throw ParsingException::fromToken($node->tokenLeft, 'Property name can not be specified for groups');
+        }
+
         $clauses = implode(' ', $clauses);
 
-        return $fieldPrefix.'('.$clauses.')';
+        return '('.$clauses.')';
     }
 }

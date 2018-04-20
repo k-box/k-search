@@ -6,11 +6,12 @@ use QueryTranslator\Values\Token;
 
 class ParsingException extends FilterQueryException
 {
-    public static function fromToken(Token $token): self
+    public static function fromToken(Token $token, string $message): self
     {
-        return new self(sprintf('Parsing error near "%s" at position %d',
+        return new self(sprintf('Parsing error near "%s" at position %d%s',
             $token->lexeme,
-            $token->position
+            $token->position,
+            $message ? ': '.$message : ''
         ));
     }
 }
