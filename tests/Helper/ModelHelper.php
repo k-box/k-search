@@ -10,7 +10,9 @@ use App\Model\Data\Data;
 use App\Model\Data\Properties;
 use App\Model\Data\Search\Aggregation;
 use App\Model\Data\Search\SearchParams;
+use App\Model\Data\Search\SortParam;
 use App\Model\Data\Uploader;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ModelHelper
 {
@@ -123,5 +125,23 @@ class ModelHelper
         $searchParamModel = new SearchParams();
 
         return $searchParamModel;
+    }
+
+    public static function createDataSearchParamSort(array $data = []): SortParam
+    {
+        $resolver = new OptionsResolver();
+        $resolver->setRequired(['field']);
+        $resolver->setDefaults([
+            'order' => 'desc',
+        ]);
+        $resolver->setAllowedValues('order', ['desc', 'asc']);
+        $options = $resolver->resolve($data);
+
+        $sort = new SortParam();
+
+        $sort->field = $options['field'];
+        $sort->order = $options['order'];
+
+        return $sort;
     }
 }

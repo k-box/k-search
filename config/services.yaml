@@ -9,7 +9,7 @@ parameters:
     env(SOLR_CORE): '%env(SOLRCORE_NAME)%'
     env(SOLRCORE_NAME): 'k-search'
     env(SOLRCORE_HOST): '127.0.0.1'
-    env(KLINK_RETAIN_DOWNLOADED_FILES): 0
+    env(KLINK_RETAIN_DOWNLOADED_CONTENTS): 0
 
     indexable_content_types:
         - 'text/html'
@@ -51,7 +51,7 @@ services:
 
     App\Service\DataService:
         $indexableContentTypes: "%indexable_content_types%"
-        $retainDownloadedFiles: '%env(KLINK_RETAIN_DOWNLOADED_FILES)%'
+        $retainDataContents: '%env(KLINK_RETAIN_DOWNLOADED_CONTENTS)%'
 
     local_cache:
       class: 'Symfony\Component\Cache\Adapter\ApcuAdapter'

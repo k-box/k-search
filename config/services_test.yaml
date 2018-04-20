@@ -9,7 +9,7 @@ services:
     # Define here the services that will be overridden to be public
     App\Service\DataService:
         $indexableContentTypes: "%indexable_content_types%"
-        $retainDownloadedFiles: '%env(KLINK_RETAIN_DOWNLOADED_FILES)%'
+        $retainDataContents: '%env(KLINK_RETAIN_DOWNLOADED_CONTENTS)%'
 
     App\Security\Provider\KLinkRegistryUserProvider: ~
 
