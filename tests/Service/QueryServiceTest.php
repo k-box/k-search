@@ -19,13 +19,29 @@ class QueryServiceTest extends TestCase
         $this->queryService = new QueryService();
     }
 
-    public function testGeneratesFilterQuery()
+    public function filterQueryDataprovider(): array
+    {
+        return [
+            ['solr_field_name1:value', 'field.name1:value'],
+            [
+                '(solr_field_name1:value11 OR solr_field_name1:value12) AND solr_field_name2:value2',
+                '(field.name1:value11 OR field.name1:value12) AND field.name2:value2',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider filterQueryDataprovider
+     */
+    public function testGeneratesFilterQuery(string $expectedQuery, string $filter)
     {
         $mapping = [
-            'field.name' => 'solr_field_name',
+            'field.name1' => 'solr_field_name1',
+            'field.name2' => 'solr_field_name2',
+            'field.name3' => 'solr_field_name3',
         ];
 
-        $this->assertSame('solr_field_name:value', $this->queryService->getFilterQuery('field.name:value', $mapping));
+        $this->assertSame($expectedQuery, $this->queryService->getFilterQuery($filter, $mapping));
     }
 
     public function testGeneratesUnknownPropertyException()
