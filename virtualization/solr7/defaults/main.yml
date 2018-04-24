@@ -1,0 +1,18 @@
+solr_base_dir: "/opt/solr"
+solr_version: "7.4.0"
+
+solr_url: "http://archive.apache.org/dist/lucene/solr/{{ solr_version }}/solr-{{ solr_version }}.tgz"
+
+solr_install_dir: "{{ solr_base_dir }}"
+
+solr_config_dir: "{{ solr_base_dir }}/server/solr"
+
+solr_port: "8983"
+
+solr_command: "{{ solr_install_dir + '/bin/solr start -f -p ' + solr_port + ' -s ' + solr_config_dir }}"
+
+solr_install_jhighlight_library: true
+
+# Additional parameters, need to be enabed by donfiguration
+# solr_core_name: create a new core, with the specified name at provisioning
+# solr_core_conf: the configuration to symlink the core configuration from

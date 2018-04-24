@@ -1,0 +1,14 @@
+- name: Add debian backports repository
+  become: yes
+  apt_repository:
+    repo: 'deb http://http.debian.net/debian jessie-backports main'
+    state: present
+    update_cache: yes
+
+- name: Install openjdk-8-jre-headless
+  become: yes
+  apt:
+    default_release: jessie-backports
+    pkg: openjdk-8-jre-headless
+    state: installed
+    cache_valid_time: 3600

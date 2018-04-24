@@ -19,6 +19,7 @@ documentation, and:
 ## [Unreleased]
 ### Added
 ### Changed
+- Updated Solr to v7.4.x (Vagrant box)
 ### Deprecated
 ### Removed
 ### Fixed
