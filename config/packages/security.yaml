@@ -7,8 +7,10 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+            stateless: true
 
         docs:
+            stateless: true
             pattern: ^/api/docs
             security: false
         api3.0:
