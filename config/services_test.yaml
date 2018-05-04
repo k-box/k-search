@@ -5,7 +5,6 @@ services:
         autoconfigure: true
         public: true
 
-
     # Define here the services that will be overridden to be public
     App\Service\DataDownloader: ~
     App\Service\DataService:
@@ -13,6 +12,7 @@ services:
         $retainDataContents: '%env(KLINK_RETAIN_DOWNLOADED_CONTENTS)%'
 
     App\Security\Provider\KLinkRegistryUserProvider: ~
+    App\Service\DataStatusService: ~
 
     # Autowire ApiSecretAuthenticator user provider
     App\Security\Authenticator\ApiSecretAuthenticator:

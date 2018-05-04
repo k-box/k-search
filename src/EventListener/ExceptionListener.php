@@ -7,6 +7,8 @@ use App\Exception\DataDownloadErrorException;
 use App\Exception\InternalSearchException;
 use App\Exception\KRegistryException;
 use App\Exception\KSearchException;
+use App\Exception\OutdatedDataRequestException;
+use App\Exception\ProcessingStatusNotFoundException;
 use App\Exception\SolrEntityNotFoundException;
 use App\Model\Error\Error;
 use App\Model\Error\ErrorResponse;
@@ -66,6 +68,10 @@ class ExceptionListener implements EventSubscriberInterface
                 $previous = $exception->getPrevious();
                 $error = new Error(400, $exception->getMessage(), $previous ? $previous->getMessage() : null);
                 break;
+            case OutdatedDataRequestException::class:
+                $error = new Error(400, $exception->getMessage());
+                break;
+            case ProcessingStatusNotFoundException::class:
             case SolrEntityNotFoundException::class:
                 $error = new Error(404, $exception->getMessage());
                 break;

@@ -4,12 +4,12 @@ namespace App\Tests\Entity;
 
 use App\Entity\AbstractSolrEntity;
 use App\Entity\SolrEntityData;
-use App\Helper\SolrHelper;
+use App\Helper\DateHelper;
 use App\Model\Data\Data;
 use App\Model\Data\Properties\Source;
 use App\Model\Data\Properties\Streaming;
 use App\Model\Data\Properties\Video;
-use App\Tests\Helper\ModelHelper;
+use App\Tests\Helper\TestModelHelper;
 use PHPUnit\Framework\TestCase;
 
 class SolrEntityDataTest extends TestCase
@@ -18,7 +18,7 @@ class SolrEntityDataTest extends TestCase
 
     public function testItBuildsADocumentFromModel()
     {
-        $data = ModelHelper::createDataModel(self::SAMPLE_UUID);
+        $data = TestModelHelper::createDataModel(self::SAMPLE_UUID);
         $entity = SolrEntityData::buildFromModel($data);
 
         $this->assertSavedFields($entity, $data);
@@ -26,7 +26,7 @@ class SolrEntityDataTest extends TestCase
 
     public function testItBuildsADocumentModel()
     {
-        $data = ModelHelper::createDataModel(self::SAMPLE_UUID);
+        $data = TestModelHelper::createDataModel(self::SAMPLE_UUID);
         $entity = SolrEntityData::buildFromModel($data);
 
         $dataBuilt = $entity->buildModel();
@@ -36,7 +36,7 @@ class SolrEntityDataTest extends TestCase
 
     public function testItBuildsAVideoFromModel()
     {
-        $data = ModelHelper::createDataModel(self::SAMPLE_UUID);
+        $data = TestModelHelper::createDataModel(self::SAMPLE_UUID);
 
         $data->type = 'video';
 
@@ -59,7 +59,7 @@ class SolrEntityDataTest extends TestCase
 
     public function testItBuildsAVideoModel()
     {
-        $data = ModelHelper::createDataModel(self::SAMPLE_UUID);
+        $data = TestModelHelper::createDataModel(self::SAMPLE_UUID);
 
         $data->type = 'video';
 
@@ -109,7 +109,7 @@ class SolrEntityDataTest extends TestCase
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_UPLOADER_NAME_SEARCH), $data->uploader->name);
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_UPLOADER_ORGANIZATION), $data->uploader->organization);
         $this->assertEquals($entity->getField(SolrEntityData::FIELD_UPLOADER_ORGANIZATION_SEARCH), $data->uploader->organization);
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_PROPERTIES_CREATED_AT), $data->properties->createdAt->format(SolrHelper::DATE_FORMAT));
-        $this->assertEquals($entity->getField(SolrEntityData::FIELD_PROPERTIES_UPDATED_AT), $data->properties->updatedAt->format(SolrHelper::DATE_FORMAT));
+        $this->assertEquals($entity->getField(SolrEntityData::FIELD_PROPERTIES_CREATED_AT), DateHelper::formatDate($data->properties->createdAt));
+        $this->assertEquals($entity->getField(SolrEntityData::FIELD_PROPERTIES_UPDATED_AT), DateHelper::formatDate($data->properties->updatedAt));
     }
 }

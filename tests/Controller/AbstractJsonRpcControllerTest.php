@@ -5,6 +5,7 @@ namespace App\Tests\Controller;
 use App\Entity\ApiUser;
 use App\Security\Provider\KLinkRegistryUserProvider;
 use App\Service\DataService;
+use App\Service\DataStatusService;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -21,7 +22,7 @@ abstract class AbstractJsonRpcControllerTest extends WebTestCase
     protected const APP_EMAIL = 'email@example.ext';
 
     /**
-     * @var Client
+     * @var Client|null
      */
     protected $client;
 
@@ -83,6 +84,17 @@ abstract class AbstractJsonRpcControllerTest extends WebTestCase
         return $mocked;
     }
 
+    /**
+     * @return DataStatusService|MockObject
+     */
+    protected function setMockedDataStatusService()
+    {
+        $mocked = $this->createMock(DataStatusService::class);
+        $this->client->getContainer()->set(DataStatusService::class, $mocked);
+
+        return $mocked;
+    }
+
     protected function sendRequest(string $method, string $url, array $headers = [], string $contents = null)
     {
         $this->client->request($method, $url, [], [], $headers, $contents);
@@ -111,28 +123,28 @@ abstract class AbstractJsonRpcControllerTest extends WebTestCase
         }
     }
 
-    protected function assertJsonRpcErrorResponse(string $response, int $code, ?string $message = null, $errorData = null, ?string $responseId = null)
+    protected function assertJsonRpcErrorResponse(string $actualJson, int $code, ?string $message = null, $errorData = null, ?string $responseId = null): void
     {
-        $this->assertJson($response, 'Response should be a JSON data: '.$response);
-        $rpcResponse = json_decode($response, true);
-        $this->assertArrayHasKey('error', $rpcResponse, $response);
+        $this->assertJson($actualJson, 'Response should be a JSON data: '.$actualJson);
+        $rpcResponse = json_decode($actualJson, true);
+        $this->assertArrayHasKey('error', $rpcResponse, $actualJson);
 
-        $this->assertArrayHasKey('code', $rpcResponse['error'], $response);
-        $this->assertSame($code, $rpcResponse['error']['code'], $response);
+        $this->assertArrayHasKey('code', $rpcResponse['error'], $actualJson);
+        $this->assertSame($code, $rpcResponse['error']['code'], $actualJson);
 
         if ($errorData) {
-            $this->assertArrayHasKey('data', $rpcResponse['error'], $response);
-            $this->assertSame($errorData, $rpcResponse['error']['data'], $response);
+            $this->assertArrayHasKey('data', $rpcResponse['error'], $actualJson);
+            $this->assertSame($errorData, $rpcResponse['error']['data'], $actualJson);
         }
 
         if ($message) {
-            $this->assertArrayHasKey('message', $rpcResponse['error'], $response);
-            $this->assertSame($message, $rpcResponse['error']['message'], $response);
+            $this->assertArrayHasKey('message', $rpcResponse['error'], $actualJson);
+            $this->assertSame($message, $rpcResponse['error']['message'], $actualJson);
         }
 
         if ($responseId) {
-            $this->assertArrayHasKey('id', $rpcResponse, $response);
-            $this->assertSame($responseId, $rpcResponse['id'], $response);
+            $this->assertArrayHasKey('id', $rpcResponse, $actualJson);
+            $this->assertSame($responseId, $rpcResponse['id'], $actualJson);
         }
     }
 }

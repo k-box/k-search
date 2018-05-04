@@ -15,9 +15,11 @@ class DocsController extends Controller
      *     },
      *     @SWG\Info(
      *         title="K-Search API",
-     *         version="3.3",
+     *         version="3.4",
      *         description="The K-Search API definition",
-     *         contact="api@klink.asia",
+     *         @SWG\Contact(
+     *             email="api@klink.asia"
+     *         ),
      *         termsOfService="https://klink.asia/terms/",
      *     ),
      *     @SWG\SecurityScheme(
@@ -34,7 +36,10 @@ class DocsController extends Controller
      *     )
      * )
      *
-     * @Route("/docs")
+     * @Route(
+     *     "/docs",
+     *     methods={"GET"}
+     * )
      */
     public function getDocs()
     {

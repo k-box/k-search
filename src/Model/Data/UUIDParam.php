@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class UUIDParam
 {
     /**
-     * The universally unique identifier of the data piece to be deleted.
+     * The universally unique identifier of the data piece to be handled.
      *
      * @var string
      * @Assert\NotBlank()

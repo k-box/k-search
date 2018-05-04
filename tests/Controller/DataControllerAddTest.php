@@ -2,14 +2,14 @@
 
 namespace App\Tests\Controller;
 
-use App\Model\Data\Author;
+use App\Exception\OutdatedDataRequestException;
 use App\Model\Data\Copyright;
-use App\Model\Data\CopyrightOwner;
-use App\Model\Data\CopyrightUsage;
 use App\Model\Data\Data;
+use App\Model\Data\DataStatus;
 use App\Model\Data\Properties;
 use App\Model\Data\Uploader;
 use App\Security\Authorization\Voter\DataVoter;
+use App\Tests\Helper\TestModelHelper;
 use Symfony\Component\HttpFoundation\Response;
 
 class DataControllerAddTest extends AbstractJsonRpcControllerTest
@@ -20,11 +20,11 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
     {
         $this->setUserRoles([DataVoter::ROLE_DATA_ADD]);
 
-        $data = $this->buildDataDocumentMinimal();
+        $data = TestModelHelper::buildDataModelMinimal();
         $data->uploader->appUrl = self::APP_URL;
         $data->uploader->email = self::APP_EMAIL;
         $data->properties->updatedAt = new \DateTime();
-        $data->status = Data::STATUS_QUEUED;
+        $data->status = DataStatus::STATUS_QUEUED_OK;
 
         $dataService = $this->setMockedDataService();
         $dataService->expects($this->once())
@@ -36,10 +36,6 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
 
                 return true;
             }));
-        $dataService->expects($this->once())
-            ->method('getData')
-            ->with($data->uuid)
-            ->willReturn($data);
 
         $addData = file_get_contents(__DIR__.'/../fixtures/data-add.document-minimal.json');
         $this->sendAuthenticatedRequest(self::RPC_METHOD, self::DATA_ADD_ENDPOINT, $addData);
@@ -129,7 +125,7 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
     /**
      * @dataProvider provideFailureFiles
      */
-    public function testDataAddWithMissingRequiredFieldsFails(string $file, array $failures)
+    public function testDataAddWithMissingRequiredFieldsFails(string $file, array $failures): void
     {
         $this->setUserRoles([DataVoter::ROLE_DATA_ADD]);
 
@@ -163,7 +159,7 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
      *
      * @param array $roles
      */
-    public function testDataAddWithoutAddPermissionFails(array $roles)
+    public function testDataAddWithoutAddPermissionFails(array $roles): void
     {
         $this->setUserRoles($roles);
 
@@ -181,41 +177,34 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
         $this->assertJsonRpcErrorResponse($response->getContent(), Response::HTTP_FORBIDDEN, 'Access Denied.');
     }
 
+    public function testDataAddWithOutdatedDataFails(): void
+    {
+        $this->setUserRoles([DataVoter::ROLE_DATA_ADD]);
+        $dataService = $this->setMockedDataService();
+        $dataService->expects($this->once())
+            ->method('addData')
+            ->willThrowException(OutdatedDataRequestException::fromRequestId(self::REQUEST_ID));
+        $dataService->expects($this->never())
+            ->method('getData');
+
+        $addData = file_get_contents(__DIR__.'/../fixtures/data-add.document-minimal.json');
+        $this->sendAuthenticatedRequest(self::RPC_METHOD, self::DATA_ADD_ENDPOINT, $addData);
+
+        $response = $this->client->getResponse();
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertJsonRpcErrorResponse(
+            $response->getContent(),
+            400,
+            sprintf('Trying to add Data over a newer version of it (request: %s)', self::REQUEST_ID)
+        );
+    }
+
     private function getAddRequestData(array $params = []): string
     {
         $data = json_encode([
             'id' => self::REQUEST_ID,
             'params' => $params,
         ]);
-
-        return $data;
-    }
-
-    private function buildDataDocumentMinimal(): Data
-    {
-        $data = new Data();
-        $data->uuid = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
-        $data->url = 'https://localhost/data.url';
-        $data->hash = 'd6f644b19812e97b5d871658d6d3400ecd4787faeb9b8990c1e7608288664be77257104a58d033bcf1a0e0945ff06468ebe53e2dff36e248424c7273117dac09';
-        $data->type = 'document';
-        $author = new Author();
-        $author->name = 'author.name';
-        $data->authors[] = $author;
-        $data->copyright = new Copyright();
-        $data->copyright->owner = new CopyrightOwner();
-        $data->copyright->owner->name = 'copyright.owner.name';
-        $data->copyright->owner->website = 'copyright.owner.website';
-        $data->copyright->usage = new CopyrightUsage();
-        $data->copyright->usage->name = 'copyright.usage.name';
-        $data->copyright->usage->short = 'copyright.usage.short';
-        $data->uploader = new Uploader();
-        $data->uploader->name = 'uploader.name';
-        $data->properties = new Properties();
-        $data->properties->title = 'properties.title';
-        $data->properties->filename = 'properties.filename';
-        $data->properties->mimeType = 'properties.mime_type';
-        $data->properties->language = 'en';
-        $data->properties->createdAt = new \DateTime('2017-12-12T10:11:12Z', new \DateTimeZone('UTC'));
 
         return $data;
     }

@@ -1,0 +1,8 @@
+enqueue:
+    transport:
+        default: '%env(ENQUEUE_DSN)%'
+        fs:
+            path: 'enqueue'
+    client: ~
+    async_events:
+        enabled: true

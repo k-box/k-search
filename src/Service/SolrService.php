@@ -15,9 +15,9 @@ use App\Model\Data\Search\Aggregation;
 use App\Model\Data\Search\AggregationResult;
 use Psr\Log\LoggerInterface;
 use Solarium\Client;
+use Solarium\Component\Facet\Field;
 use Solarium\Exception\ExceptionInterface;
 use Solarium\Exception\HttpException;
-use Solarium\QueryType\Select\Query\Component\Facet\Field;
 use Solarium\QueryType\Select\Query\FilterQuery;
 use Solarium\QueryType\Select\Query\Query;
 use Solarium\QueryType\Select\Result\Result;
@@ -58,7 +58,7 @@ class SolrService
         return $this->solrClient->update($update);
     }
 
-    public function getByFilter(string $entityType, string $solrEntityClass, array $filterQueries = [], int $limit = 10, int $offset = 0): Result
+    public function getByFilter(string $entityType, string $solrEntityClass, array $filterQueries = [], int $limit = 10, int $offset = 0, array $fields = null): Result
     {
         if (!\in_array(SolrEntity::class, class_implements($solrEntityClass), true)) {
             throw new \RuntimeException(sprintf('Wrong class name for Solr entity fetching, %s given', $solrEntityClass));
@@ -71,7 +71,10 @@ class SolrService
         $select->addFilterQuery($this->buildFilterQuery(AbstractSolrEntity::FIELD_ENTITY_TYPE, $entityType, 'type'));
         $select->addFilterQueries($filterQueries);
 
-        $resultSet = null;
+        if (\is_array($fields)) {
+            $select->setFields($fields);
+        }
+
         try {
             return $this->executeSelectQuery($select);
         } catch (ExceptionInterface | \Throwable $exception) {
@@ -146,7 +149,7 @@ class SolrService
      *
      * @return bool
      */
-    public function addWithTextExtraction(AbstractSolrEntity $entity, \SplFileInfo $fileInfo)
+    public function addWithTextExtraction(AbstractSolrEntity $entity, \SplFileInfo $fileInfo): bool
     {
         if (!$entity instanceof SolrEntityExtractText) {
             throw new \RuntimeException(sprintf(
@@ -312,13 +315,17 @@ class SolrService
     {
         $aggregations = [];
 
-        if (!$result->getFacetSet()) {
+        $facetSet = $result->getFacetSet();
+        if (!$facetSet) {
             // if facets are unset, return empty aggregations list
             return $aggregations;
         }
 
-        foreach ($result->getFacetSet()->getFacets() as $property => $facets) {
-            foreach ($facets as $value => $count) {
+        foreach ($facetSet->getFacets() as $property => $facets) {
+            /*
+             * @var \Solarium\Component\Result\Facet\Field
+             */
+            foreach ($facets->getValues() as $value => $count) {
                 $aggregations[$property][] = new AggregationResult($value, $count);
             }
         }

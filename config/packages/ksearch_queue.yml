@@ -1,0 +1,13 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    App\Queue\Processor\:
+        resource: '../../src/Queue/Processor'
+
+    # Configure Queue processors
+    App\Queue\Processor\DataQueuedProcessor:
+        tags:
+            - { name: 'enqueue.client.processor' }

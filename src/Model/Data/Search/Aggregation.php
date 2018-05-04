@@ -58,7 +58,7 @@ class Aggregation
      * @SWG\Property(
      *     type="integer",
      *     default=1,
-     *     minimum="0",
+     *     minimum=0,
      *     x={"since-version":"3.2"},
      * )
      */

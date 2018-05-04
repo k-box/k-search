@@ -17,7 +17,7 @@ variables:
   before_script:
     - export COMPOSER_CACHE_DIR=`pwd`/.composer-cache
     - php -v && composer --version
-    - composer install --prefer-dist --no-interaction
+    - composer install --prefer-dist --no-interaction --optimize-autoloader
 
 ##### Jobs
 php-coding-and-tests:7.1:
@@ -28,7 +28,8 @@ php-coding-and-tests:7.1:
     - mv /usr/local/etc/php/conf.d/docker-php-ext-xdebug.{ini,disabled}
     - scripts/run_phpcs.sh
     - bin/console > /dev/null
-    - scripts/run_phpunit.sh
+    - scripts/run_test_migrations.sh
+    - scripts/run_test.sh
   tags:
     - docker
 

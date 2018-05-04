@@ -2,6 +2,7 @@
 
 namespace App\Tests\Helper;
 
+use App\Helper\DateHelper;
 use App\Model\Data\Author;
 use App\Model\Data\Copyright;
 use App\Model\Data\CopyrightOwner;
@@ -14,10 +15,40 @@ use App\Model\Data\Search\SortParam;
 use App\Model\Data\Uploader;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class ModelHelper
+class TestModelHelper
 {
+    public const DATA_UUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
     public const DATE = '2017-07-28T14:47:31Z';
     public const SIZE = 717590;
+
+    public static function buildDataModelMinimal(string $uuid = self::DATA_UUID): Data
+    {
+        $data = new Data();
+        $data->uuid = $uuid;
+        $data->url = 'https://localhost/data.url';
+        $data->hash = 'd6f644b19812e97b5d871658d6d3400ecd4787faeb9b8990c1e7608288664be77257104a58d033bcf1a0e0945ff06468ebe53e2dff36e248424c7273117dac09';
+        $data->type = 'document';
+        $author = new Author();
+        $author->name = 'author.name';
+        $data->authors[] = $author;
+        $data->copyright = new Copyright();
+        $data->copyright->owner = new CopyrightOwner();
+        $data->copyright->owner->name = 'copyright.owner.name';
+        $data->copyright->owner->website = 'copyright.owner.website';
+        $data->copyright->usage = new CopyrightUsage();
+        $data->copyright->usage->name = 'copyright.usage.name';
+        $data->copyright->usage->short = 'copyright.usage.short';
+        $data->uploader = new Uploader();
+        $data->uploader->name = 'uploader.name';
+        $data->properties = new Properties();
+        $data->properties->title = 'properties.title';
+        $data->properties->filename = 'properties.filename';
+        $data->properties->mimeType = 'properties.mime_type';
+        $data->properties->language = 'en';
+        $data->properties->createdAt = DateHelper::createUtcDate('2017-12-12 10:11:12');
+
+        return $data;
+    }
 
     public static function createDataModel($sampleUUID): Data
     {
@@ -64,7 +95,9 @@ class ModelHelper
         $author->contact = '221B Baker Street';
         $data->authors[] = $author;
 
-        $data->status = 'ok';
+        $data->status = 'index.ok';
+        $data->updatedAt = $date;
+        $data->requestId = 'a1b2c3d4e5f6';
 
         return $data;
     }

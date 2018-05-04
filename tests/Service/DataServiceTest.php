@@ -6,18 +6,19 @@ use App\Entity\SolrEntityData;
 use App\Exception\BadRequestException;
 use App\Exception\SolrEntityNotFoundException;
 use App\Model\Data\Data;
-use App\Queue\Message\UUIDMessage;
+use App\Model\Data\DataStatus;
 use App\Service\DataDownloader;
+use App\Service\DataProcessingService;
 use App\Service\DataService;
-use App\Service\QueueService;
+use App\Service\DataStatusService;
 use App\Service\SolrService;
-use App\Tests\Helper\ModelHelper;
+use App\Tests\Helper\TestModelHelper;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Solarium\QueryType\Select\Query\Component\EdisMax;
-use Solarium\QueryType\Select\Query\Component\Facet\Field;
-use Solarium\QueryType\Select\Query\Component\FacetSet;
+use Solarium\Component\EdisMax;
+use Solarium\Component\Facet\Field;
+use Solarium\Component\FacetSet;
 use Solarium\QueryType\Select\Query\Query;
 use Solarium\QueryType\Select\Result\Result;
 use Symfony\Component\Finder\SplFileInfo;
@@ -55,23 +56,29 @@ class DataServiceTest extends TestCase
     private $facetSet;
 
     /**
-     * @var QueueService|MockObject
+     * @var DataProcessingServiceTest|MockObject
      */
-    private $queueService;
+    private $dataProcessingService;
 
     /**
      * @var DataDownloader|MockObject
      */
     private $downloaderService;
 
+    /**
+     * @var DataStatusService|MockObject
+     */
+    private $dataStatusService;
+
     protected function setUp()
     {
         parent::setUp();
         $this->solrService = $this->createMock(SolrService::class);
+        $this->dataStatusService = $this->createMock(DataStatusService::class);
         $this->query = $this->createMock(Query::class);
         $this->edisMax = $this->createMock(EdisMax::class);
         $this->facetSet = $this->createMock(FacetSet::class);
-        $this->queueService = $this->createMock(QueueService::class);
+        $this->dataProcessingService = $this->createMock(DataProcessingService::class);
         $this->downloaderService = $this->createMock(DataDownloader::class);
     }
 
@@ -191,20 +198,20 @@ class DataServiceTest extends TestCase
     public function testAddDataWithTextualContentSucceeds()
     {
         $sampleTextualContent = 'example indeaxable content';
-        $data = ModelHelper::createDataModel(self::DATA_UUID);
+        $data = TestModelHelper::createDataModel(self::DATA_UUID);
 
         $this->solrService->expects($this->once())
             ->method('add')
             ->with(
                 $this->callback(function (SolrEntityData $data) {
-                    $this->assertEquals(Data::STATUS_OK, $data->getField(SolrEntityData::FIELD_STATUS));
+                    $this->assertEquals(DataStatus::STATUS_INDEX_OK, $data->getField(SolrEntityData::FIELD_STATUS));
 
                     return true;
                 }))
             ->willReturn(true);
 
-        $this->queueService->expects($this->never())
-            ->method('enqueueMessage');
+        $this->dataProcessingService->expects($this->never())
+            ->method('addDataForProcessing');
 
         $dataService = $this->buildDataService();
         $this->assertTrue($dataService->addData($data, $sampleTextualContent));
@@ -223,11 +230,11 @@ class DataServiceTest extends TestCase
      */
     public function testThrowsExceptionIfDataIsNotIndexable(?string $textContents, string $type)
     {
-        $data = ModelHelper::createDataModel(self::DATA_UUID);
+        $data = TestModelHelper::createDataModel(self::DATA_UUID);
         $data->type = $type;
 
-        $this->queueService->expects($this->never())
-            ->method('enqueueMessage');
+        $this->dataProcessingService->expects($this->never())
+            ->method('addDataForProcessing');
 
         $this->expectException(BadRequestException::class);
         $dataService = $this->buildDataService();
@@ -236,26 +243,14 @@ class DataServiceTest extends TestCase
 
     public function testItQueuesIndexableData()
     {
-        $data = ModelHelper::createDataModel(self::DATA_UUID);
+        $data = TestModelHelper::createDataModel(self::DATA_UUID);
 
-        $this->solrService->expects($this->once())
-            ->method('add')
-            ->with(
-            $this->callback(function (SolrEntityData $data) {
-                $this->assertEquals(Data::STATUS_QUEUED, $data->getField(SolrEntityData::FIELD_STATUS));
+        $this->solrService->expects($this->never())
+            ->method('add');
 
-                return true;
-            }))
-            ->willReturn(true);
-
-        $this->queueService->expects($this->once())
-            ->method('enqueueMessage')
-            ->with(QueueService::DATA_PROCESS_QUEUE, $this->callback(function (UUIDMessage $message) {
-                $this->assertSame(self::DATA_UUID, $message->getUUID());
-
-                return true;
-            }))
-        ;
+        $this->dataProcessingService->expects($this->once())
+            ->method('addDataForProcessing')
+            ->with($data);
 
         $this->downloaderService->expects($this->once())
             ->method('getDataFileMimetype')
@@ -267,7 +262,7 @@ class DataServiceTest extends TestCase
 
     public function testAddDataWithFileExtractionAndDataRetention()
     {
-        $data = ModelHelper::createDataModel(self::DATA_UUID);
+        $data = TestModelHelper::createDataModel(self::DATA_UUID);
         /**
          * @var SplFileInfo|MockObject
          */
@@ -277,7 +272,7 @@ class DataServiceTest extends TestCase
             ->method('addWithTextExtraction')
             ->with(
                 $this->callback(function (SolrEntityData $data) {
-                    $this->assertEquals(Data::STATUS_OK, $data->getField(SolrEntityData::FIELD_STATUS));
+                    $this->assertEquals(DataStatus::STATUS_INDEX_OK, $data->getField(SolrEntityData::FIELD_STATUS));
 
                     return true;
                 }),
@@ -286,9 +281,8 @@ class DataServiceTest extends TestCase
                 }))
             ->willReturn(true);
 
-        $this->queueService->expects($this->never())
-            ->method('enqueueMessage')
-        ;
+        $this->dataProcessingService->expects($this->never())
+            ->method('addDataForProcessing');
 
         $this->downloaderService->expects($this->never())
             ->method('removeDownloadedDataFile')
@@ -304,14 +298,14 @@ class DataServiceTest extends TestCase
 
     public function testAddDataWithFileExtractionAndNoDataRetention()
     {
-        $data = ModelHelper::createDataModel(self::DATA_UUID);
+        $data = TestModelHelper::createDataModel(self::DATA_UUID);
         $file = $this->createMock(SplFileInfo::class);
 
         $this->solrService->expects($this->once())
             ->method('addWithTextExtraction')
             ->with(
                 $this->callback(function (SolrEntityData $data) {
-                    $this->assertEquals(Data::STATUS_OK, $data->getField(SolrEntityData::FIELD_STATUS));
+                    $this->assertEquals(DataStatus::STATUS_INDEX_OK, $data->getField(SolrEntityData::FIELD_STATUS));
 
                     return true;
                 }),
@@ -320,9 +314,8 @@ class DataServiceTest extends TestCase
                 }))
             ->willReturn(true);
 
-        $this->queueService->expects($this->never())
-            ->method('enqueueMessage')
-        ;
+        $this->dataProcessingService->expects($this->never())
+            ->method('addDataForProcessing');
 
         $this->downloaderService->expects($this->once())
             ->method('removeDownloadedDataFile')
@@ -353,8 +346,8 @@ class DataServiceTest extends TestCase
     public function testSearchDataWithAggregationsWithFilteredCounts(bool $expectedExcludeFilter, bool $filteredValue)
     {
         $facetField = $this->createMock(Field::class);
-        $searchParam = ModelHelper::createDataSearchParamsModel();
-        $agg = ModelHelper::createDataSearchParamAggregationModel();
+        $searchParam = TestModelHelper::createDataSearchParamsModel();
+        $agg = TestModelHelper::createDataSearchParamAggregationModel();
         $agg->countsFiltered = $filteredValue;
 
         $aggregationField = 'uploader.name';
@@ -404,8 +397,8 @@ class DataServiceTest extends TestCase
 
     public function testSearchDataWithSorts()
     {
-        $searchParam = ModelHelper::createDataSearchParamsModel();
-        $searchParam->sort = [ModelHelper::createDataSearchParamSort([
+        $searchParam = TestModelHelper::createDataSearchParamsModel();
+        $searchParam->sort = [TestModelHelper::createDataSearchParamSort([
             'field' => 'properties.title',
             'order' => 'desc',
         ])];
@@ -444,8 +437,8 @@ class DataServiceTest extends TestCase
     public function testSearchDataWithAggregationsWithVersion(string $version, int $minCount)
     {
         $facetField = $this->createMock(Field::class);
-        $searchParam = ModelHelper::createDataSearchParamsModel();
-        $agg = ModelHelper::createDataSearchParamAggregationModel();
+        $searchParam = TestModelHelper::createDataSearchParamsModel();
+        $agg = TestModelHelper::createDataSearchParamAggregationModel();
 
         $aggregationField = 'uploader.name';
         $aggregationSolrField = SolrEntityData::getAggregationFields()[$aggregationField];
@@ -468,13 +461,13 @@ class DataServiceTest extends TestCase
 
     public function testSearchNoFilterOnStatus()
     {
-        $searchParam = ModelHelper::createDataSearchParamsModel();
+        $searchParam = TestModelHelper::createDataSearchParamsModel();
         $searchParam->search = 'search-terms';
         $this->setupSolrServiceForSearch(['search' => 'search-terms']);
 
         $this->query->expects($this->never())
             ->method('addFilterQuery')
-            ->with(SolrEntityData::FIELD_STATUS, Data::STATUS_OK, $this->anything());
+            ->with(SolrEntityData::FIELD_STATUS, DataStatus::STATUS_INDEX_OK, $this->anything());
 
         $dataService = $this->buildDataService();
         $dataService->searchData($searchParam, self::LATEST_VERSION);
@@ -483,7 +476,8 @@ class DataServiceTest extends TestCase
     private function buildDataService(array $types = self::TYPES, bool $retainDownloads = true): DataService
     {
         return new DataService(
-            $this->queueService,
+            $this->dataProcessingService,
+            $this->dataStatusService,
             $this->solrService,
             $this->downloaderService,
             $types,

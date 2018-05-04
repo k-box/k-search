@@ -23,6 +23,15 @@
         <env name="SOLR_HOST" value="localhost"/>
         <env name="SOLR_CORE" value="ksearch"/>
         <!-- ###- nelmio/solarium-bundle ### -->
+
+        <!-- ###+ doctrine/doctrine-bundle ### -->
+        <!-- Format described at http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/configuration.html#connecting-using-a-url -->
+        <!-- <env name="DATABASE_URL" value="sqlite:///%kernel.project_dir%/var/data_test.db"/> -->
+        <!-- ###- doctrine/doctrine-bundle ### -->
+
+        <!-- ###+ enqueue/enqueue-bundle ### -->
+        <env name="ENQUEUE_DSN" value="null://"/>
+        <!-- ###- enqueue/enqueue-bundle ### -->
     </php>
 
     <testsuites>
