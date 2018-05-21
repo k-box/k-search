@@ -2,26 +2,16 @@
 
 The K-Search includes a set of commands that can be run from the command line
 interface as some utility checks and operations.
-
-### Core Optimize
-The command `k-search:optimize` optimizes all the available Solr cores.
-
-Example:
-> `php bin/console k-search:optimize`
-
-The following command will optimize only the `public` core on the K-Search instance.
-> `php bin/console k-search:optimize --core=public`
+Run `php bin/console` to have an overwiev of all available commands. 
 
 
-## Thumbnails
+## Specific K-Search commands:
 
-### Generate next thumbnail
-The command `k-search:thumbnails:generate` generates the next Thumbnail from the queue.
+- `ksearch:data:delete`
+    Deletes a given data from the index
 
-This command should be included in a Cron job and scheduled to run every 2 minutes.
+- `ksearch:data:index-worker`
+   Handles the queuing of data processing by downloading the documents and indexing the data and file
 
-### Clean thumbnails folders
-The command `k-search:thumbnails:clean` will clean the thumbnail folders from old and
-not required files
-
-This command should be included in a Cron job and scheduled for a daily run.
+- `ksearch:data:status`
+    Returns the status of a given data from the index
