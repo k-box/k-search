@@ -72,7 +72,7 @@ class ApiSecretAuthenticator extends AbstractGuardAuthenticator
         if (!$userProvider instanceof KLinkRegistryUserProvider) {
             throw new \RuntimeException(sprintf('Authenticator %s is expecting %s provider, while %s has been used',
                 __CLASS__,
-                    get_class($userProvider),
+                    \get_class($userProvider),
                 KLinkRegistryUserProvider::class
             ));
         }
@@ -146,7 +146,7 @@ class ApiSecretAuthenticator extends AbstractGuardAuthenticator
 
         $authorizationHeader = $headers->get('Authorization');
 
-        if (!is_string($authorizationHeader)) {
+        if (!\is_string($authorizationHeader)) {
             return null;
         }
 
@@ -156,7 +156,7 @@ class ApiSecretAuthenticator extends AbstractGuardAuthenticator
             return null;
         }
 
-        if (strlen($authorizationHeader) < (7 + self::BEARER_MIN_LENGTH)) {
+        if (\strlen($authorizationHeader) < (7 + self::BEARER_MIN_LENGTH)) {
             return null;
         }
 

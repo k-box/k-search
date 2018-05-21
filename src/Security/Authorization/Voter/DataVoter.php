@@ -66,7 +66,7 @@ class DataVoter extends Voter
 
     protected function supports($attribute, $subject)
     {
-        if (!in_array($attribute, self::ALL_PERMISSIONS, true)) {
+        if (!\in_array($attribute, self::ALL_PERMISSIONS, true)) {
             return false;
         }
 

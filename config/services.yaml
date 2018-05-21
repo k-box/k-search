@@ -67,6 +67,7 @@ services:
             - '%env(KLINK_REGISTRY_API_URL)%'
 
     OneOffTech\KLinkRegistryClient\ApiClient:
+        lazy: true
         factory: ['OneOffTech\KLinkRegistryClient\ApiClient', 'fromConfigurator']
 
     # Autowire ApiSecretAuthenticator user provider

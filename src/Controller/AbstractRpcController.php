@@ -60,7 +60,7 @@ abstract class AbstractRpcController extends Controller
         }
 
         $validationErrors = $this->validator->validate($requestModel);
-        if (count($validationErrors) > 0) {
+        if (\count($validationErrors) > 0) {
             $errors = [];
             /** @var ConstraintViolationInterface $error */
             foreach ($validationErrors as $error) {
