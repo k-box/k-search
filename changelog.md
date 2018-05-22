@@ -26,7 +26,7 @@ documentation, and:
 - Allow all data to be searched and get, ignoring the data.status value
 
 ### Deprecated
-- Configuration of `KLINK_REGISTRY_API_URL` is deprecated `KLINK_REGISTRY_ENABLED` is set to 0
+- Configuration of `KLINK_REGISTRY_API_URL` is deprecated when `KLINK_REGISTRY_ENABLED` is set to 0
 
 ### Removed
 ### Fixed
