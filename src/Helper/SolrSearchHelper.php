@@ -28,7 +28,7 @@ class SolrSearchHelper
         }
 
         foreach ($filters as $key => $filter) {
-            if (is_array($filter)) {
+            if (\is_array($filter)) {
                 $q = new FilterQuery();
                 $q->setKey($key);
                 $query = self::buildFilterQueryForSingleValue($filter['field'], $filter['value']);
@@ -108,7 +108,7 @@ class SolrSearchHelper
         $stringArray = str_split($text);
         $escapedStringArray = [];
         foreach ($stringArray as $char) {
-            if (in_array($char, $charsToEscape, true)) {
+            if (\in_array($char, $charsToEscape, true)) {
                 $char = '\\'.$char;
             }
             $escapedStringArray[] = $char;
@@ -128,7 +128,7 @@ class SolrSearchHelper
         $filterValue = explode($separator, $filterValue);
         $filterValue = array_filter($filterValue, 'trim');
 
-        if (count($filterValue) > 1) {
+        if (\count($filterValue) > 1) {
             $connector = (self::FILTER_SEPARATOR_OR === $separator) ? 'OR' : 'AND';
             $values = [];
             foreach ($filterValue as $v) {
@@ -136,7 +136,7 @@ class SolrSearchHelper
             }
 
             $filterValue = '('.implode(' '.$connector.' ', $values).')';
-        } elseif (1 === count($filterValue)) {
+        } elseif (1 === \count($filterValue)) {
             $filterValue = self::escapeSolrFieldValue(trim(reset($filterValue)));
         }
 

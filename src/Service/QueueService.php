@@ -83,7 +83,7 @@ class QueueService
 
     private function ensureQueueIsValid(string $queueName)
     {
-        if (!in_array($queueName, self::QUEUES, true)) {
+        if (!\in_array($queueName, self::QUEUES, true)) {
             throw new \RuntimeException(sprintf('Queue %s does not exist!', $queueName));
         }
     }

@@ -41,6 +41,6 @@ class BadRequestException extends KSearchException
             $message .= sprintf('%s: %s', $errorKey, $errorMessage).PHP_EOL;
         }
 
-        return substr($message, 0, -strlen(PHP_EOL));
+        return substr($message, 0, -\strlen(PHP_EOL));
     }
 }

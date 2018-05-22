@@ -8,7 +8,7 @@ class SolrHelper
 
     public static function transformFieldNames(string $entityData, string $filter): string
     {
-        $indexableFields = call_user_func([$entityData, 'getIndexableFields']);
+        $indexableFields = \call_user_func([$entityData, 'getIndexableFields']);
         foreach ($indexableFields as $alias => $fieldName) {
             $filter = preg_replace(sprintf('/\b%s\b/', $alias), $fieldName, $filter);
         }

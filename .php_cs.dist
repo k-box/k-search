@@ -43,6 +43,10 @@ return PhpCsFixer\Config::create()
         'semicolon_after_instruction' => true,
         'strict_comparison' => true,
         'strict_param' => true,
+        'LeoFeyer/optimize_native_functions' => true,
+    ])
+    ->registerCustomFixers([
+        new LeoFeyer\PhpCsFixer\OptimizeNativeFunctionsFixer()
     ])
     ->setFinder($finder)
 ;

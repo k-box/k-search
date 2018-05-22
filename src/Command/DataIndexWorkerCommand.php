@@ -73,7 +73,7 @@ class DataIndexWorkerCommand extends Command
 
             if (!$message instanceof UUIDMessage) {
                 $this->logger->error('Error handling queue message, wrong message type {type} received', [
-                    'type' => $message ? get_class($message) : 'null',
+                    'type' => $message ? \get_class($message) : 'null',
                 ]);
 
                 continue;
@@ -106,7 +106,7 @@ class DataIndexWorkerCommand extends Command
                     'exception' => $e,
                 ]);
                 $output->writeln([
-                    sprintf('<error>Error while handling data message %s</error>', $message ? get_class($message) : 'null'),
+                    sprintf('<error>Error while handling data message %s</error>', $message ? \get_class($message) : 'null'),
                     $e->getMessage(),
                 ]);
             }

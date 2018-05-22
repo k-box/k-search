@@ -306,7 +306,7 @@ class DataService
             ]);
         }
 
-        if (!in_array($mimeType, $this->indexableContentTypes, true)) {
+        if (!\in_array($mimeType, $this->indexableContentTypes, true)) {
             throw new BadRequestException([
                 sprintf('The given Data could not be indexed: the mime-type %s is not supported.', $mimeType),
             ]);

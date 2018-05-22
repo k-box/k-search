@@ -60,7 +60,7 @@ class SolrService
 
     public function getByFilter(string $entityType, string $solrEntityClass, array $filterQueries = [], int $limit = 10, int $offset = 0): Result
     {
-        if (!in_array(SolrEntity::class, class_implements($solrEntityClass), true)) {
+        if (!\in_array(SolrEntity::class, class_implements($solrEntityClass), true)) {
             throw new \RuntimeException(sprintf('Wrong class name for Solr entity fetching, %s given', $solrEntityClass));
         }
 
@@ -84,7 +84,7 @@ class SolrService
 
     public function getOne(string $entityType, string $solrEntityClass, string $id)
     {
-        if (!in_array(SolrEntity::class, class_implements($solrEntityClass), true)) {
+        if (!\in_array(SolrEntity::class, class_implements($solrEntityClass), true)) {
             throw new \RuntimeException(sprintf('Wrong class name for Solr entity fetching, %s given', $solrEntityClass));
         }
 
@@ -151,7 +151,7 @@ class SolrService
         if (!$entity instanceof SolrEntityExtractText) {
             throw new \RuntimeException(sprintf(
                 'Wrong object type for text-extracting. %s does not implement %s',
-                get_class($entity),
+                \get_class($entity),
                 SolrEntityExtractText::class)
             );
         }

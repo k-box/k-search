@@ -13,7 +13,6 @@ use App\Model\Error\ErrorResponse;
 use App\Model\RPCRequest;
 use JMS\Serializer\Exception\RuntimeException as JMSRuntimeException;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
@@ -34,14 +33,14 @@ class ExceptionListener implements EventSubscriberInterface
         $this->logger = $logger;
     }
 
-    public function onKernelException(GetResponseForExceptionEvent $event)
+    public function onKernelException(GetResponseForExceptionEvent $event): void
     {
         $exception = $event->getException();
 
         if (!($exception instanceof JMSRuntimeException ||
             $exception instanceof KSearchException ||
             $exception instanceof AccessDeniedException ||
-            $exception instanceof InvalidArgumentException
+            $exception instanceof \InvalidArgumentException
         )) {
             return;
         }
@@ -55,7 +54,7 @@ class ExceptionListener implements EventSubscriberInterface
         // Get the request-id, if any.
         $requestId = (string) $event->getRequest()->headers->get(RPCRequest::REQUEST_ID_HEADER, null);
 
-        switch (get_class($exception)) {
+        switch (\get_class($exception)) {
             case JMSRuntimeException::class:
                 $error = new Error(400, 'Wrong data provided!', [$exception->getMessage()]);
                 break;
@@ -85,7 +84,7 @@ class ExceptionListener implements EventSubscriberInterface
                 $data = [];
                 if ($this->debug) {
                     $data = [
-                        'type' => get_class($exception),
+                        'type' => \get_class($exception),
                         'message' => $exception->getMessage(),
                     ];
                 }

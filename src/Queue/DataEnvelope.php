@@ -25,6 +25,6 @@ class DataEnvelope extends Envelope
             return $message;
         }
 
-        throw new \RuntimeException(sprintf('Wrong data from queue, expecting %s, but got %s', UUIDMessage::class, get_class($message)));
+        throw new \RuntimeException(sprintf('Wrong data from queue, expecting %s, but got %s', UUIDMessage::class, \get_class($message)));
     }
 }
