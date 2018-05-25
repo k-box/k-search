@@ -5,6 +5,9 @@ php:
 
 sudo: required
 
+git:
+  submodules: false
+
 services:
   - docker
 
