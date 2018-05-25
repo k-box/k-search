@@ -1,0 +1,45 @@
+language: php
+
+php:
+  - 7.1
+  - 7.2
+
+matrix:
+  allow_failures:
+    - php: 7.2
+
+sudo: required
+
+git:
+  submodules: false
+
+services:
+  - docker
+
+cache:
+  directories:
+  - $HOME/.composer/cache
+
+before_install:
+  - docker pull docker.klink.asia/images/k-search-engine:0.4.2
+  - docker run --rm -d -p 127.0.0.1:8983:8983 --name engine docker.klink.asia/images/k-search-engine:0.4.2
+  - docker ps -a
+
+after_script:
+  - docker stop engine && docker rm engine
+
+install:
+  - export COMPOSER_CACHE_DIR=`pwd`/.composer-cache
+  - travis_retry composer install --prefer-dist --no-interaction
+
+before_script:
+  - phpenv config-rm xdebug.ini # disabling XDebug as currently we are not interested in code coverage report
+
+script: 
+  - scripts/run_phpcs.sh
+  - bin/console > /dev/null
+  - scripts/run_phpunit.sh
+
+notifications:
+  email:
+    on_success: never
