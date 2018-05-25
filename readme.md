@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/k-box/k-search.svg?branch=develop)](https://travis-ci.org/k-box/k-search)
+
 # K-Search
 
 The K-Search is the search-related component of the K-Link project, it consists of a set of APIs
