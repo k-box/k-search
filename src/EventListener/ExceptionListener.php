@@ -91,12 +91,13 @@ class ExceptionListener implements EventSubscriberInterface
                 $error = new Error(500, 'Internal Server Error. Please contact the system administrator.', $data);
         }
 
-        if (500 >= $error->code) {
+        if (500 <= $error->code) {
             $this->logger->error('Internal exception while handling {url} request', [
                 'url' => $event->getRequest()->getUri(),
                 'exception' => $exception,
                 'message' => $exception->getMessage(),
                 'event' => $event,
+                'error' => $error,
             ]);
         }
 
