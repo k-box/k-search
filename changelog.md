@@ -18,6 +18,7 @@ documentation, and:
 
 ## [Unreleased]
 ### Added
+- Allow stored files to be served from `/files/{UUID}`
 - Allow "data_textual_contents" from data.add to be retained (env variable: KLINK_RETAIN_DOWNLOADED_CONTENTS=[1|0])
 - Add configuration for downloaded file retention policy (env variable: KLINK_RETAIN_DOWNLOADED_CONTENTS=[1|0])
 - Add "uploader.organization" property (filterable, sortable, facetable)

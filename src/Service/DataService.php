@@ -211,6 +211,9 @@ class DataService
 
         $result = $this->solrService->addWithTextExtraction($dataEntity, $fileInfo);
 
+        // Remove stale stored textual-contents
+        $this->dataDownloader->removeStoredTextualContents($data->uuid);
+
         if (!$this->retainDataContents) {
             // Downloaded files must be removed after indexing is successful
             $this->dataDownloader->removeDownloadedDataFile($data->uuid);

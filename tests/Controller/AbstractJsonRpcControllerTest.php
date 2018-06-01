@@ -23,7 +23,7 @@ abstract class AbstractJsonRpcControllerTest extends WebTestCase
     /**
      * @var Client
      */
-    protected $client = null;
+    protected $client;
 
     protected $userRoles = [];
 
