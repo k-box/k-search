@@ -30,7 +30,7 @@ commands:
 1. Obtain the K-Search code: `git clone git@git.klink.asia:main/k-search.git --recursive`
 2. Start the VM and let Drifter provision it: `vagrant up`
 
-The K-Search VM will be available at `http://ksearch.dev`.
+The K-Search VM will be available at `http://ksearch.test`.
 
 ### Dependencies
 
