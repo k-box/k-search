@@ -3,7 +3,7 @@
 project_name: "ksearch"
 
 # Main hostname through which the vagrant box will be accessible
-hostname: "ksearch.dev"
+hostname: "ksearch.test"
 # Alternative hostnames through which you want to access the vagrant box
 hostnames: []
 
