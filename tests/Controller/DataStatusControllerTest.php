@@ -5,7 +5,6 @@ namespace App\Tests\Controller;
 use App\Exception\ProcessingStatusNotFoundException;
 use App\Exception\SolrEntityNotFoundException;
 use App\Helper\DateHelper;
-use App\Model\Data\Data;
 use App\Model\Data\DataStatus;
 use App\Security\Authorization\Voter\DataVoter;
 use Symfony\Component\HttpFoundation\Response;

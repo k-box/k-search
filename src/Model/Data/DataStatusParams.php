@@ -15,7 +15,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 class DataStatusParams extends UUIDParam
 {
     /**
-     * The status type, used to get the status from different stages.
+     * The status type, used to get the status from different indexing or processing stages.
+     * Use `data` for the indexed Data status, `processing` for the processing queue Data status.
      *
      * @var string
      * @Assert\Choice(callback="getTypes")

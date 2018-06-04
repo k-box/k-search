@@ -3,11 +3,8 @@
 namespace App\Tests\Controller;
 
 use App\Exception\OutdatedDataRequestException;
-use App\Model\Data\Copyright;
 use App\Model\Data\Data;
 use App\Model\Data\DataStatus;
-use App\Model\Data\Properties;
-use App\Model\Data\Uploader;
 use App\Security\Authorization\Voter\DataVoter;
 use App\Tests\Helper\TestModelHelper;
 use Symfony\Component\HttpFoundation\Response;

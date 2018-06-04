@@ -35,6 +35,9 @@ class DataStatusController extends AbstractRpcController
     /**
      * Get the status information of a Data piece in the index.
      *
+     * Get the status information of a Data piece in the index. This API requires the `data-view` permission.
+     * The "type" parameter: use `data` for the indexed status, `processing` for the processing queue status.
+     *
      * @Route(
      *     name="api.v3.data.status",
      *     path="api/{version}/data.status",
@@ -46,8 +49,7 @@ class DataStatusController extends AbstractRpcController
      *
      * @SWG\Post(
      *     path="/api/3.4/data.status",
-     *     description="Get the status information of a Data piece in the index. This API requires the `data-view`
-     *     permission.", tags={"Data"},
+     *     tags={"Data"},
      *     @SWG\Parameter(
      *         name="body",
      *         in="body",

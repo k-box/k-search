@@ -80,6 +80,8 @@ class DataStatus
     public $requestId;
 
     /**
+     * The time the originated request was made.
+     *
      * @var \DateTimeInterface
      * @JMS\Type("DateTime<'Y-m-d\TH:i:s\Z', 'UTC'>")
      * @JMS\ReadOnly()
