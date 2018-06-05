@@ -27,8 +27,8 @@ class DataFileNameGenerator
         $subFolder = substr($uuid, 0, 2);
 
         return $this->downloadPath.
-            DIRECTORY_SEPARATOR.$subFolder.
-            DIRECTORY_SEPARATOR.$uuid.
+            \DIRECTORY_SEPARATOR.$subFolder.
+            \DIRECTORY_SEPARATOR.$uuid.
             ($ext ? '.'.$ext : null);
     }
 }

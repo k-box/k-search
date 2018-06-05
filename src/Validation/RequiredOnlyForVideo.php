@@ -2,7 +2,6 @@
 
 namespace App\Validation;
 
-use App\Model\Data\Data;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class RequiredOnlyForVideo
