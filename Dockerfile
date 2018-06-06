@@ -72,27 +72,12 @@ COPY . /var/www/k-search
 WORKDIR /var/www/k-search
 
 RUN \
-    # prepare our environment file, variables defined inside will get
-    # overwritten by environment variables.
-    cp .env.dist .env &&\
     # install php dependencies with composer and fix file ownership (since
     # composer is being run as root user here)
-    composer install --prefer-dist --optimize-autoloader &&\
-    chown www-data:www-data . --recursive
-
-# run swagger to create documentation automatically
-RUN \
-    mkdir -p public/bundles/swagger-ui &&\
-    cp \
-        vendor/swagger-api/swagger-ui/dist/swagger-ui* \
-        public/bundles/swagger-ui/ &&\
-    vendor/bin/swagger --output public src/Model/ src/Controller/ &&\
-    # prepare our environment file, variables defined inside will get
-    # overwritten by environment variables.
-    cp .env.dist .env &&\
-    # fix file ownership, since some commands were being run with root
-    chown www-data:www-data . --recursive
+    composer install --prefer-dist --optimize-autoloader --no-dev &&\
+    # run swagger to create documentation automatically
+    make
 
 COPY docker/conf/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-ENTRYPOINT ["supervisord"]
+ENTRYPOINT ["./docker/start.sh"]
 CMD []

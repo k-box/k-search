@@ -3,7 +3,6 @@
 namespace App\Tests\Controller;
 
 use App\Exception\SolrEntityNotFoundException;
-use App\Model\Data\Data;
 use App\Security\Authorization\Voter\DataVoter;
 use App\Tests\Helper\ModelHelper;
 use Symfony\Component\HttpFoundation\Response;

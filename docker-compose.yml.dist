@@ -9,17 +9,17 @@ services:
     ports:
       - 8080:80
     environment:
-      ## Further datails about ENV configurations are available in `.env.dist`
+      ## Further details about ENV configurations are available in `.env.dist`
       # Application settings
-      - APP_ENV=dev # Use the development environment
-      - APP_DEBUG=1 # Enable the debug feature
+      - APP_ENV=prod # The running environment (prod|dev)
+      - APP_DEBUG=0 # Enable or disable the debug feature
       # Solr search configuration
       - SOLR_HOST=engine # this is the external address of Solr
       - SOLR_CORE=k-search # this is the Solr index name
       # Registry configuration (disabled)
       - KLINK_REGISTRY_ENABLED=0
-      # A valid URL needs to be specified for the registry, even if the integration is disabled
-      - KLINK_REGISTRY_API_URL=https://klink.registry/
+      # The K-Registry API endpoint, leave empty if disabled
+      # - KLINK_REGISTRY_API_URL=
     depends_on:
       - engine
     networks:

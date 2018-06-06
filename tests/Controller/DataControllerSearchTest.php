@@ -2,7 +2,6 @@
 
 namespace App\Tests\Controller;
 
-use App\Model\Data\Data;
 use App\Security\Authorization\Voter\DataVoter;
 use Symfony\Component\HttpFoundation\Response;
 
