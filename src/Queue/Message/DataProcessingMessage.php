@@ -4,7 +4,7 @@ namespace App\Queue\Message;
 
 use App\Entity\DataProcessingStatus;
 
-final class DataProcessingMessage implements \JsonSerializable, MessageInterface
+class DataProcessingMessage
 {
     /**
      * @var string
@@ -16,9 +16,20 @@ final class DataProcessingMessage implements \JsonSerializable, MessageInterface
      */
     private $requestId;
 
+    public function __construct(string $uuid, string $requestId)
+    {
+        $this->uuid = $uuid;
+        $this->requestId = $requestId;
+    }
+
     public function getUuid(): string
     {
         return $this->uuid;
+    }
+
+    public function setUuid(string $uuid): void
+    {
+        $this->uuid = $uuid;
     }
 
     public function getRequestId(): string
@@ -26,29 +37,13 @@ final class DataProcessingMessage implements \JsonSerializable, MessageInterface
         return $this->requestId;
     }
 
-    public static function fromJson(array $data): self
+    public function setRequestId(string $requestId): void
     {
-        $s = new self();
-        $s->uuid = $data['uuid'] ?? '';
-        $s->requestId = $data['requestId'] ?? '';
-
-        return $s;
+        $this->requestId = $requestId;
     }
 
     public static function fromStatus(DataProcessingStatus $status): self
     {
-        $s = new self();
-        $s->uuid = $status->getDataUuid();
-        $s->requestId = $status->getRequestId();
-
-        return $s;
-    }
-
-    public function jsonSerialize()
-    {
-        return [
-            'uuid' => $this->uuid,
-            'requestId' => $this->requestId,
-        ];
+        return new self($status->getDataUuid(), $status->getRequestId());
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Queue\Processor;
+namespace App\Tests\Queue\MessageHandler;
 
 use App\Entity\DataProcessingStatus;
 use App\Exception\DataDownloadErrorException;
@@ -9,29 +9,26 @@ use App\Exception\ProcessingStatusNotFoundException;
 use App\Exception\SolrExtractionException;
 use App\Model\Data\Data;
 use App\Model\Data\DataStatus;
-use App\Queue\Processor\DataQueuedProcessor;
+use App\Queue\Message\DataProcessingMessage;
+use App\Queue\MessageHandler\DataProcessingHandler;
 use App\Service\DataDownloader;
 use App\Service\DataProcessingService;
 use App\Service\DataService;
 use App\Service\DataStatusService;
 use App\Tests\Helper\TestModelHelper;
-use Enqueue\Null\NullMessage;
-use Interop\Queue\PsrContext;
-use Interop\Queue\PsrMessage;
-use Interop\Queue\PsrProcessor;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
-class DataQueuedProcessorTest extends TestCase
+class DataProcessingHandlerTest extends TestCase
 {
     private const DATA_UUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
     private const REQUEST_ID = 'a1b2c3d4e5f6';
 
     /**
-     * @var DataQueuedProcessor
+     * @var DataProcessingHandler
      */
-    private $processor;
+    private $handler;
 
     /**
      * @var DataService|MockObject
@@ -60,7 +57,7 @@ class DataQueuedProcessorTest extends TestCase
         $this->dataProcessingService = $this->createMock(DataProcessingService::class);
         $this->dataDownloader = $this->createMock(DataDownloader::class);
 
-        $this->processor = new DataQueuedProcessor(
+        $this->handler = new DataProcessingHandler(
             $this->dataService,
             $this->dataStatusService,
             $this->dataProcessingService,
@@ -98,7 +95,7 @@ class DataQueuedProcessorTest extends TestCase
         $this->dataService->expects($this->never())
             ->method('addData');
 
-        $this->dataStatusService->expects($this->once(2))
+        $this->dataStatusService->expects($this->once())
             ->method('isDataNewer')
             ->with(self::DATA_UUID, $this->anything())
             ->willReturn(false);
@@ -108,23 +105,7 @@ class DataQueuedProcessorTest extends TestCase
             ->with(self::DATA_UUID, self::REQUEST_ID)
             ->willReturn($status);
 
-        $this->assertSame(PsrProcessor::ACK, $this->processor->process($message, $this->buildContext()));
-    }
-
-    public function testNoTopicRejectsMessage(): void
-    {
-        $message = $this->buildMessage(null);
-        $this->expectsNoDataHandling();
-
-        $this->assertSame(PsrProcessor::REJECT, $this->processor->process($message, $this->buildContext()));
-    }
-
-    public function testWrongTopicRejectsMessage(): void
-    {
-        $message = $this->buildMessage('other-name');
-        $this->expectsNoDataHandling();
-
-        $this->assertSame(PsrProcessor::REJECT, $this->processor->process($message, $this->buildContext()));
+        $this->handler->__invoke($message);
     }
 
     public function testProcessingNotInStatusTable(): void
@@ -140,7 +121,7 @@ class DataQueuedProcessorTest extends TestCase
             ->with(self::DATA_UUID, self::REQUEST_ID)
             ->willThrowException(new ProcessingStatusNotFoundException('message'));
 
-        $this->assertSame(PsrProcessor::ACK, $this->processor->process($message, $this->buildContext()));
+        $this->handler->__invoke($message);
     }
 
     public function testProcessingDoesNotOverrideNewerData(): void
@@ -167,7 +148,7 @@ class DataQueuedProcessorTest extends TestCase
             ->with(self::DATA_UUID, self::REQUEST_ID)
             ->willReturn($status);
 
-        $this->assertSame(PsrProcessor::ACK, $this->processor->process($message, $this->buildContext()));
+        $this->handler->__invoke($message);
     }
 
     public function testHandlesDownloadErrorAndSavesStatus(): void
@@ -211,7 +192,7 @@ class DataQueuedProcessorTest extends TestCase
             ->with(self::DATA_UUID, self::REQUEST_ID)
             ->willReturn($status);
 
-        $this->assertSame(PsrProcessor::ACK, $this->processor->process($message, $this->buildContext()));
+        $this->handler->__invoke($message);
     }
 
     public function testHandlesDownloadErrorAndDoesNotOverrideNewerData(): void
@@ -249,7 +230,7 @@ class DataQueuedProcessorTest extends TestCase
             ->with(self::DATA_UUID, self::REQUEST_ID)
             ->willReturn($status);
 
-        $this->assertSame(PsrProcessor::ACK, $this->processor->process($message, $this->buildContext()));
+        $this->handler->__invoke($message);
     }
 
     public function testHandlesSolrErrorAndSavesStatus(): void
@@ -297,7 +278,7 @@ class DataQueuedProcessorTest extends TestCase
             ->with(self::DATA_UUID, self::REQUEST_ID)
             ->willReturn($status);
 
-        $this->assertSame(PsrProcessor::ACK, $this->processor->process($message, $this->buildContext()));
+        $this->handler->__invoke($message);
     }
 
     public function testHandlesSolrErrorAndDoesNotOverrideNewerData(): void
@@ -339,7 +320,7 @@ class DataQueuedProcessorTest extends TestCase
             ->with(self::DATA_UUID, self::REQUEST_ID)
             ->willReturn($status);
 
-        $this->assertSame(PsrProcessor::ACK, $this->processor->process($message, $this->buildContext()));
+        $this->handler->__invoke($message);
     }
 
     public function testHandlesSolrExtractionErrorAndSavesStatus(): void
@@ -387,7 +368,7 @@ class DataQueuedProcessorTest extends TestCase
             ->with(self::DATA_UUID, self::REQUEST_ID)
             ->willReturn($status);
 
-        $this->assertSame(PsrProcessor::ACK, $this->processor->process($message, $this->buildContext()));
+        $this->handler->__invoke($message);
     }
 
     public function testHandlesSolrExtractionErrorAndDoesNotOverrideNewerData(): void
@@ -429,22 +410,12 @@ class DataQueuedProcessorTest extends TestCase
             ->with(self::DATA_UUID, self::REQUEST_ID)
             ->willReturn($status);
 
-        $this->assertSame(PsrProcessor::ACK, $this->processor->process($message, $this->buildContext()));
+        $this->handler->__invoke($message);
     }
 
-    private function buildMessage($topicName = 'data-queued'): PsrMessage
+    private function buildMessage(): DataProcessingMessage
     {
-        $body = json_encode([
-            'uuid' => self::DATA_UUID,
-            'requestId' => self::REQUEST_ID,
-        ]);
-        $properties = [];
-
-        if ($topicName) {
-            $properties['enqueue.topic_name'] = $topicName;
-        }
-
-        return new NullMessage($body, $properties);
+        return new DataProcessingMessage(self::DATA_UUID, self::REQUEST_ID);
     }
 
     private function expectsNoDataHandling(): void
@@ -457,10 +428,5 @@ class DataQueuedProcessorTest extends TestCase
 
         $this->dataService->expects($this->never())
             ->method('addDataWithFileExtraction');
-    }
-
-    private function buildContext(): PsrContext
-    {
-        return $this->createMock(PsrContext::class);
     }
 }

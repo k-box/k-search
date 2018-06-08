@@ -9,8 +9,7 @@ use App\Model\Data\Data;
 use App\Model\Data\DataStatus;
 use App\Queue\Message\DataProcessingMessage;
 use App\Repository\DataProcessingStatusRepository;
-use Enqueue\Client\Message;
-use Enqueue\Client\ProducerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class DataProcessingService
 {
@@ -22,14 +21,14 @@ class DataProcessingService
     private $processingRepository;
 
     /**
-     * @var ProducerInterface
+     * @var MessageBusInterface
      */
-    private $producer;
+    private $messageBus;
 
-    public function __construct(DataProcessingStatusRepository $processingRepository, ProducerInterface $producer)
+    public function __construct(DataProcessingStatusRepository $processingRepository, MessageBusInterface $messageBus)
     {
         $this->processingRepository = $processingRepository;
-        $this->producer = $producer;
+        $this->messageBus = $messageBus;
     }
 
     public function addDataForProcessing(Data $data): DataProcessingStatus
@@ -39,7 +38,7 @@ class DataProcessingService
 
         switch ($data->status) {
             case DataStatus::STATUS_QUEUED_OK:
-                $this->producer->sendEvent(self::DATA_QUEUED_TOPIC, new Message(DataProcessingMessage::fromStatus($status)));
+                $this->messageBus->dispatch(DataProcessingMessage::fromStatus($status));
                 break;
             default:
                 // Do nothing

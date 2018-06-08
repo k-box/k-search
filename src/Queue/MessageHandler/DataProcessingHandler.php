@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Queue\Processor;
+namespace App\Queue\MessageHandler;
 
 use App\Exception\DataDownloadErrorException;
 use App\Exception\InternalSearchException;
@@ -14,14 +14,9 @@ use App\Service\DataDownloader;
 use App\Service\DataProcessingService;
 use App\Service\DataService;
 use App\Service\DataStatusService;
-use Enqueue\Client\TopicSubscriberInterface;
-use Enqueue\Util\JSON;
-use Interop\Queue\PsrContext;
-use Interop\Queue\PsrMessage;
-use Interop\Queue\PsrProcessor;
 use Psr\Log\LoggerInterface;
 
-class DataQueuedProcessor implements PsrProcessor, TopicSubscriberInterface
+class DataProcessingHandler
 {
     /**
      * @var DataService
@@ -61,14 +56,8 @@ class DataQueuedProcessor implements PsrProcessor, TopicSubscriberInterface
         $this->dataStatusService = $dataStatusService;
     }
 
-    public function process(PsrMessage $message, PsrContext $context)
+    public function __invoke(DataProcessingMessage $dataMessage): void
     {
-        if (DataProcessingService::DATA_QUEUED_TOPIC !== $message->getProperty('enqueue.topic_name')) {
-            return self::REJECT;
-        }
-
-        $dataMessage = DataProcessingMessage::fromJson(JSON::decode($message->getBody()));
-
         try {
             $processing = $this->dataProcessingService->getProcessingStatus($dataMessage->getUuid(), $dataMessage->getRequestId());
         } catch (ProcessingStatusNotFoundException $e) {
@@ -80,7 +69,7 @@ class DataQueuedProcessor implements PsrProcessor, TopicSubscriberInterface
                 ]
             );
 
-            return self::ACK;
+            return;
         }
 
         // Ensure the indexed data is not newer than the one were adding
@@ -94,8 +83,6 @@ class DataQueuedProcessor implements PsrProcessor, TopicSubscriberInterface
             $processing->getRequestId(),
             DataStatus::STATUS_QUEUED_OK
         );
-
-        return self::ACK;
     }
 
     public static function getSubscribedTopics(): array
@@ -146,7 +133,7 @@ class DataQueuedProcessor implements PsrProcessor, TopicSubscriberInterface
         }
     }
 
-    private function updateDataWithStatus(Data $data, string $status, string $message = '')
+    private function updateDataWithStatus(Data $data, string $status, string $message = ''): void
     {
         // Ensure the indexed data is not newer than the one were adding
         if (!$this->ensureDataIsNotNewer($data->uuid, DateHelper::createUtcDate())) {

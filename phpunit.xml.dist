@@ -29,9 +29,9 @@
         <!-- <env name="DATABASE_URL" value="sqlite:///%kernel.project_dir%/var/data_test.db"/> -->
         <!-- ###- doctrine/doctrine-bundle ### -->
 
-        <!-- ###+ enqueue/enqueue-bundle ### -->
-        <env name="ENQUEUE_DSN" value="null://"/>
-        <!-- ###- enqueue/enqueue-bundle ### -->
+        <!-- ###+ symfony/messenger ### -->
+        <!-- MESSENGER_TRANSPORT_DSN=amqp://guest:guest@localhost:5672/%2f/messages -->
+        <!-- ###- symfony/messenger ### -->
     </php>
 
     <testsuites>
@@ -46,8 +46,10 @@
         </whitelist>
     </filter>
 
+    <!-- Temporary removed, see: https://github.com/symfony/symfony/pull/26024 -->
+    <!--
     <listeners>
-        <!-- Temporary removed, see: https://github.com/symfony/symfony/pull/26024 -->
-        <!-- <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" /> -->
+        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
     </listeners>
+    -->
 </phpunit>

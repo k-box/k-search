@@ -70,7 +70,8 @@ class FilesController extends Controller
             throw new NotFoundHttpException($e->getMessage());
         }
 
-        if (!($filename = $this->dataDownloader->dataFileExistsAndIsCurrent($data))) {
+        $filename = $this->dataDownloader->dataFileExistsAndIsCurrent($data);
+        if (!$filename) {
             return $this->redirect($data->url, Response::HTTP_TEMPORARY_REDIRECT);
         }
 

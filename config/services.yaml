@@ -10,8 +10,8 @@ parameters:
     env(SOLRCORE_HOST): '127.0.0.1'
     env(KLINK_RETAIN_DOWNLOADED_CONTENTS): 0
     env(KLINK_REGISTRY_API_URL): ''
-    env(ENQUEUE_DSN): 'file:'
     env(DATABASE_URL): 'sqlite:///%kernel.project_dir%/var/data.db'
+    env(MESSENGER_TRANSPORT_DSN): 'filesystem:///%kernel.project_dir%/var/queue?compress=true&loop_sleep=1000000'
 
     indexable_content_types:
         - 'text/html'
@@ -53,6 +53,10 @@ services:
     App\Service\DataService:
         $indexableContentTypes: "%indexable_content_types%"
         $retainDataContents: '%env(KLINK_RETAIN_DOWNLOADED_CONTENTS)%'
+
+    App\Queue\MessageHandler\:
+        resource: '../src/Queue/MessageHandler'
+        tags: ['messenger.message_handler']
 
     local_cache:
       class: 'Symfony\Component\Cache\Adapter\ApcuAdapter'

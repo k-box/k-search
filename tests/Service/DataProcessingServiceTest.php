@@ -7,9 +7,9 @@ use App\Model\Data\Data;
 use App\Model\Data\DataStatus;
 use App\Repository\DataProcessingStatusRepository;
 use App\Service\DataProcessingService;
-use Enqueue\Client\ProducerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class DataProcessingServiceTest extends TestCase
 {
@@ -27,15 +27,15 @@ class DataProcessingServiceTest extends TestCase
     private $repository;
 
     /**
-     * @var ProducerInterface|MockObject
+     * @var MessageBusInterface|MockObject
      */
-    private $producer;
+    private $messageBus;
 
     protected function setUp()
     {
-        $this->producer = $this->createMock(ProducerInterface::class);
+        $this->messageBus = $this->createMock(MessageBusInterface::class);
         $this->repository = $this->createMock(DataProcessingStatusRepository::class);
-        $this->dataProcessingService = new DataProcessingService($this->repository, $this->producer);
+        $this->dataProcessingService = new DataProcessingService($this->repository, $this->messageBus);
     }
 
     public function testEnqueueData(): void
@@ -50,8 +50,8 @@ class DataProcessingServiceTest extends TestCase
 
                 return true;
             }));
-        $this->producer->expects($this->once())
-            ->method('sendEvent');
+        $this->messageBus->expects($this->once())
+            ->method('dispatch');
 
         $data = new Data();
         $data->requestId = self::REQUEST_ID;

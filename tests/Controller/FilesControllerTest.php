@@ -5,14 +5,13 @@ namespace App\Tests\Controller;
 use App\Exception\SolrEntityNotFoundException;
 use App\Service\DataDownloader;
 use App\Service\DataService;
-use App\Tests\Helper\ModelHelper;
+use App\Tests\Helper\TestModelHelper;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class FilesControllerTest extends WebTestCase
 {
-    private const DATA_UUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
     private const DATA_UUID_FAIL = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
 
     /**
@@ -52,20 +51,20 @@ class FilesControllerTest extends WebTestCase
     {
         $this->dataService->expects($this->once())
             ->method('getData')
-            ->with(self::DATA_UUID)
+            ->with(TestModelHelper::DATA_UUID)
             ->willThrowException(new SolrEntityNotFoundException('Not found!'));
 
-        $this->client->request('GET', '/files/'.self::DATA_UUID);
+        $this->client->request('GET', '/files/'.TestModelHelper::DATA_UUID);
         $this->assertEquals(404, $this->client->getResponse()->getStatusCode());
     }
 
     public function testGetDataFileFailsIfDataFileNotFound(): void
     {
-        $data = ModelHelper::createDataModel(self::DATA_UUID);
+        $data = TestModelHelper::createDataModel(TestModelHelper::DATA_UUID);
 
         $this->dataService->expects($this->once())
             ->method('getData')
-            ->with(self::DATA_UUID)
+            ->with(TestModelHelper::DATA_UUID)
             ->willReturn($data);
 
         $this->dataDownloader->expects($this->once())
@@ -73,7 +72,7 @@ class FilesControllerTest extends WebTestCase
             ->with($data)
             ->willReturn(null);
 
-        $this->client->request('GET', '/files/'.self::DATA_UUID);
+        $this->client->request('GET', '/files/'.TestModelHelper::DATA_UUID);
 
         $response = $this->client->getResponse();
         $this->assertTrue($response->isRedirection());
@@ -83,11 +82,11 @@ class FilesControllerTest extends WebTestCase
 
     public function testGetDataFileSucceeds(): void
     {
-        $data = ModelHelper::createDataModel(self::DATA_UUID);
+        $data = TestModelHelper::createDataModel(TestModelHelper::DATA_UUID);
 
         $this->dataService->expects($this->once())
             ->method('getData')
-            ->with(self::DATA_UUID)
+            ->with(TestModelHelper::DATA_UUID)
             ->willReturn($data);
 
         $fileName = __DIR__.'/../fixtures/example.txt';
@@ -96,14 +95,14 @@ class FilesControllerTest extends WebTestCase
             ->with($data)
             ->willReturn($fileName);
 
-        $this->client->request('GET', '/files/'.self::DATA_UUID);
+        $this->client->request('GET', '/files/'.TestModelHelper::DATA_UUID);
 
         $response = $this->client->getResponse();
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertSame($data->hash, $response->headers->get('E-Tag'));
 
         $this->assertSame(
-            'attachment; filename="'.$data->properties->filename.'"',
+            'attachment; filename='.$data->properties->filename,
             $response->headers->get('Content-Disposition')
         );
 
