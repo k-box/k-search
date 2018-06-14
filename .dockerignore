@@ -4,3 +4,4 @@ vendor/
 virtualization/
 solr/
 var/
+.env*
