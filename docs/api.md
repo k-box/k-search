@@ -215,3 +215,18 @@ just one of the given search keywords).
 | -------- | ------- | ---------- | ----------- |
 | `id` | String | ✔ | The identifier established by the client in the request. |
 | `result` | Object | ✔ | [`SearchResult object`](./api-search-objects.md#searchresults-object) |
+
+## Additional endpoints
+
+## Downloading files
+If the K-Search application is configured to retain the downloaded contents (see `.env.dist` file), the following
+endpoint allows to gather the downloaded files from the system:
+
+```
+  GET http://ksearch.test/files/{UUID}
+```
+Where `{UUID}` is the Data's UUID value.
+The K-Search will use the response `E-Tag` header to provide the Data `hash`  value.
+
+In case the retention configuration is disabled, the system will issue a redirect to the Data's `url` value, allowing
+the client to fetch the file from the original source.

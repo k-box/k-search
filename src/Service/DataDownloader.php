@@ -220,6 +220,23 @@ class DataDownloader
     }
 
     /**
+     * Returns the filename of the downloaded data, null if the file does not exists or the hash does not match.
+     */
+    public function dataFileExistsAndIsCurrent(Data $data): ?string
+    {
+        $filename = $this->getDataTempFilename($data->uuid);
+        if (!$filename) {
+            return null;
+        }
+
+        if ($data->hash !== hash_file('sha512', $filename)) {
+            return null;
+        }
+
+        return $filename;
+    }
+
+    /**
      * Returns the headers fetched from the Data url.
      *
      * @param Data $data
@@ -294,22 +311,5 @@ class DataDownloader
         $filename = $this->nameGenerator->buildDownloadDataFilename($uuid, $ext);
 
         return $this->filesystem->exists($filename) ? $filename : null;
-    }
-
-    /**
-     * Returns the filename of the downloaded data, null if the file does not exists or the hash does not match.
-     */
-    private function dataFileExistsAndIsCurrent(Data $data): ?string
-    {
-        $filename = $this->getDataTempFilename($data->uuid);
-        if (!$filename) {
-            return null;
-        }
-
-        if ($data->hash !== hash_file('sha512', $filename)) {
-            return null;
-        }
-
-        return $filename;
     }
 }
