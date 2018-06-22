@@ -26,8 +26,8 @@ class DataComputeHash extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Compute the HASH of a Data file')
-            ->addArgument('filename', InputArgument::REQUIRED, 'The file to compute the HASH for.')
+            ->setDescription('Compute the HASH of file')
+            ->addArgument('filename', InputArgument::REQUIRED, 'The file to compute the HASH for')
         ;
     }
 
