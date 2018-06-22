@@ -18,6 +18,7 @@ documentation, and:
 
 ## [Unreleased]
 ### Added
+- Add `ksearch:data:compute-hash` command to compute the expected hash of a file
 - Add `var/data.db` Database to handle Data processing queue
 - Allow `data.status` to return status form the index, or from the "processing queue" state (API `v3.4`)
 - Allow stored files to be served from `/files/{UUID}`

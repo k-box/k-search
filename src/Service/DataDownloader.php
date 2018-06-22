@@ -229,11 +229,19 @@ class DataDownloader
             return null;
         }
 
-        if ($data->hash !== hash_file('sha512', $filename)) {
+        if ($data->hash !== $this->computeFileHash($filename)) {
             return null;
         }
 
         return $filename;
+    }
+
+    /**
+     * Computes the HASH for the given filename.
+     */
+    public function computeFileHash(string $filename): string
+    {
+        return hash_file('sha512', $filename);
     }
 
     /**

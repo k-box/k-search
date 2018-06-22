@@ -32,9 +32,9 @@ A short description of the stages:
 - `processing`: the Data has been received and waiting for a worker to be picked. In this case the `data.status` for the
     data, with `type = processing` will return `queued.ok`.
 
-- `indexing`: The Data has been processed from the queue and is searchable.
+- `data`: The Data has been processed from the queue and is searchable.
     Errors encountered during the downloading or the indexing of the Data will be exposed for this stage from the
-    `data.status` with `type = indexing`.
+    `data.status` with `type = data`.
     Note that at this point the Data is not anymore in the processing queue.
 
 For more details about the `data.status` API, refer to the online documentation.
