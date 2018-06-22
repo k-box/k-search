@@ -74,8 +74,7 @@
 
 <script>
     window.onload = function() {
-        // Build a system
-        const ui = SwaggerUIBundle({
+        window.ui = SwaggerUIBundle({
             url: "{{  asset('swagger.json') }}",
             dom_id: '#swagger-ui',
             presets: [
@@ -83,12 +82,14 @@
                 SwaggerUIStandalonePreset
             ],
             plugins: [
-                SwaggerUIBundle.plugins.DownloadUrl
+                // SwaggerUIBundle.plugins.DownloadUrl
             ],
+            defaultModelsExpandDepth: 0,
+            showExtensions: true,
+            showCommonExtensions: true,
+            validatorUrl: null,
             layout: "StandaloneLayout"
-        });
-
-        window.ui = ui
+        })
     }
 </script>
 </body>
