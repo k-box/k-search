@@ -3,12 +3,14 @@
 namespace App\Service;
 
 use App\Entity\DataProcessingStatus;
+use App\Exception\ProcessingOverloadedException;
 use App\Exception\ProcessingStatusNotFoundException;
 use App\Helper\DateHelper;
 use App\Model\Data\Data;
 use App\Model\Data\DataStatus;
 use App\Queue\Message\DataProcessingMessage;
 use App\Repository\DataProcessingStatusRepository;
+use Doctrine\DBAL\Exception\RetryableException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class DataProcessingService
@@ -34,7 +36,16 @@ class DataProcessingService
     public function addDataForProcessing(Data $data): DataProcessingStatus
     {
         $status = $this->createRecordForData($data);
-        $this->processingRepository->createOrUpdate($status);
+        try {
+            $this->processingRepository->createOrUpdate($status);
+        } catch (RetryableException $e) {
+            $e = new \Exception();
+            throw new ProcessingOverloadedException(
+                sprintf('Too many request for uuid=%s. Please throttle your requests or retry later', $data->uuid),
+                429,
+                $e
+            );
+        }
 
         switch ($data->status) {
             case DataStatus::STATUS_QUEUED_OK:

@@ -23,6 +23,8 @@ class DataProcessingStatusRepository extends ServiceEntityRepository
 
     public function updateStatusByCriteria(array $criteria, string $status, string $message): ?DataProcessingStatus
     {
+        $this->throttleRequest();
+
         return $this->_em->transactional(function (EntityManagerInterface $em) use ($criteria, $status, $message) {
             $statusEntity = $this->findOneBy($criteria);
 
@@ -43,6 +45,8 @@ class DataProcessingStatusRepository extends ServiceEntityRepository
 
     public function createOrUpdate(DataProcessingStatus $dataProcessingStatus): void
     {
+        $this->throttleRequest();
+
         $this->_em->transactional(function (EntityManagerInterface $em) use ($dataProcessingStatus) {
             // Lock the entity for updating
             $status = $this->find($dataProcessingStatus->getDataUuid(), LockMode::PESSIMISTIC_WRITE);
@@ -89,5 +93,11 @@ class DataProcessingStatusRepository extends ServiceEntityRepository
             $em->lock($statusEntity, LockMode::PESSIMISTIC_WRITE);
             $em->remove($statusEntity);
         });
+    }
+
+    private function throttleRequest(): void
+    {
+        // Throttling the requests
+        usleep(0.6 * 1000);
     }
 }

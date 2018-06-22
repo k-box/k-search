@@ -62,7 +62,7 @@ class DataProcessingHandler
             $processing = $this->dataProcessingService->getProcessingStatus($dataMessage->getUuid(), $dataMessage->getRequestId());
         } catch (ProcessingStatusNotFoundException $e) {
             $this->logger->warning(
-                'Processing request for not existing status (outdated status?)',
+                'Error while handling DataProcessingMessage: processing status not found (possible out-of-date request)',
                 [
                     'uuid' => $dataMessage->getUuid(),
                     'requestId' => $dataMessage->getRequestId(),
@@ -75,6 +75,11 @@ class DataProcessingHandler
         // Ensure the indexed data is not newer than the one were adding
         if ($this->ensureDataIsNotNewer($processing->getDataUuid(), $processing->getAddedAt())) {
             $this->handleIndexing($processing->getData());
+
+            $this->logger->info('Processed DataProcessingMessage, uuid={uuid}, request={request_id}', [
+                'uuid' => $dataMessage->getUuid(),
+                'request_id' => $dataMessage->getRequestId(),
+            ]);
         }
 
         // We're done, delete the status from the DB
