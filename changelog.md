@@ -18,6 +18,14 @@ documentation, and:
 
 ## [Unreleased]
 ### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
+
+## [3.3.0-1] - 2018-06-22
+### Added
 - Add `ksearch:data:compute-hash` command to compute the expected hash of a file
 - Add `var/data.db` Database to handle Data processing queue
 - Allow `data.status` to return status form the index, or from the "processing queue" state (API `v3.4`)
@@ -34,13 +42,10 @@ documentation, and:
 ### Deprecated
 - Configuration of `KLINK_REGISTRY_API_URL` is deprecated when `KLINK_REGISTRY_ENABLED` is set to 0
 
-### Removed
 ### Fixed
 - Fix Data.Search filter validation for groups
 - Fix parsing of query sent in `data.search` "filters" params, handle validation and Solr errors
 - Fix cache invalidation for downloaded files. The data.hash is now additionally check against the existing file
-
-### Security
 
 ## [3.2.1-1] - 2018-03-20
 ### Changed
