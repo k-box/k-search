@@ -168,6 +168,48 @@ class DataDownloaderTest extends TestCase
         $this->assertSame($expectedMimetype, $this->downloaderService->getDataFileMimetype($data));
     }
 
+    /**
+     * @dataProvider dataGetDataFileMimetypeMimetypeFromFile
+     */
+    public function testGetDataFileMimetypeFromOutdatedFileRequesstsHeaders(string $expectedMimetype)
+    {
+        $data = $this->buildData();
+        $this->prepareTempDataFile();
+        // The file exists, but the data has a different hash, we will issue a HEAD request.
+        $data->hash = hash('sha512', 'random-data');
+
+        $this->nameGenerator->expects($this->once())
+            ->method('buildDownloadDataFilename')
+            ->with($data->uuid)
+            ->willReturn(self::DATA_TEMP_FILENAME);
+
+        $this->filesystem->expects($this->once())
+            ->method('exists')
+            ->with(self::DATA_TEMP_FILENAME)
+            ->willReturn(true);
+
+        $this->mimeTypeGuesser->expects($this->never())
+            ->method('guess');
+
+        $request = $this->createMock(RequestInterface::class);
+        $this->messageFactory->expects($this->once())
+            ->method('createRequest')
+            ->with('HEAD', self::DATA_URL)
+            ->willReturn($request);
+
+        $response = $this->createMock(ResponseInterface::class);
+        $this->httpClient->addResponse($response);
+
+        $response->expects($this->once())
+            ->method('getHeaders')
+            ->willReturn(['Content-Type' => [$expectedMimetype]]);
+        $response->expects($this->once())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $this->assertSame($expectedMimetype, $this->downloaderService->getDataFileMimetype($data));
+    }
+
     public function testGetDataFileMimetypeFromFileThrowsException()
     {
         $data = $this->buildData();

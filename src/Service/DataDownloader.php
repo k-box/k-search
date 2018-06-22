@@ -152,7 +152,7 @@ class DataDownloader
      */
     public function getDataFileMimetype(Data $data): ?string
     {
-        $filename = $this->getDataTempFilename($data->uuid);
+        $filename = $this->dataFileExistsAndIsCurrent($data);
 
         // If the file does no exists, get the mimetype from the URL
         if (!$filename) {
