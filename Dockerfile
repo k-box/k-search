@@ -64,6 +64,7 @@ RUN { \
         echo "\t\t\tRewriteEngine Off"; \
         echo "\t\t</IfModule>"; \
         echo "\t</Directory>"; \
+        echo "\tPassEnv APP_ENV APP_DEBUG"; \
         echo "</VirtualHost>" ; \
     } | tee "$APACHE_CONFDIR/sites-available/symfony.conf" \
     && a2dissite 000-default && a2enmod rewrite && a2enmod headers && a2ensite symfony
