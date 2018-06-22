@@ -79,17 +79,10 @@ RUN \
     # install php dependencies with composer and fix file ownership (since
     # composer is being run as root user here)
     composer install --prefer-dist --optimize-autoloader --no-dev &&\
-    chown www-data:www-data . --recursive
-
-# run swagger to create documentation automatically
-RUN \
-    mkdir -p public/bundles/swagger-ui &&\
-    cp \
-        vendor/swagger-api/swagger-ui/dist/swagger-ui* \
-        public/bundles/swagger-ui/ &&\
-    vendor/bin/swagger --output public src/Model/ src/Controller/ &&\
-    # fix file ownership, since some commands were being run with root
-    chown www-data:www-data . --recursive
+    # run swagger to create documentation automatically
+    make &&\
+    # Fix file ownership
+    chown www-data:www-data . --recursive &&\
 
 COPY docker/conf/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 ENTRYPOINT ["./docker/start.sh"]
