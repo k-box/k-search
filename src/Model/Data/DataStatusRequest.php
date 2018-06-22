@@ -10,16 +10,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @SWG\Definition(
  *     definition="Data\DataStatusRequest",
- *     required={"params"}
+ *     required={"params"},
  * )
  */
 class DataStatusRequest extends RPCRequest
 {
     /**
-     * @var UUIDParam
+     * @var DataStatusParams
+     *
      * @Assert\Valid()
      * @Assert\NotNull()
-     * @JMS\Type("App\Model\Data\UUIDParam")
+     * @JMS\Type("App\Model\Data\DataStatusParams")
      * @SWG\Property()
      */
     public $params;

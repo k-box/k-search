@@ -15,13 +15,13 @@ class RPCRequest
     /**
      * A request identifier established by the client that MUST contain a string or a number.
      *
-     * The value SHOULD normally not be Null and Numbers SHOULD NOT contain fractional parts.
+     * The value SHOULD normally not be empty nor null, and numbers SHOULD NOT contain fractional parts.
      *
-     * @var string
-     *
+     * @var string|null
      * @JMS\Type("string")
      * @SWG\Property(
-     *     example="request-3d254173"
+     *     type="string",
+     *     example="request-3d254173",
      * )
      */
     public $id;

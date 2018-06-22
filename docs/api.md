@@ -156,6 +156,30 @@ Add piece of data to the search index.
 | `id` | String | ✔ | The identifier established by the client in the request. |
 | `result` | Object | ✔ | [`Data object`](./api-objects.md#data-object) |
 
+### data.status
+
+Get the status information of a Data piece in the index or in the processing queue (since v3.4).
+This API requires the `data-view` permission.
+
+* URL: `/api/{VERSION}/data.status`
+
+**Request**:
+
+| Property | Type    | Required   | Description |
+| -------- | ------- | ---------- | ----------- |
+| `id` | String | ✔ | An identifier established by the client that MUST contain a String, Number, or NULL value if included. The value SHOULD normally not be Null and Numbers SHOULD NOT contain fractional parts. |
+| `params` | Object | ✔ | A simple JSON object |
+| `params[uuid]` | String | ✔ |  The universally unique identifier of the data piece to be handled. |
+| `params[type]` | String |  | The status type, used to get the status from different stages. Use "data" for the indexed status, "processing" for the processing queue status. |
+
+**Successful response**
+
+* `status`: `200`
+
+| Property | Type    | Required   | Description |
+| -------- | ------- | ---------- | ----------- |
+| `id` | String | ✔ | The identifier established by the client in the request. |
+| `result` | Object | ✔ | [`Data Status object`](./api-objects.md#data-status-object) |
 
 ### data.delete
 

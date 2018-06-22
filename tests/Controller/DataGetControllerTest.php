@@ -4,10 +4,10 @@ namespace App\Tests\Controller;
 
 use App\Exception\SolrEntityNotFoundException;
 use App\Security\Authorization\Voter\DataVoter;
-use App\Tests\Helper\ModelHelper;
+use App\Tests\Helper\TestModelHelper;
 use Symfony\Component\HttpFoundation\Response;
 
-class DataControllerGetTest extends AbstractJsonRpcControllerTest
+class DataGetControllerTest extends AbstractJsonRpcControllerTest
 {
     public const DATA_GET_ENDPOINT = '/api/3.0/data.get';
 
@@ -44,7 +44,7 @@ class DataControllerGetTest extends AbstractJsonRpcControllerTest
     {
         $this->setUserRoles(DataVoter::ALL_ROLES);
 
-        $data = ModelHelper::createDataModel(self::DATA_UUID);
+        $data = TestModelHelper::createDataModel(self::DATA_UUID);
 
         $dataService = $this->setMockedDataService();
         $dataService->expects($this->once())
@@ -58,7 +58,7 @@ class DataControllerGetTest extends AbstractJsonRpcControllerTest
         $response = $this->client->getResponse();
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $result = ModelHelper::createDataArray(self::DATA_UUID);
+        $result = TestModelHelper::createDataArray(self::DATA_UUID);
         $this->assertJsonRpcResultResponse($response->getContent(), $result, self::REQUEST_ID);
     }
 

@@ -80,7 +80,9 @@ RUN \
     # composer is being run as root user here)
     composer install --prefer-dist --optimize-autoloader --no-dev &&\
     # run swagger to create documentation automatically
-    make
+    make &&\
+    # Fix file ownership
+    chown www-data:www-data . --recursive &&\
 
 COPY docker/conf/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 ENTRYPOINT ["./docker/start.sh"]

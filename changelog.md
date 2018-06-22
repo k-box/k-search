@@ -18,12 +18,16 @@ documentation, and:
 
 ## [Unreleased]
 ### Added
+- Add `ksearch:data:compute-hash` command to compute the expected hash of a file
+- Add `var/data.db` Database to handle Data processing queue
+- Allow `data.status` to return status form the index, or from the "processing queue" state (API `v3.4`)
 - Allow stored files to be served from `/files/{UUID}`
 - Allow "data_textual_contents" from data.add to be retained (env variable: KLINK_RETAIN_DOWNLOADED_CONTENTS=[1|0])
 - Add configuration for downloaded file retention policy (env variable: KLINK_RETAIN_DOWNLOADED_CONTENTS=[1|0])
 - Add "uploader.organization" property (filterable, sortable, facetable)
 
 ### Changed
+- Refactored data processing with advanced queue system (default to file, supports RabbitMQ and other message queue systems)
 - Move Vagrant VM default hostname from `ksearch.dev` to `ksearch.test`
 - Allow all data to be searched and get, ignoring the data.status value
 

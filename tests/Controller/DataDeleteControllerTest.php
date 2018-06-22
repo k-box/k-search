@@ -5,10 +5,10 @@ namespace App\Tests\Controller;
 use App\Exception\SolrEntityNotFoundException;
 use App\Model\Data\Data;
 use App\Security\Authorization\Voter\DataVoter;
-use App\Tests\Helper\ModelHelper;
+use App\Tests\Helper\TestModelHelper;
 use Symfony\Component\HttpFoundation\Response;
 
-class DataControllerDeleteTest extends AbstractJsonRpcControllerTest
+class DataDeleteControllerTest extends AbstractJsonRpcControllerTest
 {
     public const DATA_DELETE_ENDPOINT = '/api/3.0/data.delete';
 
@@ -120,7 +120,7 @@ class DataControllerDeleteTest extends AbstractJsonRpcControllerTest
             DataVoter::ROLE_DATA_REMOVE_OWN,
         ]);
 
-        $data = ModelHelper::createDataModel(self::DATA_UUID);
+        $data = TestModelHelper::createDataModel(self::DATA_UUID);
         $data->uploader->appUrl = self::APP_URL;
 
         $dataService = $this->setMockedDataService();
@@ -149,7 +149,7 @@ class DataControllerDeleteTest extends AbstractJsonRpcControllerTest
             DataVoter::ROLE_DATA_REMOVE_OWN,
         ]);
 
-        $data = ModelHelper::createDataModel(self::DATA_UUID);
+        $data = TestModelHelper::createDataModel(self::DATA_UUID);
         $data->uploader->appUrl = 'another-app-url';
 
         $dataService = $this->setMockedDataService();

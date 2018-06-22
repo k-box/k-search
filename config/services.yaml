@@ -2,14 +2,16 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: 'en'
-    env(KLINK_REGISTRY_API_URL): ''
-    
-    # default values for backward compatibility of previous configuration options for the SOLR instance
+
+    # default values
     env(SOLR_HOST): '%env(SOLRCORE_HOST)%'
     env(SOLR_CORE): '%env(SOLRCORE_NAME)%'
     env(SOLRCORE_NAME): 'k-search'
     env(SOLRCORE_HOST): '127.0.0.1'
     env(KLINK_RETAIN_DOWNLOADED_CONTENTS): 0
+    env(KLINK_REGISTRY_API_URL): ''
+    env(DATABASE_URL): 'sqlite:///%kernel.project_dir%/var/data.db'
+    env(MESSENGER_TRANSPORT_DSN): 'filesystem:///%kernel.project_dir%/var/queue?compress=true&loop_sleep=1000000'
 
     indexable_content_types:
         - 'text/html'
@@ -27,16 +29,15 @@ parameters:
         - 'image/tiff'
 
 services:
-    # default configuration for services in *this* file
     _defaults:
         autowire: true
         autoconfigure: true
-        public: false
         bind:
             $appDebug: '%env(APP_DEBUG)%'
 
     App\:
-        resource: '../src/{Command,Security,EventListener,Service,Queue,Validator}'
+        resource: '../src/*'
+        exclude: '../src/{Entity,Migrations,Controller,Queue}'
 
     App\Controller\:
         resource: '../src/Controller'
@@ -52,6 +53,10 @@ services:
     App\Service\DataService:
         $indexableContentTypes: "%indexable_content_types%"
         $retainDataContents: '%env(KLINK_RETAIN_DOWNLOADED_CONTENTS)%'
+
+    App\Queue\MessageHandler\:
+        resource: '../src/Queue/MessageHandler'
+        tags: ['messenger.message_handler']
 
     local_cache:
       class: 'Symfony\Component\Cache\Adapter\ApcuAdapter'
@@ -73,21 +78,6 @@ services:
     # Autowire ApiSecretAuthenticator user provider
     App\Security\Authenticator\ApiSecretAuthenticator:
         $enabled: '%env(KLINK_REGISTRY_ENABLED)%'
-
-    # Bernard Queues auto-wiring
-    Bernard\QueueFactory:
-        class: 'Bernard\QueueFactory\PersistentFactory'
-        arguments:
-            $connection: '@App\Queue\Driver\FlatFileDriver'
-            $serializer: '@App\Queue\DataSerializer'
-
-    App\Service\QueueService: ~
-
-    App\Queue\Message\UUIDMessage:
-        alias: 'Bernard\Message'
-
-    App\Queue\Driver\FlatFileDriver:
-        $rootDir: '%kernel.root_dir%'
 
     Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface:
         factory: ['Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesser', 'getInstance']

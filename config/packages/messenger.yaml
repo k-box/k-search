@@ -1,0 +1,7 @@
+framework:
+    messenger:
+        transports:
+            default: '%env(resolve:MESSENGER_TRANSPORT_DSN)%'
+
+        routing:
+            App\Queue\Message\DataProcessingMessage: default

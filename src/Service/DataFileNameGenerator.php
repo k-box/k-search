@@ -4,6 +4,8 @@ namespace App\Service;
 
 class DataFileNameGenerator
 {
+    public const TEXT_CONTENTS_EXTENSION = 'contents';
+
     /**
      * @var string
      */
@@ -22,7 +24,7 @@ class DataFileNameGenerator
      *
      * @return string
      */
-    public function buildDownloadDataFilename(string $uuid, ?string $ext = null)
+    public function buildDownloadDataFilename(string $uuid, ?string $ext = null): string
     {
         $subFolder = substr($uuid, 0, 2);
 

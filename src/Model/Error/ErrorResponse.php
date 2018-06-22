@@ -9,6 +9,7 @@ use Swagger\Annotations as SWG;
 /**
  * @SWG\Definition(
  *     definition="Error\ErrorResponse",
+ *     description="Returned when the request is not correct",
  *     required={"error"},
  * )
  */

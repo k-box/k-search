@@ -70,7 +70,7 @@ class Properties
     /**
      * Data’s or document’s creation date in [RFC-3339](https://www.ietf.org/rfc/rfc3339.txt) format.
      *
-     * @var \DateTime
+     * @var \DateTimeInterface
      * @Assert\NotBlank()
      * @JMS\Type("DateTime<'Y-m-d\TH:i:s\Z', 'UTC'>")
      * @SWG\Property(
@@ -83,7 +83,7 @@ class Properties
     /**
      * Data’s or document’s updated date in [RFC-3339](https://www.ietf.org/rfc/rfc3339.txt) format.
      *
-     * @var \DateTime
+     * @var \DateTimeInterface
      * @JMS\Type("DateTime<'Y-m-d\TH:i:s\Z', 'UTC'>")
      * @SWG\Property(
      *     property="updated_at",

@@ -20,6 +20,10 @@ services:
       - KLINK_REGISTRY_ENABLED=0
       # The K-Registry API endpoint, leave empty if disabled
       # - KLINK_REGISTRY_API_URL=
+      # The Queue transportation system configuration
+      # "MESSENGER_TRANSPORT_DSN='filesystem:///%kernel.project_dir%/var/queue?compress=true&loop_sleep=1000000'"
+      # The database location
+      # - "DATABASE_URL='sqlite:///%kernel.project_dir%/var/data.db'"
     depends_on:
       - engine
     networks:

@@ -16,8 +16,6 @@ use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface;
 
 class DataDownloader
 {
-    private const TEXT_CONTENTS_EXTENSION = 'contents';
-
     /**
      * @var HttpClient
      */
@@ -154,12 +152,12 @@ class DataDownloader
      */
     public function getDataFileMimetype(Data $data): ?string
     {
-        $filename = $this->getDataTempFilename($data->uuid);
+        $filename = $this->dataFileExistsAndIsCurrent($data);
 
         // If the file does no exists, get the mimetype from the URL
         if (!$filename) {
             $headers = $this->getDataUrlHeaders($data);
-            if (!$headers || !isset($headers['Content-Type'])) {
+            if (!$headers || !$headers['Content-Type'] ?? null) {
                 return null;
             }
 
@@ -186,7 +184,7 @@ class DataDownloader
      */
     public function removeStoredTextualContents(string $uuid): bool
     {
-        $filename = $this->getDataTempFilename($uuid, self::TEXT_CONTENTS_EXTENSION);
+        $filename = $this->getDataTempFilename($uuid, DataFileNameGenerator::TEXT_CONTENTS_EXTENSION);
         if (!$filename) {
             return false;
         }
@@ -215,7 +213,9 @@ class DataDownloader
      */
     public function storeDataTextualContents(string $uuid, string $textualContents)
     {
-        $filename = $this->nameGenerator->buildDownloadDataFilename($uuid, self::TEXT_CONTENTS_EXTENSION);
+        $filename = $this->nameGenerator->buildDownloadDataFilename($uuid,
+            DataFileNameGenerator::TEXT_CONTENTS_EXTENSION
+        );
         $this->filesystem->dumpFile($filename, $textualContents);
     }
 
@@ -229,11 +229,19 @@ class DataDownloader
             return null;
         }
 
-        if ($data->hash !== hash_file('sha512', $filename)) {
+        if ($data->hash !== $this->computeFileHash($filename)) {
             return null;
         }
 
         return $filename;
+    }
+
+    /**
+     * Computes the HASH for the given filename.
+     */
+    public function computeFileHash(string $filename): string
+    {
+        return hash_file('sha512', $filename);
     }
 
     /**

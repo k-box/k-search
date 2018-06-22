@@ -91,3 +91,18 @@ In case that `type`==`video`. It is expected to extend the `properties` by this 
 | `code`    | Integer | ✔          | JSON-RPC inspired error codes. (minimum: -32768; maximum: -30000) |
 | `message` | String  | ✔          | Human readable status message. |
 
+## Data Status object
+
+| Property      | Type    | Required   | Description |
+| ------------ | ------- | ---------- | ----------- |
+| `status`     | String | ✔ | The status of the requested data |
+| `type`       | String |   | The requested status type (since v3.4) |
+| `request_id` | String |   | The request that originated the data to be in this state (since v3.4) |
+| `request_received_at` | String |   | The time the originated request was made (since v3.4) |
+| `message`    | String  | ✔ | Human readable status message |
+
+The returned `status` may be:
+- `index.ok`: Indexing was ok
+- `index.fail` : Failure during the indexing of the Data
+- `queued.ok` : The Data has been queued for downloading and indexing
+- `download.fail` : The download of the data failed

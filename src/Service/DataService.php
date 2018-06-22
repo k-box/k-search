@@ -7,15 +7,16 @@ use App\Exception\BadRequestException;
 use App\Exception\DataDownloadErrorException;
 use App\Exception\FilterQuery\FilterQueryException;
 use App\Exception\InternalSearchException;
+use App\Exception\OutdatedDataRequestException;
 use App\Exception\SolrEntityNotFoundException;
 use App\Exception\SolrExtractionException;
+use App\Helper\DateHelper;
 use App\Model\Data\Data;
+use App\Model\Data\DataStatus;
 use App\Model\Data\Search\SearchParams;
 use App\Model\Data\Search\SearchResults;
-use App\Queue\Message\UUIDMessage;
-use DateTimeZone;
 use Psr\Log\LoggerInterface;
-use Solarium\QueryType\Select\Query\Component\Facet\Field;
+use Solarium\Component\Facet\Field;
 use Solarium\QueryType\Select\Query\Query;
 
 class DataService
@@ -31,9 +32,14 @@ class DataService
     private $solrService;
 
     /**
-     * @var QueueService
+     * @var DataStatusService
      */
-    private $queueService;
+    private $dataStatusService;
+
+    /**
+     * @var DataProcessingService
+     */
+    private $dataProcessingService;
 
     /**
      * @var DataDownloader
@@ -43,7 +49,7 @@ class DataService
     /**
      * @var string[]
      */
-    private $indexableContentTypes = [];
+    private $indexableContentTypes;
 
     /**
      * @var bool
@@ -56,19 +62,21 @@ class DataService
     private $logger;
 
     public function __construct(
-        QueueService $queueService,
+        DataProcessingService $processingService,
+        DataStatusService $dataStatusService,
         SolrService $solrService,
         DataDownloader $downloaderService,
         array $indexableContentTypes,
         bool $retainDataContents,
         LoggerInterface $logger
     ) {
+        $this->dataProcessingService = $processingService;
         $this->solrService = $solrService;
-        $this->queueService = $queueService;
         $this->dataDownloader = $downloaderService;
         $this->indexableContentTypes = $indexableContentTypes;
         $this->retainDataContents = $retainDataContents;
         $this->logger = $logger;
+        $this->dataStatusService = $dataStatusService;
     }
 
     /**
@@ -82,9 +90,12 @@ class DataService
      */
     public function deleteData(string $uuid): bool
     {
-        $this->logger->info('Deleting data from index, uuid={uuid}', [
-            'uuid' => $uuid,
-        ]);
+        $this->logger->info(
+            'Deleting data from index, uuid={uuid}',
+            [
+                'uuid' => $uuid,
+            ]
+        );
 
         $deleted = $this->solrService->delete(SolrEntityData::getEntityType(), $uuid);
 
@@ -92,6 +103,7 @@ class DataService
             // The following will not throw any exception in case of failure
             $this->dataDownloader->removeDownloadedDataFile($uuid);
             $this->dataDownloader->removeStoredTextualContents($uuid);
+            $this->dataProcessingService->deleteProcessingStatus($uuid);
         }
 
         return $deleted;
@@ -130,58 +142,44 @@ class DataService
      * Adds the specific data to the index.
      * If the textualContents are provided, the indexing is performed without queuing.
      *
-     * @param Data        $data            The Data object
+     * @param Data        $data            The Data model
      * @param null|string $textualContents The textual contents to be indexed
+     * @param string|null $requestId       The requestId initiating the request
      *
-     * @throws BadRequestException        if the data provided can not be indexed
+     * @throws BadRequestException
      * @throws DataDownloadErrorException
+     * @throws OutdatedDataRequestException
      *
-     * @return bool
+     * @return bool True if the data was correctly handled
      */
-    public function addData(Data $data, ?string $textualContents = null): bool
+    public function addData(Data $data, ?string $textualContents = null, string $requestId = null): bool
     {
-        $this->dataCleanup($data);
+        if ($this->dataStatusService->isDataNewer($data->uuid, DateHelper::createUtcDate())) {
+            throw OutdatedDataRequestException::fromRequestId($requestId ?? '');
+        }
+
+        $this->dataCleanup($data, $requestId);
 
         if (null !== $textualContents) {
             $textualContents = trim($textualContents);
             $textualContents = $textualContents ?? null;
         }
 
-        $dataEntity = null;
-        $enqueue = true;
-
         if ($textualContents) {
-            // If the textual contents are provided, we straight index them
-            $data->status = $data->status ?? Data::STATUS_OK;
-            $dataEntity = SolrEntityData::buildFromModel($data);
-            $dataEntity->addTextualContents($textualContents);
-            $enqueue = false;
-        } else {
-            $this->ensureDataIsIndexable($data);
-            // Otherwise, we queue the data to be indexed later.
-            $data->status = Data::STATUS_QUEUED;
-            $dataEntity = SolrEntityData::buildFromModel($data);
+            return $this->addDataToIndex($data, $textualContents);
         }
 
-        $this->logger->info('Adding Data object to the index, enqueue={enqueue}, id={uuid}', [
-            'uuid' => $data->uuid,
-            'enqueue' => $enqueue,
-        ]);
+        $data->status = DataStatus::STATUS_QUEUED_OK;
+        // Ensure the data is indexable
+        $this->ensureDataIsIndexable($data);
+        $this->logger->info(
+            'Adding Data object to download processing queue, id={uuid}',
+            [
+                'uuid' => $data->uuid,
+            ]
+        );
 
-        $this->solrService->add($dataEntity);
-
-        // Store the textualContents
-        if ($textualContents && $this->retainDataContents) {
-            $this->dataDownloader->storeDataTextualContents($data->uuid, $textualContents);
-        }
-
-        if ($enqueue) {
-            // We enqueue the data to be processed later, only if we were able to add it to the Index!
-            $this->queueService->enqueueMessage(
-                QueueService::DATA_PROCESS_QUEUE,
-                new UUIDMessage($data->uuid)
-            );
-        }
+        $this->dataProcessingService->addDataForProcessing($data);
 
         return true;
     }
@@ -200,14 +198,17 @@ class DataService
     public function addDataWithFileExtraction(Data $data, \SplFileInfo $fileInfo): bool
     {
         $this->dataCleanup($data);
-        $data->status = Data::STATUS_OK;
+        $data->status = DataStatus::STATUS_INDEX_OK;
         $dataEntity = SolrEntityData::buildFromModel($data);
 
-        $this->logger->info('Adding Data object to the index with text extraction, id={uuid}, file={filename}, file-size={filesize}', [
-            'uuid' => $data->uuid,
-            'file' => $fileInfo->getFilename(),
-            'filesize' => $fileInfo->getSize(),
-        ]);
+        $this->logger->info(
+            'Adding Data object to the index with text extraction, uuid={uuid}, filename={filename}, file-size={size}',
+            [
+                'uuid' => $data->uuid,
+                'filename' => $fileInfo->getFilename(),
+                'size' => $fileInfo->getSize(),
+            ]
+        );
 
         $result = $this->solrService->addWithTextExtraction($dataEntity, $fileInfo);
 
@@ -235,10 +236,13 @@ class DataService
      */
     public function searchData(SearchParams $searchParams, string $version): SearchResults
     {
-        $this->logger->info('Executing Data search, version={version}', [
-            'params' => $searchParams,
-            'version' => $version,
-        ]);
+        $this->logger->info(
+            'Executing Data search, version={version}',
+            [
+                'params' => $searchParams,
+                'version' => $version,
+            ]
+        );
 
         $this->handleSearchParamVersion($searchParams, $version);
 
@@ -299,33 +303,64 @@ class DataService
      * @throws BadRequestException
      * @throws DataDownloadErrorException
      */
-    public function ensureDataIsIndexable(Data $data)
+    public function ensureDataIsIndexable(Data $data): void
     {
         $mimeType = $this->dataDownloader->getDataFileMimetype($data);
 
         if (!$mimeType) {
-            throw new BadRequestException([
-                sprintf('The given Data could not be indexed. Unable to guess the mimetype for %s', $data->url),
-            ]);
+            throw new BadRequestException(
+                [
+                    sprintf('The given Data could not be indexed. Unable to guess the mimetype for %s', $data->url),
+                ]
+            );
         }
 
         if (!\in_array($mimeType, $this->indexableContentTypes, true)) {
-            throw new BadRequestException([
-                sprintf('The given Data could not be indexed: the mime-type %s is not supported.', $mimeType),
-            ]);
+            throw new BadRequestException(
+                [
+                    sprintf('The given Data could not be indexed: the mime-type %s is not supported.', $mimeType),
+                ]
+            );
         }
     }
 
     /**
      * Cleanup the given data, updates the missing fields.
-     *
-     * @param Data $data
      */
-    protected function dataCleanup(Data $data)
+    private function dataCleanup(Data $data, string $requestId = null): void
     {
-        if (!$data->properties->updatedAt) {
-            $data->properties->updatedAt = new \DateTime('now', new DateTimeZone('UTC'));
+        if (!$data->requestId && $requestId) {
+            $data->requestId = $requestId;
         }
+
+        if (!$data->properties->updatedAt) {
+            $data->properties->updatedAt = DateHelper::createUtcDate();
+        }
+        if (!$data->updatedAt) {
+            $data->updatedAt = DateHelper::createUtcDate();
+        }
+    }
+
+    private function addDataToIndex(Data $data, string $textualContents): bool
+    {
+        $this->logger->info(
+            'Adding Data object to the index directly, id={uuid}',
+            [
+                'uuid' => $data->uuid,
+            ]
+        );
+        $data->status = $data->status ?? DataStatus::STATUS_INDEX_OK;
+        $dataEntity = SolrEntityData::buildFromModel($data);
+        $dataEntity->addTextualContents($textualContents);
+
+        $this->solrService->add($dataEntity);
+
+        // Store the textualContents
+        if ($this->retainDataContents) {
+            $this->dataDownloader->storeDataTextualContents($data->uuid, $textualContents);
+        }
+
+        return true;
     }
 
     /**
@@ -344,9 +379,11 @@ class DataService
 
         foreach ($searchParams->aggregations as $property => $aggregation) {
             if (!array_key_exists($property, $availableAggregations)) {
-                throw new BadRequestException([
-                    'aggregations' => sprintf('Aggregation on property "%s" is not available', $property),
-                ]);
+                throw new BadRequestException(
+                    [
+                        'aggregations' => sprintf('Aggregation on property "%s" is not available', $property),
+                    ]
+                );
             }
 
             $fieldName = $availableAggregations[$property];
@@ -395,7 +432,7 @@ class DataService
         }
     }
 
-    private function addFullTextMatching(Query $query)
+    private function addFullTextMatching(Query $query): void
     {
         $edisMax = $query->getEDisMax();
         $edisMax->setQueryFields(implode(' ', SolrEntityData::getTextSearchFields()));

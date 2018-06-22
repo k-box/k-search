@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use App\Helper\SolrHelper;
+use App\Helper\DateHelper;
 use App\Model\Data\Author;
 use App\Model\Data\Copyright;
 use App\Model\Data\CopyrightOwner;
@@ -58,6 +58,8 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     public const FIELD_UPLOADER_STORED = 'str_ss_data_uploader';
     public const FIELD_URL = 'str_sis_data_url';
     public const FIELD_UUID = 'str_sis_data_uuid';
+    public const FIELD_REQUEST_ID = 'str_sis_data_internal_request_id';
+    public const FIELD_UPDATED_AT = 'date_data_internal_updated_at';
 
     public static function getEntityType(): string
     {
@@ -79,6 +81,8 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         $doc->addField(self::FIELD_URL, $data->url);
         $doc->addField(self::FIELD_STATUS, $data->status);
         $doc->addField(self::FIELD_ERROR_STATUS, $data->errorStatus);
+        $doc->addField(self::FIELD_REQUEST_ID, $data->requestId);
+        $doc->addField(self::FIELD_UPDATED_AT, DateHelper::formatDate($data->updatedAt));
 
         // Specific sub-entity handling
         $doc->addCopyright($data->copyright);
@@ -98,6 +102,11 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         $data->url = (string) $this->getField(self::FIELD_URL);
         $data->status = (string) $this->getField(self::FIELD_STATUS);
         $data->errorStatus = (string) $this->getField(self::FIELD_ERROR_STATUS);
+
+        $data->requestId = (string) $this->getField(self::FIELD_REQUEST_ID);
+        if ($dateString = $this->getField(self::FIELD_UPDATED_AT)) {
+            $data->updatedAt = DateHelper::createUtcDate($dateString);
+        }
 
         $data->copyright = $this->buildCopyrightModel();
         $data->properties = $this->buildPropertiesModel();
@@ -265,8 +274,8 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         $this->addField(self::FIELD_PROPERTIES_TITLE, $properties->title);
         $this->addField(self::FIELD_PROPERTIES_TITLE_SORTING, $properties->title);
         $this->addField(self::FIELD_PROPERTIES_LANGUAGE, $properties->language);
-        $this->addField(self::FIELD_PROPERTIES_CREATED_AT, $properties->createdAt->format(SolrHelper::DATE_FORMAT));
-        $this->addField(self::FIELD_PROPERTIES_UPDATED_AT, $properties->updatedAt->format(SolrHelper::DATE_FORMAT));
+        $this->addField(self::FIELD_PROPERTIES_CREATED_AT, DateHelper::formatDate($properties->createdAt));
+        $this->addField(self::FIELD_PROPERTIES_UPDATED_AT, DateHelper::formatDate($properties->updatedAt));
         $this->addField(self::FIELD_PROPERTIES_SIZE, $properties->size);
         $this->addField(self::FIELD_PROPERTIES_COLLECTIONS, $properties->collections);
         $this->addField(self::FIELD_PROPERTIES_TAGS, $properties->tags);
@@ -297,13 +306,15 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         $this->inflateModelWithData($properties, $fields, $data ?? []);
 
         if ($dateString = $this->getField(self::FIELD_PROPERTIES_UPDATED_AT)) {
-            $properties->updatedAt = SolrHelper::createUtcDate($dateString);
+            $properties->updatedAt = DateHelper::createUtcDate($dateString);
         }
         if ($dateString = $this->getField(self::FIELD_PROPERTIES_CREATED_AT)) {
-            $properties->createdAt = SolrHelper::createUtcDate($dateString);
+            $properties->createdAt = DateHelper::createUtcDate($dateString);
         }
 
-        $this->updateVideoProperties($data, $properties);
+        if ($data['video'] ?? null) {
+            $this->updateVideoProperties($data ?? [], $properties);
+        }
 
         return $properties;
     }
@@ -361,27 +372,25 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
      */
     private function updateVideoProperties(array $data, Properties $properties)
     {
-        if (isset($data['video'])) {
-            $video = new Video();
-            $this->inflateModelWithData($video, ['duration', 'streaming'], $data['video']);
+        $video = new Video();
+        $this->inflateModelWithData($video, ['duration', 'streaming'], $data['video']);
 
-            if ($data['video']['source']) {
-                $source = new Source();
-                $this->inflateModelWithData($source, ['format', 'resolution', 'bitrate'], $data['video']['source']);
-                $video->source = $source;
-            }
-
-            if ($data['video']['streaming']) {
-                $streamingList = [];
-                foreach ($data['video']['streaming'] ?? [] as $streamingData) {
-                    $streaming = new Streaming();
-                    $this->inflateModelWithData($streaming, ['type', 'url'], $streamingData);
-                    $streamingList[] = $streaming;
-                }
-                $video->streaming = $streamingList;
-            }
-
-            $properties->video = $video;
+        if ($data['video']['source']) {
+            $source = new Source();
+            $this->inflateModelWithData($source, ['format', 'resolution', 'bitrate'], $data['video']['source']);
+            $video->source = $source;
         }
+
+        if ($data['video']['streaming']) {
+            $streamingList = [];
+            foreach ($data['video']['streaming'] ?? [] as $streamingData) {
+                $streaming = new Streaming();
+                $this->inflateModelWithData($streaming, ['type', 'url'], $streamingData);
+                $streamingList[] = $streaming;
+            }
+            $video->streaming = $streamingList;
+        }
+
+        $properties->video = $video;
     }
 }

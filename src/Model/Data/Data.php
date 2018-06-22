@@ -16,9 +16,6 @@ class Data
 {
     public const DATA_TYPE_DOCUMENT = 'document';
     public const DATA_TYPE_VIDEO = 'video';
-    const STATUS_QUEUED = 'queued';
-    const STATUS_OK = 'ok';
-    const STATUS_ERROR = 'error';
 
     /**
      * The Universally unique identifier of this data.
@@ -136,4 +133,20 @@ class Data
      * @JMS\Groups({"details"})
      */
     public $errorStatus;
+
+    /**
+     * The requestId that triggered the data, internal use only, not exposed.
+     *
+     * @var string
+     * @JMS\Groups({"details"})
+     */
+    public $requestId;
+
+    /**
+     * The datetime when the data was updated, internal use only, not exposed.
+     *
+     * @var \DateTimeInterface
+     * @JMS\Groups({"details"})
+     */
+    public $updatedAt;
 }

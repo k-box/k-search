@@ -5,7 +5,7 @@ namespace App\Tests\Controller;
 use App\Security\Authorization\Voter\DataVoter;
 use Symfony\Component\HttpFoundation\Response;
 
-class DataControllerSearchTest extends AbstractJsonRpcControllerTest
+class DataSearchControllerTest extends AbstractJsonRpcControllerTest
 {
     public function provideFailingRoles(): array
     {
