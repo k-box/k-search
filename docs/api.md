@@ -161,8 +161,6 @@ Add piece of data to the search index.
 Get the status information of a Data piece in the index or in the processing queue (since v3.4).
 This API requires the `data-view` permission.
 
-The “type” parameter: use data for the indexed status, processing for the processing queue status. piece of data to the search index.
-
 * URL: `/api/{VERSION}/data.status`
 
 **Request**:

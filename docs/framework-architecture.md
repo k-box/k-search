@@ -35,6 +35,7 @@ The `var/` folder contains the project related files used during the K-Search ru
 
 - `var/log`: the system logs
 - `var/cache`: the symfony cache files
+- `var/queue`: the queue processing files
 - `var/data-downloads`: files downloaded before the indexing of a Data.
     Files are grouped together in folders by the first 2 characters of the Data UUID identifier.
 - `var/data.db`: contains the SQLite Database file for the Data processing list queue
