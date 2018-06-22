@@ -16,7 +16,8 @@ The Data processing follows the workflow described in the following image:
 The K-Search system makes use of a processing queue to download and index Data for which the textual contents
 are not provided during the `data.add` API invocation.
 
-A Data item is recorded as to be processed by one of the K-Search workers that runs by the `enqueue:consume` command.
+A Data item is recorded as to be processed by one of the K-Search workers that runs by the `messenger:consume-messages`
+command.
 The command is responsible to handle the messages in the queue, invoke the corresponding worker that will download the
 required Data's file and trigger the indexing.
 If a failure is received during any of those phases, the error is reported and accessible by the `data.status` API.
@@ -26,6 +27,16 @@ this ensures that an older data processing item in the queue, will not overwrite
 
 As the adding of Data into the index is done in two separated stages, the system differentiates between the status of
 Data being in the index (thus searchable) and Data being in the processing queue.
+
+A short description of the stages:
+- `processing`: the Data has been received and waiting for a worker to be picked. In this case the `data.status` for the
+    data, with `type = processing` will return `queued.ok`.
+
+- `indexing`: The Data has been processed from the queue and is searchable.
+    Errors encountered during the downloading or the indexing of the Data will be exposed for this stage from the
+    `data.status` with `type = indexing`.
+    Note that at this point the Data is not anymore in the processing queue.
+
 For more details about the `data.status` API, refer to the online documentation.
 
 ## Directory Structure
