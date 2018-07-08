@@ -82,7 +82,7 @@ RUN \
     # run swagger to create documentation automatically
     make &&\
     # Fix file ownership
-    chown www-data:www-data . --recursive &&\
+    chown www-data:www-data . --recursive
 
 COPY docker/conf/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 ENTRYPOINT ["./docker/start.sh"]
