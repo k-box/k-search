@@ -38,7 +38,8 @@ before_script:
 script: 
   - scripts/run_phpcs.sh
   - bin/console > /dev/null
-  - scripts/run_phpunit.sh
+  - scripts/run_test_migrations.sh
+  - scripts/run_test.sh
 
 notifications:
   email:
