@@ -275,7 +275,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         $this->addField(self::FIELD_PROPERTIES_TITLE_SORTING, $properties->title);
         $this->addField(self::FIELD_PROPERTIES_LANGUAGE, $properties->language);
         $this->addField(self::FIELD_PROPERTIES_CREATED_AT, DateHelper::formatDate($properties->createdAt));
-        $this->addField(self::FIELD_PROPERTIES_UPDATED_AT, DateHelper::formatDate($properties->updatedAt));
+        $this->addField(self::FIELD_PROPERTIES_UPDATED_AT, DateHelper::formatDate($properties->updatedAt ?? DateHelper::createUtcDate()));
         $this->addField(self::FIELD_PROPERTIES_SIZE, $properties->size);
         $this->addField(self::FIELD_PROPERTIES_COLLECTIONS, $properties->collections);
         $this->addField(self::FIELD_PROPERTIES_TAGS, $properties->tags);

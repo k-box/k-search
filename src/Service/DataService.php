@@ -128,7 +128,7 @@ class DataService
 
         $resultSet = $this->solrService->getByFilter($entityType, SolrEntityData::class, $filterQueries, 1, 0);
 
-        if (!$resultSet || 1 !== $resultSet->getNumFound()) {
+        if (1 !== $resultSet->getNumFound()) {
             throw new SolrEntityNotFoundException(sprintf('Resource %s::%s not found!', $entityType, $uuid));
         }
 

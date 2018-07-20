@@ -95,7 +95,7 @@ class SolrService
 
         $resultSet = $this->getByFilter($entityType, $solrEntityClass, [$idFilter], 1, 0);
 
-        if (!$resultSet || 1 !== $resultSet->getNumFound()) {
+        if (1 !== $resultSet->getNumFound()) {
             throw new SolrEntityNotFoundException(sprintf('Resource %s::%s not found!', $entityType, $id));
         }
 
@@ -275,7 +275,7 @@ class SolrService
             if ($exception instanceof HttpException && $body = $exception->getBody()) {
                 $data = json_decode($body, true);
 
-                if (400 === $data['error']['code'] ?? null && null !== $data['error']['msg'] ?? null) {
+                if (400 === ($data['error']['code'] ?? null) && null !== $data['error']['msg'] ?? null) {
                     throw InvalidQueryException::fromError($data['error']['msg']);
                 }
             }
