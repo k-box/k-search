@@ -15,9 +15,11 @@ use App\Model\Data\Data;
 use App\Model\Data\DataStatus;
 use App\Model\Data\Search\SearchParams;
 use App\Model\Data\Search\SearchResults;
+use App\Queue\Message\DataDownloadMessage;
 use Psr\Log\LoggerInterface;
 use Solarium\Component\Facet\Field;
 use Solarium\QueryType\Select\Query\Query;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class DataService
 {
@@ -47,6 +49,11 @@ class DataService
     private $dataDownloader;
 
     /**
+     * @var MessageBusInterface
+     */
+    private $messageBus;
+
+    /**
      * @var string[]
      */
     private $indexableContentTypes;
@@ -66,6 +73,7 @@ class DataService
         DataStatusService $dataStatusService,
         SolrService $solrService,
         DataDownloader $downloaderService,
+        MessageBusInterface $messageBus,
         array $indexableContentTypes,
         bool $retainDataContents,
         LoggerInterface $logger
@@ -73,6 +81,7 @@ class DataService
         $this->dataProcessingService = $processingService;
         $this->solrService = $solrService;
         $this->dataDownloader = $downloaderService;
+        $this->messageBus = $messageBus;
         $this->indexableContentTypes = $indexableContentTypes;
         $this->retainDataContents = $retainDataContents;
         $this->logger = $logger;
@@ -90,12 +99,9 @@ class DataService
      */
     public function deleteData(string $uuid): bool
     {
-        $this->logger->info(
-            'Deleting data from index, uuid={uuid}',
-            [
-                'uuid' => $uuid,
-            ]
-        );
+        $this->logger->info('Deleting data from index, uuid={uuid}', [
+            'uuid' => $uuid,
+        ]);
 
         $deleted = $this->solrService->delete(SolrEntityData::getEntityType(), $uuid);
 
@@ -172,12 +178,9 @@ class DataService
         $data->status = DataStatus::STATUS_QUEUED_OK;
         // Ensure the data is indexable
         $this->ensureDataIsIndexable($data);
-        $this->logger->info(
-            'Adding Data object to download processing queue, id={uuid}',
-            [
-                'uuid' => $data->uuid,
-            ]
-        );
+        $this->logger->info('Adding Data object to download processing queue, id={uuid}', [
+            'uuid' => $data->uuid,
+        ]);
 
         $this->dataProcessingService->addDataForProcessing($data);
 
@@ -343,12 +346,9 @@ class DataService
 
     private function addDataToIndex(Data $data, string $textualContents): bool
     {
-        $this->logger->info(
-            'Adding Data object to the index directly, id={uuid}',
-            [
-                'uuid' => $data->uuid,
-            ]
-        );
+        $this->logger->info('Adding Data object to the index directly, id={uuid}', [
+            'uuid' => $data->uuid,
+        ]);
         $data->status = $data->status ?? DataStatus::STATUS_INDEX_OK;
         $dataEntity = SolrEntityData::buildFromModel($data);
         $dataEntity->addTextualContents($textualContents);
@@ -358,6 +358,11 @@ class DataService
         // Store the textualContents
         if ($this->retainDataContents) {
             $this->dataDownloader->storeDataTextualContents($data->uuid, $textualContents);
+
+            // Dispatch message for file download, if data type is not Video
+            if (Data::DATA_TYPE_VIDEO !== $data->type) {
+                $this->messageBus->dispatch(new DataDownloadMessage($data->uuid, $data->requestId));
+            }
         }
 
         return true;

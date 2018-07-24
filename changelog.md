@@ -18,6 +18,7 @@ documentation, and:
 
 ## [Unreleased]
 ### Added
+- Download Data files when data has been added with `data_textual_contents`.
 ### Changed
 ### Deprecated
 ### Removed

@@ -211,7 +211,7 @@ class DataDownloader
     /**
      * Stores the textual contents of the data.
      */
-    public function storeDataTextualContents(string $uuid, string $textualContents)
+    public function storeDataTextualContents(string $uuid, string $textualContents): void
     {
         $filename = $this->nameGenerator->buildDownloadDataFilename($uuid,
             DataFileNameGenerator::TEXT_CONTENTS_EXTENSION
