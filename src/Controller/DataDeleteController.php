@@ -66,14 +66,9 @@ class DataDeleteController extends AbstractRpcController
      *     ),
      * )
      *
-     * @param Request $request
-     * @param string  $version
-     *
      * @throws BadRequestException
      * @throws SolrEntityNotFoundException
      * @throws InternalSearchException
-     *
-     * @return JsonResponse
      */
     public function postDataDeleteV3(Request $request, string $version): JsonResponse
     {

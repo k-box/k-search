@@ -66,9 +66,6 @@ class KLinkRegistryUserProviderTest extends TestCase
     }
 
     /**
-     * @param array $permissions
-     * @param array $roles
-     *
      * @dataProvider loadUserFromApplicationUrlAndSecretRolesDataProvider
      *
      * @throws \App\Exception\KRegistryException

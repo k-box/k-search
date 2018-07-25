@@ -25,7 +25,6 @@ abstract class AbstractSolrVisitor extends Visitor
 
     /**
      * @param string[] $domainFieldMap
-     * @param string   $defaultFieldName
      */
     public function __construct(array $domainFieldMap, string $defaultFieldName)
     {
@@ -36,7 +35,6 @@ abstract class AbstractSolrVisitor extends Visitor
     /**
      * Return Solr backend field name prefix for the given $token.
      *
-     * @param Token $token
      *
      * @throws ParsingException
      * @throws UnknownPropertyException

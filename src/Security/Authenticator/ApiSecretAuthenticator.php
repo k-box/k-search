@@ -134,7 +134,6 @@ class ApiSecretAuthenticator extends AbstractGuardAuthenticator
     /**
      * Returns the app-secret form the request headers.
      *
-     * @param HeaderBag $headers
      *
      * @return string|null The app-secret as a string, null if not valid or not found
      */

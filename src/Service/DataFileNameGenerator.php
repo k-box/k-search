@@ -21,8 +21,6 @@ class DataFileNameGenerator
      *
      * @param string      $uuid The Data UUID
      * @param null|string $ext  The file extension
-     *
-     * @return string
      */
     public function buildDownloadDataFilename(string $uuid, ?string $ext = null): string
     {

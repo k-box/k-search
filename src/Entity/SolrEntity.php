@@ -12,29 +12,22 @@ interface SolrEntity
 
     /**
      * Returns the entity type for this Solr document.
-     *
-     * @return string
      */
     public static function getEntityType(): string;
 
     /**
      * Returns the inner Solr document.
-     *
-     * @return Document
      */
     public function getSolrUpdateDocument(): Document;
 
     /**
      * Builds a model from the Solr document.
-     *
-     * @return mixed
      */
     public function buildModel();
 
     /**
      * Get the specified field from the underlying Solr document, if exists.
      *
-     * @param string $fieldName
      *
      * @return string|array|null
      */
@@ -42,9 +35,6 @@ interface SolrEntity
 
     /**
      * Add the given field/value to the underlying Solr document.
-     *
-     * @param string $key
-     * @param mixed  $value
      */
     public function addField(string $key, $value);
 

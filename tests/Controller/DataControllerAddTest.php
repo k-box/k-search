@@ -153,8 +153,6 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
 
     /**
      * @dataProvider provideFailingRoles
-     *
-     * @param array $roles
      */
     public function testDataAddWithoutAddPermissionFails(array $roles): void
     {

@@ -68,14 +68,9 @@ class DataStatusController extends AbstractRpcController
      *     ),
      * )
      *
-     * @param Request $request
-     * @param string  $version
-     *
      * @throws BadRequestException
      * @throws SolrEntityNotFoundException
      * @throws ProcessingStatusNotFoundException
-     *
-     * @return JsonResponse
      */
     public function postDataStatusV3(Request $request, string $version): JsonResponse
     {

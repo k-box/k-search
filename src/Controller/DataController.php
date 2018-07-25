@@ -69,15 +69,10 @@ class DataController extends AbstractRpcController
      *     ),
      * )
      *
-     * @param Request $request
-     * @param string  $version
-     *
      * @throws BadRequestException
      * @throws SolrEntityNotFoundException
      * @throws DataDownloadErrorException
      * @throws OutdatedDataRequestException
-     *
-     * @return JsonResponse
      */
     public function postDataAddV3(Request $request, string $version): JsonResponse
     {
@@ -97,9 +92,6 @@ class DataController extends AbstractRpcController
         return $this->buildRpcJsonResponse($addResponse, $version);
     }
 
-    /**
-     * @param Data $data
-     */
     private function updateDataWithAPIUser(Data $data): void
     {
         // Updating Data with the current API user
