@@ -20,8 +20,6 @@ class DataSearchControllerTest extends AbstractJsonRpcControllerTest
 
     /**
      * @dataProvider provideFailingRoles
-     *
-     * @param array $roles
      */
     public function testDataSearchWithoutAddPermissionFails(array $roles)
     {

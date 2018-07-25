@@ -32,8 +32,6 @@ class DataStatusService
      *
      * @throws SolrEntityNotFoundException
      * @throws ProcessingStatusNotFoundException
-     *
-     * @return DataStatus
      */
     public function getDataStatus(string $type, string $uuid): DataStatus
     {
@@ -71,11 +69,7 @@ class DataStatusService
     }
 
     /**
-     * @param string $uuid
-     *
      * @throws SolrEntityNotFoundException
-     *
-     * @return DataStatus
      */
     private function getDataStatusFromIndex(string $uuid): DataStatus
     {

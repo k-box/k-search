@@ -121,8 +121,6 @@ class DataService
      * @param string $uuid The data UUID
      *
      * @throws SolrEntityNotFoundException
-     *
-     * @return Data
      */
     public function getData(string $uuid): Data
     {
@@ -195,8 +193,6 @@ class DataService
      *
      * @throws SolrExtractionException
      * @throws InternalSearchException
-     *
-     * @return bool
      */
     public function addDataWithFileExtraction(Data $data, \SplFileInfo $fileInfo): bool
     {
@@ -234,8 +230,6 @@ class DataService
      *
      * @throws BadRequestException
      * @throws FilterQueryException
-     *
-     * @return SearchResults
      */
     public function searchData(SearchParams $searchParams, string $version): SearchResults
     {
@@ -301,7 +295,6 @@ class DataService
     /**
      * Checks if the given Data is indexable, without providing the textual-contents directly.
      *
-     * @param Data $data
      *
      * @throws BadRequestException
      * @throws DataDownloadErrorException
@@ -371,7 +364,6 @@ class DataService
     /**
      * Returns the list of Facets enabled in the given the SearchParams.
      *
-     * @param SearchParams $searchParams
      *
      * @throws BadRequestException if any of the facet is not valid
      *
@@ -406,7 +398,6 @@ class DataService
     /**
      * Returns the search sorting configuration.
      *
-     * @param SearchParams $searchParams
      *
      * @return string[] The sorting fields (as field => order hashmap)
      */
@@ -423,9 +414,6 @@ class DataService
 
     /**
      * Handle default version changes for SearchParams.
-     *
-     * @param SearchParams $searchParams
-     * @param string       $version
      */
     private function handleSearchParamVersion(SearchParams $searchParams, string $version): void
     {

@@ -22,7 +22,6 @@ class QueryService
     /**
      * Returns the Solr filter query, from the user input.
      *
-     * @param string   $filterQuery
      * @param string[] $fieldMappings
      *
      * @throws FilterQueryException
@@ -46,8 +45,6 @@ class QueryService
      * Get a translator for the given fields mapping.
      *
      * @param string[] $fieldMappings
-     *
-     * @return Generators\ExtendedDisMax
      */
     private function getTranslator(array $fieldMappings): Generators\ExtendedDisMax
     {

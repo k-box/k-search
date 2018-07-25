@@ -7,11 +7,6 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class ObjectWalkerHelper
 {
-    /**
-     * @param ExecutionContextInterface $context
-     *
-     * @return bool
-     */
     public static function isAVideoData(ExecutionContextInterface $context): bool
     {
         $path = $context->getPropertyPath();

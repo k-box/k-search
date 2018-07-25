@@ -189,8 +189,6 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     /**
      * Add the textual contents of the entity.
      * This is a read-only property, used only for indexing, not for retrieving data.
-     *
-     * @param string $text
      */
     public function addTextualContents(string $text)
     {
@@ -222,9 +220,6 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         $this->addField(self::FIELD_AUTHORS_STORED, json_encode($author));
     }
 
-    /**
-     * @param Uploader $uploader
-     */
     private function addUploader(Uploader $uploader)
     {
         $this->addField(self::FIELD_UPLOADER_APP_URL_SORTING, $uploader->appUrl);

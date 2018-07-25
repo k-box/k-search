@@ -34,13 +34,9 @@ class KLinkRegistryUserProvider implements UserProviderInterface
     /**
      * Load an ApiUser from the KRegistry, matching the given appUrl and appSecret.
      *
-     * @param string $appUrl
-     * @param string $appSecret
      *
      * @throws BadCredentialsException
      * @throws KRegistryException
-     *
-     * @return ApiUser
      */
     public function loadUserFromApplicationUrlAndSecret(string $appUrl, string $appSecret): ApiUser
     {

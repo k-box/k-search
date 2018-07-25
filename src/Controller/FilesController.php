@@ -55,10 +55,6 @@ class FilesController extends Controller
      *        "uuid":"[a-zA-Z0-9-]{36}"
      *     }
      * )
-     *
-     * @param string $uuid
-     *
-     * @return Response
      */
     public function getDataFile(string $uuid): Response
     {

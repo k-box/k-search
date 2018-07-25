@@ -20,9 +20,6 @@ class DataControllerAuthenticationTest extends AbstractJsonRpcControllerTest
 
     /**
      * @dataProvider authenticatedApiEndpointsProvider
-     *
-     * @param string $method
-     * @param string $url
      */
     public function testApiEndpointRequiresAuthentication(string $method, string $url)
     {
@@ -40,9 +37,6 @@ class DataControllerAuthenticationTest extends AbstractJsonRpcControllerTest
 
     /**
      * @dataProvider authenticatedApiEndpointsProvider
-     *
-     * @param string $method
-     * @param string $url
      */
     public function testApiEndpointRequiresAuthenticationWithOriginOnly(string $method, string $url)
     {
@@ -64,9 +58,6 @@ class DataControllerAuthenticationTest extends AbstractJsonRpcControllerTest
 
     /**
      * @dataProvider authenticatedApiEndpointsProvider
-     *
-     * @param string $method
-     * @param string $url
      */
     public function testApiEndpointRequiresAuthenticationWithAuthOnly(string $method, string $url)
     {
@@ -88,9 +79,6 @@ class DataControllerAuthenticationTest extends AbstractJsonRpcControllerTest
 
     /**
      * @dataProvider authenticatedApiEndpointsProvider
-     *
-     * @param string $method
-     * @param string $url
      */
     public function testApiEndpointRequiresCorrectCredentials(string $method, string $url)
     {

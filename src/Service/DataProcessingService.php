@@ -59,13 +59,7 @@ class DataProcessingService
     }
 
     /**
-     * @param string      $uuid
-     * @param string|null $requestId
-     * @param string|null $status
-     *
      * @throws ProcessingStatusNotFoundException
-     *
-     * @return DataProcessingStatus
      */
     public function getProcessingStatus(string $uuid, string $requestId = null, string $status = null): DataProcessingStatus
     {
@@ -94,10 +88,6 @@ class DataProcessingService
      *
      * Deletion is done in an atomic way with locking, thus trying to avoid deleting the processing status added
      * by another requestId.
-     *
-     * @param string $uuid
-     * @param string $requestId
-     * @param string $status
      */
     public function deleteProcessingStatusByCriteria(string $uuid, string $requestId, string $status): void
     {
