@@ -18,12 +18,21 @@ documentation, and:
 
 ## [Unreleased]
 ### Added
-- Download Data files when data has been added with `data_textual_contents`.
 ### Changed
 ### Deprecated
 ### Removed
 ### Fixed
 ### Security
+
+## [3.4.0-1] - 2018-07-27
+### Added
+- Download Data files when data has been added with `data_textual_contents` (and `KLINK_RETAIN_DOWNLOADED_CONTENTS=1`).
+### Changed
+- Enforce validation for the `request.id` property in JsonRPC requests
+
+## [3.3.0-2] - 2018-07-16
+### Fix
+- Fixed Docker integration
 
 ## [3.3.0-1] - 2018-06-22
 ### Added
