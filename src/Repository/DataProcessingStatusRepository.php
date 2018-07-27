@@ -98,6 +98,6 @@ class DataProcessingStatusRepository extends ServiceEntityRepository
     private function throttleRequest(): void
     {
         // Throttling the requests
-        usleep(0.6 * 1000);
+        usleep((int) 0.6 * 1000);
     }
 }

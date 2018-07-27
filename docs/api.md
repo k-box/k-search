@@ -82,10 +82,9 @@ with a `json` body content.
 
 The following is the base structure of an API request:
 
-| Property | Type    | Required   | Description |
-| -------- | ------- | ---------- | ----------- |
-| `id` | String | ✔ | An identifier established by the Client that MUST contain a String, Number, or NULL value if included.
-    The value SHOULD normally not be Null and Numbers SHOULD NOT contain fractional parts. |
+| Property | Type   | Required   | Description |
+| -------- | ------ | ---------- | ----------- |
+| `id`     | String | ✔ |  A request identifier established by the client, must not be empty. |
 | `params` | Object | ✔ | Arguments for the method of the request (see below under "methods"). |
 
 ### Responses

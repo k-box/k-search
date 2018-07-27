@@ -65,13 +65,8 @@ class DataGetController extends AbstractRpcController
      *     ),
      * )
      *
-     * @param Request $request
-     * @param string  $version
-     *
      * @throws BadRequestException
      * @throws SolrEntityNotFoundException
-     *
-     * @return JsonResponse
      */
     public function postDataGetV3(Request $request, string $version): JsonResponse
     {

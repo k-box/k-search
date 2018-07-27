@@ -517,9 +517,6 @@ class DataDownloaderTest extends TestCase
         $this->assertInstanceOf(\SplFileInfo::class, $file);
     }
 
-    /**
-     * @return Data
-     */
     private function buildData(): Data
     {
         $data = new Data();

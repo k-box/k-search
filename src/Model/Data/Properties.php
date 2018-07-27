@@ -83,7 +83,7 @@ class Properties
     /**
      * Data’s or document’s updated date in [RFC-3339](https://www.ietf.org/rfc/rfc3339.txt) format.
      *
-     * @var \DateTimeInterface
+     * @var \DateTimeInterface|null
      * @JMS\Type("DateTime<'Y-m-d\TH:i:s\Z', 'UTC'>")
      * @SWG\Property(
      *     property="updated_at",
@@ -95,7 +95,7 @@ class Properties
     /**
      * The file size of the data, in bytes.
      *
-     * @var int
+     * @var int|null
      * @JMS\Type("integer")
      * @SWG\Property(
      *     example="717590",

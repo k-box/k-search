@@ -59,6 +59,9 @@
             "ref": "c1431086fec31f17fbcfe6d6d7e92059458facc1"
         }
     },
+    "doctrine/event-manager": {
+        "version": "v1.0.0"
+    },
     "doctrine/inflector": {
         "version": "v1.2.0"
     },
@@ -73,6 +76,12 @@
     },
     "doctrine/orm": {
         "version": "v2.6.1"
+    },
+    "doctrine/persistence": {
+        "version": "v1.0.0"
+    },
+    "doctrine/reflection": {
+        "version": "v1.0.0"
     },
     "friendsofphp/php-cs-fixer": {
         "version": "2.2",
@@ -112,9 +121,6 @@
             "version": "2.0",
             "ref": "fe60ce509ef04a3f40da96e3979bc8d9b13b2372"
         }
-    },
-    "leofeyer/optimize-native-functions-fixer": {
-        "version": "1.1.1"
     },
     "monolog/monolog": {
         "version": "1.23.0"

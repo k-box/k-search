@@ -39,9 +39,6 @@ class Status
 
     /**
      * Status constructor.
-     *
-     * @param int    $code
-     * @param string $status
      */
     public function __construct(int $code, string $status)
     {

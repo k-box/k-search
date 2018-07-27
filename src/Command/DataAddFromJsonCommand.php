@@ -74,14 +74,16 @@ class DataAddFromJsonCommand extends ContainerAwareCommand
         $output->writeln(sprintf('Handling Data.Add from file: <comment>%s</comment>', $jsonDataFile));
 
         $dataModel = null;
+        $fileContents = (string) file_get_contents($jsonDataFile);
+
         if ($asAddRequest) {
             /** @var AddRequest $addRequestModel */
-            $addRequestModel = $this->serializer->deserialize(file_get_contents($jsonDataFile), AddRequest::class, 'json');
+            $addRequestModel = $this->serializer->deserialize($fileContents, AddRequest::class, 'json');
             $this->validate($addRequestModel);
             $dataModel = $addRequestModel->params->data;
         } else {
             /** @var Data $dataModel */
-            $dataModel = $this->serializer->deserialize(file_get_contents($jsonDataFile), Data::class, 'json');
+            $dataModel = $this->serializer->deserialize($fileContents, Data::class, 'json');
             $this->validate($dataModel);
         }
 

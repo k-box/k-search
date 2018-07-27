@@ -64,10 +64,6 @@ class DataDownloader
 
     /**
      * Removes the downloaded contents for the given data UUID, if any.
-     *
-     * @param string $uuid
-     *
-     * @return bool
      */
     public function removeDownloadedDataFile(string $uuid): bool
     {
@@ -102,8 +98,6 @@ class DataDownloader
      * @param Data $data The Data model
      *
      * @throws DataDownloadErrorException
-     *
-     * @return \SplFileInfo
      */
     public function getDataFile(Data $data): \SplFileInfo
     {
@@ -144,11 +138,8 @@ class DataDownloader
     /**
      * Return the guessed mime-type of the Data file.
      *
-     * @param Data $data
      *
      * @throws DataDownloadErrorException
-     *
-     * @return string|null
      */
     public function getDataFileMimetype(Data $data): ?string
     {
@@ -211,7 +202,7 @@ class DataDownloader
     /**
      * Stores the textual contents of the data.
      */
-    public function storeDataTextualContents(string $uuid, string $textualContents)
+    public function storeDataTextualContents(string $uuid, string $textualContents): void
     {
         $filename = $this->nameGenerator->buildDownloadDataFilename($uuid,
             DataFileNameGenerator::TEXT_CONTENTS_EXTENSION
@@ -247,7 +238,6 @@ class DataDownloader
     /**
      * Returns the headers fetched from the Data url.
      *
-     * @param Data $data
      *
      * @throws DataDownloadErrorException
      *

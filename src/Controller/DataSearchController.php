@@ -64,12 +64,7 @@ class DataSearchController extends AbstractRpcController
      *     ),
      * )
      *
-     * @param Request $request
-     * @param string  $version
-     *
      * @throws BadRequestException
-     *
-     * @return JsonResponse
      */
     public function postDataSearchV3(Request $request, string $version): JsonResponse
     {

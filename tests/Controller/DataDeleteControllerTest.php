@@ -180,8 +180,6 @@ class DataDeleteControllerTest extends AbstractJsonRpcControllerTest
 
     /**
      * @dataProvider provideFailingRoles
-     *
-     * @param array $roles
      */
     public function testDataDeleteWithoutPermissionFails(array $roles)
     {

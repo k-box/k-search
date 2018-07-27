@@ -26,6 +26,9 @@ abstract class AbstractJsonRpcControllerTest extends WebTestCase
      */
     protected $client;
 
+    /**
+     * @var string[]
+     */
     protected $userRoles = [];
 
     public function setUp()
@@ -35,7 +38,7 @@ abstract class AbstractJsonRpcControllerTest extends WebTestCase
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     public function getUserRoles(): array
     {
@@ -43,7 +46,7 @@ abstract class AbstractJsonRpcControllerTest extends WebTestCase
     }
 
     /**
-     * @param array $userRoles
+     * @param string[] $userRoles
      */
     public function setUserRoles(array $userRoles)
     {

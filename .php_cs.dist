@@ -35,6 +35,7 @@ return PhpCsFixer\Config::create()
         'no_unreachable_default_argument_value' => true,
         'no_useless_else' => true,
         'no_useless_return' => true,
+        'no_superfluous_phpdoc_tags' => true,
         'ordered_class_elements' => true,
         'ordered_imports' => true,
         'phpdoc_add_missing_param_annotation' => true,
@@ -43,10 +44,9 @@ return PhpCsFixer\Config::create()
         'semicolon_after_instruction' => true,
         'strict_comparison' => true,
         'strict_param' => true,
-        'LeoFeyer/optimize_native_functions' => true,
-    ])
-    ->registerCustomFixers([
-        new LeoFeyer\PhpCsFixer\OptimizeNativeFunctionsFixer()
+        'native_function_invocation' => [
+            'include' => ['@compiler_optimized'],
+        ],
     ])
     ->setFinder($finder)
 ;

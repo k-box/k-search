@@ -11,32 +11,38 @@ use Doctrine\ORM\Mapping as ORM;
 class DataProcessingStatus
 {
     /**
+     * @var string
      * @ORM\Id()
      * @ORM\Column(type="uuid")
      */
     private $id;
 
     /**
+     * @var string
      * @ORM\Column(type="string", length=255)
      */
     private $requestId;
 
     /**
+     * @var \DateTimeInterface
      * @ORM\Column(type="datetime")
      */
     private $addedAt;
 
     /**
+     * @var string
      * @ORM\Column(type="string", length=50)
      */
     private $status;
 
     /**
+     * @var string|resource
      * @ORM\Column(type="blob")
      */
     private $data;
 
     /**
+     * @var string
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $message;
@@ -91,14 +97,14 @@ class DataProcessingStatus
 
     public function getData(): Data
     {
-        return unserialize(gzuncompress(
+        return unserialize((string) gzuncompress(
             \is_resource($this->data) ? stream_get_contents($this->data) : $this->data
         ), [Data::class]);
     }
 
     public function setData(Data $data): self
     {
-        $this->data = gzcompress(serialize($data));
+        $this->data = (string) gzcompress(serialize($data));
 
         return $this;
     }
@@ -110,7 +116,7 @@ class DataProcessingStatus
 
     public function setMessage(?string $message): self
     {
-        $this->message = substr($message, 0, 255);
+        $this->message = substr($message ?? '', 0, 255);
 
         return $this;
     }

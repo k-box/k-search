@@ -95,7 +95,7 @@ class SolrService
 
         $resultSet = $this->getByFilter($entityType, $solrEntityClass, [$idFilter], 1, 0);
 
-        if (!$resultSet || 1 !== $resultSet->getNumFound()) {
+        if (1 !== $resultSet->getNumFound()) {
             throw new SolrEntityNotFoundException(sprintf('Resource %s::%s not found!', $entityType, $id));
         }
 
@@ -110,8 +110,6 @@ class SolrService
      * @param string $id         The entity id
      *
      * @throws InternalSearchException
-     *
-     * @return bool
      */
     public function delete(string $entityType, string $id): bool
     {
@@ -146,8 +144,6 @@ class SolrService
      *
      * @throws InternalSearchException
      * @throws SolrExtractionException
-     *
-     * @return bool
      */
     public function addWithTextExtraction(AbstractSolrEntity $entity, \SplFileInfo $fileInfo): bool
     {
@@ -186,8 +182,6 @@ class SolrService
      *
      * @param string      $solrEntityClass The Entity to filter for
      * @param string|null $filterKey       The filter key for the entity-type filtering
-     *
-     * @return Query
      */
     public function buildSelectQueryByEntityType(string $solrEntityClass, ?string $filterKey = 'entity-type'): Query
     {
@@ -212,8 +206,6 @@ class SolrService
      * @param string      $field The Solr field
      * @param string      $value The value to filter for
      * @param string|null $key   The filter key
-     *
-     * @return FilterQuery
      */
     public function buildFilterQuery(string $field, string $value, ?string $key = null): FilterQuery
     {
@@ -231,8 +223,6 @@ class SolrService
      * @param int         $limit    The number of facet items to return
      * @param int         $minCount The min-count of the facet to return
      * @param string|null $key      The facet key
-     *
-     * @return Field
      */
     public function buildFacet(string $field, int $limit, int $minCount, ?string $key = null): Field
     {
@@ -253,8 +243,6 @@ class SolrService
      * @param string $key                    The filter key
      *
      * @throws FilterQueryException
-     *
-     * @return FilterQuery
      */
     public function buildFilterFromString(string $filterString, array $propertyToFieldMapping, string $key): FilterQuery
     {
@@ -275,7 +263,7 @@ class SolrService
             if ($exception instanceof HttpException && $body = $exception->getBody()) {
                 $data = json_decode($body, true);
 
-                if (400 === $data['error']['code'] ?? null && null !== $data['error']['msg'] ?? null) {
+                if (400 === ($data['error']['code'] ?? null) && null !== $data['error']['msg'] ?? null) {
                     throw InvalidQueryException::fromError($data['error']['msg']);
                 }
             }
@@ -307,7 +295,6 @@ class SolrService
     /**
      * Build the aggregations output from a Result.
      *
-     * @param Result $result
      *
      * @return Aggregation[]
      */
@@ -336,8 +323,6 @@ class SolrService
     /**
      * Handle an Exception thrown by Solr.
      *
-     * @param \Throwable $exception
-     * @param string     $additionalMessage
      *
      * @throws InternalSearchException
      */
