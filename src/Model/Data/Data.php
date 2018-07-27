@@ -2,6 +2,7 @@
 
 namespace App\Model\Data;
 
+use App\Validator\Constraints\ValidGeoLocation;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -117,6 +118,21 @@ class Data
      * @SWG\Property()
      */
     public $uploader;
+
+    /**
+     * The Geo location of the data, as an escaped GeoJson string.
+     *
+     * @var string
+     * @JMS\Type("string")
+     * @JMS\Since("3.5")
+     * @ValidGeoLocation()
+     * @SWG\Property(
+     *     property="geo_location",
+     *     example="{""type"": ""Point"", ""coordinates"": [100.0, 0.0] }",
+     *     x={"since-version":"3.5"},
+     * )
+     */
+    public $geoLocation;
 
     /**
      * The status of the data, internal use only, not exposed.
