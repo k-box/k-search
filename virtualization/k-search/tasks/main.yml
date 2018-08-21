@@ -1,17 +1,10 @@
 - name: Install PHP packages
-  apt: pkg={{ item }} state=latest
+  apt:
+    pkg: '{{ item }}'
+    state: latest
   become: yes
   with_items:
     - "php7.1-mcrypt"
     - "php7.1-apcu"
     - "php7.1-mbstring"
     - "php7.1-xml"
-
-- name: Add solr exraction library jhighlight-1.0.jar
-  become: yes
-  get_url:
-    url: https://repo1.maven.org/maven2/com/uwyn/jhighlight/1.0/jhighlight-1.0.jar
-    dest: /opt/solr/contrib/extraction/lib/jhighlight-1.0.jar
-    checksum: sha1:0b1774029ee29472df8c25e5ba796431f7689fd6
-    owner: solr
-    group: www-data
