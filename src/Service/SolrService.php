@@ -155,8 +155,13 @@ class SolrService
             );
         }
 
+        $realPath = $fileInfo->getRealPath();
+        if (!$realPath) {
+            throw new \RuntimeException('Error while extracting contents from not-existing file');
+        }
+
         $extract = $this->solrClient->createExtract();
-        $extract->setFile($fileInfo->getRealPath());
+        $extract->setFile($realPath);
         $extract->setFieldMappings(['content' => $entity::getTextualContentsField()]);
         $extract->setDocument($entity->getSolrUpdateDocument());
 
@@ -308,11 +313,9 @@ class SolrService
             return $aggregations;
         }
 
-        foreach ($facetSet->getFacets() as $property => $facets) {
-            /*
-             * @var \Solarium\Component\Result\Facet\Field
-             */
-            foreach ($facets->getValues() as $value => $count) {
+        /** @var \Solarium\Component\Result\Facet\Field $facet */
+        foreach ($facetSet->getFacets() as $property => $facet) {
+            foreach ($facet->getValues() as $value => $count) {
                 $aggregations[$property][] = new AggregationResult($value, $count);
             }
         }

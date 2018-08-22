@@ -539,7 +539,7 @@ class DataDownloaderTest extends TestCase
         $this->mockGetRequest($dataUrl);
         $response = $this->mockGetResponse();
 
-        $resource = fopen('php://temp', 'w+');
+        $resource = fopen('php://temp', 'w+b');
         fwrite($resource, $fileContents);
         $response->expects($this->once())
             ->method('getBody')
