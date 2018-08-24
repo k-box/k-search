@@ -138,7 +138,6 @@ class DataDownloader
     /**
      * Return the guessed mime-type of the Data file.
      *
-     *
      * @throws DataDownloadErrorException
      */
     public function getDataFileMimetype(Data $data): ?string

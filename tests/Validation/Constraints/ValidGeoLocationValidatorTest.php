@@ -35,9 +35,9 @@ class ValidGeoLocationValidatorTest extends ConstraintValidatorTestCase
         $constraint = $this->buildConstraint();
         $this->validator->validate('{"coordinates": [100.0, 0.0] }', $constraint);
 
-        $this->buildViolation('Unsupported GeoJson type: {{ type }}')
-            ->setParameter('{{ type }}', 'null')
-            ->setCode(ValidGeoLocation::UNSUPPORTED_GEOJSON_TYPE)
+        $this->buildViolation('Invalid GeoJson data: {{ error }}')
+            ->setParameter('{{ error }}', 'Invalid "type" property')
+            ->setCode(ValidGeoLocation::INVALID_DATA)
             ->assertRaised();
     }
 
