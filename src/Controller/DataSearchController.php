@@ -43,7 +43,7 @@ class DataSearchController extends AbstractRpcController
      *     }
      * )
      * @SWG\Post(
-     *     path="/api/3.3/data.search",
+     *     path="/api/3.5/data.search",
      *     description="Allows to query the index and returns search results. This API requires the `data-search` permission.",
      *     tags={"Data"},
      *     @SWG\Parameter(

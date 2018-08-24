@@ -10,6 +10,7 @@ use App\Exception\InternalSearchException;
 use App\Exception\OutdatedDataRequestException;
 use App\Exception\SolrEntityNotFoundException;
 use App\Exception\SolrExtractionException;
+use App\GeoJson\ModelFactory;
 use App\Helper\DateHelper;
 use App\Model\Data\Data;
 use App\Model\Data\DataStatus;
@@ -278,6 +279,12 @@ class DataService
             $query->addFilterQuery($filterQuery);
         }
 
+        if ($searchParams->geoLocationFilter) {
+            $polygon = ModelFactory::buildFromJson($searchParams->geoLocationFilter->boundingBox);
+            $geoFilterQuery = $this->solrService->buildBBoxFilterQuery($polygon);
+            $query->addFilterQuery($geoFilterQuery);
+        }
+
         $query->setOmitHeader(false);
         $queryResult = $this->solrService->executeSelectQuery($query);
 
@@ -434,5 +441,9 @@ class DataService
         // Handle phrase matching
         $edisMax->setPhraseFields(implode(' ', SolrEntityData::getTextPhraseSearchFields()));
         $edisMax->setPhraseSlop('2');
+    }
+
+    private function buildSearchFilterGeo(\App\Model\Data\Search\GeoLocationFilter $geoLocationFilter)
+    {
     }
 }

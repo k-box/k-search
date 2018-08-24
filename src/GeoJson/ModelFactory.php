@@ -5,6 +5,8 @@ namespace App\GeoJson;
 use App\GeoJson\Exception\InvalidDataException;
 use App\GeoJson\Exception\MalformedJsonDataException;
 use App\GeoJson\Exception\UnsupportedTypeException;
+use App\GeoJson\Model\Point;
+use App\GeoJson\Model\Polygon;
 
 class ModelFactory
 {
@@ -33,36 +35,13 @@ class ModelFactory
             throw new InvalidDataException('Invalid "type" property');
         }
 
-        $coordinates = $data['coordinates'] ?? null;
-
-        if (!\is_array($coordinates)) {
-            throw new InvalidDataException('Invalid "coordinates" property');
-        }
-
         switch ($type) {
             case self::TYPE_POINT:
-                // For type "Point", the "coordinates" member is a single position.
-                self::ensureSinglePosition($data['coordinates']);
+                Point::create($data);
 
                 break;
             case self::TYPE_POLYGON:
-                // Coordinates of a Polygon are an array of linear ring, we do not support holes
-                if (1 !== \count($data['coordinates'])) {
-                    throw new InvalidDataException('Polygon with holes is not supported');
-                }
-
-                if (4 > \count($data['coordinates'][0])) {
-                    throw new InvalidDataException('Polygon does not define a closed linear ring');
-                }
-
-                foreach ($data['coordinates'][0] as $index => $coordinate) {
-                    self::ensureSinglePosition($coordinate, $index);
-                }
-
-                if (reset($data['coordinates'][0]) !== end($data['coordinates'][0])) {
-                    throw new InvalidDataException('Polygon does not define a closed linear ring, first and last point MUT be identical');
-                }
-
+                Polygon::create($data);
                 break;
             default:
                 throw new UnsupportedTypeException($type);
@@ -71,13 +50,13 @@ class ModelFactory
         return $type;
     }
 
-    private static function ensureSinglePosition(array $data, int $pos = 0): void
+    public static function ensureSingleCoordinatePosition(array $coordinates, int $pos = 0): void
     {
-        if (2 !== \count($data)) {
+        if (2 !== \count($coordinates)) {
             throw new InvalidDataException(sprintf('Coordinates of point #%d are incorrect', $pos));
         }
 
-        if (!\is_numeric($data[0]) || !\is_numeric($data[1])) {
+        if (!\is_numeric($coordinates[0]) || !\is_numeric($coordinates[1])) {
             throw new InvalidDataException(sprintf('Coordinates point #%d are not numeric', $pos));
         }
     }
