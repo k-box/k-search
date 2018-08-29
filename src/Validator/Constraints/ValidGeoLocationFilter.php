@@ -20,7 +20,6 @@ class ValidGeoLocationFilter extends Constraint
         self::UNSUPPORTED_GEOJSON_TYPE => 'UNSUPPORTED_GEOJSON_TYPE_ERROR',
     ];
 
-
     public function getTargets()
     {
         return self::CLASS_CONSTRAINT;

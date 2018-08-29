@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Exception\BadRequestException;
 use App\Exception\FilterQuery\FilterQueryException;
+use App\Exception\FilterQuery\InvalidGeoJsonFilterException;
 use App\Model\Data\Search\SearchRequest;
 use App\Model\Data\Search\SearchResponse;
 use App\Security\Authorization\Voter\DataVoter;
@@ -76,8 +77,13 @@ class DataSearchController extends AbstractRpcController
         try {
             $searchResult = $this->dataService->searchData($searchRequest->params, $version);
         } catch (FilterQueryException $exception) {
+            $field = 'params.filters';
+            if ($exception instanceof InvalidGeoJsonFilterException) {
+                $field = 'params.geo_location_filter.bounding';
+            }
+
             throw new BadRequestException([
-                'params.filters' => $exception->getMessage(),
+                $field => $exception->getMessage(),
             ]);
         }
 

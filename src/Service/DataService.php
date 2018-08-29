@@ -6,10 +6,13 @@ use App\Entity\SolrEntityData;
 use App\Exception\BadRequestException;
 use App\Exception\DataDownloadErrorException;
 use App\Exception\FilterQuery\FilterQueryException;
+use App\Exception\FilterQuery\InvalidGeoJsonFilterException;
 use App\Exception\InternalSearchException;
 use App\Exception\OutdatedDataRequestException;
 use App\Exception\SolrEntityNotFoundException;
 use App\Exception\SolrExtractionException;
+use App\GeoJson\Exception\GeoJsonException;
+use App\GeoJson\Model\Polygon;
 use App\GeoJson\ModelFactory;
 use App\Helper\DateHelper;
 use App\Model\Data\Data;
@@ -281,7 +284,15 @@ class DataService
         }
 
         if ($searchParams->geoLocationFilter) {
-            $polygon = ModelFactory::buildFromJson($searchParams->geoLocationFilter->boundingBox);
+            try {
+                $polygon = ModelFactory::buildFromJson($searchParams->geoLocationFilter->bounding);
+            } catch (GeoJsonException $e) {
+                throw new InvalidGeoJsonFilterException($e->getMessage());
+            }
+            if (!$polygon instanceof Polygon) {
+                throw new InvalidGeoJsonFilterException('Unsupported Type');
+            }
+
             $geoFilterQuery = $this->solrService->buildPolygonIntersectFilter(SolrEntityData::FIELD_GEO_LOCATION, $polygon);
             $geoFilterQuery->setKey(self::SEARCH_GEO_FILTER_KEY);
             $query->addFilterQuery($geoFilterQuery);
@@ -443,9 +454,5 @@ class DataService
         // Handle phrase matching
         $edisMax->setPhraseFields(implode(' ', SolrEntityData::getTextPhraseSearchFields()));
         $edisMax->setPhraseSlop('2');
-    }
-
-    private function buildSearchFilterGeo(\App\Model\Data\Search\GeoLocationFilter $geoLocationFilter)
-    {
     }
 }

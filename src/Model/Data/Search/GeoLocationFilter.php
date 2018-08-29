@@ -2,6 +2,7 @@
 
 namespace App\Model\Data\Search;
 
+use App\Validator\Constraints\ValidGeoLocationFilter;
 use JMS\Serializer\Annotation as JMS;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -11,6 +12,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     definition="Data\Search\GeoLocationFilter",
  *     required={"bounding"}
  * )
+ *
+ * @ValidGeoLocationFilter()
  */
 class GeoLocationFilter
 {
@@ -24,7 +27,7 @@ class GeoLocationFilter
      *
      * @SWG\Property(
      *     property="bounding_box",
-     *     example="{""type"": ""Polygon"", ""coordinates"": [[10.0, 10.0], [10.0, 20.0], [20.0, 20.0], [20.0, 10.0], [10.0, 10.0]] }",
+     *     example="{""type"": ""Polygon"", ""coordinates"": [[[10.0, 10.0], [10.0, 20.0], [20.0, 20.0], [20.0, 10.0], [10.0, 10.0]]] }",
      *     x={"since-version":"3.5"},
      * )
      */
