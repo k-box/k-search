@@ -9,13 +9,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @SWG\Definition(
  *     definition="Data\Search\GeoLocationFilter",
- *     required={"bounding_box"}
+ *     required={"bounding"}
  * )
  */
 class GeoLocationFilter
 {
     /**
-     * The bounding box of the geo-location, as an escaped GeoJson string.
+     * The bounding box of the geo-location, as an escaped GeoJson string. Only a Polygon is currently supported.
      *
      * @var string
      * @JMS\Type("string")
@@ -28,5 +28,5 @@ class GeoLocationFilter
      *     x={"since-version":"3.5"},
      * )
      */
-    public $boundingBox;
+    public $bounding;
 }

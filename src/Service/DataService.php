@@ -28,6 +28,7 @@ class DataService
     private const SEARCH_ENTITY_TYPE_KEY = 'entity-type';
     private const SEARCH_DATA_STATUS_KEY = 'data-status';
     private const SEARCH_USER_FILTER_TAG = 'user-filter';
+    private const SEARCH_GEO_FILTER_KEY = 'geo-location-filter';
 
     /**
      * @var SolrService
@@ -281,7 +282,8 @@ class DataService
 
         if ($searchParams->geoLocationFilter) {
             $polygon = ModelFactory::buildFromJson($searchParams->geoLocationFilter->boundingBox);
-            $geoFilterQuery = $this->solrService->buildBBoxFilterQuery($polygon);
+            $geoFilterQuery = $this->solrService->buildPolygonIntersectFilter(SolrEntityData::FIELD_GEO_LOCATION, $polygon);
+            $geoFilterQuery->setKey(self::SEARCH_GEO_FILTER_KEY);
             $query->addFilterQuery($geoFilterQuery);
         }
 

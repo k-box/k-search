@@ -5,25 +5,18 @@ namespace App\GeoJson;
 use App\GeoJson\Exception\InvalidDataException;
 use App\GeoJson\Exception\MalformedJsonDataException;
 use App\GeoJson\Exception\UnsupportedTypeException;
+use App\GeoJson\Model\ModelInterface;
 use App\GeoJson\Model\Point;
 use App\GeoJson\Model\Polygon;
 
 class ModelFactory
 {
-    public const TYPE_POINT = 'Point';
-    public const TYPE_POLYGON = 'Polygon';
-
-    public const SUPPORTED_TYPES = [
-        self::TYPE_POINT,
-        self::TYPE_POLYGON,
-    ];
-
     /**
      * @throws InvalidDataException
      * @throws MalformedJsonDataException
      * @throws UnsupportedTypeException
      */
-    public static function buildFromJson(string $jsonData): string
+    public static function buildFromJson(string $jsonData): ModelInterface
     {
         $data = json_decode($jsonData, true);
         if (null === $data) {
@@ -36,18 +29,13 @@ class ModelFactory
         }
 
         switch ($type) {
-            case self::TYPE_POINT:
-                Point::create($data);
-
-                break;
-            case self::TYPE_POLYGON:
-                Polygon::create($data);
-                break;
-            default:
-                throw new UnsupportedTypeException($type);
+            case Point::getType():
+                return Point::create($data);
+            case Polygon::getType():
+                return Polygon::create($data);
         }
 
-        return $type;
+        throw new UnsupportedTypeException($type);
     }
 
     public static function ensureSingleCoordinatePosition(array $coordinates, int $pos = 0): void

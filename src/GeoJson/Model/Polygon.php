@@ -8,12 +8,16 @@ use App\GeoJson\ModelFactory;
 class Polygon implements ModelInterface
 {
     /**
-     * @var Coordinates[]
+     * @var Position[]
      */
-    public $coordinates = [];
+    public $exteriorRing = [];
 
     public static function validate(array $data): void
     {
+        if (self::getType() !== $data['type'] ?? null) {
+            throw new InvalidDataException('Invalid "type" property for a Polygon');
+        }
+
         if (!\is_array($data['coordinates'] ?? null)) {
             throw new InvalidDataException('Invalid "coordinates" property');
         }
@@ -41,10 +45,30 @@ class Polygon implements ModelInterface
         self::validate($data);
 
         $i = new self();
-        foreach ($data['coordinates'] as $coordinate) {
-            $i->coordinates[] = Coordinates::build($coordinate[0], $coordinate[1]);
+        foreach ($data['coordinates'][0] as $coordinate) {
+            $i->exteriorRing[] = Position::build($coordinate[0], $coordinate[1]);
         }
 
         return $i;
+    }
+
+    public static function getType(): string
+    {
+        return 'Polygon';
+    }
+
+    public function jsonSerialize()
+    {
+        $points = [];
+        foreach ($this->exteriorRing as $coordinate) {
+            $points[] = $coordinate->jsonSerialize();
+        }
+
+        return [
+            'type' => self::getType(),
+            'coordinates' => [
+                $points, // First list of points represent the exterior ring
+            ],
+        ];
     }
 }

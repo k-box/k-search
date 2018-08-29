@@ -8,12 +8,16 @@ use App\GeoJson\ModelFactory;
 class Point implements ModelInterface
 {
     /**
-     * @var Coordinates
+     * @var Position
      */
     public $coordinates;
 
     public static function validate(array $data): void
     {
+        if (self::getType() !== $data['type'] ?? null) {
+            throw new InvalidDataException('Invalid "type" property for a Polygon');
+        }
+
         if (!\is_array($data['coordinates'] ?? null)) {
             throw new InvalidDataException('Invalid "coordinates" property');
         }
@@ -27,8 +31,21 @@ class Point implements ModelInterface
         self::validate($data);
 
         $i = new self();
-        $i->coordinates = Coordinates::build($data['coordinates'][0], $data['coordinates'][1]);
+        $i->coordinates = Position::build($data['coordinates'][0], $data['coordinates'][1]);
 
         return $i;
+    }
+
+    public function jsonSerialize()
+    {
+        return [
+            'type' => self::getType(),
+            'coordinates' => $this->coordinates->jsonSerialize(),
+        ];
+    }
+
+    public static function getType(): string
+    {
+        return 'Point';
     }
 }

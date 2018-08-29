@@ -5,24 +5,33 @@ namespace App\Validator\Constraints;
 use App\GeoJson\Exception\InvalidDataException;
 use App\GeoJson\Exception\MalformedJsonDataException;
 use App\GeoJson\Exception\UnsupportedTypeException;
+use App\GeoJson\Model\Polygon;
 use App\GeoJson\ModelFactory;
+use App\Model\Data\Search\GeoLocationFilter;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
-class ValidGeoLocationValidator extends ConstraintValidator
+class ValidGeoLocationFilterValidator extends ConstraintValidator
 {
     public function validate($value, Constraint $constraint)
     {
-        if (!$constraint instanceof ValidGeoLocation) {
+        if (!$constraint instanceof ValidGeoLocationFilter) {
             return;
         }
 
-        if (!$value) {
+        if (!$value instanceof GeoLocationFilter) {
             return;
         }
 
         try {
-            ModelFactory::buildFromJson($value);
+            $data = ModelFactory::buildFromJson($value->bounding);
+            if (!$data instanceof Polygon) {
+                $this->context
+                    ->buildViolation($constraint->unsupportedTypeMessage)
+                    ->setParameter('{{ type }}', $data::getType())
+                    ->setCode(ValidGeoLocation::UNSUPPORTED_GEOJSON_TYPE)
+                    ->addViolation();
+            }
         } catch (MalformedJsonDataException $e) {
             $this->context
                 ->buildViolation($constraint->invalidDataMessage)
