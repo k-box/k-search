@@ -298,6 +298,7 @@ class DataService
             $query->addFilterQuery($geoFilterQuery);
         }
 
+        // Keep the header to get the Solr query time
         $query->setOmitHeader(false);
         $queryResult = $this->solrService->executeSelectQuery($query);
 
