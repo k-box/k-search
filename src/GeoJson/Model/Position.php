@@ -9,7 +9,7 @@ class Position implements \JsonSerializable
     public $lat = '';
     public $lon = '';
 
-    public static function build(float $lat, float $lon): self
+    public static function build(float $lon, float $lat): self
     {
         $i = new self();
         $i->lat = $lat;
@@ -20,6 +20,6 @@ class Position implements \JsonSerializable
 
     public function jsonSerialize()
     {
-        return [$this->lat, $this->lon];
+        return [$this->lon, $this->lat];
     }
 }
