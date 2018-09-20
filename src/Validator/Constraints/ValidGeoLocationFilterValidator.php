@@ -24,7 +24,7 @@ class ValidGeoLocationFilterValidator extends ConstraintValidator
         }
 
         try {
-            $data = ModelFactory::buildFromJson($value->bounding);
+            $data = ModelFactory::buildFromJson($value->boundingBox);
             if (!$data instanceof Polygon) {
                 $this->context
                     ->buildViolation($constraint->unsupportedTypeMessage)

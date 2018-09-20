@@ -285,7 +285,7 @@ class DataService
 
         if ($searchParams->geoLocationFilter) {
             try {
-                $polygon = ModelFactory::buildFromJson($searchParams->geoLocationFilter->bounding);
+                $polygon = ModelFactory::buildFromJson($searchParams->geoLocationFilter->boundingBox);
             } catch (GeoJsonException $e) {
                 throw new InvalidGeoJsonFilterException($e->getMessage());
             }

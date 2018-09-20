@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @SWG\Definition(
  *     definition="Data\Search\GeoLocationFilter",
- *     required={"bounding"}
+ *     required={"bounding_box"}
  * )
  *
  * @ValidGeoLocationFilter()
@@ -23,6 +23,7 @@ class GeoLocationFilter
      * @var string
      * @JMS\Type("string")
      * @JMS\Since("3.5")
+     * @JMS\SerializedName("bounding_box")
      * @Assert\NotBlank()
      *
      * @SWG\Property(
@@ -31,5 +32,5 @@ class GeoLocationFilter
      *     x={"since-version":"3.5"},
      * )
      */
-    public $bounding;
+    public $boundingBox;
 }

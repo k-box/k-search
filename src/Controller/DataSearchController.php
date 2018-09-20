@@ -79,7 +79,7 @@ class DataSearchController extends AbstractRpcController
         } catch (FilterQueryException $exception) {
             $field = 'params.filters';
             if ($exception instanceof InvalidGeoJsonFilterException) {
-                $field = 'params.geo_location_filter.bounding';
+                $field = 'params.geo_location_filter.bounding_box';
             }
 
             throw new BadRequestException([
