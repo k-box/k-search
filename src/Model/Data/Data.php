@@ -121,6 +121,9 @@ class Data
 
     /**
      * The Geo location of the data, as an escaped GeoJson string.
+     * 
+     * The coordinates must be in the WGS84 coordinate system.
+     * The order of the coordinates must be longitude, latitude
      *
      * @var string
      * @JMS\Type("string")

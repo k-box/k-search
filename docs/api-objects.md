@@ -5,7 +5,7 @@
 | `uuid`                       | String | ✔ | Universally unique identifier. |
 | `url`                        | String | ✔ | The URI where the source data is stored and retrievable. |
 | `hash`                       | String | ✔ | The SHA-2 (SHA-512) hash of the data content. |
-| `geo_location`               | String |   | The Geo location of the data, as an escaped GeoJson string. |
+| `geo_location`               | String |   | The Geo location of the data, as an escaped GeoJson string. Coordinates must be in the [<longitude, latitude> order](https://tools.ietf.org/html/rfc7946#section-3.1.1) and use the [WGS84 (EPSG:4326) reference system](https://tools.ietf.org/html/rfc7946#section-4). |
 | `type`                       | String | ✔ | The general type of the provided data. Can be only 'document' or 'video'. |
 | `properties[]`               | Object | ✔ | The metadata of a piece of data. |
 | `properties[mime_type]`      | String | ✔ | The Mime type of the provided data. |
