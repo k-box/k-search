@@ -5,8 +5,10 @@ namespace App\Tests\Service;
 use App\Entity\SolrEntityData;
 use App\Exception\BadRequestException;
 use App\Exception\SolrEntityNotFoundException;
+use App\GeoJson\ModelFactory;
 use App\Model\Data\Data;
 use App\Model\Data\DataStatus;
+use App\Model\Data\Search\GeoLocationFilter;
 use App\Queue\Message\DataDownloadMessage;
 use App\Service\DataDownloader;
 use App\Service\DataProcessingService;
@@ -29,7 +31,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class DataServiceTest extends TestCase
 {
     private const DATA_UUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
-    private const LATEST_VERSION = '3.3';
+    private const LATEST_VERSION = '3.5';
 
     private const TYPES = [
         'application/pdf',
@@ -539,6 +541,26 @@ class DataServiceTest extends TestCase
         $this->query->expects($this->never())
             ->method('addFilterQuery')
             ->with(SolrEntityData::FIELD_STATUS, DataStatus::STATUS_INDEX_OK, $this->anything());
+
+        $dataService = $this->buildDataService();
+        $dataService->searchData($searchParam, self::LATEST_VERSION);
+    }
+
+    public function testSearchWithGeoFilters(): void
+    {
+        $polygon = '{"type": "Polygon", "coordinates": [[[100,0],[101,0],[101,1],[100,1],[100,0]]]}';
+        $filter = new GeoLocationFilter();
+        $filter->boundingBox = $polygon;
+
+        $searchParam = TestModelHelper::createDataSearchParamsModel();
+        $searchParam->search = 'search-terms';
+        $searchParam->geoLocationFilter = $filter;
+
+        $this->setupSolrServiceForSearch(['search' => 'search-terms']);
+
+        $this->solrService->expects($this->once())
+            ->method('buildPolygonIntersectFilter')
+            ->with(SolrEntityData::FIELD_GEO_LOCATION, $polygon = ModelFactory::buildFromJson($polygon));
 
         $dataService = $this->buildDataService();
         $dataService->searchData($searchParam, self::LATEST_VERSION);
