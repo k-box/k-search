@@ -12,6 +12,8 @@
     "require": {
         "php": "^7.1",
         "ext-mbstring": "*",
+        "ext-json": "*",
+        "ext-intl": "*",
         "doctrine/doctrine-migrations-bundle": "^1.3",
         "doctrine/orm": "^2.6",
         "jms/serializer-bundle": "^2.0",

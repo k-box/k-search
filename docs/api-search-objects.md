@@ -6,6 +6,7 @@ Describe the Search request.
 | -------- | ------ | -------- | ----------- |
 | `search`  | String | ✔       | URI encoded string of the search query. If no query is specified, an empty result set will be returned |
 | `filters` | String |         | Search [filters](#supported-filters) in the [Lucene query parser syntax](https://lucene.apache.org/core/2_9_4/queryparsersyntax.html) |
+| `geo_location_filter` | [GeoLocationFilter](#geographic-location-filter) |    | Filter for data geographic location. This filter is applied in AND with the other defined `filters` |
 | `aggregations` | [Aggregation](#aggregation) |    | An object containing the aggregations to be retrieved |
 | `sort` (since v3.1)| [Sort](#sort) |    | A list of sort parameters |
 | `limit` | Integer | | Specify the number of results to retrieve. If no value is given the default value of 10 is used. |
@@ -38,7 +39,6 @@ the configuration for the specific aggregation. The code block below shows an ex
 The supported aggregations are:
 
 - `type`
-- `properties.`
 - `properties.created_at`
 - `properties.updated_at`
 - `properties.size`
@@ -102,12 +102,30 @@ Currently supported filters are:
 - `copyright.usage.short`
 - `uploader.name`
 
+### Geographic Location Filter
+
+The Geographic Location filter is a special filter targetting the `data.geo_location` field.
+As of now it enables to retrieve document whose `geo_location` intersect with a polygon.
+
+The polygon must be defined as a serialized [GeoJSON polygon](https://tools.ietf.org/html/rfc7946#appendix-A.3)
+
+```json
+{
+    "bounding_box": "{\"type\": \"Polygon\", \"coordinates\": [[[100,0],[101,0],[101,1],[100,1],[100,0]]]}"
+}
+```
+
+> Coordinates must be expressed using the WGS84 reference system in longitude, latitude order
+
 ### Example
 
 ```json
 {
     "search" : "K-Link",
     "filters" : "properties.language:en AND (properties.updated_at:[\"2008-07-28T14:47:31Z\" TO NOW] OR properties.created_at:[\"2008-07-28T14:47:31Z\" TO NOW]) AND copyright.usage.short:\"MPL-2.0\")",
+    "geo_location_filter": {
+        "bounding_box": "{\"type\": \"Polygon\", \"coordinates\": [[[100,0],[101,0],[101,1],[100,1],[100,0]]]}"
+    },
     "aggregations" : {
         "properties.language" : {
             "limit" : 10,

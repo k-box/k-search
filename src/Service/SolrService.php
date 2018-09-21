@@ -10,6 +10,7 @@ use App\Exception\FilterQuery\InvalidQueryException;
 use App\Exception\InternalSearchException;
 use App\Exception\SolrEntityNotFoundException;
 use App\Exception\SolrExtractionException;
+use App\GeoJson\Model\Polygon;
 use App\Helper\SolrHelper;
 use App\Model\Data\Search\Aggregation;
 use App\Model\Data\Search\AggregationResult;
@@ -323,9 +324,17 @@ class SolrService
         return $aggregations;
     }
 
+    public function buildPolygonIntersectFilter(string $field, Polygon $polygon): FilterQuery
+    {
+        $jsonPolygon = json_encode($polygon->jsonSerialize());
+        $q = new FilterQuery();
+        $q->setQuery(sprintf('{!field f=%s}Intersects(%s)', $field, $jsonPolygon));
+
+        return $q;
+    }
+
     /**
      * Handle an Exception thrown by Solr.
-     *
      *
      * @throws InternalSearchException
      */

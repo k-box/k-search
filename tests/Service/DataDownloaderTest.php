@@ -463,10 +463,10 @@ class DataDownloaderTest extends TestCase
             ->with(self::DATA_TEMP_FILENAME, self::DATA_FILE_CONTENTS);
 
         $file = $this->downloaderService->getDataFile($data);
-        $this->assertInstanceOf(\SplFileInfo::class, $file);
+        $this->assertSame(basename(self::DATA_TEMP_FILENAME), $file->getBasename());
     }
 
-    public function testGetDataFileWithDownloadedFileSameHash()
+    public function testGetDataFileWithDownloadedFileSameHash(): void
     {
         $data = $this->buildData();
         $data->hash = $this->prepareTempDataFile();
@@ -488,10 +488,10 @@ class DataDownloaderTest extends TestCase
             ->method('createRequest');
 
         $file = $this->downloaderService->getDataFile($data);
-        $this->assertInstanceOf(\SplFileInfo::class, $file);
+        $this->assertSame(basename(self::DATA_TEMP_FILENAME), $file->getBasename());
     }
 
-    public function testGetDataFileWithDownloadedFileDifferentHash()
+    public function testGetDataFileWithDownloadedFileDifferentHash(): void
     {
         $data = $this->buildData();
         $this->prepareTempDataFile();
@@ -514,7 +514,7 @@ class DataDownloaderTest extends TestCase
             ->with(self::DATA_TEMP_FILENAME, self::DATA_FILE_CONTENTS);
 
         $file = $this->downloaderService->getDataFile($data);
-        $this->assertInstanceOf(\SplFileInfo::class, $file);
+        $this->assertSame(basename(self::DATA_TEMP_FILENAME), $file->getBasename());
     }
 
     private function buildData(): Data
@@ -561,8 +561,6 @@ class DataDownloaderTest extends TestCase
     }
 
     /**
-     * @throws \ReflectionException
-     *
      * @return MockObject|ResponseInterface
      */
     private function mockGetResponse()
