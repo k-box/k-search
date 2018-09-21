@@ -3,8 +3,9 @@
 | Property                     | Type   | Required | Description |
 | ---------------------------- | ------ | -------- | ----------- |
 | `uuid`                       | String | ✔ | Universally unique identifier. |
-| `url`                   | String | ✔ | The URI where the source data is stored and retrievable. |
-| `hash`               | String | ✔ | The SHA-2 (SHA-512) hash of the data content. |
+| `url`                        | String | ✔ | The URI where the source data is stored and retrievable. |
+| `hash`                       | String | ✔ | The SHA-2 (SHA-512) hash of the data content. |
+| `geo_location`               | String |   | The Geo location of the data, as an escaped GeoJson string. Coordinates must be in the [<longitude, latitude> order](https://tools.ietf.org/html/rfc7946#section-3.1.1) and use the [WGS84 (EPSG:4326) reference system](https://tools.ietf.org/html/rfc7946#section-4). |
 | `type`                       | String | ✔ | The general type of the provided data. Can be only 'document' or 'video'. |
 | `properties[]`               | Object | ✔ | The metadata of a piece of data. |
 | `properties[mime_type]`      | String | ✔ | The Mime type of the provided data. |
@@ -45,7 +46,7 @@
 
 | Property | Type   | Required | Description |
 | -------- | ------ | -------- | ----------- |
-| `application_id`  | Integer | ✔ | The application (ID) that added the data |
+| `application_id`  | Integer  | ✔ | The application (ID) that added the data |
 
 
 ## Data object extension for video files
@@ -77,24 +78,24 @@ In case that `type`==`video`. It is expected to extend the `properties` by this 
 
 ## Error object
 
-| Property  | Type    | Required   | Description |
-| --------- | ------- | ---------- | ----------- |
-| `code`    | Integer | ✔          | JSON-RPC inspired error codes. (minimum: -32768; maximum: -30000) |
-| `message` | String  | ✔          | Human readable error message. |
-| `data`    | Object  | ✔          | Additional information can optionally be provided on errors for better debugging. |
+| Property  | Type    | Required | Description |
+| --------- | ------- | -------- | ----------- |
+| `code`    | Integer | ✔        | JSON-RPC inspired error codes. (minimum: -32768; maximum: -30000) |
+| `message` | String  | ✔        | Human readable error message. |
+| `data`    | Object  | ✔        | Additional information can optionally be provided on errors for better debugging. |
 
 
 ## Status object
 
-| Property  | Type    | Required   | Description |
-| --------- | ------- | ---------- | ----------- |
-| `code`    | Integer | ✔          | JSON-RPC inspired error codes. (minimum: -32768; maximum: -30000) |
-| `message` | String  | ✔          | Human readable status message. |
+| Property  | Type    | Required | Description |
+| --------- | ------- | -------- | ----------- |
+| `code`    | Integer | ✔        | JSON-RPC inspired error codes. (minimum: -32768; maximum: -30000) |
+| `message` | String  | ✔        | Human readable status message. |
 
 ## Data Status object
 
-| Property      | Type    | Required   | Description |
-| ------------ | ------- | ---------- | ----------- |
+| Property     | Type   | Required | Description |
+| ------------ | ------ | -------- | ----------- |
 | `status`     | String | ✔ | The status of the requested data |
 | `type`       | String |   | The requested status type (since v3.4) |
 | `request_id` | String |   | The request that originated the data to be in this state (since v3.4) |

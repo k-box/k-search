@@ -10,6 +10,7 @@ use App\Exception\FilterQuery\InvalidQueryException;
 use App\Exception\InternalSearchException;
 use App\Exception\SolrEntityNotFoundException;
 use App\Exception\SolrExtractionException;
+use App\GeoJson\Model\Polygon;
 use App\Helper\SolrHelper;
 use App\Model\Data\Search\Aggregation;
 use App\Model\Data\Search\AggregationResult;
@@ -155,8 +156,13 @@ class SolrService
             );
         }
 
+        $realPath = $fileInfo->getRealPath();
+        if (!$realPath) {
+            throw new \RuntimeException('Error while extracting contents from not-existing file');
+        }
+
         $extract = $this->solrClient->createExtract();
-        $extract->setFile($fileInfo->getRealPath());
+        $extract->setFile($realPath);
         $extract->setFieldMappings(['content' => $entity::getTextualContentsField()]);
         $extract->setDocument($entity->getSolrUpdateDocument());
 
@@ -308,11 +314,9 @@ class SolrService
             return $aggregations;
         }
 
-        foreach ($facetSet->getFacets() as $property => $facets) {
-            /*
-             * @var \Solarium\Component\Result\Facet\Field
-             */
-            foreach ($facets->getValues() as $value => $count) {
+        /** @var \Solarium\Component\Result\Facet\Field $facet */
+        foreach ($facetSet->getFacets() as $property => $facet) {
+            foreach ($facet->getValues() as $value => $count) {
                 $aggregations[$property][] = new AggregationResult($value, $count);
             }
         }
@@ -320,9 +324,17 @@ class SolrService
         return $aggregations;
     }
 
+    public function buildPolygonIntersectFilter(string $field, Polygon $polygon): FilterQuery
+    {
+        $jsonPolygon = json_encode($polygon->jsonSerialize());
+        $q = new FilterQuery();
+        $q->setQuery(sprintf('{!field f=%s}Intersects(%s)', $field, $jsonPolygon));
+
+        return $q;
+    }
+
     /**
      * Handle an Exception thrown by Solr.
-     *
      *
      * @throws InternalSearchException
      */

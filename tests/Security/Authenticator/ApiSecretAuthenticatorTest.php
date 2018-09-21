@@ -96,8 +96,6 @@ class ApiSecretAuthenticatorTest extends KernelTestCase
 
     /**
      * @dataProvider incorrectAuthDataProvider
-     *
-     * @param null|string $auth
      */
     public function testGetCredentialsFromRequestIncorrectAuth(?string $auth)
     {

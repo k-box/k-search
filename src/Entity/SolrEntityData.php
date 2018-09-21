@@ -60,6 +60,8 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     public const FIELD_UUID = 'str_sis_data_uuid';
     public const FIELD_REQUEST_ID = 'str_sis_data_internal_request_id';
     public const FIELD_UPDATED_AT = 'date_data_internal_updated_at';
+    public const FIELD_GEO_LOCATION = 'geom_data_geo_location';
+    public const FIELD_GEO_LOCATION_STORED = 'str_ss_data_geo_location';
 
     public static function getEntityType(): string
     {
@@ -81,6 +83,8 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         $doc->addField(self::FIELD_URL, $data->url);
         $doc->addField(self::FIELD_STATUS, $data->status);
         $doc->addField(self::FIELD_ERROR_STATUS, $data->errorStatus);
+        $doc->addField(self::FIELD_GEO_LOCATION, $data->geoLocation);
+        $doc->addField(self::FIELD_GEO_LOCATION_STORED, $data->geoLocation);
         $doc->addField(self::FIELD_REQUEST_ID, $data->requestId);
         $doc->addField(self::FIELD_UPDATED_AT, DateHelper::formatDate($data->updatedAt));
 
@@ -102,6 +106,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         $data->url = (string) $this->getField(self::FIELD_URL);
         $data->status = (string) $this->getField(self::FIELD_STATUS);
         $data->errorStatus = (string) $this->getField(self::FIELD_ERROR_STATUS);
+        $data->geoLocation = (string) $this->getField(self::FIELD_GEO_LOCATION_STORED);
 
         $data->requestId = (string) $this->getField(self::FIELD_REQUEST_ID);
         if ($dateString = $this->getField(self::FIELD_UPDATED_AT)) {

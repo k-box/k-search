@@ -34,6 +34,18 @@ class SolrEntityDataTest extends TestCase
         $this->assertEquals($data, $dataBuilt);
     }
 
+    public function testItBuildsADocumentModelWithGeoLocation()
+    {
+        $data = TestModelHelper::createDataModel(self::SAMPLE_UUID);
+        $entity = SolrEntityData::buildFromModel($data);
+
+        $dataBuilt = $entity->buildModel();
+
+        $this->assertEquals($data, $dataBuilt);
+        $this->assertEquals($entity->getField(SolrEntityData::FIELD_GEO_LOCATION), $data->geoLocation);
+        $this->assertEquals($entity->getField(SolrEntityData::FIELD_GEO_LOCATION_STORED), $data->geoLocation);
+    }
+
     public function testItBuildsAVideoFromModel()
     {
         $data = TestModelHelper::createDataModel(self::SAMPLE_UUID);

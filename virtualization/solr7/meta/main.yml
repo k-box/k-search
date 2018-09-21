@@ -1,0 +1,8 @@
+---
+dependencies:
+  - role: supervisor
+    service_name: "solr"
+    user: "solr"
+    command: "{{ solr_command }}"
+    supervisor_start_directory: "{{ solr_install_dir }}"
+  - role: java8

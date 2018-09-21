@@ -6,10 +6,14 @@ use App\Entity\SolrEntityData;
 use App\Exception\BadRequestException;
 use App\Exception\DataDownloadErrorException;
 use App\Exception\FilterQuery\FilterQueryException;
+use App\Exception\FilterQuery\InvalidGeoJsonFilterException;
 use App\Exception\InternalSearchException;
 use App\Exception\OutdatedDataRequestException;
 use App\Exception\SolrEntityNotFoundException;
 use App\Exception\SolrExtractionException;
+use App\GeoJson\Exception\GeoJsonException;
+use App\GeoJson\Model\Polygon;
+use App\GeoJson\ModelFactory;
 use App\Helper\DateHelper;
 use App\Model\Data\Data;
 use App\Model\Data\DataStatus;
@@ -27,6 +31,7 @@ class DataService
     private const SEARCH_ENTITY_TYPE_KEY = 'entity-type';
     private const SEARCH_DATA_STATUS_KEY = 'data-status';
     private const SEARCH_USER_FILTER_TAG = 'user-filter';
+    private const SEARCH_GEO_FILTER_KEY = 'geo-location-filter';
 
     /**
      * @var SolrService
@@ -278,6 +283,22 @@ class DataService
             $query->addFilterQuery($filterQuery);
         }
 
+        if ($searchParams->geoLocationFilter) {
+            try {
+                $polygon = ModelFactory::buildFromJson($searchParams->geoLocationFilter->boundingBox);
+            } catch (GeoJsonException $e) {
+                throw new InvalidGeoJsonFilterException($e->getMessage());
+            }
+            if (!$polygon instanceof Polygon) {
+                throw new InvalidGeoJsonFilterException('Unsupported Type');
+            }
+
+            $geoFilterQuery = $this->solrService->buildPolygonIntersectFilter(SolrEntityData::FIELD_GEO_LOCATION, $polygon);
+            $geoFilterQuery->setKey(self::SEARCH_GEO_FILTER_KEY);
+            $query->addFilterQuery($geoFilterQuery);
+        }
+
+        // Keep the header to get the Solr query time
         $query->setOmitHeader(false);
         $queryResult = $this->solrService->executeSelectQuery($query);
 

@@ -437,9 +437,6 @@
     "symfony/polyfill-ctype": {
         "version": "v1.8.0"
     },
-    "symfony/polyfill-mbstring": {
-        "version": "v1.6.0"
-    },
     "symfony/polyfill-php72": {
         "version": "v1.6.0"
     },

@@ -59,6 +59,7 @@ class TestModelHelper
         $data->type = 'document';
         $data->url = 'http://example.com/data.txt';
         $data->uuid = $sampleUUID;
+        $data->geoLocation = '{"type": "Point", "coordinates": [100.0, 0.0] }';
 
         $data->copyright = new Copyright();
         $data->copyright->owner = new CopyrightOwner();

@@ -18,11 +18,27 @@ documentation, and:
 
 ## [Unreleased]
 ### Added
+
 ### Changed
+
 ### Deprecated
+
 ### Removed
+
 ### Fixed
+
 ### Security
+
+## [3.5.0-1] - 2018-09-21
+### Added
+- `geo_location` field in the `Data` object for storing geographic 
+information related to the data (API `3.5`)
+- `geo_location_filter` to the `SearchQuery` object for filtering 
+the data based on the `Data.geo_location` field (API `3.5`)
+
+### Changed
+- Updated Solr to v7.4.x
+- Now Requires K-Search Engine v1.x
 
 ## [3.4.0-1] - 2018-07-27
 ### Added

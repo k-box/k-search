@@ -18,3 +18,4 @@ framework:
         enabled: false
     router:
         strict_requirements: null
+    annotations: true

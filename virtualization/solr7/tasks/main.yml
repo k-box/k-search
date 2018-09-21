@@ -1,0 +1,84 @@
+- name: Create SOLR group
+  become: yes
+  group:
+    name: solr
+    state: present
+
+- name: Create SOLR user
+  become: yes
+  user:
+    name: solr
+    group: solr
+    groups: "www-data"
+    comment: "Solr Daemon"
+    home: "{{ solr_install_dir }}"
+
+- name: Download SOLR v{{ solr_version }}
+  become: yes
+  become_user: solr
+  get_url:
+    url: "{{ solr_url }}"
+    dest: "{{ solr_install_dir }}/solr-{{ solr_version }}.tgz"
+
+- name: Extract SOLR
+  become: yes
+  become_user: solr
+  # unarchive:
+  #   src: "{{ solr_install_dir }}/solr-{{ solr_version }}.tgz"
+  #   dest: "{{ solr_install_dir }}/"
+  #   extra_opts:
+  #     - "--strip 1"
+  command: tar xzf {{ solr_install_dir }}/solr-{{ solr_version }}.tgz --strip 1 -C {{ solr_install_dir }}/
+
+- name: Add Core directory
+  when: solr_core_name is defined and solr_core_conf is defined
+  file:
+    path: "{{ solr_config_dir}}/{{ solr_core_name}}"
+    state: directory
+  become_user: solr
+  become: yes
+
+- name: Symlink Core conf
+  become: yes
+  become_user: solr
+  when: solr_core_name is defined and solr_core_conf is defined
+  file:
+    src: "{{ solr_core_conf }}"
+    dest: "{{ solr_config_dir}}/{{ solr_core_name}}/conf"
+    state: link
+
+- name: Setup Core properties file
+  become: yes
+  become_user: solr
+  when: solr_core_name is defined and solr_core_conf is defined
+  copy:
+    content: "name={{ solr_core_name}}"
+    dest: "{{ solr_config_dir}}/{{ solr_core_name}}/core.properties"
+
+- name: SOLR config directory permission
+  become: yes
+  file:
+    dest: "{{ solr_config_dir }}"
+    state: directory
+    group: solr
+    mode: "g+rwX"
+    recurse: yes
+
+- name: SOLR install directory permission
+  become: yes
+  file:
+    dest: "{{ solr_install_dir }}"
+    state: directory
+    owner: solr
+    group: www-data
+    recurse: yes
+
+- name: Add solr exraction library jhighlight-1.0.jar
+  when: solr_install_jhighlight_library is defined
+  become: yes
+  get_url:
+    url: https://repo1.maven.org/maven2/com/uwyn/jhighlight/1.0/jhighlight-1.0.jar
+    dest: "{{ solr_install_dir }}/contrib/extraction/lib/jhighlight-1.0.jar"
+    checksum: sha1:0b1774029ee29472df8c25e5ba796431f7689fd6
+    owner: solr
+    group: www-data

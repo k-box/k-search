@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DataControllerAddTest extends AbstractJsonRpcControllerTest
 {
-    public const DATA_ADD_ENDPOINT = '/api/3.0/data.add';
+    public const DATA_ADD_ENDPOINT = '/api/3.5/data.add';
 
     public function testDataAddWithMinimalDataSucceeded()
     {
@@ -115,6 +115,24 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
                 'params.data.hash' => 'This value should not be blank.',
                 'params.data.type' => 'This value should not be blank.',
                 'params.data.copyright.owner.name' => 'This value should not be blank.',
+            ]],
+            'geo-location-invalid' => [__DIR__.'/../fixtures/data-add.failing-06-geo-location.json', [
+                'params.data.geo_location' => 'Invalid GeoJson data: Syntax error',
+            ]],
+            'geo-location-invalid-type' => [__DIR__.'/../fixtures/data-add.failing-06-geo-location-01.json', [
+                'params.data.geo_location' => 'Unsupported GeoJson type: Whatever',
+            ]],
+            'geo-location-invalid-point' => [__DIR__.'/../fixtures/data-add.failing-06-geo-location-02.json', [
+                'params.data.geo_location' => 'Invalid GeoJson data: Coordinates of point #0 are incorrect',
+            ]],
+            'geo-location-invalid-polygon' => [__DIR__.'/../fixtures/data-add.failing-06-geo-location-03.json', [
+                'params.data.geo_location' => 'Invalid GeoJson data: Polygon does not define a closed linear ring',
+            ]],
+            'geo-location-invalid-polygon2' => [__DIR__.'/../fixtures/data-add.failing-06-geo-location-04.json', [
+                'params.data.geo_location' => 'Invalid GeoJson data: Polygon does not define a closed linear ring, first and last point MUT be identical',
+            ]],
+            'geo-location-invalid-polygon-with-holes' => [__DIR__.'/../fixtures/data-add.failing-06-geo-location-05.json', [
+                'params.data.geo_location' => 'Invalid GeoJson data: Polygon with holes is not supported',
             ]],
         ];
     }

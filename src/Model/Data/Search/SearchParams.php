@@ -40,6 +40,20 @@ class SearchParams
     public $filters = '';
 
     /**
+     * Filter the data by its geo-location.
+     *
+     * @var GeoLocationFilter
+     * @JMS\Type("App\Model\Data\Search\GeoLocationFilter")
+     * @Assert\Valid()
+     * @JMS\Since("3.5")
+     * @SWG\Property(
+     *     property="geo_location_filter",
+     *     x={"since-version":"3.5"},
+     * )
+     */
+    public $geoLocationFilter;
+
+    /**
      * An object containing the aggregations to be retrieved, keyed by the Aggregation field name.
      *
      * @var Aggregation[]
