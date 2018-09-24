@@ -11,7 +11,7 @@ cache:
     - .composer-cache/
 
 variables:
-    CONTAINER_RELEASE_IMAGE_BASE: $CI_REGISTRY/images/k-search
+  CONTAINER_RELEASE_IMAGE_BASE: $CI_REGISTRY/images/k-search
 
 .need_composer: &need_composer
   before_script:
@@ -60,37 +60,39 @@ tagged_release:
   only:
     - tags
 
-## the instance on test.slmtj.net
-test_slmtj_net_deploy:
-  environment: Integration
+## Deploy on canary environments
+.canary_deploy: &canary_deploy
   when: manual
   stage: deploy
   tags:
     - shell
     - deploy
-  dependencies:
-    - branch_release
   script:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker pull $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_NAME#v}
-    - cd ${INTEGRATION_DOCKER_FOLDER}
-    - docker tag $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_NAME#v} $INTEGRATION_DOCKER_IMAGE
-    - docker-compose down && docker-compose up -d
+    - cd $DEPLOY_FOLDER
+    - docker tag $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_NAME#v} $DEPLOY_IMAGE
+    - docker-compose down -v && docker-compose up -d
 
-## the instance on test.slmtj.net
-test_klink_asia_deploy:
-  environment: Integration
-  when: manual
-  stage: deploy
-  tags:
-    - shell
-    - deploy
-  dependencies:
-    - branch_release
-  script:
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker pull $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_NAME#v}
-    - cd ${REVISION_DOCKER_FOLDER}
-    - docker tag $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_NAME#v} $REVISION_DOCKER_IMAGE
-    - docker-compose down && docker-compose up -d
+canary_manfred_deploy:
+  <<: *canary_deploy
+  environment: "Canary Manfred"
+  variables:
+    DEPLOY_FOLDER: $CANARY_M_FOLDER
+    DEPLOY_IMAGE: $CANARY_M_IMAGE
 
+canary_filomena_deploy:
+  <<: *canary_deploy
+  environment: "Canary Filomena"
+  variables:
+    DEPLOY_FOLDER: $CANARY_F_FOLDER
+    DEPLOY_IMAGE: $CANARY_F_IMAGE
+
+canary_try_deploy:
+  <<: *canary_deploy
+  environment: "Staging on try"
+  variables:
+    DEPLOY_FOLDER: $STAGING_T_FOLDER
+    DEPLOY_IMAGE: $STAGING_T_IMAGE
+  only:
+    - tags
