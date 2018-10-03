@@ -10,7 +10,7 @@ class Polygon implements ModelInterface
     /**
      * @var Position[]
      */
-    public $exteriorRing = [];
+    private $exteriorRing = [];
 
     public static function validate(array $data): void
     {
@@ -55,6 +55,14 @@ class Polygon implements ModelInterface
     public static function getType(): string
     {
         return 'Polygon';
+    }
+
+    /**
+     * @return Position[]
+     */
+    public function getExteriorRing(): array
+    {
+        return $this->exteriorRing;
     }
 
     public function jsonSerialize()

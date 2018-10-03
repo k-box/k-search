@@ -18,23 +18,17 @@ documentation, and:
 
 ## [Unreleased]
 ### Added
-
 ### Changed
-
 ### Deprecated
-
 ### Removed
-
 ### Fixed
-
+- Fix validation of `geo_location` and `geo_location_filter` for WGS84 coordinate system (handle LUCENE-8522 bug)
 ### Security
 
 ## [3.5.0-1] - 2018-09-21
 ### Added
-- `geo_location` field in the `Data` object for storing geographic 
-information related to the data (API `3.5`)
-- `geo_location_filter` to the `SearchQuery` object for filtering 
-the data based on the `Data.geo_location` field (API `3.5`)
+- `geo_location` field in the `Data` object for storing geographic information related to the data (API `3.5`)
+- `geo_location_filter` to the `SearchQuery` object for filtering the data based on the `Data.geo_location` field (API `3.5`)
 
 ### Changed
 - Updated Solr to v7.4.x
