@@ -33,7 +33,7 @@ class DataComputeHash extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $filename = $input->getArgument('filename');
+        $filename = (string) $input->getArgument('filename');
         $hash = $this->downloader->computeFileHash($filename);
 
         $output->writeln('Computed hash for file <info>'.$filename.'</info>', OutputInterface::VERBOSITY_VERBOSE);
