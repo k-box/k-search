@@ -10,7 +10,7 @@ class Point implements ModelInterface
     /**
      * @var Position
      */
-    public $coordinates;
+    private $position;
 
     public static function validate(array $data): void
     {
@@ -31,7 +31,7 @@ class Point implements ModelInterface
         self::validate($data);
 
         $i = new self();
-        $i->coordinates = Position::build($data['coordinates'][0], $data['coordinates'][1]);
+        $i->position = Position::build($data['coordinates'][0], $data['coordinates'][1]);
 
         return $i;
     }
@@ -40,8 +40,13 @@ class Point implements ModelInterface
     {
         return [
             'type' => self::getType(),
-            'coordinates' => $this->coordinates->jsonSerialize(),
+            'coordinates' => $this->position->jsonSerialize(),
         ];
+    }
+
+    public function getPosition(): Position
+    {
+        return $this->position;
     }
 
     public static function getType(): string

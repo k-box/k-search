@@ -9,7 +9,7 @@ use App\GeoJson\Model\ModelInterface;
 use App\GeoJson\Model\Point;
 use App\GeoJson\Model\Polygon;
 
-class ModelFactory
+abstract class ModelFactory
 {
     /**
      * @throws InvalidDataException
