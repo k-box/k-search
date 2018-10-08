@@ -385,16 +385,18 @@ class DataService
     /**
      * Returns the list of Facets enabled in the given the SearchParams.
      *
-     *
      * @throws BadRequestException if any of the facet is not valid
      *
      * @return Field[]
      */
     private function buildSearchFacets(SearchParams $searchParams): array
     {
-        $facets = [];
-        $availableAggregations = SolrEntityData::getAggregationFields();
+        if (!$searchParams->aggregations) {
+            return [];
+        }
 
+        $availableAggregations = SolrEntityData::getAggregationFields();
+        $facets = [];
         foreach ($searchParams->aggregations as $property => $aggregation) {
             if (!array_key_exists($property, $availableAggregations)) {
                 throw new BadRequestException(
@@ -424,8 +426,12 @@ class DataService
      */
     private function buildSearchSorts(SearchParams $searchParams): array
     {
-        $sorts = [];
+        if (!$searchParams->sort) {
+            return [];
+        }
+
         $sortingFields = SolrEntityData::getSortingFields();
+        $sorts = [];
         foreach ($searchParams->sort as $sortParam) {
             $sorts[$sortingFields[$sortParam->field]] = $sortParam->order;
         }
@@ -438,6 +444,10 @@ class DataService
      */
     private function handleSearchParamVersion(SearchParams $searchParams, string $version): void
     {
+        if (!$searchParams->aggregations) {
+            return;
+        }
+
         // Handle AggregationMinCount for version < 3.2
         if (version_compare($version, '3.2', '<')) {
             foreach ($searchParams->aggregations as $aggregation) {
