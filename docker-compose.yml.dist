@@ -5,16 +5,17 @@ networks:
 
 services:
   ksearch:
-    build: .
+    image: "docker.klink.asia/images/k-search:3.5.0-1"
+    # build: . # When developing you can create a K-Search docker image to test your changes
     ports:
       - 8080:80
     environment:
       ## Further details about ENV configurations are available in `.env.dist`
       # Application settings
       - APP_ENV=prod # The running environment (prod|dev)
-      - APP_DEBUG=0 # Enable or disable the debug feature
+      - APP_DEBUG=0 # Enable (1) or disable (0) the debug feature
       # Solr search configuration
-      - SOLR_HOST=engine # this is the external address of Solr
+      - SOLR_HOST=engine # this is the external address of Solr, the host is the name of the engine service
       - SOLR_CORE=k-search # this is the Solr index name
       # Registry configuration (disabled)
       - KLINK_REGISTRY_ENABLED=0
