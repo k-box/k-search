@@ -68,10 +68,11 @@ tagged_release:
     - shell
     - deploy
   script:
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker pull $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_NAME#v}
+    - docker login -u $REGISTRY_RELEASE_USERNAME -p $REGISTRY_RELEASE_PASSWORD $CI_REGISTRY
+    # - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker pull $CONTAINER_RELEASE_IMAGE_BASE:${CI_COMMIT_REF_NAME#v}
     - cd $DEPLOY_FOLDER
-    - docker tag $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_NAME#v} $DEPLOY_IMAGE
+    - docker tag $CONTAINER_RELEASE_IMAGE_BASE:${CI_COMMIT_REF_NAME#v} $DEPLOY_IMAGE
     - docker-compose down -v && docker-compose up -d
 
 canary_manfred_deploy:
