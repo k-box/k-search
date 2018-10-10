@@ -22,6 +22,7 @@ documentation, and:
 ### Deprecated
 ### Removed
 ### Fixed
+- Fix validation of search parameters against null values
 - Fix validation of `geo_location` and `geo_location_filter` for WGS84 coordinate system (handle LUCENE-8522 bug)
 ### Security
 

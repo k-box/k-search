@@ -42,7 +42,7 @@ class SearchParams
     /**
      * Filter the data by its geo-location.
      *
-     * @var GeoLocationFilter
+     * @var GeoLocationFilter|null
      * @JMS\Type("App\Model\Data\Search\GeoLocationFilter")
      * @Assert\Valid()
      * @JMS\Since("3.5")
@@ -56,7 +56,7 @@ class SearchParams
     /**
      * An object containing the aggregations to be retrieved, keyed by the Aggregation field name.
      *
-     * @var Aggregation[]
+     * @var Aggregation[]|null
      * @Assert\Valid()
      * @JMS\Type("array<string,App\Model\Data\Search\Aggregation>")
      * @SWG\Property(
@@ -78,7 +78,7 @@ class SearchParams
      * List of Sort parameters, used to sort the retrieved results.
      * Multiple sorts are possible, the order of sorts define the sorting priority (since v3.1).
      *
-     * @var SortParam[]
+     * @var SortParam[]|null
      * @Assert\Valid()
      * @JMS\Since("3.1")
      * @JMS\Type("array<App\Model\Data\Search\SortParam>")
