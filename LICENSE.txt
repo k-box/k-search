@@ -1,4 +1,4 @@
-Original work Copyright (c) 2017 OneOff-tech UG, Germany www.oneofftech.xyz
+Original work Copyright (c) 2017-2018 OneOff-tech UG, Germany www.oneofftech.xyz
 
 ------
 
@@ -659,7 +659,7 @@ of the code.  There are many ways you could offer source, and different
 solutions will be better for different programs; see section 13 for the
 specific requirements.
 
-Original work Copyright (c) 2017 OneOff-tech UG, Germany www.oneofftech.xyz
+Original work Copyright (c) 2017-2018 OneOff-tech UG, Germany www.oneofftech.xyz
 
 ------
 

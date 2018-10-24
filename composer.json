@@ -2,7 +2,7 @@
     "name": "k-link/k-search",
     "description": "The K-Link Search API",
     "type": "project",
-    "license": "proprietary",
+    "license": "AGPL-3.0-only",
     "repositories": [
         {
             "type": "vcs",

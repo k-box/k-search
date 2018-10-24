@@ -17,14 +17,20 @@ documentation, and:
    released (e.g. `3.0.1-1`, `3.0.1-2`, `3.0.2-1`, `3.1.0-1`).
 
 ## [Unreleased]
+
 ### Added
 ### Changed
 ### Deprecated
 ### Removed
 ### Fixed
+### Security
+
+## [3.5.1-1] - 2018-10-24
+
+### Fixed
+
 - Fix validation of search parameters against null values
 - Fix validation of `geo_location` and `geo_location_filter` for WGS84 coordinate system (handle LUCENE-8522 bug)
-### Security
 
 ## [3.5.0-1] - 2018-09-21
 ### Added

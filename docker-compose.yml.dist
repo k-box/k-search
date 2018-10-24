@@ -5,7 +5,7 @@ networks:
 
 services:
   ksearch:
-    image: "docker.klink.asia/images/k-search:3.5.0-1"
+    image: "docker.klink.asia/images/k-search:3.5.1-1"
     # build: . # When developing you can create a K-Search docker image to test your changes
     ports:
       - 8080:80
