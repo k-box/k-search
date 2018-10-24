@@ -6,14 +6,14 @@ namespace App\GeoJson\Model;
 
 class Position implements \JsonSerializable
 {
-    public $lat = '';
     public $lon = '';
+    public $lat = '';
 
     public static function build(float $lon, float $lat): self
     {
         $i = new self();
-        $i->lat = $lat;
         $i->lon = $lon;
+        $i->lat = $lat;
 
         return $i;
     }

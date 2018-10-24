@@ -60,12 +60,34 @@ class ValidGeoLocationValidatorTest extends ConstraintValidatorTestCase
             ->assertRaised();
     }
 
+    public function testValidatePointInvalidPointsWGS84(): void
+    {
+        $constraint = $this->buildConstraint();
+        $this->validator->validate('{"type": "Point", "coordinates": [200.0, 180.0] }', $constraint);
+
+        $this->buildViolation('Invalid GeoJson data: {{ error }}')
+            ->setParameter('{{ error }}', 'Invalid WGS84 lon/lat coordinates')
+            ->setCode(ValidGeoLocation::INVALID_DATA)
+            ->assertRaised();
+    }
+
     public function testValidatePolygon(): void
     {
         $constraint = $this->buildConstraint();
         $this->validator->validate('{"type": "Polygon", "coordinates": [[[30, 10], [40, 40], [20, 40], [30, 10]]] }', $constraint);
 
         $this->assertNoViolation();
+    }
+
+    public function testValidatePolygonInvalidPointsWGS84(): void
+    {
+        $constraint = $this->buildConstraint();
+        $this->validator->validate('{"type": "Polygon", "coordinates": [[[30, 10], [200, 40], [20, 40], [30, 10]]] }', $constraint);
+
+        $this->buildViolation('Invalid GeoJson data: {{ error }}')
+            ->setParameter('{{ error }}', 'Invalid WGS84 lon/lat coordinates (polygon external-ring, point #1)')
+            ->setCode(ValidGeoLocation::INVALID_DATA)
+            ->assertRaised();
     }
 
     public function testValidatePolygonNotClosed(): void

@@ -3,9 +3,13 @@
 namespace App\Validator\Constraints;
 
 use App\GeoJson\Exception\InvalidDataException;
+use App\GeoJson\Exception\InvalidWGS84DataException;
 use App\GeoJson\Exception\MalformedJsonDataException;
 use App\GeoJson\Exception\UnsupportedTypeException;
+use App\GeoJson\Model\Point;
+use App\GeoJson\Model\Polygon;
 use App\GeoJson\ModelFactory;
+use App\GeoJson\WGS84Lib;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
@@ -22,7 +26,13 @@ class ValidGeoLocationValidator extends ConstraintValidator
         }
 
         try {
-            ModelFactory::buildFromJson($value);
+            $model = ModelFactory::buildFromJson($value);
+            if ((!$model instanceof Polygon) && (!$model instanceof Point)) {
+                throw new UnsupportedTypeException($model::getType());
+            }
+
+            // Validate the coordinates to the WGS84 plane
+            WGS84Lib::validate($model);
         } catch (MalformedJsonDataException $e) {
             $this->context
                 ->buildViolation($constraint->invalidDataMessage)
@@ -39,7 +49,7 @@ class ValidGeoLocationValidator extends ConstraintValidator
                 ->addViolation();
 
             return;
-        } catch (InvalidDataException $e) {
+        } catch (InvalidDataException | InvalidWGS84DataException $e) {
             $this->context
                 ->buildViolation($constraint->invalidDataMessage)
                 ->setParameter('{{ error }}', $e->getMessage())

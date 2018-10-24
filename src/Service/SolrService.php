@@ -11,6 +11,7 @@ use App\Exception\InternalSearchException;
 use App\Exception\SolrEntityNotFoundException;
 use App\Exception\SolrExtractionException;
 use App\GeoJson\Model\Polygon;
+use App\GeoJson\WGS84Lib;
 use App\Helper\SolrHelper;
 use App\Model\Data\Search\Aggregation;
 use App\Model\Data\Search\AggregationResult;
@@ -326,7 +327,20 @@ class SolrService
 
     public function buildPolygonIntersectFilter(string $field, Polygon $polygon): FilterQuery
     {
-        $jsonPolygon = json_encode($polygon->jsonSerialize());
+        $clonePolygon = clone $polygon;
+
+        // Hanle SOLR issue with negative borders: https://issues.apache.org/jira/browse/LUCENE-8522
+        foreach ($clonePolygon->getExteriorRing() as &$position) {
+            if ($position->lon <= WGS84Lib::MIN_LON) {
+                $position->lon = WGS84Lib::MIN_LON + 0.01;
+            }
+            if ($position->lat <= WGS84Lib::MIN_LAT) {
+                $position->lat = WGS84Lib::MIN_LAT + 0.01;
+            }
+        }
+        unset($position);
+
+        $jsonPolygon = json_encode($clonePolygon->jsonSerialize());
         $q = new FilterQuery();
         $q->setQuery(sprintf('{!field f=%s}Intersects(%s)', $field, $jsonPolygon));
 

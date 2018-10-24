@@ -3,10 +3,12 @@
 namespace App\Validator\Constraints;
 
 use App\GeoJson\Exception\InvalidDataException;
+use App\GeoJson\Exception\InvalidWGS84DataException;
 use App\GeoJson\Exception\MalformedJsonDataException;
 use App\GeoJson\Exception\UnsupportedTypeException;
 use App\GeoJson\Model\Polygon;
 use App\GeoJson\ModelFactory;
+use App\GeoJson\WGS84Lib;
 use App\Model\Data\Search\GeoLocationFilter;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -31,8 +33,13 @@ class ValidGeoLocationFilterValidator extends ConstraintValidator
                     ->setParameter('{{ type }}', $data::getType())
                     ->setCode(ValidGeoLocation::UNSUPPORTED_GEOJSON_TYPE)
                     ->addViolation();
+
+                return;
             }
-        } catch (MalformedJsonDataException $e) {
+
+            // Ensure the polygon is inside the WGS84 coordinates system
+            WGS84Lib::validatePolygon($data);
+        } catch (MalformedJsonDataException | InvalidWGS84DataException $e) {
             $this->context
                 ->buildViolation($constraint->invalidDataMessage)
                 ->setParameter('{{ error }}', $e->getMessage())
