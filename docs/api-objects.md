@@ -1,5 +1,7 @@
 ## Data object
 
+The `Data` object define the metadata of the file.
+
 | Property                     | Type   | Required | Description |
 | ---------------------------- | ------ | -------- | ----------- |
 | `uuid`                       | String | ✔ | Universally unique identifier. |
@@ -10,36 +12,36 @@
 | `properties[]`               | Object | ✔ | The metadata of a piece of data. |
 | `properties[mime_type]`      | String | ✔ | The Mime type of the provided data. |
 | `properties[language]`       | String | ✔ | ISO code of the main language (explicitly the abstract and title). |
-| `properties[title]`          | String | ✔ | The data set or document title. |
+| `properties[title]`          | String | ✔ | The title. Can be a cleaned version of the filename |
 | `properties[filename]`       | String | ✔ | The file name of the data. |
-| `properties[created_at]`     | String | ✔ | Data’s or document’s creation date in [RFC-3339](https://www.ietf.org/rfc/rfc3339.txt) format. |
-| `properties[updated_at]`     | String |   | Data’s or document’s updated date in [RFC-3339](https://www.ietf.org/rfc/rfc3339.txt) format. |
-| `properties[size]`           | Integer|   | The file size of the data. |
+| `properties[created_at]`     | String | ✔ | Data’s or file’s creation date in [RFC-3339](https://www.ietf.org/rfc/rfc3339.txt) format. |
+| `properties[updated_at]`     | String |   | Data’s or file’s updated date in [RFC-3339](https://www.ietf.org/rfc/rfc3339.txt) format. |
+| `properties[size]`           | Integer|   | Size of the referenced file. |
 | `properties[abstract]`       | String |   | A short abstract about the data or document. |
 | `properties[thumbnail]`      | String |   | The URI where the a thumbnail of this data is stored. |
 | `properties[tags][]`         | List   |   | User-defined tags associated to the data (multiple). |
 | `properties[collections][]`  | List   |   | Search data and browse within the hierarchy (multiple). Example: List [ "COLLECTION_ID_1", "COLLECTION_ID_2" ].  |
-| `authors[]`                  | List   | ✔ | List of authors (multiple). |
+| `authors[]`                  | List   |   | List of authors (multiple). |
 | `authors[][]`                | Object | ✔ | An object containing author's information. |
 | `authors[][name]`            | String | ✔ | Name of the author. |
 | `authors[][email]`           | String |   | Contact email of author. |
 | `authors[][contact]`         | String |   | General contact information (e.g. URL to website or postal address). |
-| `copyright[]`                | Object | ✔ | An object containing information on the copyright. |
-| `copyright[owner][]`         | Object | ✔ | The owner of the copyright for the data. |
+| `copyright[]`                | Object |   | An object containing information on the copyright. |
+| `copyright[owner][]`         | Object |   | The owner of the copyright for the data. |
 | `copyright[owner][name]`     | String | ✔ | Name of the copyright owner. |
 | `copyright[owner][email]`    | String |   | Email of the copyright owner, for inquiries. |
 | `copyright[owner][website]`  | String |   | URL of the copyright owner website for inquiries. |
 | `copyright[owner][address]`  | String |   | Address of the copyright owner, if available. |
-| `copyright[usage][]`         | Object | ✔ | The conditions of use of the copyrighted data. |
+| `copyright[usage][]`         | Object |   | The conditions of use of the copyrighted data. |
 | `copyright[usage][short]`    | String | ✔ | The associated usage permissions, as SPDX identifier (https://spdx.org/licenses/) and C for full copyright and PD for public domain. |
 | `copyright[usage][name]`     | String | ✔ | The associated usage permissions to the piece of data. "All right reserved", "GNU General Public License", …, “Public Domain”. |
 | `copyright[usage][reference]`| String |   | URL of the full license text (if applicable).. |
-| `uploader[]`                 | Object | ✔ | Information about the origin of the publication of data. |
-| `uploader[name]`             | String | ✔ | Freely definable name. Can be a single user, a project or a group. |
+| `uploader[]`                 | Object |   | Information about the origin of the publication of data. |
+| `uploader[name]`             | String |   | Freely definable name. Can be a single user, a project or a group. |
 | `uploader[organization]`     | String |   | Freely definable organization (from API v3.3).|
 | `uploader[url]`              | String |   | URL to an human readable website with information about the source entity. |
-| `uploader[app_url]`          | String |   | The URL of the application that triggered the data upload. [internalOnly=true] |
-| `uploader[email]`            | String |   | Contact email to of an administrator, who can be contacted in case of any issues related to uploaded documents. This data is coming from the Application data in the K-Link Registry. [internalOnly=true] |
+| `uploader[app_url]`          | String |   | The URL of the application that triggered the data upload. This data is coming from the Application data in the K-Link Registry. [internalOnly=true] |
+| `uploader[email]`            | String |   | Contact email for upload inquiries. This data is coming from the Application data in the K-Link Registry. Can be empty in case the application maintainer did not opt to share contact details [internalOnly=true] |
 
 
 **Internal structure** (computed by the K-Search and not exposed through the API)
@@ -49,7 +51,7 @@
 | `application_id`  | Integer  | ✔ | The application (ID) that added the data |
 
 
-## Data object extension for video files
+### Data object extension for video files
 
 In case that `type`==`video`. It is expected to extend the `properties` by this data:
 

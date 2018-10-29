@@ -89,7 +89,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         $doc->addField(self::FIELD_UPDATED_AT, DateHelper::formatDate($data->updatedAt));
 
         // Specific sub-entity handling
-        $doc->addCopyright($data->copyright);
+        $doc->addCopyright($data->copyright ?? new Copyright());
         $doc->addProperties($data->properties);
         $doc->addAuthors($data->authors);
         $doc->addUploader($data->uploader);
@@ -218,11 +218,13 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     }
 
     /**
-     * @param Author[] $author
+     * @param Author[] $authors
      */
-    private function addAuthors(array $author)
+    private function addAuthors($authors)
     {
-        $this->addField(self::FIELD_AUTHORS_STORED, json_encode($author));
+        if (!empty($authors) && \is_array($authors)) {
+            $this->addField(self::FIELD_AUTHORS_STORED, json_encode($authors));
+        }
     }
 
     private function addUploader(Uploader $uploader)

@@ -48,7 +48,7 @@ class DataStatusController extends AbstractRpcController
      * )
      *
      * @SWG\Post(
-     *     path="/api/3.4/data.status",
+     *     path="/api/3.6/data.status",
      *     tags={"Data"},
      *     @SWG\Parameter(
      *         name="body",

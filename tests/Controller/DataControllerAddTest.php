@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DataControllerAddTest extends AbstractJsonRpcControllerTest
 {
-    public const DATA_ADD_ENDPOINT = '/api/3.5/data.add';
+    public const DATA_ADD_ENDPOINT = '/api/3.6/data.add';
 
     public function testDataAddWithMinimalDataSucceeded()
     {
@@ -19,7 +19,7 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
 
         $data = TestModelHelper::buildDataModelMinimal();
         $data->uploader->appUrl = self::APP_URL;
-        $data->uploader->email = self::APP_EMAIL;
+        $data->uploader->email = null;
         $data->properties->updatedAt = new \DateTime();
         $data->status = DataStatus::STATUS_QUEUED_OK;
 
@@ -41,6 +41,32 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
+    public function testDataAddWithStrictRequiredDataSucceeded()
+    {
+        $this->setUserRoles([DataVoter::ROLE_DATA_ADD]);
+
+        $data = TestModelHelper::buildDataModelStrict();
+        $data->uploader->appUrl = self::APP_URL;
+        $data->properties->updatedAt = new \DateTime();
+        $data->status = DataStatus::STATUS_QUEUED_OK;
+
+        $dataService = $this->setMockedDataService();
+        $dataService->expects($this->once())
+            ->method('addData')
+            ->with($this->callback(function (Data $dataIn) use ($data) {
+                $this->assertEquals($data->uuid, $dataIn->uuid);
+                $this->assertEquals($data->uploader->appUrl, $dataIn->uploader->appUrl);
+
+                return true;
+            }));
+
+        $addData = file_get_contents(__DIR__.'/../fixtures/data-add.document-strictly-required.json');
+        $this->sendAuthenticatedRequest(self::RPC_METHOD, self::DATA_ADD_ENDPOINT, $addData);
+
+        $response = $this->client->getResponse();
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
     public function provideFailureFiles(): array
     {
         return [
@@ -53,9 +79,6 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
                 'params.data.hash' => 'This value should not be blank.',
                 'params.data.type' => 'This value should not be blank.',
                 'params.data.properties' => 'This value should not be blank.',
-                'params.data.authors' => 'This value should not be blank.',
-                'params.data.copyright' => 'This value should not be blank.',
-                'params.data.uploader' => 'This value should not be blank.',
             ]],
             'min-data-level-2' => [__DIR__.'/../fixtures/data-add.failing-02.json', [
                 'params.data.uuid' => 'This value should not be blank.',
@@ -67,10 +90,6 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
                 'params.data.properties.mime_type' => 'This value should not be blank.',
                 'params.data.properties.language' => 'This value should not be blank.',
                 'params.data.properties.created_at' => 'This value should not be blank.',
-                'params.data.authors' => 'This value should not be blank.',
-                'params.data.copyright.owner' => 'This value should not be blank.',
-                'params.data.copyright.usage' => 'This value should not be blank.',
-                'params.data.uploader.name' => 'This value should not be blank.',
             ]],
             'min-data-level-3' => [__DIR__.'/../fixtures/data-add.failing-03.json', [
                 'params.data.uuid' => 'This value should not be blank.',
@@ -83,9 +102,6 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
                 'params.data.properties.language' => 'This value should not be blank.',
                 'params.data.properties.created_at' => 'This value should not be blank.',
                 'params.data.authors[0].name' => 'This value should not be blank.',
-                'params.data.copyright.owner' => 'This value should not be blank.',
-                'params.data.copyright.usage' => 'This value should not be blank.',
-                'params.data.uploader.name' => 'This value should not be blank.',
             ]],
             'min-data-level-4' => [__DIR__.'/../fixtures/data-add.failing-04.json', [
                 'Invalid datetime "xxx", expected format Y-m-d\TH:i:s\Z.',

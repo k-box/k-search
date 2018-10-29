@@ -10,6 +10,7 @@ use App\Exception\SolrEntityNotFoundException;
 use App\Model\Data\AddRequest;
 use App\Model\Data\AddResponse;
 use App\Model\Data\Data;
+use App\Model\Data\Uploader;
 use App\Security\Authorization\Voter\DataVoter;
 use App\Service\DataService;
 use JMS\Serializer\SerializerInterface;
@@ -48,7 +49,7 @@ class DataController extends AbstractRpcController
      * )
      *
      * @SWG\Post(
-     *     path="/api/3.5/data.add",
+     *     path="/api/3.6/data.add",
      *     description="Add piece of data to the index. This API requires the `data-add` permission.",
      *     tags={"Data"},
      *     @SWG\Parameter(
@@ -97,7 +98,11 @@ class DataController extends AbstractRpcController
         // Updating Data with the current API user
         /** @var ApiUser $apiUser */
         $apiUser = $this->getUser();
+
+        if (!$data->uploader) {
+            $data->uploader = new Uploader();
+        }
         $data->uploader->appUrl = $apiUser->getUsername();
-        $data->uploader->email = $apiUser->getEmail();
+        $data->uploader->email = null; // this is enforced to prevent unauthorized disclosure of personal data
     }
 }

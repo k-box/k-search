@@ -10,7 +10,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @SWG\Definition(
  *     definition="Data\Uploader",
  *     description="Information about the origin of the publication of data.",
- *     required={"name"}
  * )
  */
 class Uploader
@@ -21,7 +20,6 @@ class Uploader
      *
      * @var string
      * @Assert\Type("string")
-     * @Assert\NotBlank()
      * @JMS\Type("string")
      * @SWG\Property(
      *     example="John Doe"
@@ -74,7 +72,7 @@ class Uploader
      *
      * This data is for internal use only, not exposed by default.
      *
-     * @var string
+     * @var string|null
      * @JMS\Type("string")
      * @JMS\Groups({"details"})
      * @JMS\ReadOnly()

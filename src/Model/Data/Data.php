@@ -90,7 +90,6 @@ class Data
      *
      * @var Author[]
      * @Assert\Type("array")
-     * @Assert\NotBlank()
      * @Assert\Valid()
      * @JMS\Type("array<App\Model\Data\Author>")
      * @SWG\Property()
@@ -101,7 +100,6 @@ class Data
      * Information on the copyright.
      *
      * @var Copyright
-     * @Assert\NotBlank()
      * @Assert\Valid()
      * @JMS\Type("App\Model\Data\Copyright")
      * @SWG\Property()
@@ -112,7 +110,6 @@ class Data
      * The originating source where the data has been uploaded or created.
      *
      * @var Uploader
-     * @Assert\NotBlank()
      * @Assert\Valid()
      * @JMS\Type("App\Model\Data\Uploader")
      * @SWG\Property()
