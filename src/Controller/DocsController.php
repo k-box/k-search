@@ -15,7 +15,7 @@ class DocsController extends Controller
      *     },
      *     @SWG\Info(
      *         title="K-Search API",
-     *         version="3.4",
+     *         version="3.6",
      *         description="The K-Search API definition",
      *         @SWG\Contact(
      *             email="api@klink.asia"

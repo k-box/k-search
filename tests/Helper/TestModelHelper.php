@@ -28,6 +28,27 @@ class TestModelHelper
         $data->url = 'https://localhost/data.url';
         $data->hash = 'd6f644b19812e97b5d871658d6d3400ecd4787faeb9b8990c1e7608288664be77257104a58d033bcf1a0e0945ff06468ebe53e2dff36e248424c7273117dac09';
         $data->type = 'document';
+        $data->authors = [];
+        $data->copyright = null;
+        $data->uploader = new Uploader();
+        $data->uploader->name = '';
+        $data->properties = new Properties();
+        $data->properties->title = 'properties.title';
+        $data->properties->filename = 'properties.filename';
+        $data->properties->mimeType = 'properties.mime_type';
+        $data->properties->language = 'en';
+        $data->properties->createdAt = DateHelper::createUtcDate('2017-12-12 10:11:12');
+
+        return $data;
+    }
+
+    public static function buildDataModelStrict(string $uuid = self::DATA_UUID): Data
+    {
+        $data = new Data();
+        $data->uuid = $uuid;
+        $data->url = 'https://localhost/data.url';
+        $data->hash = 'd6f644b19812e97b5d871658d6d3400ecd4787faeb9b8990c1e7608288664be77257104a58d033bcf1a0e0945ff06468ebe53e2dff36e248424c7273117dac09';
+        $data->type = 'document';
         $author = new Author();
         $author->name = 'author.name';
         $data->authors[] = $author;
