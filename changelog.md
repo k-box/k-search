@@ -20,19 +20,22 @@ documentation, and:
 
 ### Added
 ### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
+
+## [3.6.0-1] - 2018-10-31
+
+### Changed
 
 - For respecting EU 679/2016 (GDPR) we have removed the required constraints from the following `Data` fields:
  - `authors` can now be null or an empty array
  - `copyright` can now be null. If not null both properties (`owner` and `usage`) can be null
  - `uploader` is not anymore a required field. If specified the `name` attribute is optional
 - `uploader.email` data attribute can now be null in respect of EU 679/2016 (GDPR)
-- Changes to required fields are marked with API 3.6, but to comply with the regulation are supported
-  also for older API versions
-
-### Deprecated
-### Removed
-### Fixed
-### Security
+- Changes to required fields are marked with API 3.6. To comply with the regulation the changes have been 
+  backported to previous API versions
 
 ## [3.5.1-1] - 2018-10-24
 
