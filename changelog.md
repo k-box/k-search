@@ -25,6 +25,12 @@ documentation, and:
 ### Fixed
 ### Security
 
+## [3.6.0-2] - 2018-12-04
+
+### Fixed
+
+- Docker container shutdown
+
 ## [3.6.0-1] - 2018-10-31
 
 ### Changed
