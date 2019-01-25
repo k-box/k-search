@@ -23,9 +23,9 @@ class DataFileNameGeneratorTest extends TestCase
     public function buildNameDataprovider(): array
     {
         return [
-            [self::DOWNLOAD_PATH.'/cc/cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd', self::DATA_UUID, null],
-            [self::DOWNLOAD_PATH.'/cc/cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd', self::DATA_UUID, ''],
-            [self::DOWNLOAD_PATH.'/cc/cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd.contents', self::DATA_UUID, 'contents'],
+            [self::DOWNLOAD_PATH.\DIRECTORY_SEPARATOR.'cc'.\DIRECTORY_SEPARATOR.'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd', self::DATA_UUID, null],
+            [self::DOWNLOAD_PATH.\DIRECTORY_SEPARATOR.'cc'.\DIRECTORY_SEPARATOR.'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd', self::DATA_UUID, ''],
+            [self::DOWNLOAD_PATH.\DIRECTORY_SEPARATOR.'cc'.\DIRECTORY_SEPARATOR.'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd.contents', self::DATA_UUID, 'contents'],
         ];
     }
 
