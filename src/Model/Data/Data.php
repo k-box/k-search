@@ -75,6 +75,30 @@ class Data
     public $type;
 
     /**
+     * The general type of the provided data.
+     *
+     * @var Klink[]
+     * @JMS\ReadOnly()
+     * @JMS\Type("array<App\Model\Data\Klink>")
+     * @JMS\Since("3.7")
+     * @SWG\Property(
+     *     x={"since-version":"3.7"},
+     * )
+     */
+    public $klinks = [];
+
+    /**
+     * The identifiers of the K-Links to which this data is published.
+     *
+     * This data is for internal use only, not exposed by default.
+     *
+     * @var array
+     * @JMS\Type("array")
+     * @JMS\Groups({"details"})
+     */
+    public $klink_ids = [];
+
+    /**
      * The properties of the data.
      *
      * @var Properties

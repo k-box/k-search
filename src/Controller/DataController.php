@@ -5,8 +5,10 @@ namespace App\Controller;
 use App\Entity\ApiUser;
 use App\Exception\BadRequestException;
 use App\Exception\DataDownloadErrorException;
+use App\Exception\InvalidKlinkException;
 use App\Exception\OutdatedDataRequestException;
 use App\Exception\SolrEntityNotFoundException;
+use App\Helper\KlinkHelper;
 use App\Model\Data\AddRequest;
 use App\Model\Data\AddResponse;
 use App\Model\Data\Data;
@@ -85,6 +87,9 @@ class DataController extends AbstractRpcController
         $data = $addRequest->params->data;
         $this->updateDataWithAPIUser($data);
 
+        // verify and attach K-Links information to the Data
+        $this->updateDataWithKlinks($data, $addRequest->params->klinks ?? []);
+
         $this->dataService->addData($data, $addRequest->params->dataTextualContents, $addRequest->id);
 
         //$data = $this->dataService->getData($addRequest->params->data->uuid);
@@ -104,5 +109,17 @@ class DataController extends AbstractRpcController
         }
         $data->uploader->appUrl = $apiUser->getUsername();
         $data->uploader->email = null; // this is enforced to prevent unauthorized disclosure of personal data
+    }
+
+    private function updateDataWithKlinks(Data $data, $klinks): void
+    {
+        // Updating Data with the allowed K-Link to be published on
+        $apiUser = $this->getUser();
+
+        try {
+            $data->klink_ids = KlinkHelper::ensureKlinkIsValid($klinks, $apiUser->getKlinks());
+        } catch (InvalidKlinkException $ex) {
+            throw new BadRequestException(['klinks' => $ex->getMessage()]);
+        }
     }
 }

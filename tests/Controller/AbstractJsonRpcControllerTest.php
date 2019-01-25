@@ -65,7 +65,8 @@ abstract class AbstractJsonRpcControllerTest extends WebTestCase
             self::APP_EMAIL,
             self::APP_URL,
             self::APP_SECRET,
-            $this->getUserRoles()
+            $this->getUserRoles(),
+            [1, 2]
         );
         $mocked->expects($this->once())
             ->method('loadUserFromApplicationUrlAndSecret')

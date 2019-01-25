@@ -31,7 +31,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class DataServiceTest extends TestCase
 {
     private const DATA_UUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
-    private const LATEST_VERSION = '3.5';
+    private const LATEST_VERSION = '3.7';
 
     private const TYPES = [
         'application/pdf',

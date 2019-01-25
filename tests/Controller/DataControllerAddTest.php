@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DataControllerAddTest extends AbstractJsonRpcControllerTest
 {
-    public const DATA_ADD_ENDPOINT = '/api/3.6/data.add';
+    public const DATA_ADD_ENDPOINT = '/api/3.7/data.add';
 
     public function testDataAddWithMinimalDataSucceeded()
     {
@@ -39,6 +39,62 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
 
         $response = $this->client->getResponse();
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testDataAddToKlinkSucceeded()
+    {
+        $this->setUserRoles([DataVoter::ROLE_DATA_ADD]);
+
+        $data = TestModelHelper::buildDataModelMinimal();
+        $data->uploader->appUrl = self::APP_URL;
+        $data->uploader->email = null;
+        $data->properties->updatedAt = new \DateTime();
+        $data->status = DataStatus::STATUS_QUEUED_OK;
+        $data->klink_ids = [1];
+
+        $dataService = $this->setMockedDataService();
+        $dataService->expects($this->once())
+            ->method('addData')
+            ->with($this->callback(function (Data $dataIn) use ($data) {
+                $this->assertEquals($data->uuid, $dataIn->uuid);
+                $this->assertEquals($data->uploader->appUrl, $dataIn->uploader->appUrl);
+                $this->assertEquals($data->uploader->email, $dataIn->uploader->email);
+                $this->assertEquals($data->klink_ids, $dataIn->klink_ids);
+
+                return true;
+            }));
+
+        $addData = file_get_contents(__DIR__.'/../fixtures/data-add.document-to-klink.json');
+        $this->sendAuthenticatedRequest(self::RPC_METHOD, self::DATA_ADD_ENDPOINT, $addData);
+
+        $response = $this->client->getResponse();
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testDataAddToKlinkPreventedDueToInvalidKlink()
+    {
+        $this->setUserRoles([DataVoter::ROLE_DATA_ADD]);
+
+        $data = TestModelHelper::buildDataModelMinimal();
+        $data->uploader->appUrl = self::APP_URL;
+        $data->uploader->email = null;
+        $data->properties->updatedAt = new \DateTime();
+        $data->status = DataStatus::STATUS_QUEUED_OK;
+        $data->klink_ids = [3];
+
+        $dataService = $this->setMockedDataService();
+        $dataService->expects($this->never())
+            ->method('addData');
+
+        $addData = file_get_contents(__DIR__.'/../fixtures/data-add.failing-document-to-klink.json');
+        $this->sendAuthenticatedRequest(self::RPC_METHOD, self::DATA_ADD_ENDPOINT, $addData);
+
+        $response = $this->client->getResponse();
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $failures = [
+            'klinks' => 'Some K-Links are invalid',
+        ];
+        $this->assertJsonRpcErrorResponse($response->getContent(), 400, 'Wrong data provided!', $failures);
     }
 
     public function testDataAddWithStrictRequiredDataSucceeded()
