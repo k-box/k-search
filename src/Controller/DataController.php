@@ -17,6 +17,7 @@ use App\Security\Authorization\Voter\DataVoter;
 use App\Service\DataService;
 use JMS\Serializer\SerializerInterface;
 use Swagger\Annotations as SWG;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -29,13 +30,20 @@ class DataController extends AbstractRpcController
      */
     private $dataService;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(
         DataService $searchService,
         ValidatorInterface $validator,
-        SerializerInterface $serializer
+        SerializerInterface $serializer,
+        LoggerInterface $logger
     ) {
         parent::__construct($validator, $serializer);
         $this->dataService = $searchService;
+        $this->logger = $logger;
     }
 
     /**
@@ -115,6 +123,10 @@ class DataController extends AbstractRpcController
     {
         // Updating Data with the allowed K-Link to be published on
         $apiUser = $this->getUser();
+
+        if(! $apiUser->isRegistryUser()){
+            return;
+        }
 
         try {
             $data->klink_ids = KlinkHelper::ensureKlinkIsValid($klinks, $apiUser->getKlinks());

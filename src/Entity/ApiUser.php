@@ -87,4 +87,9 @@ class ApiUser implements UserInterface
     {
         // Nothing to do here.
     }
+
+    public function isRegistryUser()
+    {
+        return $this->name !== 'local';
+    }
 }
