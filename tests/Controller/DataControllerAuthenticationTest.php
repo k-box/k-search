@@ -10,11 +10,11 @@ class DataControllerAuthenticationTest extends AbstractJsonRpcControllerTest
     public function authenticatedApiEndpointsProvider(): array
     {
         return [
-            [self::RPC_METHOD, '/api/3.0/data.get'],
-            [self::RPC_METHOD, '/api/3.0/data.search'],
-            [self::RPC_METHOD, '/api/3.0/data.delete'],
-            [self::RPC_METHOD, '/api/3.0/data.add'],
-            [self::RPC_METHOD, '/api/3.0/data.status'],
+            [self::RPC_METHOD, '/api/3.7/data.get'],
+            [self::RPC_METHOD, '/api/3.7/data.search'],
+            [self::RPC_METHOD, '/api/3.7/data.delete'],
+            [self::RPC_METHOD, '/api/3.7/data.add'],
+            [self::RPC_METHOD, '/api/3.7/data.status'],
         ];
     }
 
