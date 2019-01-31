@@ -6,9 +6,9 @@ use App\Entity\ApiUser;
 use App\Security\Authenticator\ApiSecretAuthenticator;
 use App\Security\Authorization\Voter\DataVoter;
 use App\Security\Provider\KLinkRegistryUserProvider;
+use OneOffTech\KLinkRegistryClient\Model\Klink;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
-use OneOffTech\KLinkRegistryClient\Model\Klink;
 
 class ApiSecretAuthenticatorTest extends KernelTestCase
 {
@@ -35,7 +35,7 @@ class ApiSecretAuthenticatorTest extends KernelTestCase
 
         $provider = $this->createMock(KLinkRegistryUserProvider::class);
         $klinks = [
-            Klink::createFromArray(['id' => '100', 'name' => 'Test K-Link'])
+            Klink::createFromArray(['id' => '100', 'name' => 'Test K-Link']),
         ];
         $apiUser = new ApiUser('name', 'email', 'app_url', 'app_secret', ['ROLE_TEST'], $klinks);
         $provider->expects($this->once())

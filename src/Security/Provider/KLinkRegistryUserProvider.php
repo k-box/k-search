@@ -5,6 +5,7 @@ namespace App\Security\Provider;
 use App\Entity\ApiUser;
 use App\Exception\KRegistryException;
 use App\Security\Authorization\Voter\DataVoter;
+use App\Service\KlinkService;
 use OneOffTech\KLinkRegistryClient\ApiClient;
 use OneOffTech\KLinkRegistryClient\Exception\ApplicationVerificationException;
 use Psr\Log\LoggerInterface;
@@ -12,7 +13,6 @@ use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
-use App\Service\KlinkService;
 
 class KLinkRegistryUserProvider implements UserProviderInterface
 {

@@ -8,12 +8,12 @@ use App\Model\Data\Copyright;
 use App\Model\Data\CopyrightOwner;
 use App\Model\Data\CopyrightUsage;
 use App\Model\Data\Data;
+use App\Model\Data\Klink;
 use App\Model\Data\Properties;
 use App\Model\Data\Search\Aggregation;
 use App\Model\Data\Search\SearchParams;
 use App\Model\Data\Search\SortParam;
 use App\Model\Data\Uploader;
-use App\Model\Data\Klink;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class TestModelHelper
@@ -130,12 +130,12 @@ class TestModelHelper
         $data = self::createDataModel($sampleUUID);
 
         $klink = new Klink();
-        $klink->id = "1";
-        $klink->name = "Test K-Link";
+        $klink->id = '1';
+        $klink->name = 'Test K-Link';
         $data->klinks = [
-            $klink
+            $klink,
         ];
-        
+
         return $data;
     }
 
@@ -229,7 +229,7 @@ class TestModelHelper
             'uploader' => [
                 'name' => 'Uploader name',
             ],
-            "geo_location" =>'{"type": "Point", "coordinates": [100.0, 0.0] }'
+            'geo_location' => '{"type": "Point", "coordinates": [100.0, 0.0] }',
         ];
     }
 

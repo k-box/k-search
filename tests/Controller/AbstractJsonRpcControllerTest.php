@@ -5,12 +5,12 @@ namespace App\Tests\Controller;
 use App\Entity\ApiUser;
 use App\Security\Provider\KLinkRegistryUserProvider;
 use App\Service\DataService;
-use App\Service\KlinkService;
 use App\Service\DataStatusService;
+use App\Service\KlinkService;
+use OneOffTech\KLinkRegistryClient\Model\Klink;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use OneOffTech\KLinkRegistryClient\Model\Klink;
 
 abstract class AbstractJsonRpcControllerTest extends WebTestCase
 {
@@ -89,6 +89,7 @@ abstract class AbstractJsonRpcControllerTest extends WebTestCase
 
         return $mocked;
     }
+
     /**
      * @return KlinkService|MockObject
      */

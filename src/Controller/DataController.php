@@ -14,14 +14,14 @@ use App\Model\Data\Data;
 use App\Model\Data\Uploader;
 use App\Security\Authorization\Voter\DataVoter;
 use App\Service\DataService;
+use App\Service\KlinkService;
 use JMS\Serializer\SerializerInterface;
-use Swagger\Annotations as SWG;
 use Psr\Log\LoggerInterface;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use App\Service\KlinkService;
 
 class DataController extends AbstractRpcController
 {
@@ -139,14 +139,14 @@ class DataController extends AbstractRpcController
 
         $apiUser = $this->getUser();
 
-        if(! $apiUser->isRegistryUser()){
+        if (!$apiUser->isRegistryUser()) {
             return;
         }
 
         try {
             $data->klink_ids = $this->klinks->ensureValidKlinks($klinks, $this->klinks->getDefaultKlinkIdentifier());
         } catch (InvalidKlinkException $ex) {
-            $this->logger->error("Invalid K-Links found in request", ['error' => $ex->getMessage(), 'klinks' => $klinks]);
+            $this->logger->error('Invalid K-Links found in request', ['error' => $ex->getMessage(), 'klinks' => $klinks]);
             throw new BadRequestException(['klinks' => $ex->getMessage()]);
         }
     }
