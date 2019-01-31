@@ -19,7 +19,7 @@
         "jms/serializer-bundle": "^2.0",
         "nelmio/solarium-bundle": "^3.0.0-beta.2",
         "netgen/query-translator": "dev-add-ranges-support",
-        "oneofftech/k-link-registry-client": "^0.1",
+        "oneofftech/k-link-registry-client": "^0.3",
         "php-http/cache-plugin": "^1.4",
         "php-http/guzzle6-adapter": "^1.1",
         "php-http/httplug-bundle": "^1.8",
