@@ -9,7 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DataGetControllerTest extends AbstractJsonRpcControllerTest
 {
-    public const DATA_GET_ENDPOINT = '/api/3.0/data.get';
+    public const DATA_GET_COMPATIBILITY_ENDPOINT = '/api/3.0/data.get';
+    public const DATA_GET_ENDPOINT = '/api/3.7/data.get';
 
     public function testDataGetFailsWithWrongDataUuid()
     {
@@ -19,13 +20,13 @@ class DataGetControllerTest extends AbstractJsonRpcControllerTest
         $dataService->expects($this->never())
             ->method('getData');
 
-        $statusRequest = $data = json_encode([
+        $request = $data = json_encode([
             'id' => self::REQUEST_ID,
             'params' => [
                 'uuid' => self::DATA_UUID_INVALID,
             ],
         ]);
-        $this->sendAuthenticatedRequest(self::RPC_METHOD, self::DATA_GET_ENDPOINT, $statusRequest);
+        $this->sendAuthenticatedRequest(self::RPC_METHOD, self::DATA_GET_ENDPOINT, $request);
 
         $response = $this->client->getResponse();
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
@@ -40,7 +41,7 @@ class DataGetControllerTest extends AbstractJsonRpcControllerTest
         );
     }
 
-    public function testDataGetWithDataReturn()
+    public function testDataGetIsCompatibleWithOldApi()
     {
         $this->setUserRoles(DataVoter::ALL_ROLES);
 
@@ -52,13 +53,36 @@ class DataGetControllerTest extends AbstractJsonRpcControllerTest
             ->with(self::DATA_UUID)
             ->willReturn($data);
 
-        $statusRequest = $this->getStatusRequestData();
-        $this->sendAuthenticatedRequest(self::RPC_METHOD, self::DATA_GET_ENDPOINT, $statusRequest);
+        $request = $this->getRequestData();
+        $this->sendAuthenticatedRequest(self::RPC_METHOD, self::DATA_GET_COMPATIBILITY_ENDPOINT, $request);
 
         $response = $this->client->getResponse();
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         $result = TestModelHelper::createDataArray(self::DATA_UUID);
+        $this->assertJsonRpcResultResponse($response->getContent(), $result, self::REQUEST_ID);
+    }
+
+    public function testDataGetWithDataReturn()
+    {
+        $this->setUserRoles(DataVoter::ALL_ROLES);
+
+        $data = TestModelHelper::createLatestDataModel(self::DATA_UUID);
+
+        $dataService = $this->setMockedDataService();
+        $dataService->expects($this->once())
+            ->method('getData')
+            ->with(self::DATA_UUID)
+            ->willReturn($data);
+
+        $request = $this->getRequestData();
+        $this->sendAuthenticatedRequest(self::RPC_METHOD, self::DATA_GET_ENDPOINT, $request);
+
+        $response = $this->client->getResponse();
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $result = TestModelHelper::createLatestDataArray(self::DATA_UUID);
+
         $this->assertJsonRpcResultResponse($response->getContent(), $result, self::REQUEST_ID);
     }
 
@@ -72,8 +96,8 @@ class DataGetControllerTest extends AbstractJsonRpcControllerTest
             ->with(self::DATA_UUID)
             ->willThrowException(new SolrEntityNotFoundException('Not found'));
 
-        $statusRequest = $this->getStatusRequestData();
-        $this->sendAuthenticatedRequest(self::RPC_METHOD, self::DATA_GET_ENDPOINT, $statusRequest);
+        $request = $this->getRequestData();
+        $this->sendAuthenticatedRequest(self::RPC_METHOD, self::DATA_GET_ENDPOINT, $request);
 
         $response = $this->client->getResponse();
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
@@ -103,15 +127,15 @@ class DataGetControllerTest extends AbstractJsonRpcControllerTest
         $dataService->expects($this->never())
             ->method('getData');
 
-        $statusRequest = $this->getStatusRequestData();
-        $this->sendAuthenticatedRequest(self::RPC_METHOD, self::DATA_GET_ENDPOINT, $statusRequest);
+        $request = $this->getRequestData();
+        $this->sendAuthenticatedRequest(self::RPC_METHOD, self::DATA_GET_ENDPOINT, $request);
 
         $response = $this->client->getResponse();
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
         $this->assertJsonRpcErrorResponse($response->getContent(), Response::HTTP_FORBIDDEN, 'Access Denied.');
     }
 
-    private function getStatusRequestData(): string
+    private function getRequestData(): string
     {
         $data = json_encode([
             'id' => self::REQUEST_ID,
