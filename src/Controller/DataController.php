@@ -8,7 +8,6 @@ use App\Exception\DataDownloadErrorException;
 use App\Exception\InvalidKlinkException;
 use App\Exception\OutdatedDataRequestException;
 use App\Exception\SolrEntityNotFoundException;
-use App\Helper\KlinkHelper;
 use App\Model\Data\AddRequest;
 use App\Model\Data\AddResponse;
 use App\Model\Data\Data;
@@ -22,6 +21,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use App\Service\KlinkService;
 
 class DataController extends AbstractRpcController
 {
@@ -35,15 +35,22 @@ class DataController extends AbstractRpcController
      */
     private $logger;
 
+    /**
+     * @var KlinkService
+     */
+    private $klinks;
+
     public function __construct(
         DataService $searchService,
         ValidatorInterface $validator,
         SerializerInterface $serializer,
+        KlinkService $klinks,
         LoggerInterface $logger
     ) {
         parent::__construct($validator, $serializer);
         $this->dataService = $searchService;
         $this->logger = $logger;
+        $this->klinks = $klinks;
     }
 
     /**
@@ -121,7 +128,15 @@ class DataController extends AbstractRpcController
 
     private function updateDataWithKlinks(Data $data, $klinks): void
     {
-        // Updating Data with the allowed K-Link to be published on
+        // Updating the Data object to include
+        // the klinks if the request is
+        // valid.
+        // In this new version at least 1 K-Link identifier
+        // must be attached to the data. For compatibility
+        // reason we use the first K-Link defined by the
+        // application, but only if the application has
+        // the possibility to publish on a single K-Link
+
         $apiUser = $this->getUser();
 
         if(! $apiUser->isRegistryUser()){
@@ -129,8 +144,9 @@ class DataController extends AbstractRpcController
         }
 
         try {
-            $data->klink_ids = KlinkHelper::ensureKlinkIsValid($klinks, $apiUser->getKlinks());
+            $data->klink_ids = $this->klinks->ensureValidKlinks($klinks, $this->klinks->getDefaultKlinkIdentifier());
         } catch (InvalidKlinkException $ex) {
+            $this->logger->error("Invalid K-Links found in request", ['error' => $ex->getMessage(), 'klinks' => $klinks]);
             throw new BadRequestException(['klinks' => $ex->getMessage()]);
         }
     }

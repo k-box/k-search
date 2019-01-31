@@ -50,7 +50,7 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
         $data->uploader->email = null;
         $data->properties->updatedAt = new \DateTime();
         $data->status = DataStatus::STATUS_QUEUED_OK;
-        $data->klink_ids = [1];
+        $data->klink_ids = ["1"];
 
         $dataService = $this->setMockedDataService();
         $dataService->expects($this->once())
