@@ -8,6 +8,7 @@ use App\Security\Authorization\Voter\DataVoter;
 use App\Security\Provider\KLinkRegistryUserProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
+use OneOffTech\KLinkRegistryClient\Model\Klink;
 
 class ApiSecretAuthenticatorTest extends KernelTestCase
 {
@@ -33,7 +34,10 @@ class ApiSecretAuthenticatorTest extends KernelTestCase
         $authenticator = new ApiSecretAuthenticator(true);
 
         $provider = $this->createMock(KLinkRegistryUserProvider::class);
-        $apiUser = new ApiUser('name', 'email', 'app_url', 'app_secret', ['ROLE_TEST']);
+        $klinks = [
+            Klink::createFromArray(['id' => '100', 'name' => 'Test K-Link'])
+        ];
+        $apiUser = new ApiUser('name', 'email', 'app_url', 'app_secret', ['ROLE_TEST'], $klinks);
         $provider->expects($this->once())
             ->method('loadUserFromApplicationUrlAndSecret')
             ->with('app_url', 'app_secret')
@@ -51,6 +55,7 @@ class ApiSecretAuthenticatorTest extends KernelTestCase
 
         $this->assertTrue($authenticator->checkCredentials($credentials, $user));
         $this->assertSame(['ROLE_TEST'], $user->getRoles());
+        $this->assertSame($klinks, $user->getKlinks());
     }
 
     public function testGetCredentialsDisabled()
