@@ -12,6 +12,7 @@ use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use App\Service\KlinkService;
 
 class KLinkRegistryUserProvider implements UserProviderInterface
 {
@@ -25,10 +26,13 @@ class KLinkRegistryUserProvider implements UserProviderInterface
      */
     private $logger;
 
-    public function __construct(ApiClient $registryClient, LoggerInterface $logger)
+    private $klinks;
+
+    public function __construct(ApiClient $registryClient, LoggerInterface $logger, KlinkService $klinks)
     {
         $this->registryClient = $registryClient;
         $this->logger = $logger;
+        $this->klinks = $klinks;
     }
 
     /**
@@ -55,17 +59,21 @@ class KLinkRegistryUserProvider implements UserProviderInterface
                     'name' => $application->getName(),
                     'email' => $application->getEmail(),
                     'permissions' => $application->getPermissions(),
+                    'klinks' => $application->getKlinks(),
                 ]
             );
 
             $roles = $this->mapPermissionsToRoles($application->getPermissions());
+
+            $klinks = $application->getKlinks();
 
             return new ApiUser(
                 $application->getName(),
                 $application->getEmail(),
                 $application->getAppUrl(),
                 $appSecret,
-                $roles
+                $roles,
+                $klinks
             );
         } catch (ApplicationVerificationException $e) {
             throw new BadCredentialsException('Invalid credentials.', 0, $e);
