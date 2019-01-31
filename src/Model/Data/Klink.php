@@ -13,7 +13,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     required={"id", "name"},
  *     x={"since-version":"3.7"},
  * )
- * @JMS\Since("3.7")
  */
 class Klink
 {

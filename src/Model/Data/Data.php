@@ -95,6 +95,7 @@ class Data
      * @var array
      * @JMS\Type("array")
      * @JMS\Groups({"details"})
+     * @JMS\Since("3.7")
      */
     public $klink_ids = [];
 
