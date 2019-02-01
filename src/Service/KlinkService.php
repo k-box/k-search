@@ -2,10 +2,10 @@
 
 namespace App\Service;
 
+use App\Entity\ApiUser;
 use App\Exception\InvalidKlinkException;
 use OneOffTech\KLinkRegistryClient\Model\Klink;
 use Psr\Log\LoggerInterface;
-use App\Entity\ApiUser;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -111,6 +111,22 @@ class KlinkService
     }
 
     /**
+     * Get the valid K-Link identifiers from the current application.
+     *
+     * @return array
+     */
+    public function klinkIdentifiers()
+    {
+        if ($this->identifiers_cache) {
+            return $this->identifiers_cache;
+        }
+
+        $this->identifiers_cache = array_keys($this->klinks());
+
+        return $this->identifiers_cache;
+    }
+
+    /**
      * Get the current authenticated application.
      *
      * @return ApiUser|UserInterface|null
@@ -146,21 +162,5 @@ class KlinkService
         $this->klinks_cache = array_combine($keys, $klinks);
 
         return $this->klinks_cache;
-    }
-
-    /**
-     * Get the valid K-Link identifiers from the current application.
-     *
-     * @return array
-     */
-    public function klinkIdentifiers()
-    {
-        if ($this->identifiers_cache) {
-            return $this->identifiers_cache;
-        }
-
-        $this->identifiers_cache = array_keys($this->klinks());
-
-        return $this->identifiers_cache;
     }
 }

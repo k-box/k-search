@@ -81,8 +81,7 @@ class DataSearchController extends AbstractRpcController
             $field = 'params.filters';
             if ($exception instanceof InvalidGeoJsonFilterException) {
                 $field = 'params.geo_location_filter.bounding_box';
-            }
-            else if ($exception instanceof InvalidKlinkFilterException) {
+            } elseif ($exception instanceof InvalidKlinkFilterException) {
                 $field = 'params.klinks';
             }
 

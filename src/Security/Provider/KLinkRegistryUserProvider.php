@@ -5,7 +5,6 @@ namespace App\Security\Provider;
 use App\Entity\ApiUser;
 use App\Exception\KRegistryException;
 use App\Security\Authorization\Voter\DataVoter;
-use App\Service\KlinkService;
 use OneOffTech\KLinkRegistryClient\ApiClient;
 use OneOffTech\KLinkRegistryClient\Exception\ApplicationVerificationException;
 use Psr\Log\LoggerInterface;

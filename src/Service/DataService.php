@@ -7,9 +7,9 @@ use App\Exception\BadRequestException;
 use App\Exception\DataDownloadErrorException;
 use App\Exception\FilterQuery\FilterQueryException;
 use App\Exception\FilterQuery\InvalidGeoJsonFilterException;
-use App\Exception\InvalidKlinkException;
 use App\Exception\FilterQuery\InvalidKlinkFilterException;
 use App\Exception\InternalSearchException;
+use App\Exception\InvalidKlinkException;
 use App\Exception\OutdatedDataRequestException;
 use App\Exception\SolrEntityNotFoundException;
 use App\Exception\SolrExtractionException;
@@ -310,21 +310,19 @@ class DataService
 
         if ($searchParams->klinkFilters) {
             try {
-
                 $klinkRequestFilters = [$this->klinks->getDefaultKlinkIdentifier()];
 
-                if ($searchParams->klinkFilters === '*' || $searchParams->klinkFilters === 'all'){
+                if ('*' === $searchParams->klinkFilters || 'all' === $searchParams->klinkFilters) {
                     $klinkRequestFilters = $this->klinks->klinkIdentifiers();
-                }
-                else if(!empty($searchParams->klinkFilters)) {
-                    $ids = explode(",", $searchParams->klinkFilters);
+                } elseif (!empty($searchParams->klinkFilters)) {
+                    $ids = explode(',', $searchParams->klinkFilters);
                     $klinkRequestFilters = $this->klinks->ensureValidKlinks($ids);
                 }
             } catch (InvalidKlinkException $e) {
                 throw new InvalidKlinkFilterException($e->getMessage());
             }
 
-            $klinkFilterString = implode(' OR ', array_map(function($filter){
+            $klinkFilterString = implode(' OR ', array_map(function ($filter) {
                 return "klink:$filter";
             }, $klinkRequestFilters));
 

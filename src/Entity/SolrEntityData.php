@@ -14,7 +14,6 @@ use App\Model\Data\Properties\Source;
 use App\Model\Data\Properties\Streaming;
 use App\Model\Data\Properties\Video;
 use App\Model\Data\Uploader;
-use App\Service\KlinkService;
 
 /**
  * Solr entity for Data model.

@@ -14,8 +14,8 @@ use App\Service\DataDownloader;
 use App\Service\DataProcessingService;
 use App\Service\DataService;
 use App\Service\DataStatusService;
-use App\Service\SolrService;
 use App\Service\KlinkService;
+use App\Service\SolrService;
 use App\Tests\Helper\TestModelHelper;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -79,7 +79,7 @@ class DataServiceTest extends TestCase
      * @var DataStatusService|MockObject
      */
     private $dataStatusService;
-    
+
     /**
      * @var KlinkService|MockObject
      */
