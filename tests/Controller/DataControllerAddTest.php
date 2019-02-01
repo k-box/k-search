@@ -69,6 +69,13 @@ class DataControllerAddTest extends AbstractJsonRpcControllerTest
 
         $response = $this->client->getResponse();
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+        
+        $returnedData = json_decode($response->getContent());
+        $this->assertNotEmpty($returnedData->result->klinks);
+        
+        $returnedKlink = $returnedData->result->klinks[0];
+        $this->assertEquals(1, $returnedKlink->id);
+        $this->assertEquals("Test K-Link", $returnedKlink->name);
     }
 
     public function testDataAddToKlinkPreventedDueToInvalidKlink()

@@ -11,6 +11,7 @@ use App\Exception\SolrEntityNotFoundException;
 use App\Model\Data\AddRequest;
 use App\Model\Data\AddResponse;
 use App\Model\Data\Data;
+use App\Model\Data\Klink;
 use App\Model\Data\Uploader;
 use App\Security\Authorization\Voter\DataVoter;
 use App\Service\DataService;
@@ -107,7 +108,9 @@ class DataController extends AbstractRpcController
 
         $this->dataService->addData($data, $addRequest->params->dataTextualContents, $addRequest->id);
 
-        //$data = $this->dataService->getData($addRequest->params->data->uuid);
+        if(!empty($data->klink_ids)){
+            $data->klinks = $this->buildKlinks($data->klink_ids);
+        }
         $addResponse = new AddResponse($data, $addRequest->id);
 
         return $this->buildRpcJsonResponse($addResponse, $version);
@@ -149,5 +152,26 @@ class DataController extends AbstractRpcController
             $this->logger->error('Invalid K-Links found in request', ['error' => $ex->getMessage(), 'klinks' => $klinks]);
             throw new BadRequestException(['klinks' => $ex->getMessage()]);
         }
+    }
+
+    private function buildKlinks($klink_ids): array
+    {
+
+        if (!$klink_ids) {
+            return [];
+        }
+
+        $klinks = [];
+        foreach ($klink_ids as $id) {
+            $klinkData = $this->klinks->getKlink($id);
+            if($klinkData){
+                $klink = new Klink();
+                $klink->id = $klinkData->getId();
+                $klink->name = $klinkData->getName();
+                $klinks[] = $klink;
+            }
+        }
+
+        return $klinks;
     }
 }
