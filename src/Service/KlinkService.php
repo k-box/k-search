@@ -147,6 +147,7 @@ class KlinkService
             return $this->klinks_cache;
         }
 
+        /** @var ApiUser $app */
         $app = $this->application();
 
         $klinks = $app && method_exists($app, 'getKlinks') ? $app->getKlinks() : [];
