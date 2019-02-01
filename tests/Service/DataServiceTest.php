@@ -15,6 +15,7 @@ use App\Service\DataProcessingService;
 use App\Service\DataService;
 use App\Service\DataStatusService;
 use App\Service\SolrService;
+use App\Service\KlinkService;
 use App\Tests\Helper\TestModelHelper;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -78,6 +79,11 @@ class DataServiceTest extends TestCase
      * @var DataStatusService|MockObject
      */
     private $dataStatusService;
+    
+    /**
+     * @var KlinkService|MockObject
+     */
+    private $klinkService;
 
     protected function setUp()
     {
@@ -90,6 +96,7 @@ class DataServiceTest extends TestCase
         $this->facetSet = $this->createMock(FacetSet::class);
         $this->dataProcessingService = $this->createMock(DataProcessingService::class);
         $this->downloaderService = $this->createMock(DataDownloader::class);
+        $this->klinkService = $this->createMock(KlinkService::class);
     }
 
     public function provideIndexableContentTypes(): array
@@ -576,7 +583,8 @@ class DataServiceTest extends TestCase
             $this->messageBus,
             $types,
             $retainDownloads,
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            $this->klinkService
         );
     }
 

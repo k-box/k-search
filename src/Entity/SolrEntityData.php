@@ -67,8 +67,6 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     public const FIELD_KLINKS = 'str_sim_data_klinks';
     public const FIELD_KLINKS_STORED = 'str_ss_data_klinks';
 
-    private $klink_resolver = null;
-
     public static function getEntityType(): string
     {
         return 'data';
@@ -208,13 +206,6 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     public function addTextualContents(string $text)
     {
         $this->addField(self::FIELD_CONTENTS, $text);
-    }
-
-    public function setKlinkResolver(KlinkService $resolver)
-    {
-        $this->klink_resolver = $resolver;
-
-        return $this;
     }
 
     private function addCopyright(Copyright $copyright)

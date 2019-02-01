@@ -26,13 +26,10 @@ class KLinkRegistryUserProvider implements UserProviderInterface
      */
     private $logger;
 
-    private $klinks;
-
-    public function __construct(ApiClient $registryClient, LoggerInterface $logger, KlinkService $klinks)
+    public function __construct(ApiClient $registryClient, LoggerInterface $logger)
     {
         $this->registryClient = $registryClient;
         $this->logger = $logger;
-        $this->klinks = $klinks;
     }
 
     /**

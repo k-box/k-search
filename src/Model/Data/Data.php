@@ -170,7 +170,7 @@ class Data
     /**
      * The error status of the data, internal use only, not exposed.
      *
-     * @var string
+     * @var string|null
      * @JMS\Groups({"details"})
      */
     public $errorStatus;
