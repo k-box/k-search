@@ -4,9 +4,9 @@ namespace App\Tests\Service;
 
 use App\Entity\AbstractSolrEntity;
 use App\Entity\SolrEntityData;
+use App\Service\KlinkService;
 use App\Service\QueryService;
 use App\Service\SolrService;
-use App\Service\KlinkService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;

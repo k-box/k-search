@@ -108,7 +108,7 @@ class DataController extends AbstractRpcController
 
         $this->dataService->addData($data, $addRequest->params->dataTextualContents, $addRequest->id);
 
-        if(!empty($data->klink_ids)){
+        if (!empty($data->klink_ids)) {
             $data->klinks = $this->buildKlinks($data->klink_ids);
         }
         $addResponse = new AddResponse($data, $addRequest->id);
@@ -156,7 +156,6 @@ class DataController extends AbstractRpcController
 
     private function buildKlinks($klink_ids): array
     {
-
         if (!$klink_ids) {
             return [];
         }
@@ -164,7 +163,7 @@ class DataController extends AbstractRpcController
         $klinks = [];
         foreach ($klink_ids as $id) {
             $klinkData = $this->klinks->getKlink($id);
-            if($klinkData){
+            if ($klinkData) {
                 $klink = new Klink();
                 $klink->id = $klinkData->getId();
                 $klink->name = $klinkData->getName();

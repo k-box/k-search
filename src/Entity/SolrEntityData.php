@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use App\Helper\DateHelper;
-use App\Service\KlinkService;
 use App\Model\Data\Author;
 use App\Model\Data\Copyright;
 use App\Model\Data\CopyrightOwner;
@@ -15,6 +14,7 @@ use App\Model\Data\Properties\Source;
 use App\Model\Data\Properties\Streaming;
 use App\Model\Data\Properties\Video;
 use App\Model\Data\Uploader;
+use App\Service\KlinkService;
 
 /**
  * Solr entity for Data model.
@@ -66,6 +66,8 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     public const FIELD_GEO_LOCATION_STORED = 'str_ss_data_geo_location';
     public const FIELD_KLINKS = 'str_sim_data_klinks';
     public const FIELD_KLINKS_STORED = 'str_ss_data_klinks';
+
+    private $klink_resolver = null;
 
     public static function getEntityType(): string
     {
@@ -206,6 +208,13 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     public function addTextualContents(string $text)
     {
         $this->addField(self::FIELD_CONTENTS, $text);
+    }
+
+    public function setKlinkResolver(KlinkService $resolver)
+    {
+        $this->klink_resolver = $resolver;
+
+        return $this;
     }
 
     private function addCopyright(Copyright $copyright)
@@ -386,14 +395,14 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
             return [];
         }
 
-        if(!$this->klink_resolver){
+        if (!$this->klink_resolver) {
             return [];
         }
 
         $klinks = [];
         foreach ($klink_ids as $id) {
             $klinkData = $this->klink_resolver->getKlink($id);
-            if($klinkData){
+            if ($klinkData) {
                 $klink = new Klink();
                 $klink->id = $klinkData->getId();
                 $klink->name = $klinkData->getName();
@@ -402,15 +411,6 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         }
 
         return $klinks;
-    }
-
-    private $klink_resolver = null;
-
-    public function setKlinkResolver(KlinkService $resolver)
-    {
-        $this->klink_resolver = $resolver;
-
-        return $this;
     }
 
     /**

@@ -6,14 +6,14 @@ use App\Entity\AbstractSolrEntity;
 use App\Entity\SolrEntityData;
 use App\Helper\DateHelper;
 use App\Model\Data\Data;
+use App\Model\Data\Klink;
 use App\Model\Data\Properties\Source;
 use App\Model\Data\Properties\Streaming;
 use App\Model\Data\Properties\Video;
-use App\Tests\Helper\TestModelHelper;
-use PHPUnit\Framework\TestCase;
 use App\Service\KlinkService;
+use App\Tests\Helper\TestModelHelper;
 use OneOffTech\KLinkRegistryClient\Model\Klink as RegistryKlink;
-use App\Model\Data\Klink;
+use PHPUnit\Framework\TestCase;
 
 class SolrEntityDataTest extends TestCase
 {
@@ -105,10 +105,9 @@ class SolrEntityDataTest extends TestCase
             ->method('getKlink')
             ->willReturn($source_klink);
 
-
         $data = TestModelHelper::createDataModel(self::SAMPLE_UUID);
 
-        $data->klink_ids = ["100"];
+        $data->klink_ids = ['100'];
 
         $entity = SolrEntityData::buildFromModel($data);
         $entity->setKlinkResolver($service);

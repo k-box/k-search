@@ -24,7 +24,6 @@ use Psr\Log\LoggerInterface;
 use Solarium\Component\Facet\Field;
 use Solarium\QueryType\Select\Query\Query;
 use Symfony\Component\Messenger\MessageBusInterface;
-use App\Service\KlinkService;
 
 class DataService
 {
@@ -73,7 +72,7 @@ class DataService
      * @var LoggerInterface
      */
     private $logger;
-    
+
     /**
      * @var KlinkService
      */

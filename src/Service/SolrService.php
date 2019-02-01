@@ -23,7 +23,6 @@ use Solarium\Exception\HttpException;
 use Solarium\QueryType\Select\Query\FilterQuery;
 use Solarium\QueryType\Select\Query\Query;
 use Solarium\QueryType\Select\Result\Result;
-use App\Service\KlinkService;
 
 class SolrService
 {

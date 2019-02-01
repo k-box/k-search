@@ -5,8 +5,8 @@ namespace App\Service;
 use App\Exception\InvalidKlinkException;
 use OneOffTech\KLinkRegistryClient\Model\Klink;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class KlinkService
 {
@@ -47,7 +47,7 @@ class KlinkService
             throw new InvalidKlinkException('A default K-Link cannot be selected, as the application do not explicity define one');
         }
 
-        return (string)$klinks[0];
+        return (string) $klinks[0];
     }
 
     /**
@@ -105,7 +105,7 @@ class KlinkService
         return array_filter($klinks, function ($k) use ($valid_identifiers) {
             $id = $k instanceof Klink ? $k->getId() : $k;
 
-            return \in_array($id, $valid_identifiers);
+            return \in_array($id, $valid_identifiers, true);
         });
     }
 
@@ -126,7 +126,7 @@ class KlinkService
      */
     private function klinks()
     {
-        if($this->klinks_cache){
+        if ($this->klinks_cache) {
             return $this->klinks_cache;
         }
 
@@ -134,14 +134,14 @@ class KlinkService
 
         $klinks = $app ? $app->getKlinks() : [];
 
-        if(empty($klinks)){
+        if (empty($klinks)) {
             return $this->klinks_cache = $klinks;
         }
 
         $keys = array_map(function ($k) {
-            return (string)$k->getId();
+            return (string) $k->getId();
         }, $klinks);
-        
+
         $this->klinks_cache = array_combine($keys, $klinks);
 
         return $this->klinks_cache;
