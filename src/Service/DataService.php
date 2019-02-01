@@ -7,6 +7,8 @@ use App\Exception\BadRequestException;
 use App\Exception\DataDownloadErrorException;
 use App\Exception\FilterQuery\FilterQueryException;
 use App\Exception\FilterQuery\InvalidGeoJsonFilterException;
+use App\Exception\InvalidKlinkException;
+use App\Exception\FilterQuery\InvalidKlinkFilterException;
 use App\Exception\InternalSearchException;
 use App\Exception\OutdatedDataRequestException;
 use App\Exception\SolrEntityNotFoundException;
@@ -304,6 +306,40 @@ class DataService
             $geoFilterQuery = $this->solrService->buildPolygonIntersectFilter(SolrEntityData::FIELD_GEO_LOCATION, $polygon);
             $geoFilterQuery->setKey(self::SEARCH_GEO_FILTER_KEY);
             $query->addFilterQuery($geoFilterQuery);
+        }
+
+        if ($searchParams->klinkFilters) {
+            try {
+
+                $klinkRequestFilters = [$this->klinks->getDefaultKlinkIdentifier()];
+
+                if ($searchParams->klinkFilters === '*' || $searchParams->klinkFilters === 'all'){
+                    $klinkRequestFilters = $this->klinks->klinkIdentifiers();
+                }
+                else if(!empty($searchParams->klinkFilters)) {
+                    $ids = explode(",", $searchParams->klinkFilters);
+                    $klinkRequestFilters = $this->klinks->ensureValidKlinks($ids);
+                }
+            } catch (InvalidKlinkException $e) {
+                throw new InvalidKlinkFilterException($e->getMessage());
+            }
+
+            $klinkFilterString = implode(' OR ', array_map(function($filter){
+                return "klink:$filter";
+            }, $klinkRequestFilters));
+
+            $this->logger->warning('K-Link filters, klinks={uuid}', [
+                'uuid' => $klinkFilterString,
+            ]);
+
+            $klinkFilterQuery = $this->solrService->buildFilterFromString(
+                $klinkFilterString,
+                SolrEntityData::getFilterFields(),
+                self::SEARCH_USER_FILTER_KEY
+            );
+            $klinkFilterQuery->addTag(self::SEARCH_USER_FILTER_TAG);
+
+            $query->addFilterQuery($klinkFilterQuery);
         }
 
         // Keep the header to get the Solr query time

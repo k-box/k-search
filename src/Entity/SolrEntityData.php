@@ -65,7 +65,6 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     public const FIELD_GEO_LOCATION = 'geom_data_geo_location';
     public const FIELD_GEO_LOCATION_STORED = 'str_ss_data_geo_location';
     public const FIELD_KLINKS = 'str_sim_data_klinks';
-    public const FIELD_KLINKS_STORED = 'str_ss_data_klinks';
 
     public static function getEntityType(): string
     {
@@ -165,6 +164,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
             'uploader.name' => self::FIELD_UPLOADER_NAME_SORTING,
             'uploader.organization' => self::FIELD_UPLOADER_ORGANIZATION_SORTING,
             'uploader.app_url' => self::FIELD_UPLOADER_APP_URL_SORTING,
+            'klinks' => self::FIELD_KLINKS,
         ];
     }
 
@@ -186,6 +186,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
             'properties.updated_at' => self::FIELD_PROPERTIES_UPDATED_AT,
             'uploader.name' => self::FIELD_UPLOADER_NAME_SEARCH,
             'uploader.organization' => self::FIELD_UPLOADER_ORGANIZATION_SEARCH,
+            'klinks' => self::FIELD_KLINKS,
         ];
     }
 

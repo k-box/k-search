@@ -153,7 +153,7 @@ class KlinkService
      *
      * @return array
      */
-    private function klinkIdentifiers()
+    public function klinkIdentifiers()
     {
         if ($this->identifiers_cache) {
             return $this->identifiers_cache;
