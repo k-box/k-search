@@ -24,6 +24,7 @@ use Psr\Log\LoggerInterface;
 use Solarium\Component\Facet\Field;
 use Solarium\QueryType\Select\Query\Query;
 use Symfony\Component\Messenger\MessageBusInterface;
+use App\Service\KlinkService;
 
 class DataService
 {
@@ -72,6 +73,11 @@ class DataService
      * @var LoggerInterface
      */
     private $logger;
+    
+    /**
+     * @var KlinkService
+     */
+    private $klinks;
 
     public function __construct(
         DataProcessingService $processingService,
@@ -81,7 +87,8 @@ class DataService
         MessageBusInterface $messageBus,
         array $indexableContentTypes,
         bool $retainDataContents,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        KlinkService $klinks
     ) {
         $this->dataProcessingService = $processingService;
         $this->solrService = $solrService;
@@ -91,6 +98,7 @@ class DataService
         $this->retainDataContents = $retainDataContents;
         $this->logger = $logger;
         $this->dataStatusService = $dataStatusService;
+        $this->klinks = $klinks;
     }
 
     /**
@@ -143,6 +151,7 @@ class DataService
 
         // Building the required SolrEntity object from the result document
         $solrEntityData = new SolrEntityData($uuid, $resultSet->getIterator()[0]);
+        $solrEntityData->setKlinkResolver($this->klinks);
 
         return $solrEntityData->buildModel();
     }

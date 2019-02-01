@@ -11,6 +11,9 @@ use App\Model\Data\Properties\Streaming;
 use App\Model\Data\Properties\Video;
 use App\Tests\Helper\TestModelHelper;
 use PHPUnit\Framework\TestCase;
+use App\Service\KlinkService;
+use OneOffTech\KLinkRegistryClient\Model\Klink as RegistryKlink;
+use App\Model\Data\Klink;
 
 class SolrEntityDataTest extends TestCase
 {
@@ -92,6 +95,31 @@ class SolrEntityDataTest extends TestCase
         $dataBuilt = $entity->buildModel();
 
         $this->assertEquals($data, $dataBuilt);
+    }
+
+    public function testItBuildsWithKlinks()
+    {
+        $source_klink = RegistryKlink::createFromArray(['id' => '100', 'name' => 'Test K-Link']);
+        $service = $this->createMock(KlinkService::class);
+        $service->expects($this->once())
+            ->method('getKlink')
+            ->willReturn($source_klink);
+
+
+        $data = TestModelHelper::createDataModel(self::SAMPLE_UUID);
+
+        $data->klink_ids = ["100"];
+
+        $entity = SolrEntityData::buildFromModel($data);
+        $entity->setKlinkResolver($service);
+
+        $dataBuilt = $entity->buildModel();
+
+        $this->assertContainsOnlyInstancesOf(Klink::class, $dataBuilt->klinks);
+        $this->assertEquals(['100'], $dataBuilt->klink_ids);
+        $this->assertNotEmpty($dataBuilt->klinks);
+        $this->assertEquals($source_klink->getId(), $dataBuilt->klinks[0]->id);
+        $this->assertEquals($source_klink->getName(), $dataBuilt->klinks[0]->name);
     }
 
     private function assertSavedFields(SolrEntityData $entity, Data $data)

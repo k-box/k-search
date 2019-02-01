@@ -6,6 +6,7 @@ use App\Entity\AbstractSolrEntity;
 use App\Entity\SolrEntityData;
 use App\Service\QueryService;
 use App\Service\SolrService;
+use App\Service\KlinkService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -30,14 +31,21 @@ class SolrServiceTest extends TestCase
      */
     private $queryService;
 
+    /**
+     * @var KlinkService|MockObject
+     */
+    private $klinkService;
+
     public function setUp()
     {
         $this->client = $this->createMock(Client::class);
         $this->queryService = $this->createMock(QueryService::class);
+        $this->klinkService = $this->createMock(KlinkService::class);
         $this->solrService = new SolrService(
             $this->client,
             $this->queryService,
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            $this->klinkService
         );
     }
 

@@ -3,7 +3,7 @@
 namespace App\Entity;
 
 use App\Helper\DateHelper;
-use App\Helper\KlinkHelper;
+use App\Service\KlinkService;
 use App\Model\Data\Author;
 use App\Model\Data\Copyright;
 use App\Model\Data\CopyrightOwner;
@@ -386,16 +386,31 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
             return [];
         }
 
+        if(!$this->klink_resolver){
+            return [];
+        }
+
         $klinks = [];
         foreach ($klink_ids as $id) {
-            $klinkData = KlinkHelper::get($id);
-            $klink = new Klink();
-            $fields = ['id', 'name'];
-            $this->inflateModelWithData($klink, $fields, $klinkData);
-            $klinks[] = $klink;
+            $klinkData = $this->klink_resolver->getKlink($id);
+            if($klinkData){
+                $klink = new Klink();
+                $klink->id = $klinkData->getId();
+                $klink->name = $klinkData->getName();
+                $klinks[] = $klink;
+            }
         }
 
         return $klinks;
+    }
+
+    private $klink_resolver = null;
+
+    public function setKlinkResolver(KlinkService $resolver)
+    {
+        $this->klink_resolver = $resolver;
+
+        return $this;
     }
 
     /**
