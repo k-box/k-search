@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Exception\InvalidKlinkException;
 use OneOffTech\KLinkRegistryClient\Model\Klink;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\Security;
 
 class KlinkService
@@ -20,6 +21,7 @@ class KlinkService
     private $logger;
 
     private $identifiers_cache = null;
+    private $klinks_cache = null;
 
     public function __construct(
         Security $security,
@@ -27,14 +29,6 @@ class KlinkService
     ) {
         $this->logger = $logger;
         $this->security = $security;
-    }
-
-    public function someMethod()
-    {
-        // returns User object or null if not authenticated
-        $user = $this->security->getUser();
-
-        $this->logger->error('KlinkService', ['user' => $user]);
     }
 
     /**
@@ -47,13 +41,13 @@ class KlinkService
      */
     public function getDefaultKlinkIdentifier()
     {
-        $klinks = $this->klinks();
+        $klinks = $this->klinkIdentifiers();
 
         if (empty($klinks) || \count($klinks) > 1) {
             throw new InvalidKlinkException('A default K-Link cannot be selected, as the application do not explicity define one');
         }
 
-        return $klinks[0]->getId();
+        return (string)$klinks[0];
     }
 
     /**
@@ -67,6 +61,9 @@ class KlinkService
     {
         // the application has a list of valid K-Links
         // we should only found the matching one
+        $klinks = $this->klinks();
+
+        return $klinks[$identifier] ?? null;
     }
 
     /**
@@ -108,14 +105,14 @@ class KlinkService
         return array_filter($klinks, function ($k) use ($valid_identifiers) {
             $id = $k instanceof Klink ? $k->getId() : $k;
 
-            return \in_array($k, $valid_identifiers, true);
+            return \in_array($id, $valid_identifiers);
         });
     }
 
     /**
      * Get the current authenticated application.
      *
-     * @return ApiUser
+     * @return UserInterface
      */
     private function application()
     {
@@ -129,13 +126,29 @@ class KlinkService
      */
     private function klinks()
     {
+        if($this->klinks_cache){
+            return $this->klinks_cache;
+        }
+
         $app = $this->application();
 
-        return $app ? $app->getKlinks() : [];
+        $klinks = $app ? $app->getKlinks() : [];
+
+        if(empty($klinks)){
+            return $this->klinks_cache = $klinks;
+        }
+
+        $keys = array_map(function ($k) {
+            return (string)$k->getId();
+        }, $klinks);
+        
+        $this->klinks_cache = array_combine($keys, $klinks);
+
+        return $this->klinks_cache;
     }
 
     /**
-     * Get the valid K-Link identifier from the current application.
+     * Get the valid K-Link identifiers from the current application.
      *
      * @return array
      */
@@ -145,9 +158,7 @@ class KlinkService
             return $this->identifiers_cache;
         }
 
-        $this->identifiers_cache = array_map(function ($k) {
-            return $k->getId();
-        }, $this->klinks());
+        $this->identifiers_cache = array_keys($this->klinks());
 
         return $this->identifiers_cache;
     }
