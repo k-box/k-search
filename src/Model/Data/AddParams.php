@@ -33,9 +33,11 @@ class AddParams
      * @var array
      * @Assert\Type("array")
      * @JMS\Type("array<string>")
+     * @JMS\Since("3.7")
      * @SWG\Property(
      *     @SWG\Items(type="string"),
-     *     example={"KLINK_ID_1", "KLINK_ID_2"}
+     *     example={"KLINK_ID_1", "KLINK_ID_2"},
+     *     x={"since-version":"3.7"},
      * )
      */
     public $klinks = [];
