@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Exception\InvalidKlinkException;
 use OneOffTech\KLinkRegistryClient\Model\Klink;
 use Psr\Log\LoggerInterface;
+use App\Entity\ApiUser;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -100,19 +101,19 @@ class KlinkService
             return [$default];
         }
 
-        $valid_identifiers = $this->klinkIdentifiers();
+        $valid_identifiers = $this->klinks();
 
         return array_filter($klinks, function ($k) use ($valid_identifiers) {
             $id = $k instanceof Klink ? $k->getId() : $k;
 
-            return \in_array($id, $valid_identifiers, true);
+            return isset($valid_identifiers[$id]);
         });
     }
 
     /**
      * Get the current authenticated application.
      *
-     * @return UserInterface
+     * @return ApiUser|UserInterface|null
      */
     private function application()
     {
@@ -132,7 +133,7 @@ class KlinkService
 
         $app = $this->application();
 
-        $klinks = $app ? $app->getKlinks() : [];
+        $klinks = $app && method_exists($app, 'getKlinks') ? $app->getKlinks() : [];
 
         if (empty($klinks)) {
             return $this->klinks_cache = $klinks;
