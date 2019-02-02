@@ -315,8 +315,8 @@ class DataService
 
                 if ('*' === $searchParams->klinkFilters || 'all' === $searchParams->klinkFilters) {
                     $klinkRequestFilters = $this->klinks->klinkIdentifiers();
-                    if(empty($klinkRequestFilters)){
-                        throw new InvalidKlinkFilterException("The application cannot filter on K-Links");
+                    if (empty($klinkRequestFilters)) {
+                        throw new InvalidKlinkFilterException('The application cannot filter on K-Links');
                     }
                 } elseif (!empty($searchParams->klinkFilters)) {
                     $ids = explode(',', $searchParams->klinkFilters);
@@ -334,18 +334,17 @@ class DataService
                 'uuid' => $klinkFilterString,
             ]);
 
-            try{
+            try {
                 $klinkFilterQuery = $this->solrService->buildFilterFromString(
                     $klinkFilterString,
                     SolrEntityData::getFilterFields(),
                     self::SEARCH_KLINKS_FILTER_KEY
                 );
                 $klinkFilterQuery->addTag(self::SEARCH_USER_FILTER_TAG);
-    
-                $query->addFilterQuery($klinkFilterQuery);
 
-            }catch(FilterQueryException $fex){
-                $this->logger->error("K-Link filters error", ['error' => $fex]);
+                $query->addFilterQuery($klinkFilterQuery);
+            } catch (FilterQueryException $fex) {
+                $this->logger->error('K-Link filters error', ['error' => $fex]);
 
                 throw new InvalidKlinkFilterException($e->getMessage());
             }

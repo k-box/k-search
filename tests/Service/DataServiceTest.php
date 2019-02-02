@@ -505,7 +505,7 @@ class DataServiceTest extends TestCase
     public function testSearchDataWithAllKlinks(): void
     {
         $searchParam = TestModelHelper::createDataSearchParamsModel();
-        $searchParam->klinkFilters = "*";
+        $searchParam->klinkFilters = '*';
         $searchParam->search = 'search-terms';
 
         $this->setupSolrServiceForSearch([
@@ -514,7 +514,7 @@ class DataServiceTest extends TestCase
 
         $this->klinkService->expects($this->once())
             ->method('klinkIdentifiers')
-            ->willReturn(["1"]);
+            ->willReturn(['1']);
 
         $this->query->expects($this->once())
             ->method('addFilterQuery');
@@ -526,7 +526,7 @@ class DataServiceTest extends TestCase
     public function testSearchDataWithKlinks(): void
     {
         $searchParam = TestModelHelper::createDataSearchParamsModel();
-        $searchParam->klinkFilters = "1";
+        $searchParam->klinkFilters = '1';
         $searchParam->search = 'search-terms';
 
         $this->setupSolrServiceForSearch([
@@ -535,8 +535,8 @@ class DataServiceTest extends TestCase
 
         $this->klinkService->expects($this->once())
             ->method('ensureValidKlinks')
-            ->with(["1"])
-            ->willReturn(["1"]);
+            ->with(['1'])
+            ->willReturn(['1']);
 
         $this->query->expects($this->once())
             ->method('addFilterQuery');
