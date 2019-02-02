@@ -346,7 +346,7 @@ class DataService
             } catch (FilterQueryException $fex) {
                 $this->logger->error('K-Link filters error', ['error' => $fex]);
 
-                throw new InvalidKlinkFilterException($e->getMessage());
+                throw new InvalidKlinkFilterException($fex->getMessage());
             }
         }
 
