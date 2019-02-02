@@ -34,6 +34,7 @@ class DataService
     private const SEARCH_DATA_STATUS_KEY = 'data-status';
     private const SEARCH_USER_FILTER_TAG = 'user-filter';
     private const SEARCH_GEO_FILTER_KEY = 'geo-location-filter';
+    private const SEARCH_KLINKS_FILTER_KEY = 'klinks-filter';
 
     /**
      * @var SolrService
@@ -314,6 +315,9 @@ class DataService
 
                 if ('*' === $searchParams->klinkFilters || 'all' === $searchParams->klinkFilters) {
                     $klinkRequestFilters = $this->klinks->klinkIdentifiers();
+                    if(empty($klinkRequestFilters)){
+                        throw new InvalidKlinkFilterException("The application cannot filter on K-Links");
+                    }
                 } elseif (!empty($searchParams->klinkFilters)) {
                     $ids = explode(',', $searchParams->klinkFilters);
                     $klinkRequestFilters = $this->klinks->ensureValidKlinks($ids);
@@ -323,21 +327,28 @@ class DataService
             }
 
             $klinkFilterString = implode(' OR ', array_map(function ($filter) {
-                return "klink:$filter";
+                return "klink_ids:$filter";
             }, $klinkRequestFilters));
 
             $this->logger->warning('K-Link filters, klinks={uuid}', [
                 'uuid' => $klinkFilterString,
             ]);
 
-            $klinkFilterQuery = $this->solrService->buildFilterFromString(
-                $klinkFilterString,
-                SolrEntityData::getFilterFields(),
-                self::SEARCH_USER_FILTER_KEY
-            );
-            $klinkFilterQuery->addTag(self::SEARCH_USER_FILTER_TAG);
+            try{
+                $klinkFilterQuery = $this->solrService->buildFilterFromString(
+                    $klinkFilterString,
+                    SolrEntityData::getFilterFields(),
+                    self::SEARCH_KLINKS_FILTER_KEY
+                );
+                $klinkFilterQuery->addTag(self::SEARCH_USER_FILTER_TAG);
+    
+                $query->addFilterQuery($klinkFilterQuery);
 
-            $query->addFilterQuery($klinkFilterQuery);
+            }catch(FilterQueryException $fex){
+                $this->logger->error("K-Link filters error", ['error' => $fex]);
+
+                throw new InvalidKlinkFilterException($e->getMessage());
+            }
         }
 
         // Keep the header to get the Solr query time
