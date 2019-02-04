@@ -582,20 +582,6 @@ class DataServiceTest extends TestCase
         $dataService->searchData($searchParam, $version);
     }
 
-    public function testSearchNoFilterOnStatus(): void
-    {
-        $searchParam = TestModelHelper::createDataSearchParamsModel();
-        $searchParam->search = 'search-terms';
-        $this->setupSolrServiceForSearch(['search' => 'search-terms']);
-
-        $this->query->expects($this->never())
-            ->method('addFilterQuery')
-            ->with(SolrEntityData::FIELD_STATUS, DataStatus::STATUS_INDEX_OK, $this->anything());
-
-        $dataService = $this->buildDataService();
-        $dataService->searchData($searchParam, self::LATEST_VERSION);
-    }
-
     public function testSearchWithGeoFilters(): void
     {
         $polygon = '{"type": "Polygon", "coordinates": [[[100,0],[101,0],[101,1],[100,1],[100,0]]]}';

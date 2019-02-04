@@ -309,45 +309,27 @@ class DataService
             $query->addFilterQuery($geoFilterQuery);
         }
 
-        if ($searchParams->klinkFilters) {
-            try {
-                $klinkRequestFilters = [$this->klinks->getDefaultKlinkIdentifier()];
+        // filter for K-Link
+        // by default we filter for the default K-Link configured
+        $klinkFilterString = $this->buildKlinkFilterFromString($searchParams->klinkFilters);
 
-                if ('*' === $searchParams->klinkFilters || 'all' === $searchParams->klinkFilters) {
-                    $klinkRequestFilters = $this->klinks->klinkIdentifiers();
-                    if (empty($klinkRequestFilters)) {
-                        throw new InvalidKlinkFilterException('The application cannot filter on K-Links');
-                    }
-                } elseif (!empty($searchParams->klinkFilters)) {
-                    $ids = explode(',', $searchParams->klinkFilters);
-                    $klinkRequestFilters = $this->klinks->ensureValidKlinks($ids);
-                }
-            } catch (InvalidKlinkException $e) {
-                throw new InvalidKlinkFilterException($e->getMessage());
-            }
+        $this->logger->warning('K-Link filters, klinks={uuid}', [
+            'uuid' => $klinkFilterString,
+        ]);
 
-            $klinkFilterString = implode(' OR ', array_map(function ($filter) {
-                return "klink_ids:$filter";
-            }, $klinkRequestFilters));
+        try {
+            $klinkFilterQuery = $this->solrService->buildFilterFromString(
+                $klinkFilterString,
+                SolrEntityData::getFilterFields(),
+                self::SEARCH_KLINKS_FILTER_KEY
+            );
+            $klinkFilterQuery->addTag(self::SEARCH_USER_FILTER_TAG);
 
-            $this->logger->warning('K-Link filters, klinks={uuid}', [
-                'uuid' => $klinkFilterString,
-            ]);
+            $query->addFilterQuery($klinkFilterQuery);
+        } catch (FilterQueryException $fex) {
+            $this->logger->error('K-Link filters error', ['error' => $fex]);
 
-            try {
-                $klinkFilterQuery = $this->solrService->buildFilterFromString(
-                    $klinkFilterString,
-                    SolrEntityData::getFilterFields(),
-                    self::SEARCH_KLINKS_FILTER_KEY
-                );
-                $klinkFilterQuery->addTag(self::SEARCH_USER_FILTER_TAG);
-
-                $query->addFilterQuery($klinkFilterQuery);
-            } catch (FilterQueryException $fex) {
-                $this->logger->error('K-Link filters error', ['error' => $fex]);
-
-                throw new InvalidKlinkFilterException($fex->getMessage());
-            }
+            throw new InvalidKlinkFilterException($fex->getMessage());
         }
 
         // Keep the header to get the Solr query time
@@ -391,6 +373,37 @@ class DataService
                 ]
             );
         }
+    }
+
+    private function buildKlinkFilterFromString($requestedKlinks)
+    {
+        try {
+            if (empty($requestedKlinks)) {
+                $defaultId = $this->klinks->getDefaultKlinkIdentifier();
+
+                return "klink_ids:$defaultId";
+            }
+
+            $klinkRequestFilters = [];
+
+            if ('*' === $requestedKlinks || 'all' === $requestedKlinks) {
+                $klinkRequestFilters = $this->klinks->klinkIdentifiers();
+                if (empty($klinkRequestFilters)) {
+                    throw new InvalidKlinkFilterException('The application cannot filter on K-Links');
+                }
+            } elseif (!empty($requestedKlinks)) {
+                $ids = explode(',', $requestedKlinks);
+                $klinkRequestFilters = $this->klinks->ensureValidKlinks($ids);
+            }
+
+            return implode(' OR ', array_map(function ($filter) {
+                return "klink_ids:$filter";
+            }, $klinkRequestFilters));
+        } catch (InvalidKlinkException $e) {
+            throw new InvalidKlinkFilterException($e->getMessage());
+        }
+
+        return '';
     }
 
     /**
