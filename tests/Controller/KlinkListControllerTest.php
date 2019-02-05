@@ -2,7 +2,6 @@
 
 namespace App\Tests\Controller;
 
-use App\Exception\SolrEntityNotFoundException;
 use App\Security\Authorization\Voter\DataVoter;
 use OneOffTech\KLinkRegistryClient\Model\Klink as RegistryKlink;
 use Symfony\Component\HttpFoundation\Response;
