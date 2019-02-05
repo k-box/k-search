@@ -7,7 +7,9 @@ use App\Exception\BadRequestException;
 use App\Exception\DataDownloadErrorException;
 use App\Exception\FilterQuery\FilterQueryException;
 use App\Exception\FilterQuery\InvalidGeoJsonFilterException;
+use App\Exception\FilterQuery\InvalidKlinkFilterException;
 use App\Exception\InternalSearchException;
+use App\Exception\InvalidKlinkException;
 use App\Exception\OutdatedDataRequestException;
 use App\Exception\SolrEntityNotFoundException;
 use App\Exception\SolrExtractionException;
@@ -32,6 +34,7 @@ class DataService
     private const SEARCH_DATA_STATUS_KEY = 'data-status';
     private const SEARCH_USER_FILTER_TAG = 'user-filter';
     private const SEARCH_GEO_FILTER_KEY = 'geo-location-filter';
+    private const SEARCH_KLINKS_FILTER_KEY = 'klinks-filter';
 
     /**
      * @var SolrService
@@ -73,6 +76,11 @@ class DataService
      */
     private $logger;
 
+    /**
+     * @var KlinkService
+     */
+    private $klinks;
+
     public function __construct(
         DataProcessingService $processingService,
         DataStatusService $dataStatusService,
@@ -81,7 +89,8 @@ class DataService
         MessageBusInterface $messageBus,
         array $indexableContentTypes,
         bool $retainDataContents,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        KlinkService $klinks
     ) {
         $this->dataProcessingService = $processingService;
         $this->solrService = $solrService;
@@ -91,6 +100,7 @@ class DataService
         $this->retainDataContents = $retainDataContents;
         $this->logger = $logger;
         $this->dataStatusService = $dataStatusService;
+        $this->klinks = $klinks;
     }
 
     /**
@@ -143,6 +153,7 @@ class DataService
 
         // Building the required SolrEntity object from the result document
         $solrEntityData = new SolrEntityData($uuid, $resultSet->getIterator()[0]);
+        $solrEntityData->setKlinkResolver($this->klinks);
 
         return $solrEntityData->buildModel();
     }
@@ -298,6 +309,29 @@ class DataService
             $query->addFilterQuery($geoFilterQuery);
         }
 
+        // filter for K-Link
+        // by default we filter for the default K-Link configured
+        $klinkFilterString = $this->buildKlinkFilterFromString($searchParams->klinkFilters);
+
+        $this->logger->warning('K-Link filters, klinks={uuid}', [
+            'uuid' => $klinkFilterString,
+        ]);
+
+        try {
+            $klinkFilterQuery = $this->solrService->buildFilterFromString(
+                $klinkFilterString,
+                SolrEntityData::getFilterFields(),
+                self::SEARCH_KLINKS_FILTER_KEY
+            );
+            $klinkFilterQuery->addTag(self::SEARCH_USER_FILTER_TAG);
+
+            $query->addFilterQuery($klinkFilterQuery);
+        } catch (FilterQueryException $fex) {
+            $this->logger->error('K-Link filters error', ['error' => $fex]);
+
+            throw new InvalidKlinkFilterException($fex->getMessage());
+        }
+
         // Keep the header to get the Solr query time
         $query->setOmitHeader(false);
         $queryResult = $this->solrService->executeSelectQuery($query);
@@ -339,6 +373,37 @@ class DataService
                 ]
             );
         }
+    }
+
+    private function buildKlinkFilterFromString($requestedKlinks)
+    {
+        try {
+            if (empty($requestedKlinks)) {
+                $defaultId = $this->klinks->getDefaultKlinkIdentifier();
+
+                return "klink_ids:$defaultId";
+            }
+
+            $klinkRequestFilters = [];
+
+            if ('*' === $requestedKlinks || 'all' === $requestedKlinks) {
+                $klinkRequestFilters = $this->klinks->klinkIdentifiers();
+                if (empty($klinkRequestFilters)) {
+                    throw new InvalidKlinkFilterException('The application cannot filter on K-Links');
+                }
+            } elseif (!empty($requestedKlinks)) {
+                $ids = explode(',', $requestedKlinks);
+                $klinkRequestFilters = $this->klinks->ensureValidKlinks($ids);
+            }
+
+            return implode(' OR ', array_map(function ($filter) {
+                return "klink_ids:$filter";
+            }, $klinkRequestFilters));
+        } catch (InvalidKlinkException $e) {
+            throw new InvalidKlinkFilterException($e->getMessage());
+        }
+
+        return '';
     }
 
     /**

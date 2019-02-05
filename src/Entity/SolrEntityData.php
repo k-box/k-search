@@ -8,6 +8,7 @@ use App\Model\Data\Copyright;
 use App\Model\Data\CopyrightOwner;
 use App\Model\Data\CopyrightUsage;
 use App\Model\Data\Data;
+use App\Model\Data\Klink;
 use App\Model\Data\Properties;
 use App\Model\Data\Properties\Source;
 use App\Model\Data\Properties\Streaming;
@@ -62,6 +63,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
     public const FIELD_UPDATED_AT = 'date_data_internal_updated_at';
     public const FIELD_GEO_LOCATION = 'geom_data_geo_location';
     public const FIELD_GEO_LOCATION_STORED = 'str_ss_data_geo_location';
+    public const FIELD_KLINKS = 'str_sim_data_klinks';
 
     public static function getEntityType(): string
     {
@@ -93,6 +95,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         $doc->addProperties($data->properties);
         $doc->addAuthors($data->authors);
         $doc->addUploader($data->uploader);
+        $doc->addKlinks($data->klink_ids);
 
         return $doc;
     }
@@ -105,8 +108,10 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         $data->type = (string) $this->getField(self::FIELD_TYPE);
         $data->url = (string) $this->getField(self::FIELD_URL);
         $data->status = (string) $this->getField(self::FIELD_STATUS);
-        $data->errorStatus = (string) $this->getField(self::FIELD_ERROR_STATUS);
+        $error = $this->getField(self::FIELD_ERROR_STATUS);
+        $data->errorStatus = $error ? (string) $error : null;
         $data->geoLocation = (string) $this->getField(self::FIELD_GEO_LOCATION_STORED);
+        $data->klink_ids = $this->getField(self::FIELD_KLINKS);
 
         $data->requestId = (string) $this->getField(self::FIELD_REQUEST_ID);
         if ($dateString = $this->getField(self::FIELD_UPDATED_AT)) {
@@ -117,6 +122,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         $data->properties = $this->buildPropertiesModel();
         $data->authors = $this->buildAuthorsModel();
         $data->uploader = $this->buildUploaderModel();
+        $data->klinks = $this->buildKlinks();
 
         return $data;
     }
@@ -157,6 +163,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
             'uploader.name' => self::FIELD_UPLOADER_NAME_SORTING,
             'uploader.organization' => self::FIELD_UPLOADER_ORGANIZATION_SORTING,
             'uploader.app_url' => self::FIELD_UPLOADER_APP_URL_SORTING,
+            'klink_ids' => self::FIELD_KLINKS,
         ];
     }
 
@@ -178,6 +185,7 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
             'properties.updated_at' => self::FIELD_PROPERTIES_UPDATED_AT,
             'uploader.name' => self::FIELD_UPLOADER_NAME_SEARCH,
             'uploader.organization' => self::FIELD_UPLOADER_ORGANIZATION_SEARCH,
+            'klink_ids' => self::FIELD_KLINKS,
         ];
     }
 
@@ -350,6 +358,50 @@ class SolrEntityData extends AbstractSolrEntity implements SolrEntityExtractText
         $this->inflateModelWithData($uploader, $fields, $data ?? []);
 
         return $uploader;
+    }
+
+    /**
+     * Add the K-Links ids to which this data piece needs to be visible on.
+     *
+     * @param string[] $ids
+     */
+    private function addKlinks($ids)
+    {
+        if (\is_array($ids)) {
+            $this->addField(self::FIELD_KLINKS, $ids);
+        }
+    }
+
+    /**
+     * Create the public K-Link list based on the ids of the K-Links on which the data
+     * is published.
+     *
+     * @return Klink[]
+     */
+    private function buildKlinks(): array
+    {
+        $klink_ids = $this->getField(self::FIELD_KLINKS);
+
+        if (!$klink_ids) {
+            return [];
+        }
+
+        if (!$this->klink_resolver) {
+            return [];
+        }
+
+        $klinks = [];
+        foreach ($klink_ids as $id) {
+            $klinkData = $this->klink_resolver->getKlink($id);
+            if ($klinkData) {
+                $klink = new Klink();
+                $klink->id = $klinkData->getId();
+                $klink->name = $klinkData->getName();
+                $klinks[] = $klink;
+            }
+        }
+
+        return $klinks;
     }
 
     /**

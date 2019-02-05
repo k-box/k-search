@@ -9,6 +9,7 @@ The `Data` object define the metadata of the file.
 | `hash`                       | String | ✔ | The SHA-2 (SHA-512) hash of the data content. |
 | `geo_location`               | String |   | The Geo location of the data, as an escaped GeoJson string. Coordinates must be in the [<longitude, latitude> order](https://tools.ietf.org/html/rfc7946#section-3.1.1) and use the [WGS84 (EPSG:4326) reference system](https://tools.ietf.org/html/rfc7946#section-4). |
 | `type`                       | String | ✔ | The general type of the provided data. Can be only 'document' or 'video'. |
+| `klinks`                     | [KLink[]](#k-link-object) |  | _Read only_. The K-Links on which the data is published to |
 | `properties[]`               | Object | ✔ | The metadata of a piece of data. |
 | `properties[mime_type]`      | String | ✔ | The Mime type of the provided data. |
 | `properties[language]`       | String | ✔ | ISO code of the main language (explicitly the abstract and title). |
@@ -109,3 +110,11 @@ The returned `status` may be:
 - `index.fail` : Failure during the indexing of the Data
 - `queued.ok` : The Data has been queued for downloading and indexing
 - `download.fail` : The download of the data failed
+
+## K-Link object
+
+| Property | Type    | Description |
+| -------- | ------- | ----------- |
+| `id`     | String  | The K-Link identifier |
+| `name`   | String  | The K-Link assigned name. |
+

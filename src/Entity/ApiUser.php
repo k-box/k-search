@@ -31,13 +31,26 @@ class ApiUser implements UserInterface
      */
     private $roles;
 
-    public function __construct(string $name, string $email, string $username, ?string $password, array $roles)
+    /**
+     * The Identifier of the K-Links the user has access to.
+     *
+     * @var string[]
+     */
+    private $klinks;
+
+    public function __construct(string $name, string $email, string $username, ?string $password, array $roles, array $klinks = [])
     {
         $this->username = $username;
         $this->password = $password;
         $this->roles = $roles;
         $this->email = $email;
         $this->name = $name;
+        $this->klinks = $klinks;
+    }
+
+    public function getKlinks()
+    {
+        return $this->klinks;
     }
 
     public function getRoles()
@@ -73,5 +86,10 @@ class ApiUser implements UserInterface
     public function eraseCredentials()
     {
         // Nothing to do here.
+    }
+
+    public function isRegistryUser()
+    {
+        return 'local' !== $this->name;
     }
 }

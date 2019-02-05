@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Service\KlinkService;
 use Solarium\QueryType\Select\Result\Document as ResultDocument;
 use Solarium\QueryType\Update\Query\Document\Document as UpdateDocument;
 
@@ -12,6 +13,11 @@ abstract class AbstractSolrEntity implements SolrEntity
 {
     const FIELD_ENTITY_TYPE = 'entity_type';
     const FIELD_ENTITY_ID = 'entity_id';
+
+    /**
+     * @var KlinkService
+     */
+    protected $klink_resolver = null;
 
     /**
      * @var UpdateDocument
@@ -69,5 +75,17 @@ abstract class AbstractSolrEntity implements SolrEntity
         }
 
         return [];
+    }
+
+    /**
+     * Set the K-Link service to use for this entity.
+     *
+     * @return $this
+     */
+    public function setKlinkResolver(KlinkService $resolver)
+    {
+        $this->klink_resolver = $resolver;
+
+        return $this;
     }
 }

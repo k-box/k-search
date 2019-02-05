@@ -7,6 +7,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DataSearchControllerTest extends AbstractJsonRpcControllerTest
 {
+    const SEARCH_ENDPOINT = '/api/3.7/data.search';
+
     public function provideFailingRoles(): array
     {
         return [
@@ -21,7 +23,7 @@ class DataSearchControllerTest extends AbstractJsonRpcControllerTest
     /**
      * @dataProvider provideFailingRoles
      */
-    public function testDataSearchWithoutAddPermissionFails(array $roles)
+    public function testDataSearchWithoutPermissionFails(array $roles)
     {
         $this->setUserRoles($roles);
 
@@ -30,11 +32,34 @@ class DataSearchControllerTest extends AbstractJsonRpcControllerTest
             ->method('searchData');
 
         $searchRequest = $this->getSearchRequestData();
-        $this->sendAuthenticatedRequest(self::RPC_METHOD, '/api/3.0/data.search', $searchRequest);
+        $this->sendAuthenticatedRequest(self::RPC_METHOD, self::SEARCH_ENDPOINT, $searchRequest);
 
         $response = $this->client->getResponse();
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
         $this->assertJsonRpcErrorResponse($response->getContent(), Response::HTTP_FORBIDDEN, 'Access Denied.');
+    }
+
+    public function testDataSearchWithInvalidKlinkFails()
+    {
+        $this->setUserRoles([DataVoter::ROLE_DATA_SEARCH]);
+
+        $searchRequest = $this->getSearchRequestData([
+            'search' => '*',
+            'filters' => '',
+            'klinks' => '500',
+            'aggregations' => null,
+            'sort' => [],
+            'limit' => 10,
+            'offset' => 0,
+        ]);
+        $this->sendAuthenticatedRequest(self::RPC_METHOD, self::SEARCH_ENDPOINT, $searchRequest);
+
+        $response = $this->client->getResponse();
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $failures = [
+            'params.klinks' => 'Some K-Links are invalid',
+        ];
+        $this->assertJsonRpcErrorResponse($response->getContent(), 400, 'Wrong data provided!', $failures);
     }
 
     private function getSearchRequestData(array $params = []): string

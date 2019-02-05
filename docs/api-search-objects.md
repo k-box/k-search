@@ -6,6 +6,7 @@ Describe the Search request.
 | -------- | ------ | -------- | ----------- |
 | `search`  | String | ✔       | URI encoded string of the search query. If no query is specified, an empty result set will be returned |
 | `filters` | String |         | Search [filters](#supported-filters) in the [Lucene query parser syntax](https://lucene.apache.org/core/2_9_4/queryparsersyntax.html) |
+| `klinks` | String  |    | Filter data based on K-Links. This filter is applied in AND with the other defined `filters`. See [K-Links Filter](#k-links-filter) |
 | `geo_location_filter` | [GeoLocationFilter](#geographic-location-filter) |    | Filter for data geographic location. This filter is applied in AND with the other defined `filters` |
 | `aggregations` | [Aggregation](#aggregation) |    | An object containing the aggregations to be retrieved |
 | `sort` (since v3.1)| [Sort](#sort) |    | A list of sort parameters |
@@ -141,6 +142,19 @@ The polygon must be defined as a serialized [GeoJSON polygon](https://tools.ietf
 }
 ```
 
+## K-Links Filter
+
+> Available from API 3.7
+
+Filter for documents in the specified K-Links. Documents may be published on different K-Links, this filter enable to retrieve documents published under a specific K-Link or the union of multiple K-Links. All K-Links must be accessible by the application with at least `data-search` permission.
+
+The filter is in string form and accept the following formats
+
+- `<empty>` (empty string, default) - Indicate to search accross default K-Link for the application (backward compatibility, only valid if the application has the association with only one K-Link).
+- `*` or `all` - Indicate to search accross all K-Links.
+- `id1` - Indicate to search in one explicit K-Link.
+- `id1,id2` - Indicate to search across selected K-Links.
+
 ## SearchResults object
 
 Describe how search results are returned.
@@ -229,6 +243,12 @@ the most common terms for the specific aggregation. The code block below shows a
                 "url": "http://localhost:8000/pages/video-1.html",
                 "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                 "type": "video",
+                "klinks": [
+                    {
+                        "id": "100",
+                        "name": "Example K-Link"
+                    }
+                ],
                 "copyright": {
                     "owner": {
                         "name": "Mavluda Ergeshova",
@@ -313,6 +333,12 @@ the most common terms for the specific aggregation. The code block below shows a
                 "url": "http://localhost:8000/pages/video-1.html",
                 "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                 "type": "video",
+                "klinks": [
+                    {
+                        "id": "100",
+                        "name": "Example K-Link"
+                    }
+                ],
                 "copyright": {
                     "owner": {
                         "name": "Mavluda Ergeshova",

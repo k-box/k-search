@@ -6,6 +6,8 @@ use App\Entity\ApiUser;
 use App\Security\Provider\KLinkRegistryUserProvider;
 use App\Service\DataService;
 use App\Service\DataStatusService;
+use App\Service\KlinkService;
+use OneOffTech\KLinkRegistryClient\Model\Klink;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -56,16 +58,17 @@ abstract class AbstractJsonRpcControllerTest extends WebTestCase
     /**
      * @return KLinkRegistryUserProvider|MockObject
      */
-    protected function setMockedKLinkRegistryUserProvider()
+    protected function setMockedKLinkRegistryUserProvider(?ApiUser $wantedUser = null)
     {
         $mocked = $this->createMock(KLinkRegistryUserProvider::class);
 
-        $user = new ApiUser(
+        $user = $wantedUser ?? new ApiUser(
             self::APP_NAME,
             self::APP_EMAIL,
             self::APP_URL,
             self::APP_SECRET,
-            $this->getUserRoles()
+            $this->getUserRoles(),
+            [Klink::createFromArray(['id' => '1', 'name' => 'Test K-Link'])]
         );
         $mocked->expects($this->once())
             ->method('loadUserFromApplicationUrlAndSecret')
@@ -83,6 +86,17 @@ abstract class AbstractJsonRpcControllerTest extends WebTestCase
     {
         $mocked = $this->createMock(DataService::class);
         $this->client->getContainer()->set(DataService::class, $mocked);
+
+        return $mocked;
+    }
+
+    /**
+     * @return KlinkService|MockObject
+     */
+    protected function setMockedKlinkService()
+    {
+        $mocked = $this->createMock(KlinkService::class);
+        $this->client->getContainer()->set(KlinkService::class, $mocked);
 
         return $mocked;
     }

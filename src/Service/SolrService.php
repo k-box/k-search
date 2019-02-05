@@ -41,7 +41,12 @@ class SolrService
      */
     private $logger;
 
-    public function __construct(Client $solrClient, QueryService $queryService, LoggerInterface $logger)
+    /**
+     * @var KlinkService
+     */
+    private $klinks;
+
+    public function __construct(Client $solrClient, QueryService $queryService, LoggerInterface $logger, KlinkService $klinks)
     {
         $this->solrClient = $solrClient;
         $this->queryService = $queryService;
@@ -49,6 +54,7 @@ class SolrService
         // Enable using POST http method for big requests
         $this->solrClient->getPlugin('postbigrequest');
         $this->logger = $logger;
+        $this->klinks = $klinks;
     }
 
     public function add(AbstractSolrEntity $solrEntity)
@@ -102,7 +108,7 @@ class SolrService
         }
 
         // Building the required SolrEntity object from the result document
-        return new $solrEntityClass($id, $resultSet->getIterator()[0]);
+        return (new $solrEntityClass($id, $resultSet->getIterator()[0]))->setKlinkResolver($this->klinks);
     }
 
     /**
@@ -293,7 +299,7 @@ class SolrService
         foreach ($result->getDocuments() as $document) {
             /** @var AbstractSolrEntity $entity */
             $entity = new $solrEntityClass($document->{AbstractSolrEntity::FIELD_ENTITY_ID}, $document);
-            $models[] = $entity->buildModel();
+            $models[] = $entity->setKlinkResolver($this->klinks)->buildModel();
         }
 
         return $models;

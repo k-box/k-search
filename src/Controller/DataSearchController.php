@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Exception\BadRequestException;
 use App\Exception\FilterQuery\FilterQueryException;
 use App\Exception\FilterQuery\InvalidGeoJsonFilterException;
+use App\Exception\FilterQuery\InvalidKlinkFilterException;
 use App\Model\Data\Search\SearchRequest;
 use App\Model\Data\Search\SearchResponse;
 use App\Security\Authorization\Voter\DataVoter;
@@ -44,7 +45,7 @@ class DataSearchController extends AbstractRpcController
      *     }
      * )
      * @SWG\Post(
-     *     path="/api/3.6/data.search",
+     *     path="/api/3.7/data.search",
      *     description="Allows to query the index and returns search results. This API requires the `data-search` permission.",
      *     tags={"Data"},
      *     @SWG\Parameter(
@@ -80,6 +81,8 @@ class DataSearchController extends AbstractRpcController
             $field = 'params.filters';
             if ($exception instanceof InvalidGeoJsonFilterException) {
                 $field = 'params.geo_location_filter.bounding_box';
+            } elseif ($exception instanceof InvalidKlinkFilterException) {
+                $field = 'params.klinks';
             }
 
             throw new BadRequestException([

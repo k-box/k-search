@@ -8,6 +8,7 @@ use App\Model\Data\Copyright;
 use App\Model\Data\CopyrightOwner;
 use App\Model\Data\CopyrightUsage;
 use App\Model\Data\Data;
+use App\Model\Data\Klink;
 use App\Model\Data\Properties;
 use App\Model\Data\Search\Aggregation;
 use App\Model\Data\Search\SearchParams;
@@ -124,6 +125,20 @@ class TestModelHelper
         return $data;
     }
 
+    public static function createLatestDataModel($sampleUUID): Data
+    {
+        $data = self::createDataModel($sampleUUID);
+
+        $klink = new Klink();
+        $klink->id = '1';
+        $klink->name = 'Test K-Link';
+        $data->klinks = [
+            $klink,
+        ];
+
+        return $data;
+    }
+
     public static function createDataArray($dataUUID): array
     {
         return [
@@ -167,6 +182,54 @@ class TestModelHelper
             'uploader' => [
                 'name' => 'Uploader name',
             ],
+        ];
+    }
+
+    public static function createLatestDataArray($dataUUID): array
+    {
+        return [
+            'hash' => hash('sha512', 'hash'),
+            'type' => 'document',
+            'url' => 'http://example.com/data.txt',
+            'uuid' => $dataUUID,
+            'klinks' => [['id' => '1', 'name' => 'Test K-Link']],
+            'copyright' => [
+                'owner' => [
+                    'name' => 'KLink Organization',
+                    'email' => 'info@klink.asia',
+                    'website' => 'http://www.klink.asia',
+                    'address' => 'Berlin',
+                ],
+                'usage' => [
+                    'short' => 'MPL-2.0',
+                    'name' => 'Mozilla Public License 2.0',
+                    'reference' => 'https://spdx.org/licenses/MPL-2.0.html',
+                ],
+            ],
+            'properties' => [
+                'title' => 'Adventures of Sherlock Holmes',
+                'filename' => 'adventures-of-sherlock-holmes.pdf',
+                'mime_type' => 'application/pdf',
+                'language' => 'en',
+                'created_at' => self::DATE,
+                'updated_at' => self::DATE,
+                'size' => self::SIZE,
+                'abstract' => 'It is a novel about a detective',
+                'thumbnail' => 'https://ichef.bbci.co.uk/news/660/cpsprodpb/153B4/production/_89046968_89046967.jpg',
+                'tags' => ['tag1', 'tag2'],
+                'collections' => ['123', '456'],
+            ],
+            'authors' => [
+                [
+                    'email' => 'arthur@conan.doyle',
+                    'name' => 'Arthur Conan Doyle',
+                    'contact' => '221B Baker Street',
+                ],
+            ],
+            'uploader' => [
+                'name' => 'Uploader name',
+            ],
+            'geo_location' => '{"type": "Point", "coordinates": [100.0, 0.0] }',
         ];
     }
 

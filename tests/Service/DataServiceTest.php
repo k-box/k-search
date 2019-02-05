@@ -14,6 +14,7 @@ use App\Service\DataDownloader;
 use App\Service\DataProcessingService;
 use App\Service\DataService;
 use App\Service\DataStatusService;
+use App\Service\KlinkService;
 use App\Service\SolrService;
 use App\Tests\Helper\TestModelHelper;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -31,7 +32,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class DataServiceTest extends TestCase
 {
     private const DATA_UUID = 'cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd';
-    private const LATEST_VERSION = '3.5';
+    private const LATEST_VERSION = '3.7';
 
     private const TYPES = [
         'application/pdf',
@@ -79,6 +80,11 @@ class DataServiceTest extends TestCase
      */
     private $dataStatusService;
 
+    /**
+     * @var KlinkService|MockObject
+     */
+    private $klinkService;
+
     protected function setUp()
     {
         parent::setUp();
@@ -90,6 +96,7 @@ class DataServiceTest extends TestCase
         $this->facetSet = $this->createMock(FacetSet::class);
         $this->dataProcessingService = $this->createMock(DataProcessingService::class);
         $this->downloaderService = $this->createMock(DataDownloader::class);
+        $this->klinkService = $this->createMock(KlinkService::class);
     }
 
     public function provideIndexableContentTypes(): array
@@ -495,6 +502,49 @@ class DataServiceTest extends TestCase
         $dataService->searchData($searchParam, '3.2');
     }
 
+    public function testSearchDataWithAllKlinks(): void
+    {
+        $searchParam = TestModelHelper::createDataSearchParamsModel();
+        $searchParam->klinkFilters = '*';
+        $searchParam->search = 'search-terms';
+
+        $this->setupSolrServiceForSearch([
+            'search' => 'search-terms',
+        ]);
+
+        $this->klinkService->expects($this->once())
+            ->method('klinkIdentifiers')
+            ->willReturn(['1']);
+
+        $this->query->expects($this->once())
+            ->method('addFilterQuery');
+
+        $dataService = $this->buildDataService();
+        $dataService->searchData($searchParam, '3.7');
+    }
+
+    public function testSearchDataWithKlinks(): void
+    {
+        $searchParam = TestModelHelper::createDataSearchParamsModel();
+        $searchParam->klinkFilters = '1';
+        $searchParam->search = 'search-terms';
+
+        $this->setupSolrServiceForSearch([
+            'search' => 'search-terms',
+        ]);
+
+        $this->klinkService->expects($this->once())
+            ->method('ensureValidKlinks')
+            ->with(['1'])
+            ->willReturn(['1']);
+
+        $this->query->expects($this->once())
+            ->method('addFilterQuery');
+
+        $dataService = $this->buildDataService();
+        $dataService->searchData($searchParam, '3.7');
+    }
+
     public function providerSearchDataWithAggregationsWithVersion(): array
     {
         return [
@@ -532,20 +582,6 @@ class DataServiceTest extends TestCase
         $dataService->searchData($searchParam, $version);
     }
 
-    public function testSearchNoFilterOnStatus(): void
-    {
-        $searchParam = TestModelHelper::createDataSearchParamsModel();
-        $searchParam->search = 'search-terms';
-        $this->setupSolrServiceForSearch(['search' => 'search-terms']);
-
-        $this->query->expects($this->never())
-            ->method('addFilterQuery')
-            ->with(SolrEntityData::FIELD_STATUS, DataStatus::STATUS_INDEX_OK, $this->anything());
-
-        $dataService = $this->buildDataService();
-        $dataService->searchData($searchParam, self::LATEST_VERSION);
-    }
-
     public function testSearchWithGeoFilters(): void
     {
         $polygon = '{"type": "Polygon", "coordinates": [[[100,0],[101,0],[101,1],[100,1],[100,0]]]}';
@@ -576,7 +612,8 @@ class DataServiceTest extends TestCase
             $this->messageBus,
             $types,
             $retainDownloads,
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            $this->klinkService
         );
     }
 
