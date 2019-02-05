@@ -239,9 +239,34 @@ just one of the given search keywords).
 | `id` | String | ✔ | The identifier established by the client in the request. |
 | `result` | Object | ✔ | [`SearchResult object`](./api-search-objects.md#searchresults-object) |
 
+### klinks.list
+
+Get the list of K-Links.
+
+The list is limited to the K-Links accessible by the application that is making the request.
+
+* URL: `/api/{VERSION}/klinks.list`
+
+> Supported since API 3.7
+
+**Request**
+
+| Property | Type    | Required   | Description |
+| -------- | ------- | ---------- | ----------- |
+| `id` | String | ✔ | An identifier established by the client that MUST contain a String, Number, or NULL value if included. The value SHOULD normally not be Null and Numbers SHOULD NOT contain fractional parts. |
+
+**Successful response**
+
+* `status`: `200` (OK)
+
+| Property | Type     | Description |
+| -------- | ------- -| ----------- |
+| `id`     | String   | The identifier established by the client in the request.|
+| `result` | Klinks[] | A [`Klink`](./api-objects.md#k-link-object) array |
+
 ## Additional endpoints
 
-## Downloading files
+### Downloading files
 If the K-Search application is configured to retain the downloaded contents (see `.env.dist` file), the following
 endpoint allows to gather the downloaded files from the system:
 
