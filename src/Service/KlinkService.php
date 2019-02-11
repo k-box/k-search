@@ -68,6 +68,18 @@ class KlinkService
     }
 
     /**
+     * Get the K-Links the application can connect to.
+     *
+     * @return Klink[]
+     */
+    public function getKlinks()
+    {
+        $klinks = $this->klinks();
+
+        return !empty($klinks) ? array_values($klinks) : [];
+    }
+
+    /**
      * @param array        $klinks  the identifiers of the K-Links to validate
      * @param string|Klink $default the default K-Link to return in case the $klinks array is empty
      *
