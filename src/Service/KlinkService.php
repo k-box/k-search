@@ -24,12 +24,19 @@ class KlinkService
     private $identifiers_cache = null;
     private $klinks_cache = null;
 
+    /**
+     * @var bool
+     */
+    private $enabled;
+    
     public function __construct(
         Security $security,
-        LoggerInterface $logger
-    ) {
-        $this->logger = $logger;
-        $this->security = $security;
+        LoggerInterface $logger,
+        bool $enabled = false
+        ) {
+            $this->logger = $logger;
+            $this->security = $security;
+            $this->enabled = $enabled;
     }
 
     /**
@@ -136,6 +143,18 @@ class KlinkService
         $this->identifiers_cache = array_keys($this->klinks());
 
         return $this->identifiers_cache;
+    }
+
+    /**
+     * Indicate if the K-Link service is enabled
+     * 
+     * The service is enabled, if the registry connection is configured
+     * 
+     * @return bool
+     */
+    public function isEnabled()
+    {
+        return $this->enabled;
     }
 
     /**

@@ -311,25 +311,28 @@ class DataService
 
         // filter for K-Link
         // by default we filter for the default K-Link configured
-        $klinkFilterString = $this->buildKlinkFilterFromString($searchParams->klinkFilters);
+        if ($this->klinks->isEnabled()) {
+            
+            $klinkFilterString = $this->buildKlinkFilterFromString($searchParams->klinkFilters);
+            
+            $this->logger->warning('K-Link filters, klinks={uuid}', [
+                'uuid' => $klinkFilterString,
+                ]);
 
-        $this->logger->warning('K-Link filters, klinks={uuid}', [
-            'uuid' => $klinkFilterString,
-        ]);
-
-        try {
-            $klinkFilterQuery = $this->solrService->buildFilterFromString(
-                $klinkFilterString,
-                SolrEntityData::getFilterFields(),
-                self::SEARCH_KLINKS_FILTER_KEY
-            );
-            $klinkFilterQuery->addTag(self::SEARCH_USER_FILTER_TAG);
-
-            $query->addFilterQuery($klinkFilterQuery);
-        } catch (FilterQueryException $fex) {
-            $this->logger->error('K-Link filters error', ['error' => $fex]);
-
-            throw new InvalidKlinkFilterException($fex->getMessage());
+            try {
+                $klinkFilterQuery = $this->solrService->buildFilterFromString(
+                    $klinkFilterString,
+                    SolrEntityData::getFilterFields(),
+                    self::SEARCH_KLINKS_FILTER_KEY
+                );
+                $klinkFilterQuery->addTag(self::SEARCH_USER_FILTER_TAG);
+                
+                $query->addFilterQuery($klinkFilterQuery);
+            } catch (FilterQueryException $fex) {
+                $this->logger->error('K-Link filters error', ['error' => $fex]);
+                
+                throw new InvalidKlinkFilterException($fex->getMessage());
+            }
         }
 
         // Keep the header to get the Solr query time
