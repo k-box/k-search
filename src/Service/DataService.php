@@ -312,9 +312,8 @@ class DataService
         // filter for K-Link
         // by default we filter for the default K-Link configured
         if ($this->klinks->isEnabled()) {
-            
             $klinkFilterString = $this->buildKlinkFilterFromString($searchParams->klinkFilters);
-            
+
             $this->logger->warning('K-Link filters, klinks={uuid}', [
                 'uuid' => $klinkFilterString,
                 ]);
@@ -326,11 +325,11 @@ class DataService
                     self::SEARCH_KLINKS_FILTER_KEY
                 );
                 $klinkFilterQuery->addTag(self::SEARCH_USER_FILTER_TAG);
-                
+
                 $query->addFilterQuery($klinkFilterQuery);
             } catch (FilterQueryException $fex) {
                 $this->logger->error('K-Link filters error', ['error' => $fex]);
-                
+
                 throw new InvalidKlinkFilterException($fex->getMessage());
             }
         }

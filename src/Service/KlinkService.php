@@ -28,15 +28,15 @@ class KlinkService
      * @var bool
      */
     private $enabled;
-    
+
     public function __construct(
         Security $security,
         LoggerInterface $logger,
         bool $enabled = false
         ) {
-            $this->logger = $logger;
-            $this->security = $security;
-            $this->enabled = $enabled;
+        $this->logger = $logger;
+        $this->security = $security;
+        $this->enabled = $enabled;
     }
 
     /**
@@ -146,10 +146,10 @@ class KlinkService
     }
 
     /**
-     * Indicate if the K-Link service is enabled
-     * 
+     * Indicate if the K-Link service is enabled.
+     *
      * The service is enabled, if the registry connection is configured
-     * 
+     *
      * @return bool
      */
     public function isEnabled()

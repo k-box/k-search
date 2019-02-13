@@ -552,7 +552,7 @@ class DataServiceTest extends TestCase
         $dataService = $this->buildDataService();
         $dataService->searchData($searchParam, '3.7');
     }
-    
+
     public function testSearchDataWithKlinksActiveOnOldApiIfRegistryIsEnabled(): void
     {
         $searchParam = TestModelHelper::createDataSearchParamsModel();
@@ -567,7 +567,7 @@ class DataServiceTest extends TestCase
             ->method('ensureValidKlinks')
             ->with(['1'])
             ->willReturn(['1']);
-        
+
         $this->klinkService->expects($this->once())
             ->method('isEnabled')
             ->willReturn(true);
