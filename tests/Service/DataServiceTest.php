@@ -513,6 +513,10 @@ class DataServiceTest extends TestCase
         ]);
 
         $this->klinkService->expects($this->once())
+            ->method('isEnabled')
+            ->willReturn(true);
+
+        $this->klinkService->expects($this->once())
             ->method('klinkIdentifiers')
             ->willReturn(['1']);
 
@@ -534,6 +538,10 @@ class DataServiceTest extends TestCase
         ]);
 
         $this->klinkService->expects($this->once())
+            ->method('isEnabled')
+            ->willReturn(true);
+
+        $this->klinkService->expects($this->once())
             ->method('ensureValidKlinks')
             ->with(['1'])
             ->willReturn(['1']);
@@ -543,6 +551,56 @@ class DataServiceTest extends TestCase
 
         $dataService = $this->buildDataService();
         $dataService->searchData($searchParam, '3.7');
+    }
+
+    public function testSearchDataWithKlinksActiveOnOldApiIfRegistryIsEnabled(): void
+    {
+        $searchParam = TestModelHelper::createDataSearchParamsModel();
+        $searchParam->klinkFilters = '1';
+        $searchParam->search = 'search-terms';
+
+        $this->setupSolrServiceForSearch([
+            'search' => 'search-terms',
+        ]);
+
+        $this->klinkService->expects($this->once())
+            ->method('ensureValidKlinks')
+            ->with(['1'])
+            ->willReturn(['1']);
+
+        $this->klinkService->expects($this->once())
+            ->method('isEnabled')
+            ->willReturn(true);
+
+        $this->query->expects($this->once())
+            ->method('addFilterQuery');
+
+        $dataService = $this->buildDataService();
+        $dataService->searchData($searchParam, '3.6');
+    }
+
+    public function testSearchDataWithKlinksIsIgnoredOnOldApiIfRegistryIsDisabled(): void
+    {
+        $searchParam = TestModelHelper::createDataSearchParamsModel();
+        $searchParam->klinkFilters = '1';
+        $searchParam->search = 'search-terms';
+
+        $this->setupSolrServiceForSearch([
+            'search' => 'search-terms',
+        ]);
+
+        $this->klinkService->expects($this->once())
+            ->method('isEnabled')
+            ->willReturn(false);
+
+        $this->klinkService->expects($this->never())
+            ->method('ensureValidKlinks');
+
+        $this->query->expects($this->never())
+            ->method('addFilterQuery');
+
+        $dataService = $this->buildDataService();
+        $dataService->searchData($searchParam, '3.6');
     }
 
     public function providerSearchDataWithAggregationsWithVersion(): array

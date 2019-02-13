@@ -78,6 +78,10 @@ services:
     # Autowire ApiSecretAuthenticator user provider
     App\Security\Authenticator\ApiSecretAuthenticator:
         $enabled: '%env(KLINK_REGISTRY_ENABLED)%'
+    
+    # Autowire KlinkService
+    App\Service\KlinkService:
+        $enabled: '%env(KLINK_REGISTRY_ENABLED)%'
 
     Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface:
         factory: ['Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesser', 'getInstance']
