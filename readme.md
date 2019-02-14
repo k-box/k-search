@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/k-box/k-search.svg?branch=develop)](https://travis-ci.org/k-box/k-search)
+[![Build Status](https://travis-ci.com/k-box/k-search.svg?branch=develop)](https://travis-ci.com/k-box/k-search)
 
 # K-Search
 
