@@ -45,7 +45,7 @@ class DataDeleteController extends AbstractRpcController
      * )
      *
      * @SWG\Post(
-     *     path="/api/3.6/data.delete",
+     *     path="/api/3.7/data.delete",
      *     description="Delete piece of data from the search index. This API requires the `data-remove-own` or
      *     `data-remove-all` permission.", tags={"Data"},
      *     @SWG\Parameter(

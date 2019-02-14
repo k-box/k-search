@@ -67,7 +67,7 @@ class DataController extends AbstractRpcController
      * )
      *
      * @SWG\Post(
-     *     path="/api/3.6/data.add",
+     *     path="/api/3.7/data.add",
      *     description="Add piece of data to the index. This API requires the `data-add` permission.",
      *     tags={"Data"},
      *     @SWG\Parameter(

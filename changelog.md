@@ -19,6 +19,11 @@ documentation, and:
 ## [Unreleased]
 
 ### Added
+
+- Support for multiple K-Links (API 3.7) _only available with K-Link Registry v0.3_
+ - Ability to filter based on K-Link
+ - `klink.list` endpoint to list available K-Links
+
 ### Changed
 ### Deprecated
 ### Removed
