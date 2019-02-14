@@ -38,7 +38,7 @@ The authentication is performed by providing the `Authorization` header in the H
 As an example:
 ```bash
 curl -H "Authorization: Bearer ZTI0NTg1MzFhODliZTZlMzM4ZWUxMGJjZTQxYzIzYjQ=" \
-    http://ksearch.test/api/v3.6/data.get ...
+    http://ksearch.test/api/v3.7/data.get ...
 ```
 
 The K-Search API can use, if configured to do so, a centralized registry to verify the provided credentials.

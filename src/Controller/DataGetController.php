@@ -44,7 +44,7 @@ class DataGetController extends AbstractRpcController
      * )
      *
      * @SWG\Post(
-     *     path="/api/3.6/data.get",
+     *     path="/api/3.7/data.get",
      *     description="Get detailed information of piece of data in the index. This API requires the `data-view` permission.",
      *     tags={"Data"},
      *     @SWG\Parameter(

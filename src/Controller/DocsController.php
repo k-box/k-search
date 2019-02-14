@@ -15,12 +15,12 @@ class DocsController extends Controller
      *     },
      *     @SWG\Info(
      *         title="K-Search API",
-     *         version="3.6",
+     *         version="3.7",
      *         description="The K-Search API definition",
      *         @SWG\Contact(
-     *             email="api@klink.asia"
+     *             email="info@klink.asia"
      *         ),
-     *         termsOfService="https://klink.asia/terms/",
+     *         termsOfService="https://klink.asia/privacy/",
      *     ),
      *     @SWG\SecurityScheme(
      *       securityDefinition="apiSecret",
