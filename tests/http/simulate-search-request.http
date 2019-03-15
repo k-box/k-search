@@ -1,0 +1,24 @@
+POST http://localhost:8000/api/3.7/data.search HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+Origin: http://localhost
+Authorization: Bearer ...
+
+{
+  "params": {
+    "search": "*",
+    "filters": "",
+    "klinks": "*",
+    "aggregations": {
+      "properties.language": {
+        "limit": 5,
+        "counts_filtered": true
+      }
+    },
+    "sort": [],
+    "limit": 10,
+    "offset": 0
+  },
+  "id": "request-4"
+}
+
