@@ -95,6 +95,13 @@ canary_filomena_deploy:
     DEPLOY_FOLDER: $CANARY_F_FOLDER
     DEPLOY_IMAGE: $CANARY_F_IMAGE
 
+canary_juliet_deploy:
+  <<: *canary_deploy
+  environment: "Canary Juliet"
+  variables:
+    DEPLOY_FOLDER: $CANARY_J_FOLDER
+    DEPLOY_IMAGE: $CANARY_J_IMAGE
+
 canary_try_deploy:
   <<: *canary_deploy
   environment: "Staging on try"
