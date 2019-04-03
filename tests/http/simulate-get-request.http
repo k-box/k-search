@@ -1,0 +1,12 @@
+POST http://localhost:8000/api/3.7/data.get HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+Origin: http://localhost
+Authorization: Bearer ...
+
+{
+  "id": "request-2",
+  "params": {
+    "uuid": "cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd"
+  }
+}

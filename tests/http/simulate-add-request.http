@@ -1,0 +1,52 @@
+POST http://localhost:8000/api/3.7/data.add HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+Origin: http://localhost
+Authorization: Bearer ...
+
+{
+  "params": {
+    "klinks": ["ade7a7b5-7d49-47ed-bf09-19956cca0702"],
+    "data": {
+      "uuid": "cc1bbc0b-20e8-4e1f-b894-fb067e81c5dd",
+      "url": "http://publicliterature.org/pdf/advsh12.pdf",
+      "hash": "d6f644b19812e97b5d871658d6d3400ecd4787faeb9b8990c1e7608288664be77257104a58d033bcf1a0e0945ff06468ebe53e2dff36e248424c7273117dac09",
+      "type": "document",
+      "authors": [
+        {
+          "name": "Arthur Conan Doyle",
+          "email": "arthur@conan.doyle",
+          "contact": "221B Baker Street"
+        }
+      ],
+      "properties": 
+      {
+          "title": "advsh12.pdf",
+          "mime_type": "application/pdf",
+          "language": "en",
+          "filename": "advsh12.pdf",
+          "created_at": "1985-04-12T23:20:50Z"
+      },
+      "copyright": {
+        "owner": {
+          "name": "OneOffTech",
+          "email": "info@oneofftech.xyz",
+          "website": "https://oneofftech.xyz/",
+          "address": "Warschauer Str. 71 - 10243 Berlin, Germany"
+        },
+        "usage": {
+          "short": "MPL-2.0",
+          "name": "Mozilla Public License 2.0",
+          "reference": "https://spdx.org/licenses/MPL-2.0.html"
+        }
+      },
+      "uploader": {
+        "name": "John Doe",
+        "organization": "K-Link Inc",
+        "url": "https://johndoe-inc.org"
+      }
+    },
+    "data_textual_contents": "The content"
+  },
+  "id": "request-1"
+}

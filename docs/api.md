@@ -90,6 +90,7 @@ The following is the base structure of an API request:
 ### Responses
 
 The API response is still a `json` object, with the following base structure:
+
 | Property | Type    | Required   | Description |
 | -------- | ------- | ---------- | ----------- |
 | `id` | String | ✔ | The identifier established by the client in the request. |
@@ -260,7 +261,7 @@ The list is limited to the K-Links accessible by the application that is making 
 * `status`: `200` (OK)
 
 | Property | Type     | Description |
-| -------- | ------- -| ----------- |
+| -------- | -------- | ----------- |
 | `id`     | String   | The identifier established by the client in the request.|
 | `result` | Klinks[] | A [`Klink`](./api-objects.md#k-link-object) array |
 
