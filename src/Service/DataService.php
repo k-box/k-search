@@ -381,9 +381,9 @@ class DataService
     {
         try {
             if (empty($requestedKlinks)) {
-                $defaultId = $this->klinks->getDefaultKlinkIdentifier();
-
-                return "klink_ids:$defaultId";
+                // default to all K-Links if the application did not
+                // specified a K-Link to search on
+                $requestedKlinks = '*';
             }
 
             $klinkRequestFilters = [];
