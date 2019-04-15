@@ -20,6 +20,9 @@ documentation, and:
 
 ### Added
 ### Changed
+
+- Filter on all K-Links defined for the application if no K-Link is specified
+
 ### Deprecated
 ### Removed
 ### Fixed
