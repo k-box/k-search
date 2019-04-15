@@ -20,13 +20,16 @@ documentation, and:
 
 ### Added
 ### Changed
-
-- Filter on all K-Links defined for the application if no K-Link is specified
-
 ### Deprecated
 ### Removed
 ### Fixed
 ### Security
+
+## [3.7.0-1-beta2] - 2019-04-15
+
+### Changed
+
+- Filter on all K-Links defined for the application if no K-Link is specified
 
 ## [3.7.0-1-beta1] - 2019-04-03
 
