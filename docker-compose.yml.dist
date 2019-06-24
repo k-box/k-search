@@ -5,7 +5,7 @@ networks:
 
 services:
   ksearch:
-    image: "docker.klink.asia/images/k-search:3.5.1-1"
+    image: "klinktech/k-search:3.6.0-2"
     # build: . # When developing you can create a K-Search docker image to test your changes
     ports:
       - 8080:80
@@ -31,7 +31,7 @@ services:
       - internal
 
   engine:
-    image: "docker.klink.asia/images/k-search-engine:1.0.1"
+    image: "klinktech/k-search-engine:1.0.1-1"
     volumes:
       - "/opt/solr/k-search/k-search/data"    # dynamic volume
     expose:
