@@ -38,8 +38,9 @@ branch_release:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker build -t $CI_REGISTRY_IMAGE:${IMAGE_TAG} .
     - docker push $CI_REGISTRY_IMAGE:${IMAGE_TAG}
+    - docker rmi $CI_REGISTRY_IMAGE:${IMAGE_TAG}
   tags:
-    - dind
+    - shell
   except:
     - tags
   when: manual
@@ -54,7 +55,7 @@ tagged_release:
     - docker push $CONTAINER_RELEASE_IMAGE_BASE:${CI_COMMIT_REF_NAME#v}
     - docker push "$CONTAINER_RELEASE_IMAGE_BASE:latest"
   tags:
-    - dind
+    - shell
   only:
     - tags
 
