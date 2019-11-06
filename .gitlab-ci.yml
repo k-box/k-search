@@ -23,7 +23,6 @@ php-coding-and-tests:
   stage: test
   script:
     - php -v && composer --version
-    - mv /usr/local/etc/php/conf.d/docker-php-ext-xdebug.{ini,disabled}
     - composer install --prefer-dist --no-ansi --no-interaction --no-progress --optimize-autoloader
     - scripts/run_phpcs.sh
     - bin/console > /dev/null
