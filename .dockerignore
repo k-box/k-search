@@ -5,3 +5,11 @@ virtualization/
 solr/
 var/
 .env*
+ansible.cfg
+.php*
+Vagrantfile
+docs/
+docker-compose*
+.git*
+.travis.yml
+Dockerfile
