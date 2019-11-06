@@ -11,4 +11,4 @@ ${CONSOLE} doctrine:migrations:migrate --no-interaction
 chown www-data:www-data --recursive ./var
 
 # Start Supervisor daemon
-exec /usr/bin/supervisord
+exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
