@@ -18,11 +18,12 @@ jobs:
     - uses: actions/checkout@v1
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag k-search
-    - uses: azure/docker-login@v1
-    - name: Push the Docker image
+    - name: Login to Docker image
+      uses: azure/docker-login@v1
       with:
         username: ${{ secrets.HUB_USER }}
         password: ${{ secrets.HUB_TOKEN }}
+    - name: Push the Docker image
       run: |
         docker tag k-search klinktech/k-search:dev-${{ github.ref }}
         docker push klinktech/k-search:dev-${{ github.ref }}
