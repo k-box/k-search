@@ -1,0 +1,28 @@
+name: Build Nightly Develop Docker Image
+
+on: 
+  push:
+    branches: 
+      - "develop"
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag klinktech/k-search:dev-develop
+    - name: Login to Docker image
+      uses: azure/docker-login@v1
+      with:
+        username: ${{ secrets.HUB_USER }}
+        password: ${{ secrets.HUB_TOKEN }}
+    - name: Push the Docker image
+      run: |
+        docker push klinktech/k-search:dev-develop
+
+
+
