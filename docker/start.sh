@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-CONSOLE="bin/console"
+
+CONSOLE="php bin/console"
 CONFIG_FILE=".env"
 
 rm -fr var/cache/*
