@@ -18,5 +18,11 @@ jobs:
     - uses: actions/checkout@v1
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag k-search
-    - name: Remove the Docker image
-      run: docker rmi k-search
+    - name: Push the Docker image
+      uses: azure/docker-login@v1
+      with:
+        username: ${{ secrets.HUB_USER }}
+        password: ${{ secrets.HUB_TOKEN }}
+      run: |
+        docker tag k-search klinktech/k-search:dev-${{ github.ref }}
+        docker push klinktech/k-search:dev-${{ github.ref }}
