@@ -1,33 +1,44 @@
-# use a debian-based container that has apache and php already installed
-FROM php:7.1-apache
+## Build the K-Search docker image
+## using a multi-stage approach
+
+FROM edbizarro/gitlab-ci-pipeline-php:7.2 AS builder
 
 ENV APP_ENV prod
 ENV APP_DEBUG 0
 
-# default of parent image: start apache2 and PHP on port 80.
+COPY --chown=php:php . /var/www/html
+RUN \
+    composer install --no-dev --prefer-dist --no-ansi --no-interaction --no-progress &&\
+    make &&\
+    rm -rf docker &&\
+    rm -rf tests &&\
+    rm -rf var/cache &&\
+    rm -f Makefile
+
+## Assembling the K-Search image
+FROM php:7.2-apache AS php
+
+ENV APP_ENV prod
+ENV APP_DEBUG 0
+
+# default of parent image: expose apache2 on port 80.
 EXPOSE 80
 
-# Install neccessary tools that are still missing for composer.
+# Install neccessary dependencies
 RUN \
-    apt-get update &&\
-    apt-get install --no-install-recommends --yes \
-        git \
+    apt-get update \
+    && apt-get install --no-install-recommends --no-install-suggests --yes \
         supervisor \
-        unzip \
         # icu is required by php-intl
         libicu-dev \
         # gettext provides envsubst command
-        gettext &&\
-    # remove the cached packages and artifacts created during installation
-    apt-get clean &&\
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* &&\
-    # install the missing 'intl' extension
-    docker-php-ext-install -j$(nproc) intl &&\
-    pecl install apcu && docker-php-ext-enable apcu && rm -rf /tmp/pear && \
-    # composer is still missing, we install it the way it says on the
-    # website.
-    curl -sS https://getcomposer.org/installer  \
-        | php -- --install-dir=/usr/local/bin --filename=composer
+        # gettext &&\
+    && docker-php-ext-install -j$(nproc) intl \
+    && pecl install apcu && docker-php-ext-enable apcu \ 
+    && rm -rf /tmp/pear \
+    && docker-php-source delete \
+    && apt-get clean \
+    && rm -r /var/lib/apt/lists/*
 
 # The next command is to prepare apache for serving symfony projects.
 # since they have a different layout to other PHP apps, the default
@@ -69,21 +80,18 @@ RUN { \
     } | tee "$APACHE_CONFDIR/sites-available/symfony.conf" \
     && a2dissite 000-default && a2enmod rewrite && a2enmod headers && a2ensite symfony
 
-# copy over our entire directory into /var/www in the container
-COPY . /var/www/k-search
+COPY docker/conf/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY docker/start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
 
-# all further commands will be run relative to our main directory
 WORKDIR /var/www/k-search
 
-RUN \
-    # install php dependencies with composer and fix file ownership (since
-    # composer is being run as root user here)
-    composer install --prefer-dist --optimize-autoloader --no-dev &&\
-    # run swagger to create documentation automatically
-    make &&\
-    # Fix file ownership
-    chown www-data:www-data . --recursive
+# copy over our entire directory into /var/www in the container
+COPY \
+    --from=builder \
+    --chown=www-data:www-data \
+    /var/www/html/ \
+    /var/www/k-search
 
-COPY docker/conf/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-ENTRYPOINT ["./docker/start.sh"]
+ENTRYPOINT ["/usr/local/bin/start.sh"]
 CMD []

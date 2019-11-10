@@ -1,5 +1,4 @@
 stages:
-  - php-cs
   - test
   - build
   - release
@@ -18,18 +17,13 @@ before_script:
   - export CLEANED_CI_COMMIT_REF_NAME="${CI_COMMIT_REF_NAME#v}"
   - export COMPOSER_CACHE_DIR=`pwd`/.composer-cache
 
-.need_composer: &need_composer
-  before_script:
-    - php -v && composer --version
-    - composer install --prefer-dist --no-interaction --optimize-autoloader
-
 ##### Jobs
-php-coding-and-tests:7.1:
-  image: docker.klink.asia/main/docker-php:7.1
-  <<: *need_composer
-  stage: php-cs
+php-coding-and-tests:
+  image: edbizarro/gitlab-ci-pipeline-php:7.2
+  stage: test
   script:
-    - mv /usr/local/etc/php/conf.d/docker-php-ext-xdebug.{ini,disabled}
+    - php -v && composer --version
+    - composer install --prefer-dist --no-ansi --no-interaction --no-progress --optimize-autoloader
     - scripts/run_phpcs.sh
     - bin/console > /dev/null
     - scripts/run_test_migrations.sh
@@ -44,8 +38,9 @@ branch_release:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker build -t $CI_REGISTRY_IMAGE:${IMAGE_TAG} .
     - docker push $CI_REGISTRY_IMAGE:${IMAGE_TAG}
+    - docker rmi $CI_REGISTRY_IMAGE:${IMAGE_TAG}
   tags:
-    - dind
+    - shell
   except:
     - tags
   when: manual
@@ -60,7 +55,7 @@ tagged_release:
     - docker push $CONTAINER_RELEASE_IMAGE_BASE:${CI_COMMIT_REF_NAME#v}
     - docker push "$CONTAINER_RELEASE_IMAGE_BASE:latest"
   tags:
-    - dind
+    - shell
   only:
     - tags
 
@@ -104,7 +99,7 @@ canary_juliet_deploy:
 
 canary_try_deploy:
   <<: *canary_deploy
-  environment: "Staging on try"
+  environment: "Staging"
   variables:
     DEPLOY_FOLDER: $STAGING_T_FOLDER
     DEPLOY_IMAGE: $STAGING_T_IMAGE
