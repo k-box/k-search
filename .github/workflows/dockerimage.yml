@@ -25,5 +25,5 @@ jobs:
         password: ${{ secrets.HUB_TOKEN }}
     - name: Push the Docker image
       run: |
-        docker tag k-search klinktech/k-search:dev-${{ github.ref }}
-        docker push klinktech/k-search:dev-${{ github.ref }}
+        docker tag k-search klinktech/k-search:dev-develop
+        docker push klinktech/k-search:dev-develop
