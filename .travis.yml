@@ -28,8 +28,8 @@ cache:
   - $HOME/.composer/cache
 
 before_install:
-  - docker pull klinktech/k-search-engine:1.0.1-1
-  - docker run --rm -d -p 127.0.0.1:8983:8983 --name engine klinktech/k-search-engine:1.0.1-1
+  - docker pull klinktechnology/k-search-engine:1.0.1-1
+  - docker run --rm -d -p 127.0.0.1:8983:8983 --name engine klinktechnology/k-search-engine:1.0.1-1
   - docker ps -a
 
 install:

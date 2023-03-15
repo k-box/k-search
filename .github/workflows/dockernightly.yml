@@ -14,15 +14,15 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag klinktech/k-search:dev-develop
+      run: docker build . --file Dockerfile --tag klinktechnology/k-search:dev-develop
     - name: Login to Docker image
       uses: azure/docker-login@v1
       with:
         username: ${{ secrets.HUB_USER }}
         password: ${{ secrets.HUB_TOKEN }}
-    - name: Push the Docker image
-      run: |
-        docker push klinktech/k-search:dev-develop
+    # - name: Push the Docker image
+    #   run: |
+    #     docker push klinktechnology/k-search:dev-develop
 
 
 
